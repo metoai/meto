@@ -1,32 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { Copy } from "lucide-react";
-import { useState } from "react";
+import { CopyContextButton } from "@/components/copy-context-button";
 import { MetoLogo } from "@/components/meto-logo";
+import type { PublicProfile } from "@/lib/public-profile";
 
 type PublicProfileViewProps = {
-  displayName: string;
-  username: string;
-  sections: { title: string; content: string }[];
-  compiled: string;
+  profile: PublicProfile;
 };
 
-export function PublicProfileView({
-  displayName,
-  username,
-  sections,
-  compiled,
-}: PublicProfileViewProps) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    if (!compiled) return;
-    await navigator.clipboard.writeText(compiled);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
+export function PublicProfileView({ profile }: PublicProfileViewProps) {
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
       <header className="flex items-center justify-between border-b border-brand-border px-6 py-5 md:px-10">
@@ -40,34 +21,55 @@ export function PublicProfileView({
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <p className="text-sm text-brand-text-muted">@{username}</p>
+        <p className="text-sm text-brand-text-muted">@{profile.username}</p>
         <h1 className="mt-1 text-3xl font-medium tracking-tight">
-          {displayName}
+          {profile.name}
         </h1>
 
-        {sections.length === 0 ? (
+        {profile.headline ? (
+          <p className="mt-3 text-base leading-relaxed text-brand-text-muted">
+            {profile.headline}
+          </p>
+        ) : null}
+
+        {profile.bio ? (
+          <p className="mt-4 text-sm leading-relaxed text-brand-text-muted">
+            {profile.bio}
+          </p>
+        ) : null}
+
+        {profile.skills.length > 0 ? (
+          <section className="mt-6" aria-label="Skills">
+            <h2 className="text-sm font-medium">Skills</h2>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {profile.skills.map((skill) => (
+                <li
+                  key={skill}
+                  className="rounded-full border border-brand-border bg-brand-card px-3 py-1 text-xs text-brand-text-muted"
+                >
+                  {skill}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
+        {!profile.hasPublicContent ? (
           <p className="mt-10 rounded-brand-lg border border-dashed border-brand-border p-10 text-center text-brand-text-muted">
             This profile is private.
           </p>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="mt-8 inline-flex items-center gap-2 rounded-brand-md bg-brand-primary px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-brand-primary-hover"
-            >
-              <Copy className="h-4 w-4" />
-              {copied ? "Copied!" : "Copy context"}
-            </button>
+            <CopyContextButton compiled={profile.compiled} />
 
             <div className="mt-6 space-y-6">
-              {sections.map((section) => (
+              {profile.sections.map((section) => (
                 <article
                   key={section.title}
                   className="rounded-brand-lg border border-brand-border bg-brand-card p-5"
                 >
                   <h2 className="text-base font-medium">{section.title}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-brand-text-muted">
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-brand-text-muted">
                     {section.content}
                   </p>
                 </article>
