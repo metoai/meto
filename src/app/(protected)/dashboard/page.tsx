@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { userHasSections } from "@/lib/profile-sections";
@@ -19,5 +20,9 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  return <DashboardClient />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--color-bg)]" />}>
+      <DashboardClient />
+    </Suspense>
+  );
 }

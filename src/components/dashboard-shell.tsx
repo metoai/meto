@@ -18,7 +18,7 @@ export function SuccessToast() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-brand-md border border-brand-primary/30 bg-brand-card px-5 py-3 text-sm text-brand-text shadow-lg">
+    <div className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-2xl border border-[var(--color-accent)]/30 bg-[var(--color-card)] px-5 py-3 text-sm text-[var(--color-text)] shadow-lg md:bottom-6">
       Your AI identity is ready ✓
     </div>
   );

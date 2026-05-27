@@ -10,19 +10,36 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ContextBuilder } from "@/components/ContextBuilder";
+import { AddSectionButton } from "@/components/dashboard/add-section-button";
+import { ProfileEmptyState } from "@/components/dashboard/profile-empty-state";
+import { ProfileSectionCard } from "@/components/dashboard/profile-section-card";
 import type { CompileFormat, ContextSection } from "@/lib/types";
 import { getSiteUrl } from "@/lib/public-profile";
 import {
   formatRelativeTime,
   getProfileCompletion,
 } from "@/lib/profile-utils";
+import {
+  availablePresetSectionTypes,
+  sectionPlaceholder,
+} from "@/lib/section-display";
 
 type SectionDraft = ContextSection & {
   savedTitle: string;
   savedContent: string;
 };
 
-export function DashboardEditor() {
+export function DashboardEditor({
+  panel = "all",
+  embedded = false,
+  sidebar = false,
+  inline = false,
+}: {
+  panel?: "all" | "profile" | "share";
+  embedded?: boolean;
+  sidebar?: boolean;
+  inline?: boolean;
+}) {
   const router = useRouter();
   const [sections, setSections] = useState<SectionDraft[]>([]);
   const [username, setUsername] = useState("");
@@ -178,6 +195,35 @@ export function DashboardEditor() {
     }
   }
 
+  async function handleAddPresetSection(sectionType: string, title: string) {
+    setError(null);
+    try {
+      const res = await fetch("/api/profile/sections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content: sectionPlaceholder(sectionType),
+          section_type: sectionType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to add section.");
+
+      setSections((prev) => [
+        ...prev,
+        {
+          ...data.section,
+          savedTitle: data.section.title,
+          savedContent: data.section.content,
+        },
+      ]);
+      await compileProfile(format, { localOnly: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to add section.");
+    }
+  }
+
   async function handleAddSection(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -272,42 +318,78 @@ export function DashboardEditor() {
   const completion = getProfileCompletion(sections);
 
   if (loading) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-primary" />
+    return sidebar ? (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
+      </div>
+    ) : embedded ? (
+      <div className="flex items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] py-16">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
+      </div>
+    ) : (
+      <div className="flex flex-1 items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
       </div>
     );
   }
 
-  return (
+  const showShare = panel === "all" || panel === "share";
+  const showProfile = panel === "all" || panel === "profile";
+  const showActions = panel === "all";
+
+  const cardClass =
+    embedded && !sidebar
+      ? "scroll-mt-16 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:p-5"
+      : "";
+
+  const sidebarPanelClass = sidebar ? "flex h-full min-h-0 flex-col" : "";
+
+  const content = (
     <>
-      <main className="flex-1 overflow-y-auto px-6 py-8 md:px-10">
         {error && (
           <p
-            className="mb-6 rounded-brand-md border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+            className="mb-6 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500"
             role="alert"
           >
             {error}
           </p>
         )}
 
-        {/* Context Builder */}
-        <section className="mb-12">
-          <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        {showShare ? (
+        inline ? (
+          <ContextBuilder
+            sections={contextSections}
+            username={username}
+            displayName={displayName}
+            siteUrl={getSiteUrl()}
+            shareSectionTypes={publicSectionTypes}
+            variant="light"
+            embedded
+            workspaceLayout
+          />
+        ) : (
+        <section
+          id={embedded ? "share" : undefined}
+          className={`w-full ${embedded ? cardClass : ""} ${embedded ? "" : "mb-12"}`}
+          style={embedded ? { boxShadow: "var(--color-card-shadow)" } : undefined}
+        >
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-medium text-brand-text">
-                Your AI identity
-              </h1>
-              <p className="mt-1 text-sm text-brand-text-muted">
+              <h2 className={`${embedded ? "text-base" : "text-2xl"} font-semibold text-[var(--color-text)]`}>
+                Share with AI
+              </h2>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">
                 Choose what to share, then copy a link for AI to read.
               </p>
             </div>
-            <div className="rounded-brand-md border border-brand-border bg-brand-card px-4 py-2 text-right">
-              <p className="text-xs text-brand-text-subtle">Profile complete</p>
-              <p className="text-lg font-medium text-brand-primary">
+            {panel === "all" && !embedded ? (
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-2 text-right">
+              <p className="text-xs text-[var(--color-muted)]">Profile complete</p>
+              <p className="text-lg font-medium text-[var(--color-accent)]">
                 {completion}%
               </p>
             </div>
+            ) : null}
           </div>
 
           <ContextBuilder
@@ -316,37 +398,57 @@ export function DashboardEditor() {
             displayName={displayName}
             siteUrl={getSiteUrl()}
             shareSectionTypes={publicSectionTypes}
-            variant="dark"
+            variant="light"
           />
         </section>
+        )
+        ) : null}
 
-        {/* Your Sections */}
-        <section id="sections" className="mb-12">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-medium text-brand-text">
-                Your sections
-              </h2>
-              <p className="mt-1 text-sm text-brand-text-muted">
-                Edit each part of your identity. Save after changes.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 rounded-brand-md border border-brand-border px-4 py-2 text-sm text-brand-text transition-colors hover:border-brand-primary"
+        {showProfile ? (
+        <section
+          id="sections"
+          className={`${sidebar ? sidebarPanelClass : "w-full"} ${
+            embedded && !sidebar
+              ? "rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]/80 p-4 sm:p-5"
+              : ""
+          }`}
+          style={
+            embedded && !sidebar
+              ? { boxShadow: "var(--color-card-shadow)" }
+              : undefined
+          }
+        >
+          {error && embedded ? (
+            <p
+              className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-500"
+              role="alert"
             >
-              <Plus className="h-4 w-4" />
-              Add section
-            </button>
-          </div>
+              {error}
+            </p>
+          ) : null}
 
+          {!embedded && !sidebar ? (
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-[var(--color-text)]">
+              Your sections
+            </h2>
+            <p className="mt-1 text-sm text-[var(--color-muted)]">
+              Edit each part of your identity. Save after changes.
+            </p>
+          </div>
+          ) : null}
+
+          <div className={sidebar ? "flex-1 overflow-y-auto px-4 pb-4" : "space-y-3"}>
           {sections.length === 0 ? (
-            <p className="rounded-brand-lg border border-dashed border-brand-border p-8 text-center text-sm text-brand-text-muted">
+            embedded && !sidebar ? (
+              <ProfileEmptyState />
+            ) : (
+            <p className={`rounded-2xl border border-dashed border-[var(--color-border)] text-center text-sm text-[var(--color-muted)] ${sidebar ? "mx-4 p-6" : "p-8"}`}>
               No sections yet. Add one to get started.
             </p>
+            )
           ) : (
-            <div className="space-y-4">
+            <div className={`space-y-4 ${sidebar ? "pb-2" : ""}`}>
               {sections.map((section) => {
                 const isDirty =
                   section.title !== section.savedTitle ||
@@ -354,13 +456,39 @@ export function DashboardEditor() {
                 const isSaving = savingId === section.id;
                 const justSaved = savedId === section.id;
 
+                if (embedded && !sidebar) {
+                  return (
+                    <ProfileSectionCard
+                      key={section.id}
+                      id={section.id}
+                      sectionType={section.section_type}
+                      title={section.title}
+                      content={section.content}
+                      savedContent={section.savedContent}
+                      isPublic={section.is_public}
+                      updatedAt={section.updated_at}
+                      username={username}
+                      isSaving={isSaving}
+                      justSaved={justSaved}
+                      onContentChange={(value) =>
+                        updateSection(section.id, "content", value)
+                      }
+                      onTogglePublic={() => handleTogglePublic(section)}
+                      onSave={() => handleSaveSection(section)}
+                      onDelete={() => handleDeleteSection(section.id)}
+                    />
+                  );
+                }
+
                 return (
                   <article
                     key={section.id}
-                    className={`rounded-brand-lg border bg-brand-card p-5 transition-colors ${
+                    className={`rounded-xl border bg-[var(--color-bg)]/50 transition-colors ${
+                      sidebar ? "p-3" : "p-5"
+                    } ${
                       justSaved
-                        ? "border-brand-primary"
-                        : "border-brand-border hover:border-brand-primary/30"
+                        ? "border-[var(--color-accent)]"
+                        : "border-[var(--color-border)] hover:border-[var(--color-accent)]/30"
                     }`}
                   >
                     <input
@@ -368,46 +496,46 @@ export function DashboardEditor() {
                       onChange={(e) =>
                         updateSection(section.id, "title", e.target.value)
                       }
-                      className="mb-3 w-full bg-transparent text-base font-medium text-brand-text outline-none"
+                      className={`mb-2 w-full bg-transparent font-medium text-[var(--color-text)] outline-none ${sidebar ? "text-sm" : "text-base"}`}
                     />
                     <textarea
                       value={section.content}
                       onChange={(e) =>
                         updateSection(section.id, "content", e.target.value)
                       }
-                      rows={4}
-                      className="w-full resize-y rounded-brand-md border border-brand-border bg-brand-background px-3 py-2 text-sm leading-relaxed text-brand-text outline-none focus:border-brand-primary"
+                      rows={sidebar ? 3 : 4}
+                      className="w-full resize-y rounded-lg border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2 text-sm leading-relaxed text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
                     />
                     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs text-brand-text-subtle">
-                        Last updated {formatRelativeTime(section.updated_at)}
+                      <p className="text-[10px] text-[var(--color-muted)] sm:text-xs">
+                        {formatRelativeTime(section.updated_at)}
                       </p>
-                      <label className="flex cursor-pointer items-center gap-2 text-xs text-brand-text-muted">
+                      <label className="flex cursor-pointer items-center gap-1.5 text-[10px] text-[var(--color-muted)] sm:text-xs">
                         <input
                           type="checkbox"
                           checked={section.is_public}
                           onChange={() => handleTogglePublic(section)}
-                          className="accent-brand-primary"
+                          className="accent-[var(--color-primary)]"
                         />
-                        Make public
+                        Public
                       </label>
                     </div>
-                    <div className="mt-4 flex items-center gap-2">
+                    <div className="mt-2 flex items-center gap-2">
                       <button
                         type="button"
                         disabled={isSaving || !isDirty}
                         onClick={() => handleSaveSection(section)}
-                        className="rounded-brand-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover disabled:opacity-40"
+                        className={`rounded-full bg-[var(--color-primary)] font-medium text-white transition-colors hover:bg-[var(--color-accent)] disabled:opacity-40 ${sidebar ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"}`}
                       >
                         {isSaving ? "Saving…" : justSaved ? "Saved ✓" : "Save"}
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDeleteSection(section.id)}
-                        className="inline-flex items-center gap-1.5 rounded-brand-md px-3 py-2 text-sm text-brand-text-muted transition-colors hover:text-red-400"
+                        className={`inline-flex items-center gap-1 rounded-full text-[var(--color-muted)] transition-colors hover:text-red-400 ${sidebar ? "px-2 py-1.5 text-xs" : "px-3 py-2 text-sm"}`}
                       >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
+                        <Trash2 className={sidebar ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                        {!sidebar ? "Delete" : null}
                       </button>
                     </div>
                   </article>
@@ -415,17 +543,42 @@ export function DashboardEditor() {
               })}
             </div>
           )}
-        </section>
 
-        {/* Quick Actions */}
+          {embedded && !sidebar ? (
+            <div className={sections.length > 0 ? "mt-5" : ""}>
+            <AddSectionButton
+              availableTypes={availablePresetSectionTypes(
+                sections.map((s) => s.section_type)
+              )}
+              onAdd={(type, title) => void handleAddPresetSection(type, title)}
+              onAddCustom={() => setShowAddModal(true)}
+            />
+            </div>
+          ) : (
+            <div className={`${sections.length > 0 ? "mt-4" : ""}`}>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className={`inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] text-[var(--color-text)] transition-colors hover:border-[var(--color-accent)] ${sidebar ? "shrink-0 px-2.5 py-1.5 text-xs" : "px-4 py-2 text-sm"}`}
+              >
+                <Plus className={sidebar ? "h-3.5 w-3.5" : "h-4 w-4"} />
+                Add section
+              </button>
+            </div>
+          )}
+          </div>
+        </section>
+        ) : null}
+
+        {showActions ? (
         <section>
-          <h2 className="text-xl font-medium text-brand-text">Quick actions</h2>
+          <h2 className="text-xl font-semibold text-[var(--color-text)]">Quick actions</h2>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
               type="button"
               disabled={compiling}
               onClick={() => compileProfile(format, { force: true })}
-              className="inline-flex items-center gap-2 rounded-brand-md border border-brand-border px-4 py-2.5 text-sm text-brand-text transition-colors hover:border-brand-primary disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] px-4 py-2.5 text-sm text-[var(--color-text)] transition-colors hover:border-[var(--color-accent)] disabled:opacity-50"
             >
               <RefreshCw
                 className={`h-4 w-4 ${compiling ? "animate-spin" : ""}`}
@@ -436,24 +589,36 @@ export function DashboardEditor() {
               type="button"
               disabled={resetting}
               onClick={handleReset}
-              className="inline-flex items-center gap-2 rounded-brand-md border border-brand-border px-4 py-2.5 text-sm text-brand-text-muted transition-colors hover:border-red-500/50 hover:text-red-400 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] px-4 py-2.5 text-sm text-[var(--color-muted)] transition-colors hover:border-red-500/50 hover:text-red-400 disabled:opacity-50"
             >
               <RotateCcw className="h-4 w-4" />
               {resetting ? "Resetting…" : "Start over"}
             </button>
           </div>
         </section>
+        ) : null}
+    </>
+  );
+
+  return (
+    <>
+      {embedded ? (
+        content
+      ) : (
+      <main className="mx-auto w-full max-w-3xl flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8">
+        {content}
       </main>
+      )}
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-md rounded-brand-lg border border-brand-border bg-brand-card p-6">
-            <h3 className="text-lg font-medium text-brand-text">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+            <h3 className="text-lg font-semibold text-[var(--color-text)]">
               Add custom section
             </h3>
             <form onSubmit={handleAddSection} className="mt-4 space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm text-brand-text-muted">
+                <label className="mb-1.5 block text-sm text-[var(--color-muted)]">
                   Title
                 </label>
                 <input
@@ -461,11 +626,11 @@ export function DashboardEditor() {
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
                   placeholder="e.g. How I like feedback"
-                  className="w-full rounded-brand-md border border-brand-border bg-brand-background px-3 py-2 text-sm text-brand-text outline-none focus:border-brand-primary"
+                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm text-brand-text-muted">
+                <label className="mb-1.5 block text-sm text-[var(--color-muted)]">
                   Content
                 </label>
                 <textarea
@@ -473,20 +638,20 @@ export function DashboardEditor() {
                   onChange={(e) => setNewContent(e.target.value)}
                   required
                   rows={4}
-                  className="w-full rounded-brand-md border border-brand-border bg-brand-background px-3 py-2 text-sm text-brand-text outline-none focus:border-brand-primary"
+                  className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-accent)]"
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="rounded-brand-md px-4 py-2 text-sm text-brand-text-muted hover:text-brand-text"
+                  className="rounded-full px-4 py-2 text-sm text-[var(--color-muted)] hover:text-[var(--color-text)]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-brand-md bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary-hover"
+                  className="rounded-full bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent)]"
                 >
                   Add section
                 </button>

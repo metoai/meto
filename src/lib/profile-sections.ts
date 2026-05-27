@@ -1,6 +1,64 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { PROFILE_SECTIONS } from "@/lib/meto-prompts";
 
+export async function mergeProfileSectionUpdates(
+  supabase: SupabaseClient,
+  userId: string,
+  updates: Record<string, string>
+) {
+  const entries = Object.entries(updates).filter(([, content]) => content?.trim());
+  if (entries.length === 0) {
+    throw new Error("No updates to apply.");
+  }
+
+  const { data: existing, error: fetchError } = await supabase
+    .from("context_sections")
+    .select("id, section_type, display_order")
+    .eq("user_id", userId);
+
+  if (fetchError) throw fetchError;
+
+  const byType = new Map(
+    (existing ?? []).map((row) => [row.section_type, row])
+  );
+  let nextOrder =
+    (existing ?? []).reduce(
+      (max, row) => Math.max(max, row.display_order ?? 0),
+      -1
+    ) + 1;
+
+  for (const [sectionType, content] of entries) {
+    const trimmed = content.trim();
+    const row = byType.get(sectionType);
+
+    if (row) {
+      const { error } = await supabase
+        .from("context_sections")
+        .update({
+          content: trimmed,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", row.id)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+    } else {
+      const meta = PROFILE_SECTIONS.find((s) => s.type === sectionType);
+      if (!meta) continue;
+
+      const { error } = await supabase.from("context_sections").insert({
+        user_id: userId,
+        section_type: sectionType,
+        title: meta.title,
+        content: trimmed,
+        display_order: nextOrder++,
+      });
+
+      if (error) throw error;
+    }
+  }
+}
+
 export async function saveProfileSections(
   supabase: SupabaseClient,
   userId: string,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Link2 } from "lucide-react";
+import { Check, Copy, Link2, Lock } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildContextShareUrl,
@@ -12,6 +12,7 @@ import {
   type ContextPresetId,
   type ContextSectionInput,
 } from "@/lib/context-templates";
+import { friendlySectionTitle } from "@/lib/section-display";
 import type { CompileFormat } from "@/lib/types";
 
 type ContextBuilderProps = {
@@ -23,6 +24,8 @@ type ContextBuilderProps = {
   shareSectionTypes?: string[];
   showShareLink?: boolean;
   variant?: "light" | "dark";
+  embedded?: boolean;
+  workspaceLayout?: boolean;
 };
 
 const FORMAT_OPTIONS: { id: CompileFormat; label: string }[] = [
@@ -40,8 +43,11 @@ export function ContextBuilder({
   shareSectionTypes,
   showShareLink = true,
   variant = "dark",
+  embedded = false,
+  workspaceLayout = false,
 }: ContextBuilderProps) {
   const isDark = variant === "dark";
+  const isWorkspace = workspaceLayout;
 
   const availableTypes = useMemo(
     () => sections.map((section) => section.section_type),
@@ -54,7 +60,7 @@ export function ContextBuilder({
   const [selectedPreset, setSelectedPreset] =
     useState<ContextPresetId>("all");
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedText, setCopiedText] = useState(false);
+  const [copiedContext, setCopiedContext] = useState(false);
 
   useEffect(() => {
     const types = sections.map((section) => section.section_type);
@@ -126,44 +132,64 @@ export function ContextBuilder({
     setTimeout(() => setCopiedLink(false), 2000);
   }
 
+  async function handleCopyContext() {
+    if (!promptPreview) return;
+    await navigator.clipboard.writeText(promptPreview);
+    setCopiedContext(true);
+    setTimeout(() => setCopiedContext(false), 2000);
+  }
+
   async function handleCopyText() {
     if (!promptPreview) return;
     await navigator.clipboard.writeText(promptPreview);
-    setCopiedText(true);
-    setTimeout(() => setCopiedText(false), 2000);
+    setCopiedContext(true);
+    setTimeout(() => setCopiedContext(false), 2000);
   }
 
   const activePill = isDark
     ? "bg-brand-primary text-white"
-    : "bg-[#0F6E56] text-white";
+    : "bg-[var(--color-primary)] text-white shadow-sm";
   const inactivePill = isDark
     ? "border border-brand-border text-brand-text-muted hover:border-brand-primary"
-    : "border border-gray-200 text-gray-500 hover:border-[#0F6E56]";
+    : "border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-text)]";
   const chipOn = isDark
     ? "border-brand-primary bg-brand-primary/20 text-brand-primary"
-    : "border-[#1D9E75] bg-[#E1F5EE] text-[#0F6E56]";
+    : "border-[var(--color-accent)] bg-[var(--color-light)] text-[var(--color-primary)] shadow-sm";
   const chipOff = isDark
     ? "border-brand-border bg-brand-background text-brand-text-subtle"
-    : "border-gray-200 bg-gray-50 text-gray-400";
-  const labelClass = isDark ? "text-brand-text-subtle" : "text-gray-400";
-  const subtextClass = isDark ? "text-brand-text-muted" : "text-gray-500";
-  const containerClass = isDark
-    ? "border-brand-border bg-brand-card text-brand-text"
-    : "border-gray-200 bg-white text-gray-900";
+    : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-text)]";
+  const labelClass = isDark ? "text-brand-text-subtle" : "text-[var(--color-muted)] font-semibold";
+  const subtextClass = isDark ? "text-brand-text-muted" : "text-[var(--color-muted)]";
+  const containerClass = embedded
+    ? "text-[var(--color-text)]"
+    : isDark
+      ? "border-brand-border bg-brand-card text-brand-text"
+      : "border-gray-200 bg-white text-gray-900";
+  const wrapperClass = embedded
+    ? containerClass
+    : `rounded-brand-xl border p-5 ${containerClass}`;
+  const groupClass = isWorkspace
+    ? "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-3"
+    : "";
+  const groupTitleClass = isWorkspace
+    ? "mb-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]"
+    : `mb-2 text-xs font-medium uppercase tracking-wide ${labelClass}`;
+  const chipsWrapClass = isWorkspace ? "flex flex-wrap gap-2" : "flex flex-wrap gap-2";
 
   if (sections.length === 0) {
     return (
-      <section className={`rounded-brand-xl border p-5 ${containerClass}`}>
+      <div className={wrapperClass}>
         <p className={`text-sm ${subtextClass}`}>
           Add profile sections below, then come back here to create a link for
           AI.
         </p>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className={`rounded-brand-xl border p-5 ${containerClass}`}>
+    <div className={wrapperClass}>
+      {!embedded ? (
       <header>
         <h2 className="text-lg font-medium">
           What should AI know for this chat?
@@ -173,13 +199,11 @@ export function ContextBuilder({
           to paste into Claude, ChatGPT, or Gemini.
         </p>
       </header>
+      ) : null}
 
-      <div className="mt-5">
-        <p
-          className={`mb-2 text-xs font-medium uppercase tracking-wide ${labelClass}`}
-        >
-          Quick picks
-        </p>
+      <div className={embedded ? "" : "mt-5"}>
+        <div className={groupClass}>
+        <p className={groupTitleClass}>Quick picks</p>
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           {PRESET_LABELS.map(({ id, label }) => {
             const active = selectedPreset === id;
@@ -188,7 +212,7 @@ export function ContextBuilder({
                 key={id}
                 type="button"
                 onClick={() => applyPreset(id)}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition-colors ${
+                className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors duration-150 ${
                   active ? activePill : inactivePill
                 }`}
               >
@@ -198,21 +222,19 @@ export function ContextBuilder({
           })}
           {selectedPreset === "custom" ? (
             <span
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm ${activePill}`}
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm ${activePill}`}
             >
               Custom
             </span>
           ) : null}
         </div>
+        </div>
       </div>
 
       <div className="mt-5">
-        <p
-          className={`mb-2 text-xs font-medium uppercase tracking-wide ${labelClass}`}
-        >
-          Include
-        </p>
-        <div className="flex flex-wrap gap-2">
+        <div className={groupClass}>
+        <p className={groupTitleClass}>Include</p>
+        <div className={chipsWrapClass}>
           {sections.map((section) => {
             const active = selectedSections.includes(section.section_type);
             const isPublic =
@@ -223,23 +245,30 @@ export function ContextBuilder({
                 key={section.section_type}
                 type="button"
                 onClick={() => toggleSection(section.section_type)}
-                className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                title={
+                  shareSectionTypes && !isPublic
+                    ? "Make public in Your Profile"
+                    : undefined
+                }
+                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm transition-colors duration-150 ${
                   active ? chipOn : chipOff
                 }`}
               >
-                {section.title}
+                {friendlySectionTitle(section.section_type, section.title)}
                 {shareSectionTypes && !isPublic ? (
-                  <span className="ml-1 opacity-60">· private</span>
+                  <Lock className="h-3.5 w-3.5 shrink-0 opacity-70" aria-label="Private" />
                 ) : null}
               </button>
             );
           })}
         </div>
+        </div>
       </div>
 
       <div className="mt-5">
-        <p className={`mb-2 text-sm ${subtextClass}`}>Best for:</p>
-        <div className="flex flex-wrap gap-2">
+        <div className={groupClass}>
+        <p className={groupTitleClass}>Best for</p>
+        <div className={chipsWrapClass}>
           {FORMAT_OPTIONS.map(({ id, label }) => {
             const active = selectedFormat === id;
             return (
@@ -247,7 +276,7 @@ export function ContextBuilder({
                 key={id}
                 type="button"
                 onClick={() => setSelectedFormat(id)}
-                className={`rounded-full px-4 py-1.5 text-sm transition-colors ${
+                className={`rounded-full px-3.5 py-1.5 text-sm transition-colors duration-150 ${
                   active ? activePill : inactivePill
                 }`}
               >
@@ -256,30 +285,31 @@ export function ContextBuilder({
             );
           })}
         </div>
+        </div>
       </div>
 
       {hasSelection ? (
-        <div className="mt-6">
-          <p className={`mb-2 text-xs font-medium uppercase tracking-wide ${labelClass}`}>
+        <div className="mt-7">
+          <p className={groupTitleClass}>
             Preview
           </p>
           <div className="relative">
             <div
-              className={`max-h-[220px] overflow-y-auto rounded-brand-xl border p-4 ${
+              className={`max-h-[260px] overflow-y-auto rounded-2xl border p-5 ${
                 isDark
                   ? "border-brand-border bg-brand-background"
-                  : "border-gray-200 bg-gray-50"
+                  : "border-[var(--color-border)] bg-[var(--color-bg)]"
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-brand-text-muted">
+              <p className={`whitespace-pre-wrap text-sm leading-relaxed ${isDark ? "text-brand-text-muted" : "text-[var(--color-text)]/80"}`}>
                 {promptPreview}
               </p>
             </div>
             {promptPreview ? (
               <div
                 aria-hidden
-                className={`pointer-events-none absolute inset-x-0 bottom-0 flex h-10 items-end justify-center rounded-b-brand-xl bg-gradient-to-t ${
-                  isDark ? "from-brand-background" : "from-gray-50"
+                className={`pointer-events-none absolute inset-x-0 bottom-0 flex h-10 items-end justify-center rounded-b-2xl bg-gradient-to-t ${
+                  isDark ? "from-brand-background" : "from-[var(--color-bg)]"
                 } to-transparent pb-1 text-[10px] ${labelClass}`}
               >
                 ↕ scroll to read more
@@ -289,7 +319,7 @@ export function ContextBuilder({
         </div>
       ) : null}
 
-      {showShareLink && hasSelection ? (
+      {showShareLink && hasSelection && !workspaceLayout ? (
         <div className="mt-5">
           {canShareLink ? (
             <div className="rounded-brand-xl border border-brand-primary/30 bg-brand-primary/10 p-4">
@@ -305,7 +335,7 @@ export function ContextBuilder({
                     className={`mt-3 break-all rounded-brand-md border px-3 py-2 text-sm ${
                       isDark
                         ? "border-brand-border bg-brand-card text-brand-text-muted"
-                        : "border-gray-200 bg-white text-gray-600"
+                        : "border-[var(--color-border)] bg-white text-[var(--color-muted)]"
                     }`}
                   >
                     {shareUrl}
@@ -313,7 +343,7 @@ export function ContextBuilder({
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-brand-xl bg-brand-primary px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover"
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-brand-xl bg-[var(--color-primary)] px-4 py-3 text-sm font-medium text-white transition-colors duration-150 hover:bg-[var(--color-accent)]"
                   >
                     {copiedLink ? (
                       <>
@@ -343,13 +373,44 @@ export function ContextBuilder({
         </div>
       ) : null}
 
-      {hasSelection ? (
+      {workspaceLayout && hasSelection ? (
+        <div className="mt-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/40 p-3">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-muted)]">
+            Action
+          </p>
+          <button
+            type="button"
+            onClick={() => void handleCopyContext()}
+            disabled={!promptPreview}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white transition-colors duration-150 hover:bg-[var(--color-accent)] disabled:opacity-40"
+          >
+            {copiedContext ? (
+              <>
+                <Check className="h-4 w-4" />
+                Copied ✓
+              </>
+            ) : (
+              <>
+                <Copy className="h-4 w-4" />
+                Copy context
+              </>
+            )}
+          </button>
+          {username ? (
+            <p className="mt-2.5 text-center text-xs text-[var(--color-muted)]">
+              Or share: meto.ai/profile/{username}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {hasSelection && !workspaceLayout ? (
         <button
           type="button"
-          onClick={handleCopyText}
+          onClick={() => void handleCopyText()}
           className="mt-3 inline-flex items-center gap-1.5 text-xs text-brand-primary underline-offset-2 hover:underline"
         >
-          {copiedText ? (
+          {copiedContext ? (
             <>
               <Check className="h-3.5 w-3.5" />
               Prompt copied!
@@ -362,6 +423,6 @@ export function ContextBuilder({
           )}
         </button>
       ) : null}
-    </section>
+    </div>
   );
 }

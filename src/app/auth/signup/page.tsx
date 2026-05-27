@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { MetoLogo } from "@/components/meto-logo";
+import {
+  AuthCard,
+  AuthDivider,
+  AuthField,
+  AuthGoogleButton,
+  AuthPrimaryButton,
+} from "@/components/auth/auth-card";
+import { MarketingLayout } from "@/components/marketing-layout";
 import { createClient } from "@/lib/supabase/client";
 
 export default function SignupPage() {
@@ -20,12 +27,15 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
+    const pendingSave =
+      localStorage.getItem("meto_landing_pending_save") === "true";
+
     const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(pendingSave ? "/" : "/dashboard")}`,
       },
     });
 
@@ -35,104 +45,96 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/dashboard");
+    if (pendingSave) {
+      router.push("/");
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   }
 
+  async function handleGoogleSignup() {
+    setLoading(true);
+    setError(null);
+
+    const pendingSave =
+      localStorage.getItem("meto_landing_pending_save") === "true";
+    const next = pendingSave ? "/" : "/dashboard";
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+      setLoading(false);
+    }
+  }
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-brand-background px-6">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <MetoLogo href="/" className="text-3xl" />
-          <p className="mt-3 text-sm text-brand-text-muted">
-            Create your AI identity in minutes.
-          </p>
-        </div>
-
+    <MarketingLayout authPage="signup">
+      <AuthCard
+        title="Create your profile"
+        subtitle="Save your AI identity — free to start"
+        footer={
+          <>
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              className="text-[var(--color-accent)] hover:underline"
+              onClick={() => localStorage.setItem("meto_landing_pending_save", "true")}
+            >
+              Sign in
+            </Link>
+          </>
+        }
+      >
         <form onSubmit={handleSignup} className="space-y-4">
-          <div>
-            <label
-              htmlFor="fullName"
-              className="mb-1.5 block text-sm text-brand-text-muted"
-            >
-              Full name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              autoComplete="name"
-              className="w-full rounded-brand-md border border-brand-border bg-brand-card px-3 py-2.5 text-sm text-brand-text outline-none transition-colors focus:border-brand-primary"
-              placeholder="Your name"
-            />
-          </div>
+          <AuthField
+            id="fullName"
+            label="Full name"
+            value={fullName}
+            onChange={setFullName}
+            placeholder="Your name"
+            autoComplete="name"
+          />
+          <AuthField
+            id="email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+          <AuthField
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            placeholder="At least 6 characters"
+            autoComplete="new-password"
+            minLength={6}
+          />
 
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm text-brand-text-muted"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-brand-md border border-brand-border bg-brand-card px-3 py-2.5 text-sm text-brand-text outline-none transition-colors focus:border-brand-primary"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm text-brand-text-muted"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              autoComplete="new-password"
-              className="w-full rounded-brand-md border border-brand-border bg-brand-card px-3 py-2.5 text-sm text-brand-text outline-none transition-colors focus:border-brand-primary"
-              placeholder="At least 6 characters"
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-400" role="alert">
+          {error ? (
+            <p className="text-sm text-red-500" role="alert">
               {error}
             </p>
-          )}
+          ) : null}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-brand-md bg-brand-primary px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover disabled:opacity-50"
-          >
+          <AuthPrimaryButton disabled={loading}>
             {loading ? "Creating account…" : "Create account"}
-          </button>
+          </AuthPrimaryButton>
         </form>
 
-        <p className="mt-6 text-center text-sm text-brand-text-muted">
-          Already have an account?{" "}
-          <Link
-            href="/auth/login"
-            className="text-brand-primary hover:text-brand-primary-hover"
-          >
-            Sign in
-          </Link>
-        </p>
-      </div>
-    </div>
+        <AuthDivider />
+        <AuthGoogleButton onClick={() => void handleGoogleSignup()} disabled={loading} />
+      </AuthCard>
+    </MarketingLayout>
   );
 }

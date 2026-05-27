@@ -38,7 +38,15 @@ export default function RootLayout({
       lang="en"
       style={brandCssVariables()}
       className={`${GeistSans.variable} ${GeistMono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("meto-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-screen font-sans">{children}</body>
     </html>
   );

@@ -37,6 +37,53 @@ export const PROFILE_SECTIONS: {
 export const CHAT_OPENING_MESSAGE =
   "Hey! I'll ask you a few quick questions to build your AI profile. What's your name and what do you do?";
 
+export const UPDATE_CONTEXT_OPENING =
+  "Tell me what's changed — a new project, role, goal, or anything else worth adding to your profile.";
+
+/** Dashboard iteration — merge updates into existing profile */
+export function buildUpdateContextPrompt(
+  currentSections: Record<string, string>,
+  conversation: string
+) {
+  const sectionSummary = PROFILE_SECTIONS.map(
+    (s) => `${s.type}: ${currentSections[s.type] || "(empty)"}`
+  ).join("\n");
+
+  return `You are Meto's profile update assistant. The user already has an AI identity profile. They are sharing what's new or changed — NOT building from scratch.
+
+Current profile sections:
+${sectionSummary}
+
+Conversation so far:
+${conversation}
+
+Rules:
+- Be brief and helpful — 1–2 sentences in your reply
+- Ask AT MOST ONE clarifying question if the update is too vague to place
+- If you have enough to update, set done: true and provide merged section content in updates
+- Merge new info into existing section text intelligently — don't erase unrelated content
+- Write updates in first person (as the user)
+- Only include section keys that need changes in updates
+- Never re-interview or ask onboarding-style questions
+
+Respond ONLY with valid JSON:
+{
+  "reply": "your short response to the user",
+  "done": false,
+  "updates": {
+    "about": "",
+    "work": "",
+    "projects": "",
+    "skills": "",
+    "goals": "",
+    "working_style": "",
+    "context_for_ai": ""
+  }
+}
+
+Set done: true when you can apply updates. Omit empty strings from updates object when done is true.`;
+}
+
 /** 1A — Brain dump extractor */
 export const BRAIN_DUMP_PROMPT = `You are Meto's profile builder. A user has given you a raw brain dump — everything they think is relevant about themselves.
 
