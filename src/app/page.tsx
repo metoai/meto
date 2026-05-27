@@ -1,100 +1,160 @@
-import Image from "next/image";
+import Link from "next/link";
+import { MetoLogo } from "@/components/meto-logo";
+
+const demoContext = `Here is context about the person you're talking to:
+
+## About Me
+I'm a solo founder based in Addis Ababa building Meto — a tool so you never have to re-introduce yourself to AI.
+
+## Work
+I work across Next.js, Supabase, and Gemini. I move fast and prefer direct communication.
+
+## Goals
+Ship an MVP in weeks, get 50 paying users, and build in public on X.`;
+
+const faqs = [
+  {
+    q: "What is Meto?",
+    a: "Meto builds your personal AI identity — a structured profile you paste into ChatGPT, Claude, Gemini, or any AI tool so it already knows who you are.",
+  },
+  {
+    q: "Is it free?",
+    a: "Yes. Sign up free, build your profile, copy it anywhere. Pro features like advanced formatting come later.",
+  },
+  {
+    q: "How long does setup take?",
+    a: "About 3 minutes. Brain dump everything at once, or chat with Meto and we'll build it for you.",
+  },
+  {
+    q: "Can I share my profile?",
+    a: "Yes. Claim a username and get a public page at /profile/yourname that anyone can visit and copy.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-brand-background text-brand-text">
+      <header className="flex items-center justify-between px-6 py-5 md:px-10">
+        <MetoLogo />
+        <Link
+          href="/auth/login"
+          className="text-sm text-brand-text-muted transition-colors hover:text-brand-primary"
+        >
+          Log in
+        </Link>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+      <main>
+        <section className="flex flex-col items-center px-6 pb-20 pt-16 text-center md:pt-24">
+          <h1 className="text-balance max-w-3xl text-4xl font-medium tracking-tight md:text-6xl">
+            AI finally knows you.
+          </h1>
+          <p className="mt-5 max-w-xl text-lg text-brand-text-muted">
+            Build your AI identity once. Paste it everywhere.
+          </p>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/auth/signup"
+              className="rounded-brand-md bg-brand-primary px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover"
+            >
+              Get started free
+            </Link>
+            <a
+              href="#demo"
+              className="rounded-brand-md border border-brand-border px-8 py-3 text-sm font-medium text-brand-text transition-colors hover:border-brand-primary"
+            >
+              See how it works
+            </a>
+          </div>
+        </section>
+
+        <section id="demo" className="border-t border-brand-border px-6 py-20 md:px-10">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-center text-2xl font-medium">
+              This is what you paste into AI
+            </h2>
+            <p className="mt-2 text-center text-sm text-brand-text-muted">
+              One block. Any tool. No more re-introducing yourself.
+            </p>
+            <pre className="mt-8 overflow-x-auto rounded-brand-lg border border-brand-border bg-brand-code-bg p-6 font-mono text-sm leading-relaxed text-brand-code-text">
+              {demoContext}
+            </pre>
+          </div>
+        </section>
+
+        <section id="features" className="border-t border-brand-border px-6 py-20 md:px-10">
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+            {[
+              {
+                title: "Two ways in",
+                desc: "Brain dump everything at once, or chat with Meto for 3 minutes. Same profile either way.",
+              },
+              {
+                title: "Copy-paste anywhere",
+                desc: "One compiled context block for Claude, ChatGPT, Gemini — paste once, skip the intro.",
+              },
+              {
+                title: "Your public page",
+                desc: "Share meto.ai/yourname. Put it in your bio. Let AI know you before you even type.",
+              },
+            ].map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-brand-lg border border-brand-border bg-brand-card p-6 transition-colors hover:border-brand-primary/40"
+              >
+                <h2 className="text-base font-medium text-brand-text">
+                  {feature.title}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-brand-text-muted">
+                  {feature.desc}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="faq" className="border-t border-brand-border px-6 py-20 md:px-10">
+          <div className="mx-auto max-w-2xl">
+            <h2 className="text-center text-2xl font-medium">FAQ</h2>
+            <div className="mt-10 space-y-6">
+              {faqs.map((faq) => (
+                <article
+                  key={faq.q}
+                  className="rounded-brand-lg border border-brand-border bg-brand-card p-5"
+                >
+                  <h3 className="font-medium text-brand-text">{faq.q}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-brand-text-muted">
+                    {faq.a}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <footer className="border-t border-brand-border px-6 py-8 md:px-10">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 text-sm text-brand-text-muted md:flex-row">
+          <p>© 2025 Meto</p>
+          <div className="flex gap-6">
+            <a
+              href="https://twitter.com/metoai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-brand-primary"
+            >
+              Twitter/X
+            </a>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-brand-primary"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );
