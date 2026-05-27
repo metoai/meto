@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Copy,
   Loader2,
   Plus,
   RefreshCw,
@@ -9,18 +8,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ContextBuilder } from "@/components/ContextBuilder";
 import type { CompileFormat, ContextSection } from "@/lib/types";
+import { getSiteUrl } from "@/lib/public-profile";
 import {
   formatRelativeTime,
   getProfileCompletion,
 } from "@/lib/profile-utils";
-
-const FORMATS: { id: CompileFormat; label: string }[] = [
-  { id: "universal", label: "Universal" },
-  { id: "claude", label: "For Claude" },
-  { id: "chatgpt", label: "For ChatGPT" },
-];
 
 type SectionDraft = ContextSection & {
   savedTitle: string;
@@ -30,12 +25,11 @@ type SectionDraft = ContextSection & {
 export function DashboardEditor() {
   const router = useRouter();
   const [sections, setSections] = useState<SectionDraft[]>([]);
-  const [compiled, setCompiled] = useState("");
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [format, setFormat] = useState<CompileFormat>("universal");
   const [loading, setLoading] = useState(true);
   const [compiling, setCompiling] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [usedFallback, setUsedFallback] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -57,20 +51,36 @@ export function DashboardEditor() {
     );
   }, []);
 
-  const loadCompiled = useCallback(async (selectedFormat: CompileFormat) => {
-    const res = await fetch(
-      `/api/profile/compile?format=${selectedFormat}`
-    );
+  const loadProfile = useCallback(async () => {
+    const res = await fetch("/api/profile/me");
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "Failed to load profile.");
-    if (data.compiled) {
-      setCompiled(data.compiled);
-      setFormat(selectedFormat);
-      setUsedFallback(false);
-      return true;
-    }
-    return false;
+    setUsername(data.profile?.username ?? "");
+    setDisplayName(
+      data.profile?.display_name?.trim() ||
+        data.profile?.username ||
+        data.email?.split("@")[0] ||
+        "Me"
+    );
   }, []);
+
+  const contextSections = useMemo(
+    () =>
+      sections.map((section) => ({
+        section_type: section.section_type,
+        title: section.title,
+        content: section.content,
+      })),
+    [sections]
+  );
+
+  const publicSectionTypes = useMemo(
+    () =>
+      sections
+        .filter((section) => section.is_public)
+        .map((section) => section.section_type),
+    [sections]
+  );
 
   const compileProfile = useCallback(
     async (
@@ -91,9 +101,7 @@ export function DashboardEditor() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Compile failed.");
-        setCompiled(data.compiled);
         setFormat(selectedFormat);
-        setUsedFallback(Boolean(data.usedFallback));
       } catch (err) {
         setError(err instanceof Error ? err.message : "Compile failed.");
       } finally {
@@ -103,21 +111,10 @@ export function DashboardEditor() {
     []
   );
 
-  const ensureCompiled = useCallback(
-    async (selectedFormat: CompileFormat) => {
-      const hasCached = await loadCompiled(selectedFormat);
-      if (!hasCached) {
-        await compileProfile(selectedFormat);
-      }
-    },
-    [loadCompiled, compileProfile]
-  );
-
   useEffect(() => {
     async function init() {
       try {
-        await loadSections();
-        await ensureCompiled("universal");
+        await Promise.all([loadSections(), loadProfile()]);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load.");
       } finally {
@@ -125,14 +122,7 @@ export function DashboardEditor() {
       }
     }
     init();
-  }, [loadSections, ensureCompiled]);
-
-  async function handleCopy() {
-    if (!compiled) return;
-    await navigator.clipboard.writeText(compiled);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
+  }, [loadSections, loadProfile]);
 
   async function handleSaveSection(section: SectionDraft) {
     setSavingId(section.id);
@@ -301,15 +291,15 @@ export function DashboardEditor() {
           </p>
         )}
 
-        {/* Your AI Identity */}
+        {/* Context Builder */}
         <section className="mb-12">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-medium text-brand-text">
                 Your AI identity
               </h1>
               <p className="mt-1 text-sm text-brand-text-muted">
-                Copy this into any AI tool — Claude, ChatGPT, Gemini, anywhere.
+                Choose what to share, then copy a link for AI to read.
               </p>
             </div>
             <div className="rounded-brand-md border border-brand-border bg-brand-card px-4 py-2 text-right">
@@ -320,52 +310,14 @@ export function DashboardEditor() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            {FORMATS.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                disabled={compiling}
-                onClick={() => ensureCompiled(f.id)}
-                className={`rounded-brand-md px-4 py-2 text-sm transition-colors ${
-                  format === f.id
-                    ? "bg-brand-primary text-white"
-                    : "border border-brand-border text-brand-text-muted hover:border-brand-primary hover:text-brand-text"
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4 rounded-brand-lg border border-brand-border bg-brand-code-bg p-4">
-            {usedFallback && (
-              <p className="mb-3 text-xs text-brand-text-muted">
-                AI quota reached — showing a basic compile from your sections.
-                Regenerate later when quota resets.
-              </p>
-            )}
-            {compiling ? (
-              <div className="flex items-center gap-2 py-8 text-sm text-brand-text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Compiling your profile…
-              </div>
-            ) : (
-              <pre className="max-h-64 overflow-y-auto whitespace-pre-wrap font-mono text-sm leading-relaxed text-brand-code-text">
-                {compiled || "No compiled profile yet."}
-              </pre>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCopy}
-            disabled={!compiled || compiling}
-            className="mt-4 inline-flex items-center gap-2 rounded-brand-md bg-brand-primary px-6 py-3 text-sm font-medium text-black transition-colors hover:bg-brand-primary-hover disabled:opacity-50"
-          >
-            <Copy className="h-4 w-4" />
-            {copied ? "Copied!" : "Copy full context"}
-          </button>
+          <ContextBuilder
+            sections={contextSections}
+            username={username}
+            displayName={displayName}
+            siteUrl={getSiteUrl()}
+            shareSectionTypes={publicSectionTypes}
+            variant="dark"
+          />
         </section>
 
         {/* Your Sections */}
@@ -478,7 +430,7 @@ export function DashboardEditor() {
               <RefreshCw
                 className={`h-4 w-4 ${compiling ? "animate-spin" : ""}`}
               />
-              Regenerate full profile
+              {compiling ? "Regenerating…" : "Regenerate AI compile (cache)"}
             </button>
             <button
               type="button"

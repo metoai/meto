@@ -151,3 +151,59 @@ export function buildContextShareUrl(
   const query = params.toString();
   return query ? `${base}?${query}` : base;
 }
+
+export function getSelectedSections(
+  sections: ContextSectionInput[],
+  selectedSectionTypes: string[]
+): ContextSectionInput[] {
+  return sections.filter(
+    (section) =>
+      selectedSectionTypes.includes(section.section_type) &&
+      section.content?.trim()
+  );
+}
+
+export function buildHumanPromptPreview(
+  sections: ContextSectionInput[],
+  selectedSectionTypes: string[],
+  displayName: string
+): string {
+  const selected = getSelectedSections(sections, selectedSectionTypes);
+
+  if (selected.length === 0) {
+    return "";
+  }
+
+  const body = selected
+    .map((section) => `${section.title}\n${section.content.trim()}`)
+    .join("\n\n");
+
+  return `Here's what AI will know about ${displayName}:\n\n${body}`;
+}
+
+export function buildHumanSummary(
+  sections: ContextSectionInput[],
+  selectedSectionTypes: string[],
+  displayName: string
+): { intro: string; items: string[] } {
+  const selected = getSelectedSections(sections, selectedSectionTypes);
+
+  if (selected.length === 0) {
+    return {
+      intro: "Choose at least one section above to create your AI link.",
+      items: [],
+    };
+  }
+
+  return {
+    intro: `AI will learn about ${displayName} from these parts of your profile:`,
+    items: selected.map((section) => section.title),
+  };
+}
+
+export const FORMAT_USER_LABELS: Record<CompileFormat, string> = {
+  universal: "any AI tool",
+  claude: "Claude",
+  chatgpt: "ChatGPT",
+  gemini: "Gemini",
+};
