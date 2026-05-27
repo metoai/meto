@@ -4,7 +4,6 @@ import { Loader2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/sidebar";
-import type { UserProfile } from "@/lib/types";
 import { createClient } from "@/lib/supabase/client";
 
 export function SettingsClient() {

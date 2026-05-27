@@ -1,6 +1,5 @@
 import {
   GoogleGenerativeAI,
-  type GenerateContentRequest,
 } from "@google/generative-ai";
 import type { CompileFormat } from "@/lib/types";
 import {
@@ -40,9 +39,13 @@ const SECTION_KEY_SET = new Set([
 
 function getModelCandidates(): string[] {
   const preferred = process.env.GEMINI_MODEL?.trim();
-  return [
-    ...new Set([preferred, DEFAULT_MODEL, ...FALLBACK_MODELS].filter(Boolean)),
-  ];
+  return Array.from(
+    new Set(
+      [preferred, DEFAULT_MODEL, ...FALLBACK_MODELS].filter(
+        (model): model is string => Boolean(model)
+      )
+    )
+  );
 }
 
 type GenerateOptions = {
@@ -94,7 +97,7 @@ export function friendlyGeminiError(error: unknown): string {
 }
 
 export async function generateWithGemini(
-  input: string | GenerateContentRequest["contents"],
+  input: string,
   options?: GenerateOptions
 ): Promise<string> {
   let lastError: unknown;

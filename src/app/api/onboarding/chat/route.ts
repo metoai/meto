@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       .join("\n");
 
     const reply = (
-      await generateWithGemini([CHAT_SYSTEM_PROMPT, conversation], {
+      await generateWithGemini(`${CHAT_SYSTEM_PROMPT}\n\n${conversation}`, {
         temperature: 0.7,
       })
     ).trim();

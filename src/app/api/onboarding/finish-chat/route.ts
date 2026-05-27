@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       .join("\n");
 
     const text = await generateWithGemini(
-      [EXTRACT_FROM_CHAT_PROMPT, conversation],
+      `${EXTRACT_FROM_CHAT_PROMPT}\n\n${conversation}`,
       { temperature: 0.3 }
     );
     const sections = parseJsonFromGemini(text);

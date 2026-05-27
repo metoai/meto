@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     }
 
     const text = await generateWithGemini(
-      [BRAIN_DUMP_PROMPT, rawText.trim()],
+      `${BRAIN_DUMP_PROMPT}\n\n${rawText.trim()}`,
       { temperature: 0.3 }
     );
     const sections = parseJsonFromGemini(text);
