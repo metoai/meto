@@ -20,6 +20,7 @@ export type PublicProfileLink = {
 };
 
 export type PublicProfileSection = {
+  section_type: string;
   title: string;
   content: string;
 };
@@ -133,7 +134,11 @@ export function buildPublicProfile(
   const skills = skillsSection ? parseSkills(skillsSection.content) : [];
   const links = extractLinks(publicSections);
 
-  const sections = publicSections.map(({ title, content }) => ({ title, content }));
+  const sections = publicSections.map(({ section_type, title, content }) => ({
+    section_type,
+    title,
+    content,
+  }));
   const compiled =
     sections.length > 0 ? compileLocally("universal", sections) : "";
   const aiSummary = buildAiSummary(name, bio, headline, skills);

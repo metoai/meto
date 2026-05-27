@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { CopyContextButton } from "@/components/copy-context-button";
+import { ContextBuilder } from "@/components/ContextBuilder";
 import { MetoLogo } from "@/components/meto-logo";
-import type { PublicProfile } from "@/lib/public-profile";
+import { getSiteUrl, type PublicProfile } from "@/lib/public-profile";
 
 type PublicProfileViewProps = {
   profile: PublicProfile;
 };
 
 export function PublicProfileView({ profile }: PublicProfileViewProps) {
+  const siteUrl = getSiteUrl();
+
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
       <header className="flex items-center justify-between border-b border-brand-border px-6 py-5 md:px-10">
@@ -60,12 +62,24 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
           </p>
         ) : (
           <>
-            <CopyContextButton compiled={profile.compiled} />
+            <div className="mt-8">
+              <ContextBuilder
+                sections={profile.sections}
+                username={profile.username}
+                displayName={profile.name}
+                siteUrl={siteUrl}
+              />
+            </div>
 
-            <div className="mt-6 space-y-6">
+            <div
+              className="my-10 border-t border-brand-border"
+              aria-hidden
+            />
+
+            <div className="space-y-6">
               {profile.sections.map((section) => (
                 <article
-                  key={section.title}
+                  key={section.section_type}
                   className="rounded-brand-lg border border-brand-border bg-brand-card p-5"
                 >
                   <h2 className="text-base font-medium">{section.title}</h2>
