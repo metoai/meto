@@ -104,21 +104,22 @@ export function ProfileGridView({
 
   useEffect(() => {
     if (!expandedCardId) return;
+    const activeId = expandedCardId;
 
     function handlePointerDown(event: MouseEvent) {
       const target = event.target as Node;
       if (gridRef.current?.contains(target)) return;
 
-      const section = sections.find((item) => item.id === expandedCardId);
+      const section = sections.find((item) => item.id === activeId);
       if (!section) return;
 
       const dirty = section.content !== section.savedContent;
       if (dirty) {
-        setSavePromptCardId(expandedCardId);
+        setSavePromptCardId(activeId);
         return;
       }
 
-      collapseCard(expandedCardId);
+      collapseCard(activeId);
     }
 
     document.addEventListener("mousedown", handlePointerDown);

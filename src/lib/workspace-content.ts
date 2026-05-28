@@ -10,6 +10,8 @@ export const WORKSPACE_COPY = {
   linkLabel: "Your Meto link",
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
+  linkHint:
+    "Paste this link into any AI chat. It will fetch and read your selected sections.",
   copyTextInstead: "Copy as text instead",
   copiedContext: "Copied ✓",
   copyContext: "Copy context",

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { MetoMark } from "@/components/meto-mark";
-import { usePortalData } from "@/components/portal/portal-data-context";
 import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sidebar-context";
 import {
   DASHBOARD_SECTIONS,

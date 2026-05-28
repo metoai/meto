@@ -49,7 +49,7 @@ function ChatInputBox({
   onChange: (value: string) => void;
   onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
   onSubmit: (e: FormEvent) => void;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  textareaRef: React.Ref<HTMLTextAreaElement>;
   disabled?: boolean;
   placeholder: string;
   large?: boolean;
