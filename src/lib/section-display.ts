@@ -1,4 +1,4 @@
-import { PROFILE_SECTIONS, SECTION_KEYS, type SectionKey } from "@/lib/meto-prompts";
+import { PROFILE_SECTIONS, SECTION_KEYS } from "@/lib/meto-prompts";
 
 /** Friendly display titles (sentence case) */
 export const SECTION_FRIENDLY_TITLES: Record<string, string> = {
