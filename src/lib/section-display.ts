@@ -13,13 +13,14 @@ export const SECTION_FRIENDLY_TITLES: Record<string, string> = {
 };
 
 export const SECTION_PLACEHOLDERS: Record<string, string> = {
-  about: "Who are you? Where are you based? What drives you?",
+  about: "Who are you? Where are you based?",
   work: "What do you do? What tools do you use?",
-  projects: "What are you currently building or working on?",
+  projects: "What are you currently building?",
   skills: "What are you actually good at?",
   goals: "What are you trying to achieve?",
   working_style: "How do you prefer to collaborate and communicate?",
-  context_for_ai: "How do you like AI to talk to you?",
+  communication_style: "How do you like AI to respond?",
+  context_for_ai: "How do you like AI to respond?",
   custom: "Add anything else worth knowing about you…",
 };
 

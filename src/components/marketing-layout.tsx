@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { MetoMark } from "@/components/meto-mark";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
@@ -33,19 +32,23 @@ export function MarketingLayout({
       .catch(() => {});
   }, []);
 
-  return (
-    <div className="relative min-h-screen text-[var(--color-text)]">
-      <div className="landing-mesh" aria-hidden>
-        <div className="landing-mesh-blob" />
+  if (authPage) {
+    return (
+      <div className="min-h-screen bg-white text-[var(--text)]">
+        <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+          {children}
+        </main>
       </div>
+    );
+  }
 
-      <header className="landing-animate-in relative z-20 px-4 sm:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between py-5">
+  return (
+    <div className="relative min-h-screen bg-white text-[var(--text)]">
+      <header className="landing-animate-in border-b border-[var(--border)] bg-white px-4 sm:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between py-4">
           <Link href="/" className="flex shrink-0 items-center gap-2">
             <MetoMark />
-            <span className="text-lg font-semibold tracking-tight text-[var(--color-text)]">
-              meto
-            </span>
+            <span className="text-base font-medium text-[var(--text)]">meto</span>
           </Link>
 
           <nav
@@ -56,7 +59,7 @@ export function MarketingLayout({
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+                className="rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -64,11 +67,10 @@ export function MarketingLayout({
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <ThemeToggle />
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-secondary)] lg:hidden"
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -94,28 +96,24 @@ export function MarketingLayout({
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="rounded-full bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent)]"
+                className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)]"
               >
                 Dashboard
               </Link>
             ) : (
               <>
-                {authPage !== "login" ? (
-                  <Link
-                    href="/auth/login"
-                    className="hidden text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)] sm:block"
-                  >
-                    Log in
-                  </Link>
-                ) : null}
-                {authPage !== "signup" ? (
-                  <Link
-                    href="/auth/signup"
-                    className="rounded-full bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent)]"
-                  >
-                    Get started
-                  </Link>
-                ) : null}
+                <Link
+                  href="/auth/login"
+                  className="hidden text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)] sm:block"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)]"
+                >
+                  Get started
+                </Link>
               </>
             )}
           </div>
@@ -123,7 +121,7 @@ export function MarketingLayout({
 
         {mobileMenuOpen ? (
           <nav
-            className="mx-auto mb-4 max-w-6xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-3 lg:hidden"
+            className="mx-auto mb-4 max-w-6xl rounded-xl border border-[var(--border)] bg-white p-3 lg:hidden"
             aria-label="Mobile"
           >
             {NAV_LINKS.map((link) => (
@@ -131,7 +129,7 @@ export function MarketingLayout({
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm text-[var(--color-muted)] transition-colors hover:bg-[var(--color-border)]/40 hover:text-[var(--color-text)]"
+                className="block rounded-lg px-4 py-3 text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -140,20 +138,20 @@ export function MarketingLayout({
         ) : null}
       </header>
 
-      <main className="relative z-10 flex min-h-[calc(100vh-88px)] flex-col items-center justify-center px-4 py-8 sm:px-6">
+      <main className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center px-4 py-8 sm:px-6">
         {children}
       </main>
 
       {showFooter ? (
-        <footer className="relative z-10 border-t border-[var(--color-border)] px-4 py-8 sm:px-8">
-          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--color-muted)] sm:flex-row">
+        <footer className="border-t border-[var(--border)] bg-white px-4 py-8 sm:px-8">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--text-secondary)] sm:flex-row">
             <p>© {new Date().getFullYear()} Meto</p>
             <div className="flex flex-wrap justify-center gap-5">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="transition-colors hover:text-[var(--color-accent)]"
+                  className="transition-colors duration-150 hover:text-[var(--text)]"
                 >
                   {link.label}
                 </Link>

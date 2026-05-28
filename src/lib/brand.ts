@@ -10,24 +10,24 @@ export const brand = {
     /** Hover states, accents */
     primaryHover: "#1D9E75",
     /** Light backgrounds, badges, highlights */
-    primaryLight: "#E1F5EE",
-    /** Dark mode page background */
-    background: "#0F1F1A",
-    /** Slightly elevated surfaces (cards, sidebar) */
-    surface: "#111111",
+    primaryLight: "#E8F5F0",
+    /** Page background */
+    background: "#FFFFFF",
+    /** Slightly elevated surfaces (sidebar, preview) */
+    surface: "#F7F7F5",
     /** Card / panel background */
-    card: "#1a1a1a",
+    card: "#FFFFFF",
     /** Primary text */
-    text: "#f5f5f5",
+    text: "#1A1A18",
     /** Secondary / muted text */
-    textMuted: "#a3a3a3",
+    textMuted: "#6B6B63",
     /** Tertiary / labels */
-    textSubtle: "#737373",
+    textSubtle: "#9B9B93",
     /** Borders */
-    border: "#262626",
+    border: "#E8E8E4",
     /** Code / copy blocks */
-    codeText: "#1D9E75",
-    codeBackground: "#111111",
+    codeText: "#6B6B63",
+    codeBackground: "#F7F7F5",
   },
   fonts: {
     sans: "var(--font-geist-sans)",

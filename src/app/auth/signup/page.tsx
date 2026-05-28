@@ -78,13 +78,13 @@ export default function SignupPage() {
     <MarketingLayout authPage="signup">
       <AuthCard
         title="Create your profile"
-        subtitle="Save your AI identity — free to start"
+        subtitle="Free to start. No credit card."
         footer={
           <>
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-[var(--color-accent)] hover:underline"
+              className="cursor-pointer text-[var(--primary)]"
               onClick={() => localStorage.setItem("meto_landing_pending_save", "true")}
             >
               Sign in
@@ -92,7 +92,12 @@ export default function SignupPage() {
           </>
         }
       >
-        <form onSubmit={handleSignup} className="space-y-4">
+        <div className="flex flex-col gap-2.5">
+          <AuthGoogleButton onClick={() => void handleGoogleSignup()} disabled={loading} />
+
+          <AuthDivider />
+
+          <form onSubmit={handleSignup} className="space-y-4">
           <AuthField
             id="fullName"
             label="Full name"
@@ -131,9 +136,7 @@ export default function SignupPage() {
             {loading ? "Creating account…" : "Create account"}
           </AuthPrimaryButton>
         </form>
-
-        <AuthDivider />
-        <AuthGoogleButton onClick={() => void handleGoogleSignup()} disabled={loading} />
+        </div>
       </AuthCard>
     </MarketingLayout>
   );

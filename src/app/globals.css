@@ -2,61 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light theme (default + explicit light) */
-:root,
-:root[data-theme="light"] {
-  --color-bg: #f5faf8;
-  --color-card: #ffffff;
-  --color-border: #d4e8df;
-  --color-primary: #0f6e56;
-  --color-accent: #1d9e75;
-  --color-light: #e1f5ee;
-  --color-text: #0a0f0d;
-  --color-muted: #5a8a75;
+:root {
+  --bg: #ffffff;
+  --surface: #f7f7f5;
+  --card: #ffffff;
+  --border: #e8e8e4;
+  --border-hover: #c0c0b8;
+  --primary: #0f6e56;
+  --primary-hover: #1d9e75;
+  --primary-light: #e8f5f0;
+  --text: #1a1a18;
+  --text-secondary: #6b6b63;
+  --muted: #9b9b93;
+  --placeholder: #c0c0b8;
+
+  /* Legacy aliases used across components */
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-accent: var(--primary-hover);
+  --color-light: var(--primary-light);
+  --color-text: var(--text);
+  --color-muted: var(--text-secondary);
   --color-white: #ffffff;
-  --color-mesh-opacity: 0.22;
-  --color-card-shadow: 0 8px 40px rgba(15, 110, 86, 0.1);
 }
 
-/* Dark theme (system dark + explicit dark) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg: #0a0f0d;
-    --color-card: #111916;
-    --color-border: #1c2b24;
-    --color-primary: #0f6e56;
-    --color-accent: #1d9e75;
-    --color-light: #e1f5ee;
-    --color-text: #f0fdf8;
-    --color-muted: #6b9e88;
-    --color-white: #ffffff;
-    --color-mesh-opacity: 0.45;
-    --color-card-shadow: 0 0 40px rgba(15, 110, 86, 0.15);
-  }
-}
-
-:root[data-theme="dark"] {
-  --color-bg: #0a0f0d;
-  --color-card: #111916;
-  --color-border: #1c2b24;
-  --color-primary: #0f6e56;
-  --color-accent: #1d9e75;
-  --color-light: #e1f5ee;
-  --color-text: #f0fdf8;
-  --color-muted: #6b9e88;
-  --color-white: #ffffff;
-  --color-mesh-opacity: 0.45;
-  --color-card-shadow: 0 0 40px rgba(15, 110, 86, 0.15);
+html,
+body {
+  background: #ffffff;
+  color: #1a1a18;
 }
 
 @layer base {
   html {
-    color-scheme: light dark;
+    color-scheme: light;
   }
 
   body {
     @apply antialiased;
-    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   }
 }
 
@@ -78,70 +63,65 @@
     display: none;
   }
 
+  .scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+
   .profile-section-textarea:focus {
-    color: var(--color-text);
+    color: var(--text);
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .body-text {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .meta-text {
+    font-size: 12px;
+    color: var(--placeholder);
+  }
+
+  .skeleton {
+    background: var(--surface);
+    animation: pulse 1.5s ease-in-out infinite;
   }
 }
 
-.landing-mesh {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background: var(--color-bg);
-  transition: background-color 0.2s ease;
-}
-
-.landing-mesh::before,
-.landing-mesh::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: var(--color-mesh-opacity);
-  transition: opacity 0.2s ease;
-}
-
-.landing-mesh::before {
-  width: 55vw;
-  height: 55vw;
-  top: -12%;
-  left: -8%;
-  background: radial-gradient(
-    circle,
-    var(--color-primary) 0%,
-    var(--color-accent) 35%,
-    transparent 70%
-  );
-}
-
-.landing-mesh::after {
-  width: 48vw;
-  height: 48vw;
-  bottom: -18%;
-  right: -12%;
-  background: radial-gradient(
-    circle,
-    var(--color-accent) 0%,
-    rgba(15, 110, 86, 0.35) 40%,
-    transparent 70%
-  );
-}
-
-.landing-mesh-blob {
-  position: absolute;
-  width: 38vw;
-  height: 38vw;
-  top: 28%;
-  left: 32%;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: calc(var(--color-mesh-opacity) * 0.4);
-  background: radial-gradient(
-    circle,
-    var(--color-light) 0%,
-    transparent 65%
-  );
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes landing-fade-in {

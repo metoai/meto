@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatRelativeTime } from "@/lib/profile-utils";
 import {
   friendlySectionTitle,
@@ -41,6 +41,8 @@ export function ProfileSectionCard({
   onDelete,
 }: ProfileSectionCardProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const isDirty = content !== savedContent;
   const displayTitle = friendlySectionTitle(sectionType, title);
 
@@ -51,16 +53,21 @@ export function ProfileSectionCard({
     el.style.height = `${Math.max(el.scrollHeight, 72)}px`;
   }, [content]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
+
   return (
-    <article
-      className={`rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]/80 p-4 sm:p-5 transition-colors ${
-        justSaved ? "border-[var(--color-primary)]/60" : ""
-      }`}
-    >
+    <article className="mb-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] px-5 py-4 transition-[border-color] duration-150 ease-in-out hover:border-[var(--border-hover)]">
       <div className="mb-3 flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold text-[var(--color-text)]">
-          {displayTitle}
-        </h3>
+        <h3 className="card-title">{displayTitle}</h3>
         <PublicToggle
           isPublic={isPublic}
           onChange={onTogglePublic}
@@ -74,31 +81,49 @@ export function ProfileSectionCard({
         onChange={(e) => onContentChange(e.target.value)}
         placeholder={sectionPlaceholder(sectionType)}
         rows={3}
-        className="profile-section-textarea w-full resize-none bg-transparent text-sm leading-relaxed text-[var(--color-muted)] outline-none placeholder:text-[var(--color-muted)]/70"
+        className="profile-section-textarea w-full resize-none bg-transparent text-sm leading-[1.65] text-[var(--text-secondary)] outline-none placeholder:text-[var(--placeholder)]"
       />
 
       <div className="mt-3 flex items-center justify-between gap-3">
-        <p className="text-xs text-[var(--color-muted)]">
+        <p className="text-[11px] text-[var(--placeholder)]">
           Updated {formatRelativeTime(updatedAt)}
         </p>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={onDelete}
-            className="text-xs text-red-400/80 transition-colors duration-150 hover:text-red-400"
-          >
-            Delete
-          </button>
+        <div className="flex items-center gap-2">
           {isDirty ? (
             <button
               type="button"
               disabled={isSaving}
               onClick={onSave}
-              className="rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-[var(--color-accent)] disabled:opacity-50"
+              className="rounded-lg bg-[var(--primary)] px-3 py-1 text-xs font-medium text-white transition-[background] duration-150 ease-in-out hover:bg-[var(--primary-hover)] disabled:opacity-50"
             >
               {isSaving ? "Saving…" : justSaved ? "Saved ✓" : "Save"}
             </button>
           ) : null}
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              className="px-1 text-sm text-[var(--placeholder)] transition-colors duration-150 hover:text-[var(--muted)]"
+              aria-label="Section menu"
+              aria-expanded={menuOpen}
+            >
+              ···
+            </button>
+            {menuOpen ? (
+              <div className="absolute bottom-full right-0 z-10 mb-1 min-w-[120px] overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete();
+                  }}
+                  className="block w-full px-3 py-2 text-left text-[13px] text-[#F87171] transition-colors duration-150 hover:bg-[var(--surface)]"
+                >
+                  Delete
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>

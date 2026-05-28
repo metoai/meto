@@ -9,7 +9,7 @@ export function SuccessToast() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("ready") === "1") {
       setVisible(true);
-      window.history.replaceState({}, "", "/dashboard");
+      window.history.replaceState({}, "", "/dashboard/workspace");
       const timer = setTimeout(() => setVisible(false), 4000);
       return () => clearTimeout(timer);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Loader2, MessageCircle, Zap } from "lucide-react";
+import { ArrowLeft, MessageCircle, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { MetoLogo } from "@/components/meto-logo";
@@ -234,7 +234,6 @@ export function OnboardingFlow() {
               disabled={loading || !rawText.trim()}
               className="inline-flex items-center gap-2 rounded-brand-md bg-brand-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover disabled:opacity-50"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
               {loading ? "Building your profile…" : "Build my profile →"}
             </button>
           </form>
@@ -276,9 +275,8 @@ export function OnboardingFlow() {
           ))}
           {loading && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-brand-lg border border-brand-border bg-brand-card px-4 py-3 text-sm text-brand-text-muted">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Meto is thinking…
+              <div className="rounded-brand-lg border border-brand-border bg-brand-surface px-4 py-3">
+                <div className="skeleton h-4 w-32 rounded" />
               </div>
             </div>
           )}

@@ -14,7 +14,7 @@ export function ProfileEmptyState() {
         Go to Workspace to tell Meto about yourself.
       </p>
       <Link
-        href="/dashboard#workspace"
+        href="/dashboard/workspace"
         className="mt-5 rounded-full bg-[var(--color-primary)] px-5 py-2.5 text-sm font-medium text-white transition-colors duration-150 hover:bg-[var(--color-accent)]"
       >
         Go to Workspace

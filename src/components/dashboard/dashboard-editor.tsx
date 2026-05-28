@@ -1,28 +1,18 @@
 "use client";
 
-import {
-  Loader2,
-  Plus,
-  RefreshCw,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
+import { Plus, RefreshCw, RotateCcw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { ContextBuilder } from "@/components/ContextBuilder";
-import { AddSectionButton } from "@/components/dashboard/add-section-button";
-import { ProfileEmptyState } from "@/components/dashboard/profile-empty-state";
-import { ProfileSectionCard } from "@/components/dashboard/profile-section-card";
+import { ProfileGridView } from "@/components/dashboard/profile-grid-view";
+import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import type { CompileFormat, ContextSection } from "@/lib/types";
 import { getSiteUrl } from "@/lib/public-profile";
 import {
   formatRelativeTime,
   getProfileCompletion,
 } from "@/lib/profile-utils";
-import {
-  availablePresetSectionTypes,
-  sectionPlaceholder,
-} from "@/lib/section-display";
+import { sectionPlaceholder } from "@/lib/section-display";
 
 type SectionDraft = ContextSection & {
   savedTitle: string;
@@ -41,11 +31,12 @@ export function DashboardEditor({
   inline?: boolean;
 }) {
   const router = useRouter();
+  const portal = usePortalDataOptional();
   const [sections, setSections] = useState<SectionDraft[]>([]);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [format, setFormat] = useState<CompileFormat>("universal");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !portal?.loaded);
   const [compiling, setCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -128,7 +119,35 @@ export function DashboardEditor({
     []
   );
 
+  const applyPortalData = useCallback(() => {
+    if (!portal?.loaded) return false;
+
+    setSections(
+      portal.sections.map((section) => ({
+        ...section,
+        savedTitle: section.title,
+        savedContent: section.content,
+      }))
+    );
+    setUsername(portal.profile?.username ?? "");
+    setDisplayName(
+      portal.profile?.display_name?.trim() ||
+        portal.profile?.username ||
+        portal.email.split("@")[0] ||
+        "Me"
+    );
+    return true;
+  }, [portal]);
+
+  useLayoutEffect(() => {
+    if (!portal?.loaded) return;
+    applyPortalData();
+    setLoading(false);
+  }, [applyPortalData, portal?.dataVersion, portal?.loaded]);
+
   useEffect(() => {
+    if (portal?.loaded) return;
+
     async function init() {
       try {
         await Promise.all([loadSections(), loadProfile()]);
@@ -138,8 +157,8 @@ export function DashboardEditor({
         setLoading(false);
       }
     }
-    init();
-  }, [loadSections, loadProfile]);
+    void init();
+  }, [loadProfile, loadSections, portal?.loaded]);
 
   async function handleSaveSection(section: SectionDraft) {
     setSavingId(section.id);
@@ -170,6 +189,7 @@ export function DashboardEditor({
       setSavedId(section.id);
       setTimeout(() => setSavedId(null), 1500);
       await compileProfile(format, { localOnly: true });
+      void portal?.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed.");
     } finally {
@@ -190,12 +210,16 @@ export function DashboardEditor({
       }
       setSections((prev) => prev.filter((s) => s.id !== id));
       await compileProfile(format, { localOnly: true });
+      void portal?.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed.");
     }
   }
 
-  async function handleAddPresetSection(sectionType: string, title: string) {
+  async function handleAddPresetSection(
+    sectionType: string,
+    title: string
+  ): Promise<string | undefined> {
     setError(null);
     try {
       const res = await fetch("/api/profile/sections", {
@@ -219,8 +243,11 @@ export function DashboardEditor({
         },
       ]);
       await compileProfile(format, { localOnly: true });
+      void portal?.refresh();
+      return data.section.id as string;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add section.");
+      return undefined;
     }
   }
 
@@ -252,6 +279,7 @@ export function DashboardEditor({
       setNewTitle("");
       setNewContent("");
       await compileProfile(format, { localOnly: true });
+      void portal?.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add section.");
     }
@@ -309,6 +337,7 @@ export function DashboardEditor({
           s.id === section.id ? { ...s, is_public: data.section.is_public } : s
         )
       );
+      void portal?.refresh();
     } catch (err) {
       updateSection(section.id, "is_public", section.is_public);
       setError(err instanceof Error ? err.message : "Update failed.");
@@ -319,16 +348,25 @@ export function DashboardEditor({
 
   if (loading) {
     return sidebar ? (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
+      <div className="space-y-3 px-4 py-4">
+        <div className="skeleton h-24 rounded-xl" />
+        <div className="skeleton h-24 rounded-xl" />
       </div>
     ) : embedded ? (
-      <div className="flex items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
+      <div className="space-y-3">
+        <div className="skeleton h-[72px] rounded-xl" />
+        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2">
+          <div className="skeleton min-h-[140px] rounded-xl" />
+          <div className="skeleton min-h-[140px] rounded-xl" />
+          <div className="skeleton min-h-[140px] rounded-xl" />
+          <div className="skeleton min-h-[140px] rounded-xl" />
+        </div>
       </div>
     ) : (
-      <div className="flex flex-1 items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--color-accent)]" />
+      <div className="mx-auto w-full max-w-3xl flex-1 space-y-4 px-4 py-8 sm:px-6">
+        <div className="skeleton h-10 w-64 rounded-lg" />
+        <div className="skeleton h-48 rounded-xl" />
+        <div className="skeleton h-48 rounded-xl" />
       </div>
     );
   }
@@ -339,7 +377,7 @@ export function DashboardEditor({
 
   const cardClass =
     embedded && !sidebar
-      ? "scroll-mt-16 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:p-5"
+      ? "scroll-mt-16 w-full"
       : "";
 
   const sidebarPanelClass = sidebar ? "flex h-full min-h-0 flex-col" : "";
@@ -371,26 +409,17 @@ export function DashboardEditor({
         <section
           id={embedded ? "share" : undefined}
           className={`w-full ${embedded ? cardClass : ""} ${embedded ? "" : "mb-12"}`}
-          style={embedded ? { boxShadow: "var(--color-card-shadow)" } : undefined}
         >
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className={`${embedded ? "text-base" : "text-2xl"} font-semibold text-[var(--color-text)]`}>
-                Share with AI
-              </h2>
-              <p className="mt-1 text-sm text-[var(--color-muted)]">
-                Choose what to share, then copy a link for AI to read.
-              </p>
+          {panel === "all" && !embedded ? (
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-2 text-right">
+                <p className="text-xs text-[var(--color-muted)]">Profile complete</p>
+                <p className="text-lg font-medium text-[var(--color-accent)]">
+                  {completion}%
+                </p>
+              </div>
             </div>
-            {panel === "all" && !embedded ? (
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-2 text-right">
-              <p className="text-xs text-[var(--color-muted)]">Profile complete</p>
-              <p className="text-lg font-medium text-[var(--color-accent)]">
-                {completion}%
-              </p>
-            </div>
-            ) : null}
-          </div>
+          ) : null}
 
           <ContextBuilder
             sections={contextSections}
@@ -408,15 +437,8 @@ export function DashboardEditor({
         <section
           id="sections"
           className={`${sidebar ? sidebarPanelClass : "w-full"} ${
-            embedded && !sidebar
-              ? "rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]/80 p-4 sm:p-5"
-              : ""
+            embedded && !sidebar ? "w-full" : ""
           }`}
-          style={
-            embedded && !sidebar
-              ? { boxShadow: "var(--color-card-shadow)" }
-              : undefined
-          }
         >
           {error && embedded ? (
             <p
@@ -438,15 +460,37 @@ export function DashboardEditor({
           </div>
           ) : null}
 
-          <div className={sidebar ? "flex-1 overflow-y-auto px-4 pb-4" : "space-y-3"}>
-          {sections.length === 0 ? (
-            embedded && !sidebar ? (
-              <ProfileEmptyState />
-            ) : (
+          <div className={sidebar ? "flex-1 overflow-y-auto px-4 pb-4" : ""}>
+          {embedded && !sidebar ? (
+            <ProfileGridView
+              sections={sections}
+              username={username}
+              savingId={savingId}
+              onUsernameClaimed={(claimedUsername) => {
+                setUsername(claimedUsername);
+                if (portal?.profile) {
+                  portal.setProfile({
+                    ...portal.profile,
+                    username: claimedUsername,
+                  });
+                }
+              }}
+              onUpdateContent={(id, value) =>
+                updateSection(id, "content", value)
+              }
+              onRevertContent={(id, value) =>
+                updateSection(id, "content", value)
+              }
+              onSaveSection={handleSaveSection}
+              onDeleteSection={handleDeleteSection}
+              onTogglePublic={handleTogglePublic}
+              onAddPresetSection={handleAddPresetSection}
+              onAddCustom={() => setShowAddModal(true)}
+            />
+          ) : sections.length === 0 ? (
             <p className={`rounded-2xl border border-dashed border-[var(--color-border)] text-center text-sm text-[var(--color-muted)] ${sidebar ? "mx-4 p-6" : "p-8"}`}>
               No sections yet. Add one to get started.
             </p>
-            )
           ) : (
             <div className={`space-y-4 ${sidebar ? "pb-2" : ""}`}>
               {sections.map((section) => {
@@ -455,30 +499,6 @@ export function DashboardEditor({
                   section.content !== section.savedContent;
                 const isSaving = savingId === section.id;
                 const justSaved = savedId === section.id;
-
-                if (embedded && !sidebar) {
-                  return (
-                    <ProfileSectionCard
-                      key={section.id}
-                      id={section.id}
-                      sectionType={section.section_type}
-                      title={section.title}
-                      content={section.content}
-                      savedContent={section.savedContent}
-                      isPublic={section.is_public}
-                      updatedAt={section.updated_at}
-                      username={username}
-                      isSaving={isSaving}
-                      justSaved={justSaved}
-                      onContentChange={(value) =>
-                        updateSection(section.id, "content", value)
-                      }
-                      onTogglePublic={() => handleTogglePublic(section)}
-                      onSave={() => handleSaveSection(section)}
-                      onDelete={() => handleDeleteSection(section.id)}
-                    />
-                  );
-                }
 
                 return (
                   <article
@@ -544,17 +564,7 @@ export function DashboardEditor({
             </div>
           )}
 
-          {embedded && !sidebar ? (
-            <div className={sections.length > 0 ? "mt-5" : ""}>
-            <AddSectionButton
-              availableTypes={availablePresetSectionTypes(
-                sections.map((s) => s.section_type)
-              )}
-              onAdd={(type, title) => void handleAddPresetSection(type, title)}
-              onAddCustom={() => setShowAddModal(true)}
-            />
-            </div>
-          ) : (
+          {!embedded || sidebar ? (
             <div className={`${sections.length > 0 ? "mt-4" : ""}`}>
               <button
                 type="button"
@@ -565,7 +575,7 @@ export function DashboardEditor({
                 Add section
               </button>
             </div>
-          )}
+          ) : null}
           </div>
         </section>
         ) : null}
@@ -611,8 +621,8 @@ export function DashboardEditor({
       )}
 
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-card)] p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
+          <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
             <h3 className="text-lg font-semibold text-[var(--color-text)]">
               Add custom section
             </h3>

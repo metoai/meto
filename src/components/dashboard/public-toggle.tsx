@@ -20,8 +20,8 @@ export function PublicToggle({
   return (
     <div className="flex items-center gap-2" title={tooltip}>
       <span
-        className={`text-xs transition-colors ${
-          isPublic ? "text-[#1D9E75]" : "text-[#6B9E88]"
+        className={`text-[11px] font-medium transition-colors duration-150 ${
+          isPublic ? "text-[var(--primary)]" : "text-[var(--muted)]"
         }`}
       >
         {isPublic ? "Public" : "Private"}
@@ -32,12 +32,12 @@ export function PublicToggle({
         aria-checked={isPublic}
         disabled={disabled}
         onClick={onChange}
-        className={`relative h-5 w-9 shrink-0 rounded-full transition-colors duration-150 disabled:opacity-50 ${
-          isPublic ? "bg-[#0F6E56]" : "bg-[#2A3D34]"
+        className={`relative h-5 w-9 shrink-0 rounded-full transition-[background] duration-150 ease-in-out disabled:opacity-50 ${
+          isPublic ? "bg-[var(--primary)]" : "bg-[var(--border)]"
         }`}
       >
         <span
-          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-150 ${
+          className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-150 ease-in-out ${
             isPublic ? "left-[18px]" : "left-0.5"
           }`}
         />

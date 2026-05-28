@@ -1,5 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PROFILE_SECTIONS } from "@/lib/meto-prompts";
+import {
+  findSectionRowForUpdate,
+  PROFILE_SECTIONS,
+} from "@/lib/meto-prompts";
 
 export async function mergeProfileSectionUpdates(
   supabase: SupabaseClient,
@@ -13,23 +16,18 @@ export async function mergeProfileSectionUpdates(
 
   const { data: existing, error: fetchError } = await supabase
     .from("context_sections")
-    .select("id, section_type, display_order")
+    .select("id, section_type, title, display_order")
     .eq("user_id", userId);
 
   if (fetchError) throw fetchError;
 
-  const byType = new Map(
-    (existing ?? []).map((row) => [row.section_type, row])
-  );
+  const rows = existing ?? [];
   let nextOrder =
-    (existing ?? []).reduce(
-      (max, row) => Math.max(max, row.display_order ?? 0),
-      -1
-    ) + 1;
+    rows.reduce((max, row) => Math.max(max, row.display_order ?? 0), -1) + 1;
 
   for (const [sectionType, content] of entries) {
     const trimmed = content.trim();
-    const row = byType.get(sectionType);
+    const row = findSectionRowForUpdate(sectionType, rows);
 
     if (row) {
       const { error } = await supabase

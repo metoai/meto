@@ -1,6 +1,5 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { friendlySectionTitle } from "@/lib/section-display";
 import type { SectionKey } from "@/lib/meto-prompts";
@@ -35,16 +34,15 @@ export function AddSectionButton({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--color-border)] bg-[var(--color-card)]/70 px-4 py-8 text-[var(--color-muted)] transition-colors duration-150 hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+        className="flex w-full items-center justify-center rounded-xl border-[1.5px] border-dashed border-[var(--border)] px-4 py-4 text-[13px] text-[var(--placeholder)] transition-all duration-150 ease-in-out hover:border-[var(--primary)] hover:text-[var(--primary)]"
       >
-        <Plus className="h-5 w-5" />
-        <span className="text-sm">Add a section</span>
+        + Add a section
       </button>
 
       {open ? (
-        <div className="absolute bottom-full left-0 right-0 z-10 mb-2 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] py-1 shadow-lg">
+        <div className="absolute bottom-full left-0 right-0 z-10 mb-2 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] py-1">
           {availableTypes.length === 0 ? (
-            <p className="px-4 py-3 text-xs text-[var(--color-muted)]">
+            <p className="px-4 py-3 text-xs text-[var(--muted)]">
               All preset sections added.
             </p>
           ) : (
@@ -56,7 +54,7 @@ export function AddSectionButton({
                   onAdd(type, friendlySectionTitle(type));
                   setOpen(false);
                 }}
-                className="block w-full px-4 py-2.5 text-left text-sm text-[var(--color-text)] transition-colors duration-150 hover:bg-[var(--color-border)]/40"
+                className="block w-full px-4 py-2.5 text-left text-sm text-[var(--text)] transition-colors duration-150 hover:bg-[var(--surface)]"
               >
                 {friendlySectionTitle(type)}
               </button>
@@ -68,7 +66,7 @@ export function AddSectionButton({
               onAddCustom();
               setOpen(false);
             }}
-            className="block w-full border-t border-[var(--color-border)] px-4 py-2.5 text-left text-sm text-[var(--color-muted)] transition-colors duration-150 hover:bg-[var(--color-border)]/40 hover:text-[var(--color-text)]"
+            className="block w-full border-t border-[var(--border)] px-4 py-2.5 text-left text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
           >
             Custom section…
           </button>

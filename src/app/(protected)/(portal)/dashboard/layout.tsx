@@ -1,10 +1,12 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { userHasSections } from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function DashboardPage() {
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = createClient();
   const {
     data: { user },
@@ -20,9 +22,5 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[var(--color-bg)]" />}>
-      <DashboardClient />
-    </Suspense>
-  );
+  return children;
 }

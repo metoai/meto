@@ -81,16 +81,18 @@ export default function LoginPage() {
         footer={
           <>
             No account?{" "}
-            <Link
-              href="/auth/signup"
-              className="text-[var(--color-accent)] hover:underline"
-            >
+            <Link href="/auth/signup" className="cursor-pointer text-[var(--primary)]">
               Sign up free
             </Link>
           </>
         }
       >
-        <form onSubmit={handleLogin} className="space-y-4">
+        <div className="flex flex-col gap-2.5">
+          <AuthGoogleButton onClick={() => void handleGoogleLogin()} disabled={loading} />
+
+          <AuthDivider />
+
+          <form onSubmit={handleLogin} className="space-y-4">
           <AuthField
             id="email"
             label="Email"
@@ -120,9 +122,7 @@ export default function LoginPage() {
             {loading ? "Signing in…" : "Sign in"}
           </AuthPrimaryButton>
         </form>
-
-        <AuthDivider />
-        <AuthGoogleButton onClick={() => void handleGoogleLogin()} disabled={loading} />
+        </div>
       </AuthCard>
     </MarketingLayout>
   );

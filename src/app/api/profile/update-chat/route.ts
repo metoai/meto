@@ -5,8 +5,11 @@ import {
   generateWithGemini,
 } from "@/lib/gemini";
 import {
+  buildCurrentSectionsMap,
+  buildRippleSectionReviewPrompt,
+  buildUpdateApplyReviewPrompt,
   buildUpdateContextPrompt,
-  sectionsToMap,
+  getMissingRippleSections,
 } from "@/lib/meto-prompts";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
@@ -17,6 +20,12 @@ type UpdateChatResult = {
   reply: string;
   done: boolean;
   updates: Record<string, string>;
+};
+
+type SectionRow = {
+  section_type: string;
+  title: string;
+  content: string;
 };
 
 function normalizeUpdates(raw: unknown): Record<string, string> {
@@ -49,6 +58,28 @@ function parseUpdateChatResponse(text: string): UpdateChatResult {
   };
 }
 
+async function reviewRippleSections(
+  currentSections: Record<string, string>,
+  updates: Record<string, string>,
+  conversation: string
+): Promise<Record<string, string>> {
+  const missing = getMissingRippleSections(updates);
+  if (missing.length === 0) return updates;
+
+  const rippleRaw = await generateWithGemini(
+    buildRippleSectionReviewPrompt(
+      currentSections,
+      updates,
+      conversation,
+      missing
+    ),
+    { temperature: 0.3 }
+  );
+  const ripple = parseUpdateChatResponse(rippleRaw);
+
+  return { ...updates, ...ripple.updates };
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = createClient();
@@ -66,17 +97,60 @@ export async function POST(request: Request) {
       updates?: Record<string, string>;
     };
 
-    if (body.apply && body.updates) {
-      await mergeProfileSectionUpdates(supabase, user.id, body.updates);
+    const { data: allSections, error: allSectionsError } = await supabase
+      .from("context_sections")
+      .select("section_type, title, content")
+      .eq("user_id", user.id)
+      .order("display_order", { ascending: true });
 
-      const { data: sections } = await supabase
+    if (allSectionsError) throw allSectionsError;
+
+    const sectionRows = (allSections ?? []) as SectionRow[];
+    const currentSections = buildCurrentSectionsMap(sectionRows);
+    const customSections = sectionRows
+      .filter((row) => row.section_type === "custom")
+      .map((row) => ({
+        title: row.title ?? "Custom section",
+        content: row.content ?? "",
+      }));
+
+    if (body.apply && body.updates) {
+      const messages = body.messages ?? [];
+      const conversation = messages
+        .map((m) => `${m.role === "user" ? "User" : "Meto"}: ${m.content}`)
+        .join("\n");
+
+      const reviewRaw = await generateWithGemini(
+        buildUpdateApplyReviewPrompt(
+          currentSections,
+          body.updates,
+          conversation,
+          customSections
+        ),
+        { temperature: 0.3 }
+      );
+      const reviewed = parseUpdateChatResponse(reviewRaw);
+      let finalUpdates =
+        Object.keys(reviewed.updates).length > 0
+          ? reviewed.updates
+          : body.updates;
+
+      finalUpdates = await reviewRippleSections(
+        currentSections,
+        finalUpdates,
+        conversation
+      );
+
+      await mergeProfileSectionUpdates(supabase, user.id, finalUpdates);
+
+      const { data: updatedSections } = await supabase
         .from("context_sections")
         .select("section_type, title, content")
         .eq("user_id", user.id)
         .order("display_order", { ascending: true });
 
-      if (sections?.length) {
-        const compiled = compileLocally("universal", sections);
+      if (updatedSections?.length) {
+        const compiled = compileLocally("universal", updatedSections);
         await supabase.from("compiled_profiles").upsert(
           {
             user_id: user.id,
@@ -99,24 +173,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: sections, error: sectionsError } = await supabase
-      .from("context_sections")
-      .select("section_type, content")
-      .eq("user_id", user.id);
-
-    if (sectionsError) throw sectionsError;
-
-    const currentSections = sectionsToMap(sections ?? []);
     const conversation = messages
       .map((m) => `${m.role === "user" ? "User" : "Meto"}: ${m.content}`)
       .join("\n");
 
     const raw = await generateWithGemini(
-      buildUpdateContextPrompt(currentSections, conversation),
+      buildUpdateContextPrompt(
+        currentSections,
+        conversation,
+        customSections
+      ),
       { temperature: 0.5 }
     );
 
     const result = parseUpdateChatResponse(raw);
+
+    if (result.done && Object.keys(result.updates).length > 0) {
+      result.updates = await reviewRippleSections(
+        currentSections,
+        result.updates,
+        conversation
+      );
+    }
 
     return NextResponse.json(result);
   } catch (error) {

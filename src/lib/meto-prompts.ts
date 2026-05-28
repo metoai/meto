@@ -38,18 +38,162 @@ export const CHAT_OPENING_MESSAGE =
   "Hey! I'll ask you a few quick questions to build your AI profile. What's your name and what do you do?";
 
 export const UPDATE_CONTEXT_OPENING =
-  "Tell me what's changed — a new project, role, goal, or anything else worth adding to your profile.";
+  "What's new? Tell me in plain language — I'll update your profile across every section that needs it.";
+
+const UPDATE_SECTION_KEYS_JSON = `{
+    "about": "",
+    "work": "",
+    "projects": "",
+    "skills": "",
+    "goals": "",
+    "working_style": "",
+    "context_for_ai": ""
+  }`;
+
+const CROSS_SECTION_REVIEW_RULES = `- Before setting done: true, review EVERY section above — changes often ripple across the profile
+- You MUST explicitly read and evaluate projects (What I'm building) and goals (My goals) on every update — never skip them
+- When work, about, skills, or life direction changes, projects and goals almost always need re-checking even if they seem unrelated at first
+- Examples: a new job → update work, about, projects, and goals; new project → update projects, goals, and possibly skills; changed priorities → update goals and projects
+- Include every section key that needs any revision to stay accurate and consistent — not only the most obvious section
+- Merge new info into existing section text intelligently — don't erase unrelated content
+- Write updates in first person (as the user)
+- Omit section keys only if you read the current content and confirmed zero change is needed`;
+
+function sectionLabel(type: SectionKey) {
+  const meta = PROFILE_SECTIONS.find((s) => s.type === type);
+  return meta ? `${type} (${meta.title})` : type;
+}
+
+function formatSectionSummary(
+  currentSections: Record<string, string>,
+  extraSections: { title: string; content: string }[] = []
+) {
+  const presetLines = PROFILE_SECTIONS.map(
+    (s) => `${sectionLabel(s.type)}: ${currentSections[s.type] || "(empty)"}`
+  );
+  const customLines = extraSections
+    .filter((s) => s.content?.trim() || s.title?.trim())
+    .map((s) => `custom (${s.title || "Custom section"}): ${s.content || "(empty)"}`);
+
+  return [...presetLines, ...customLines].join("\n");
+}
+
+const SECTION_TITLE_PATTERNS: Partial<Record<SectionKey, string[]>> = {
+  about: ["about me", "about"],
+  work: ["what i do", "work"],
+  projects: ["what i'm building", "what i am building", "building", "project"],
+  skills: ["skill"],
+  goals: ["my goals", "goal"],
+  working_style: ["how i work", "working style"],
+  context_for_ai: ["for the ai", "context for ai"],
+};
+
+/** Map DB rows to preset keys, including title-based matching for goals/projects. */
+export function buildCurrentSectionsMap(
+  rows: { section_type: string; title: string; content: string }[]
+): Record<string, string> {
+  const map = sectionsToMap(rows);
+
+  for (const section of PROFILE_SECTIONS) {
+    if (map[section.type]?.trim()) continue;
+
+    const patterns = SECTION_TITLE_PATTERNS[section.type] ?? [];
+    const match = rows.find((row) => {
+      const title = row.title?.toLowerCase() ?? "";
+      return patterns.some(
+        (pattern) => title.includes(pattern) || row.section_type === section.type
+      );
+    });
+
+    if (match?.content?.trim()) {
+      map[section.type] = match.content;
+    }
+  }
+
+  return map;
+}
+
+export function findSectionRowForUpdate(
+  sectionType: string,
+  rows: { id: string; section_type: string; title: string }[]
+) {
+  const direct = rows.find((row) => row.section_type === sectionType);
+  if (direct) return direct;
+
+  const patterns =
+    SECTION_TITLE_PATTERNS[sectionType as SectionKey] ??
+    [sectionType.replace(/_/g, " ")];
+
+  return rows.find((row) => {
+    const title = row.title?.toLowerCase() ?? "";
+    return patterns.some((pattern) => title.includes(pattern));
+  });
+}
+
+const RIPPLE_SECTIONS: SectionKey[] = ["projects", "goals"];
+
+/** Sections that must be re-evaluated when other profile parts change. */
+export function getMissingRippleSections(
+  updates: Record<string, string>
+): SectionKey[] {
+  if (Object.keys(updates).length === 0) return [];
+  return RIPPLE_SECTIONS.filter((key) => !(key in updates));
+}
+
+/** Targeted review when projects/goals were skipped from a cross-section update. */
+export function buildRippleSectionReviewPrompt(
+  currentSections: Record<string, string>,
+  existingUpdates: Record<string, string>,
+  conversation: string,
+  sectionsToReview: SectionKey[]
+) {
+  const reviewLines = sectionsToReview
+    .map(
+      (key) =>
+        `${sectionLabel(key)}:\n${currentSections[key] || "(empty)"}`
+    )
+    .join("\n\n");
+
+  const changedLines = Object.entries(existingUpdates)
+    .map(([key, value]) => `${sectionLabel(key as SectionKey)}: ${value}`)
+    .join("\n");
+
+  return `You are Meto's profile consistency reviewer. Other profile sections are being updated. You MUST evaluate whether projects (What I'm building) and/or goals (My goals) also need changes.
+
+Sections you MUST re-read now:
+${reviewLines}
+
+Other sections already being updated:
+${changedLines}
+
+Conversation:
+${conversation}
+
+Rules:
+- Read the current projects and goals content carefully
+- Update them if the conversation or other section changes imply any shift in what the user is building or working toward
+- If projects or goals truly need no change, omit that key — but only after genuine evaluation
+- Write in first person, merge intelligently with existing content
+
+Respond ONLY with valid JSON:
+{
+  "reply": "one sentence on what you changed",
+  "done": true,
+  "updates": ${UPDATE_SECTION_KEYS_JSON}
+}
+
+Include only the keys from this list that need changes: ${sectionsToReview.join(", ")}.`;
+}
 
 /** Dashboard iteration — merge updates into existing profile */
 export function buildUpdateContextPrompt(
   currentSections: Record<string, string>,
-  conversation: string
+  conversation: string,
+  extraSections: { title: string; content: string }[] = []
 ) {
-  const sectionSummary = PROFILE_SECTIONS.map(
-    (s) => `${s.type}: ${currentSections[s.type] || "(empty)"}`
-  ).join("\n");
+  const sectionSummary = formatSectionSummary(currentSections, extraSections);
 
-  return `You are Meto's profile update assistant. The user already has an AI identity profile. They are sharing what's new or changed — NOT building from scratch.
+  return `You are Meto — the user's AI identity assistant. They share life or work updates in plain language. Your job is to keep their full profile accurate so every AI knows the real them.
 
 Current profile sections:
 ${sectionSummary}
@@ -58,30 +202,61 @@ Conversation so far:
 ${conversation}
 
 Rules:
-- Be brief and helpful — 1–2 sentences in your reply
+- Sound warm and human — like a sharp friend, not a form or checklist
+- Be brief: 1–2 sentences in your reply
 - Ask AT MOST ONE clarifying question if the update is too vague to place
 - If you have enough to update, set done: true and provide merged section content in updates
-- Merge new info into existing section text intelligently — don't erase unrelated content
-- Write updates in first person (as the user)
-- Only include section keys that need changes in updates
+- When done: true, briefly say which areas you're updating (e.g. work, what they're building, goals)
+${CROSS_SECTION_REVIEW_RULES}
 - Never re-interview or ask onboarding-style questions
 
 Respond ONLY with valid JSON:
 {
   "reply": "your short response to the user",
   "done": false,
-  "updates": {
-    "about": "",
-    "work": "",
-    "projects": "",
-    "skills": "",
-    "goals": "",
-    "working_style": "",
-    "context_for_ai": ""
-  }
+  "updates": ${UPDATE_SECTION_KEYS_JSON}
 }
 
-Set done: true when you can apply updates. Omit empty strings from updates object when done is true.`;
+Set done: true only after reviewing all sections — especially projects (What I'm building) and goals (My goals). When done is true, include every preset section key that changed. Omit empty strings from updates.`;
+}
+
+/** Final cross-section review before writing updates to the database */
+export function buildUpdateApplyReviewPrompt(
+  currentSections: Record<string, string>,
+  proposedUpdates: Record<string, string>,
+  conversation: string,
+  extraSections: { title: string; content: string }[] = []
+) {
+  const sectionSummary = formatSectionSummary(currentSections, extraSections);
+  const proposedSummary = Object.entries(proposedUpdates)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+
+  return `You are Meto's profile consistency reviewer. The user reported a life/work change. Before saving, review the ENTIRE profile for ripple effects.
+
+Current profile sections:
+${sectionSummary}
+
+Conversation:
+${conversation}
+
+Proposed updates from the assistant (starting point — expand if other sections need changes):
+${proposedSummary}
+
+Your job:
+- Re-read every section and decide what must change to stay accurate and consistent
+- Expand or adjust the proposed updates if connected sections were missed
+${CROSS_SECTION_REVIEW_RULES}
+- Do not invent facts not supported by the conversation
+
+Respond ONLY with valid JSON:
+{
+  "reply": "Brief note on what sections you adjusted for consistency (1 sentence, for internal use)",
+  "done": true,
+  "updates": ${UPDATE_SECTION_KEYS_JSON}
+}
+
+Always set done: true. Include every preset section key that should change — pay special attention to projects (What I'm building) and goals (My goals). Omit unchanged keys.`;
 }
 
 /** 1A — Brain dump extractor */

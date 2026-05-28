@@ -13,8 +13,6 @@ import {
 import { ProfileAuthModal, type AuthModalMode } from "@/components/auth/profile-auth-modal";
 import { createClient } from "@/lib/supabase/client";
 
-const THEME_STORAGE_KEY = "meto-theme";
-
 const STORAGE_KEY = "meto_landing_session";
 const PENDING_SAVE_KEY = "meto_landing_pending_save";
 const PENDING_MESSAGE_KEY = "meto_landing_pending_message";
@@ -46,6 +44,8 @@ const EMPTY_COLLECTED: CollectedProfile = {
   goals: null,
 };
 
+const LANDING_SAVE_PROMPT_AFTER = 3;
+
 const NAV_LINKS = [
   { label: "How it works", href: "/#chat" },
   { label: "Examples", href: "/profile/dibo" },
@@ -56,69 +56,7 @@ function createId() {
   return crypto.randomUUID();
 }
 
-type ThemePreference = "system" | "light" | "dark";
-
-function applyTheme(preference: ThemePreference) {
-  const root = document.documentElement;
-  if (preference === "system") {
-    root.removeAttribute("data-theme");
-    localStorage.removeItem(THEME_STORAGE_KEY);
-  } else {
-    root.setAttribute("data-theme", preference);
-    localStorage.setItem(THEME_STORAGE_KEY, preference);
-  }
-}
-
-function loadThemePreference(): ThemePreference {
-  if (typeof window === "undefined") return "system";
-  const stored = localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return "system";
-}
-
-function ThemeToggleIcon({ preference }: { preference: ThemePreference }) {
-  if (preference === "light") {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5" />
-        <path
-          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
-    );
-  }
-  if (preference === "dark") {
-    return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-        <path
-          d="M21 14.5A7.5 7.5 0 1111.5 5a5.5 5.5 0 008.5 9.5z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-      <rect
-        x="3"
-        y="4"
-        width="18"
-        height="13"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path d="M8 20h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function MetoMark({ className = "h-5 w-5" }: { className?: string }) {
+function MetoAvatar({ className = "h-7 w-7" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
       <circle cx="12" cy="12" r="10" fill="#0F6E56" />
@@ -137,13 +75,27 @@ function SendIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden>
       <path
-        d="M12 19V5M12 5l-5 5M12 5l5 5"
+        d="M5 12h14M13 6l6 6-6 6"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+function OpeningMessage() {
+  return (
+    <div className="flex gap-3 text-left">
+      <MetoAvatar />
+      <div>
+        <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">Meto</p>
+        <p className="text-sm leading-normal text-[var(--text)]">
+          Hey — what do you do and what are you working on right now?
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -194,15 +146,20 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [themePreference, setThemePreference] =
-    useState<ThemePreference>("system");
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>("gate");
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [savePromptDismissed, setSavePromptDismissed] = useState(false);
   const resumePendingRef = useRef(false);
 
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const chatStarted = userMessageCount > 0;
+  const shouldOfferSave =
+    profileReady ||
+    (userMessageCount >= LANDING_SAVE_PROMPT_AFTER &&
+      hasCollectedContent(collected));
+  const showSavePrompt =
+    chatStarted && shouldOfferSave && !savePromptDismissed && !typing;
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -210,7 +167,7 @@ export default function Home() {
 
   useEffect(() => {
     if (chatStarted) scrollToBottom();
-  }, [messages, typing, chatStarted, scrollToBottom]);
+  }, [messages, typing, chatStarted, showSavePrompt, scrollToBottom]);
 
   useEffect(() => {
     const existing = loadSession();
@@ -223,24 +180,29 @@ export default function Home() {
       setSessionId(createId());
     }
     setHydrated(true);
-    setThemePreference(loadThemePreference());
   }, []);
-
-  function cycleTheme() {
-    const next: ThemePreference =
-      themePreference === "system"
-        ? "light"
-        : themePreference === "light"
-          ? "dark"
-          : "system";
-    setThemePreference(next);
-    applyTheme(next);
-  }
 
   useEffect(() => {
     if (!hydrated || !sessionId) return;
     saveSession({ sessionId, messages, collected, profileReady });
   }, [hydrated, sessionId, messages, collected, profileReady]);
+
+  async function handleApplyToProfile() {
+    if (saving) return;
+
+    if (!isLoggedIn) {
+      localStorage.setItem(PENDING_SAVE_KEY, "true");
+      setAuthModalMode("gate");
+      setAuthModalOpen(true);
+      return;
+    }
+
+    await handleSaveProfile();
+  }
+
+  function handleKeepChatting() {
+    setSavePromptDismissed(true);
+  }
 
   const persistProfile = useCallback(async () => {
     if (!hasCollectedContent(collected)) return false;
@@ -259,6 +221,21 @@ export default function Home() {
     return true;
   }, [collected]);
 
+  const handleSaveProfile = useCallback(async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+      await persistProfile();
+      setAuthModalOpen(false);
+      router.push("/dashboard/workspace");
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
+  }, [persistProfile, router, saving]);
+
   useEffect(() => {
     async function bootstrapAuth() {
       const {
@@ -266,11 +243,16 @@ export default function Home() {
       } = await supabase.auth.getUser();
       setIsLoggedIn(Boolean(user));
       const pendingSave = localStorage.getItem(PENDING_SAVE_KEY) === "true";
-      if (user && pendingSave && profileReady && hasCollectedContent(collected)) {
+      if (
+        user &&
+        pendingSave &&
+        hasCollectedContent(collected) &&
+        (profileReady || userMessageCount >= LANDING_SAVE_PROMPT_AFTER)
+      ) {
         try {
           setSaving(true);
           await persistProfile();
-          router.push("/dashboard");
+          router.push("/dashboard/workspace");
           router.refresh();
         } catch (error) {
           console.error(error);
@@ -280,7 +262,15 @@ export default function Home() {
       }
     }
     if (hydrated) bootstrapAuth();
-  }, [hydrated, collected, profileReady, persistProfile, router, supabase.auth]);
+  }, [
+    hydrated,
+    collected,
+    profileReady,
+    userMessageCount,
+    persistProfile,
+    router,
+    supabase.auth,
+  ]);
 
   function resizeTextarea() {
     const el = textareaRef.current;
@@ -352,7 +342,9 @@ export default function Home() {
         setCollected((current) =>
           mergeCollected(current, data.collected ?? EMPTY_COLLECTED)
         );
-        setProfileReady(Boolean(data.profile_ready));
+        const ready = Boolean(data.profile_ready);
+        setProfileReady(ready);
+        if (ready) setSavePromptDismissed(false);
       } catch {
         setMessages((current) => [
           ...current,
@@ -394,7 +386,16 @@ export default function Home() {
 
   async function handleAuthSuccess() {
     const loggedIn = await refreshAuthState();
-    if (loggedIn) await flushPendingMessage();
+    if (!loggedIn) return;
+    await flushPendingMessage();
+    const pendingSave = localStorage.getItem(PENDING_SAVE_KEY) === "true";
+    if (
+      pendingSave &&
+      hasCollectedContent(collected) &&
+      (profileReady || userMessageCount >= LANDING_SAVE_PROMPT_AFTER)
+    ) {
+      await handleSaveProfile();
+    }
   }
 
   function handleSubmit(e: FormEvent) {
@@ -411,43 +412,24 @@ export default function Home() {
 
   useEffect(() => {
     if (profileReady && isLoggedIn && !typing && hydrated && !saving) {
-      setAuthModalMode("save");
-      setAuthModalOpen(true);
+      const pendingSave = localStorage.getItem(PENDING_SAVE_KEY) === "true";
+      if (pendingSave) {
+        void handleSaveProfile();
+      }
     }
-  }, [profileReady, isLoggedIn, typing, hydrated, saving]);
-
-  async function handleSaveProfile() {
-    if (saving) return;
-    try {
-      setSaving(true);
-      await persistProfile();
-      setAuthModalOpen(false);
-      router.push("/dashboard");
-      router.refresh();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSaving(false);
-    }
-  }
+  }, [profileReady, isLoggedIn, typing, hydrated, saving, handleSaveProfile]);
 
   if (!hydrated) {
-    return <div className="min-h-screen bg-[var(--color-bg)]" aria-hidden />;
+    return <div className="min-h-screen bg-white" aria-hidden />;
   }
 
   return (
-    <div className="relative min-h-screen text-[var(--color-text)]">
-      <div className="landing-mesh" aria-hidden>
-        <div className="landing-mesh-blob" />
-      </div>
-
-      <header className="landing-animate-in relative z-20 px-4 sm:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between py-5">
+    <div className="relative min-h-screen bg-white text-[var(--text)]">
+      <header className="landing-animate-in border-b border-[var(--border)] bg-white px-4 sm:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between py-4">
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <MetoMark />
-            <span className="text-lg font-semibold tracking-tight text-[var(--color-text)]">
-              meto
-            </span>
+            <MetoAvatar className="h-5 w-5" />
+            <span className="text-base font-medium text-[var(--text)]">meto</span>
           </Link>
 
           <nav
@@ -458,7 +440,7 @@ export default function Home() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
+                className="rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -468,23 +450,8 @@ export default function Home() {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
-              onClick={cycleTheme}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
-              aria-label={`Theme: ${themePreference}. Click to change.`}
-              title={
-                themePreference === "system"
-                  ? "Theme: System"
-                  : themePreference === "light"
-                    ? "Theme: Light"
-                    : "Theme: Dark"
-              }
-            >
-              <ThemeToggleIcon preference={themePreference} />
-            </button>
-            <button
-              type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] lg:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-secondary)] lg:hidden"
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -510,32 +477,32 @@ export default function Home() {
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="rounded-full bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent)]"
+                className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)]"
               >
                 Dashboard
               </Link>
             ) : (
               <>
-        <Link
-          href="/auth/login"
-                  className="hidden text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)] sm:block"
-        >
-          Log in
-        </Link>
-            <Link
-              href="/auth/signup"
-                  className="rounded-full bg-[#0F6E56] px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-[#1D9E75]"
-            >
+                <Link
+                  href="/auth/login"
+                  className="hidden text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)] sm:block"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)]"
+                >
                   Get started
-            </Link>
+                </Link>
               </>
             )}
           </div>
-          </div>
+        </div>
 
         {mobileMenuOpen ? (
           <nav
-            className="mx-auto mb-4 max-w-6xl rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-3 lg:hidden"
+            className="mx-auto mb-4 max-w-6xl rounded-xl border border-[var(--border)] bg-white p-3 lg:hidden"
             aria-label="Mobile"
           >
             {NAV_LINKS.map((link) => (
@@ -543,7 +510,7 @@ export default function Home() {
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm text-[var(--color-muted)] transition-colors hover:bg-[var(--color-border)]/40 hover:text-[var(--color-text)]"
+                className="block rounded-lg px-4 py-3 text-sm text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>
@@ -552,26 +519,30 @@ export default function Home() {
         ) : null}
       </header>
 
-      <main className="relative z-10 mx-auto flex min-h-[calc(100vh-88px)] max-w-4xl flex-col items-center justify-center px-4 pb-12 pt-4 sm:px-6">
+      <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-[680px] flex-col items-center justify-center px-4 pb-12 pt-8 sm:px-6">
         <div className="landing-animate-in w-full text-center">
-          <h1 className="whitespace-nowrap text-[clamp(1.25rem,3.8vw,3rem)] font-semibold leading-tight tracking-tight text-[var(--color-text)]">
-            Stop introducing yourself to AI
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-base text-[var(--color-muted)] sm:text-lg">
-            Create your AI identity by chatting with Meto
+          <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
+            Your AI identity
           </p>
-          </div>
+          <h1 className="mb-3.5 text-[34px] font-semibold leading-[1.1] tracking-[-0.5px] text-[var(--text)] sm:text-[52px]">
+            Stop introducing yourself to AI.
+          </h1>
+          <p className="mx-auto mb-10 max-w-[420px] text-base leading-normal text-[var(--text-secondary)]">
+            Tell Meto about yourself once.
+            <br />
+            Every AI already knows you.
+          </p>
+        </div>
 
         <div
           id="chat"
-          className="landing-animate-in mt-10 flex w-full max-w-3xl flex-col rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-card)] transition-colors duration-200"
-          style={{
-            animationDelay: "0.08s",
-            boxShadow: "var(--color-card-shadow)",
-          }}
+          className="landing-animate-in w-full max-w-[600px] overflow-hidden rounded-2xl border border-[var(--border)] bg-white"
+          style={{ animationDelay: "0.08s" }}
         >
-          {chatStarted ? (
-            <div className="landing-scrollbar-hidden min-h-[100px] max-h-[min(42vh,360px)] overflow-y-auto px-5 pb-2 pt-5 sm:px-6">
+          <div className="landing-scrollbar-hidden max-h-[min(42vh,360px)] overflow-y-auto p-4">
+            {!chatStarted ? (
+              <OpeningMessage />
+            ) : (
               <div className="space-y-5">
                 {messages.map((message) => (
                   <div
@@ -581,82 +552,116 @@ export default function Home() {
                     }`}
                   >
                     {message.role === "assistant" ? (
-                      <div className="max-w-[92%]">
-                        <p className="mb-1 text-xs font-medium text-[var(--color-accent)]">
-                          Meto
-                        </p>
-                        <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-[var(--color-text)]/90">
-                          {message.content}
-                        </p>
+                      <div className="flex max-w-[92%] gap-3">
+                        <MetoAvatar />
+                        <div>
+                          <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
+                            Meto
+                          </p>
+                          <p className="whitespace-pre-wrap text-sm leading-normal text-[var(--text)]">
+                            {message.content}
+                          </p>
+                        </div>
                       </div>
                     ) : (
-                      <p className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-sm border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-[15px] leading-relaxed text-[var(--color-text)]">
+                      <p className="max-w-[85%] whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm leading-normal text-[var(--text)]">
                         {message.content}
                       </p>
                     )}
                   </div>
                 ))}
                 {typing ? (
-                  <div className="landing-animate-message text-left">
-                    <p className="mb-1 text-xs font-medium text-[var(--color-accent)]">
-                      Meto
-                    </p>
-                    <div className="flex gap-1 py-1">
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--color-muted)]" />
+                  <div className="landing-animate-message flex gap-3 text-left">
+                    <MetoAvatar />
+                    <div>
+                      <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
+                        Meto
+                      </p>
+                      <div className="flex gap-1 py-1">
+                        <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
+                        <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
+                        <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+                {showSavePrompt ? (
+                  <div className="landing-animate-message pt-1">
+                    <div className="rounded-xl border border-[#E8E8E4] bg-[#F7F7F5]/80 px-4 py-3">
+                      <p className="text-sm font-medium text-[var(--text)]">
+                        Apply this to your profile?
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                        I&apos;ve got a good picture of you. Save it to your
+                        dashboard, or keep chatting if you want to add more.
+                      </p>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() => void handleApplyToProfile()}
+                          className="rounded-[7px] bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+                        >
+                          {saving ? "Saving…" : "Save to my profile"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={handleKeepChatting}
+                          className="rounded-[7px] px-2 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+                        >
+                          Keep chatting
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : null}
                 <div ref={messagesEndRef} />
               </div>
-            </div>
-          ) : null}
+            )}
+          </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className={`px-5 sm:px-6 ${chatStarted ? "border-t border-[var(--color-border)] py-4" : "py-5"}`}
-          >
+          <div className="border-t border-[var(--border)]" />
+
+          <form onSubmit={handleSubmit} className="flex items-end gap-3 px-4 py-3">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              rows={chatStarted ? 1 : 2}
-              placeholder={
-                profileReady && isLoggedIn
-                  ? "Profile ready — save to continue"
-                  : "I'm a designer working on..."
-              }
-              disabled={typing || (profileReady && isLoggedIn)}
-              className="w-full resize-none bg-transparent text-[15px] leading-relaxed text-[var(--color-text)] outline-none placeholder:text-[var(--color-muted)]"
+              rows={1}
+              placeholder="I'm a designer working on..."
+              disabled={typing}
+              className="min-h-[24px] flex-1 resize-none bg-transparent text-sm leading-normal text-[var(--text)] outline-none placeholder:text-[var(--placeholder)]"
             />
-            <div className="mt-2 flex items-center justify-end">
-              <button
-                type="submit"
-                disabled={!input.trim() || typing || (profileReady && isLoggedIn)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0F6E56] text-white transition-colors duration-150 hover:bg-[#1D9E75] disabled:opacity-30"
-                aria-label="Send"
-              >
-                <SendIcon />
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={!input.trim() || typing}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white transition-[background] duration-150 ease-in-out hover:bg-[var(--primary-hover)] disabled:pointer-events-none"
+              aria-label="Send"
+            >
+              <SendIcon />
+            </button>
           </form>
-          </div>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-[var(--placeholder)]">
+          Works with Claude · ChatGPT · Gemini · Perplexity
+        </p>
       </main>
 
       <footer
         id="faq"
-        className="relative z-10 border-t border-[var(--color-border)] px-4 py-8 sm:px-8"
+        className="border-t border-[var(--border)] bg-white px-4 py-8 sm:px-8"
       >
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--color-muted)] sm:flex-row">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--text-secondary)] sm:flex-row">
           <p>© {new Date().getFullYear()} Meto</p>
           <div className="flex flex-wrap justify-center gap-5">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className="transition-colors hover:text-[var(--color-accent)]"
+                className="transition-colors duration-150 hover:text-[var(--text)]"
               >
                 {link.label}
               </Link>

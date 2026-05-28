@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "Meto — Your AI Identity",
   description:
     "Build your AI identity once. Paste it everywhere. Stop introducing yourself to AI.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
+  },
   openGraph: {
     title: "Meto — Your AI Identity",
     description:
@@ -40,13 +44,7 @@ export default function RootLayout({
       className={`${GeistSans.variable} ${GeistMono.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("meto-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();`,
-          }}
-        />
-      </head>
+      <head />
       <body className="min-h-screen font-sans">{children}</body>
     </html>
   );
