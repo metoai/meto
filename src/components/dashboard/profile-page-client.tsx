@@ -11,13 +11,7 @@ import { usePortalData } from "@/components/portal/portal-data-context";
 export function ProfilePageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const {
-    completion,
-    sections,
-    displayName,
-    profile,
-    setProfile,
-  } = usePortalData();
+  const { completion, sections, profile, setProfile } = usePortalData();
   const initialSectionType = searchParams.get("section");
   const fromContextScore = searchParams.get("from") === "context-score";
 
