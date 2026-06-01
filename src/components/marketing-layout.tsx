@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MetoMark } from "@/components/meto-mark";
+import { MetoLogo } from "@/components/meto-logo";
 import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
@@ -14,13 +14,11 @@ const NAV_LINKS = [
 type MarketingLayoutProps = {
   children: React.ReactNode;
   showFooter?: boolean;
-  authPage?: "login" | "signup";
 };
 
 export function MarketingLayout({
   children,
   showFooter = false,
-  authPage,
 }: MarketingLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,23 +30,12 @@ export function MarketingLayout({
       .catch(() => {});
   }, []);
 
-  if (authPage) {
-    return (
-      <div className="min-h-screen bg-white text-[var(--text)]">
-        <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
-          {children}
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen bg-white text-[var(--text)]">
       <header className="landing-animate-in border-b border-[var(--border)] bg-white px-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between py-4">
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <MetoMark />
-            <span className="text-base font-medium text-[var(--text)]">meto</span>
+          <Link href="/" className="flex shrink-0 items-center">
+            <MetoLogo size="lg" />
           </Link>
 
           <nav

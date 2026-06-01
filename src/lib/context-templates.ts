@@ -4,6 +4,8 @@ export type ContextSectionInput = {
   section_type: string;
   title: string;
   content: string;
+  id?: string;
+  is_public?: boolean;
 };
 
 export type ContextPresetId =

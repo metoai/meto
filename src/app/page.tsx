@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { ProfileAuthModal, type AuthModalMode } from "@/components/auth/profile-auth-modal";
+import { LandingAiPartners } from "@/components/landing/landing-ai-partners";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "meto_landing_session";
@@ -645,9 +646,7 @@ export default function Home() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-[var(--placeholder)]">
-          Works with Claude · ChatGPT · Gemini · Perplexity
-        </p>
+        <LandingAiPartners className="mt-6" />
       </main>
 
       <footer

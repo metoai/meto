@@ -1,16 +1,24 @@
 import fs from "fs";
 
 const env = fs.readFileSync(".env.local", "utf8");
-const key = env.match(/GEMINI_API_KEY=(.+)/)?.[1]?.trim();
+const key = env.match(/DEEPSEEK_API_KEY=(.+)/)?.[1]?.trim();
 if (!key) {
-  console.error("No API key");
+  console.error("No DEEPSEEK_API_KEY in .env.local");
   process.exit(1);
 }
 
-const res = await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
-);
-const d = await res.json();
-(d.models || [])
-  .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
-  .forEach((m) => console.log(m.name.replace("models/", "")));
+const base =
+  env.match(/DEEPSEEK_API_BASE=(.+)/)?.[1]?.trim() ||
+  "https://api.deepseek.com";
+
+const res = await fetch(`${base}/models`, {
+  headers: { Authorization: `Bearer ${key}` },
+});
+const data = await res.json();
+
+if (!res.ok) {
+  console.error(data.error?.message ?? `Request failed (${res.status})`);
+  process.exit(1);
+}
+
+(data.data || []).forEach((model) => console.log(model.id));

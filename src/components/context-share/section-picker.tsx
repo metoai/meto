@@ -1,8 +1,9 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import { PublicToggle } from "@/components/dashboard/public-toggle";
 import type { ContextSectionInput } from "@/lib/context-templates";
 import { friendlySectionTitle } from "@/lib/section-display";
+import { WORKSPACE_COPY } from "@/lib/workspace-content";
 
 type SectionPickerProps = {
   sections: ContextSectionInput[];
@@ -11,7 +12,10 @@ type SectionPickerProps = {
   onSelectAll: () => void;
   onClearAll: () => void;
   isSectionPublic: (sectionType: string) => boolean;
+  onTogglePublic?: (sectionId: string) => void;
+  username?: string | null;
   label?: string;
+  workspaceLayout?: boolean;
 };
 
 export function SectionPicker({
@@ -21,14 +25,24 @@ export function SectionPicker({
   onSelectAll,
   onClearAll,
   isSectionPublic,
+  onTogglePublic,
+  username,
   label = "Include",
+  workspaceLayout = false,
 }: SectionPickerProps) {
   const allSelected = selectedSections.length === sections.length;
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
+        <div>
+          <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
+          {workspaceLayout ? (
+            <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
+              {WORKSPACE_COPY.sectionPickerHint}
+            </p>
+          ) : null}
+        </div>
         <button
           type="button"
           onClick={allSelected ? onClearAll : onSelectAll}
@@ -38,45 +52,86 @@ export function SectionPicker({
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {sections.map((section) => {
-          const active = selectedSections.includes(section.section_type);
-          const isPublic = isSectionPublic(section.section_type);
-          const title = friendlySectionTitle(
-            section.section_type,
-            section.title
-          );
-          const empty = !section.content?.trim();
+      {workspaceLayout && onTogglePublic ? (
+        <div className="space-y-1.5">
+          {sections.map((section) => {
+            const active = selectedSections.includes(section.section_type);
+            const isPublic = isSectionPublic(section.section_type);
+            const title = friendlySectionTitle(
+              section.section_type,
+              section.title
+            );
+            const empty = !section.content?.trim();
 
-          return (
-            <button
-              key={section.section_type}
-              type="button"
-              onClick={() => onToggle(section.section_type)}
-              title={
-                !isPublic
-                  ? "Private — make public in Your Profile to share via link"
-                  : empty
-                    ? "Empty section"
-                    : undefined
-              }
-              className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3.5 py-1.5 text-[13px] transition-all duration-150 ease-in-out ${
-                active
-                  ? "border-[#C0E0D8] bg-[var(--primary-light)] text-[var(--primary)]"
-                  : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
-              } ${empty && !active ? "opacity-50" : ""}`}
-            >
-              {title}
-              {!isPublic ? (
-                <Lock
-                  className={`h-2.5 w-2.5 shrink-0 ${active ? "opacity-80" : "opacity-60"}`}
-                  aria-label="Private"
-                />
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={section.section_type}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 transition-all duration-150 ${
+                  active
+                    ? "border-[#C0E0D8] bg-[#F0FAF7]"
+                    : "border-[var(--border)] bg-white"
+                } ${empty ? "opacity-60" : ""}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => onToggle(section.section_type)}
+                  className={`min-w-0 flex-1 text-left text-[13px] transition-colors ${
+                    active ? "font-medium text-[#0F6E56]" : "text-[#6B6B63]"
+                  }`}
+                >
+                  {title}
+                </button>
+                {section.id ? (
+                  <PublicToggle
+                    isPublic={section.is_public ?? isPublic}
+                    username={username}
+                    onChange={() => onTogglePublic(section.id!)}
+                  />
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {sections.map((section) => {
+            const active = selectedSections.includes(section.section_type);
+            const isPublic = isSectionPublic(section.section_type);
+            const title = friendlySectionTitle(
+              section.section_type,
+              section.title
+            );
+            const empty = !section.content?.trim();
+
+            return (
+              <button
+                key={section.section_type}
+                type="button"
+                onClick={() => onToggle(section.section_type)}
+                title={
+                  !isPublic
+                    ? "Private — text copy only"
+                    : empty
+                      ? "Empty section"
+                      : undefined
+                }
+                className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3.5 py-1.5 text-[13px] transition-all duration-150 ease-in-out ${
+                  active
+                    ? isPublic
+                      ? "border-[#C0E0D8] bg-[var(--primary-light)] text-[var(--primary)]"
+                      : "border-[#E8E8E4] bg-[#FAFAF8] text-[#6B6B63]"
+                    : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+                } ${empty && !active ? "opacity-50" : ""}`}
+              >
+                {title}
+                {!isPublic ? (
+                  <span className="text-[10px] text-[#9B9B93]">· private</span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

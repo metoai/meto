@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { recordCopy } from "@/lib/copy-stats";
 import {
   buildContextShareUrl,
   buildContextText,
@@ -30,6 +31,16 @@ export function useContextShare({
     () => sections.map((section) => section.section_type),
     [sections]
   );
+
+  const effectiveShareTypes = useMemo(() => {
+    const hasFlags = sections.some((section) => section.is_public !== undefined);
+    if (hasFlags) {
+      return sections
+        .filter((section) => section.is_public)
+        .map((section) => section.section_type);
+    }
+    return shareSectionTypes;
+  }, [sections, shareSectionTypes]);
 
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [selectedFormat, setSelectedFormat] =
@@ -72,9 +83,17 @@ export function useContextShare({
   ]);
 
   const shareSelection = useMemo(() => {
-    if (!shareSectionTypes) return selectedSections;
-    return selectedSections.filter((type) => shareSectionTypes.includes(type));
-  }, [selectedSections, shareSectionTypes]);
+    if (!effectiveShareTypes) return selectedSections;
+    return selectedSections.filter((type) => effectiveShareTypes.includes(type));
+  }, [selectedSections, effectiveShareTypes]);
+
+  const linkSelectionCount = shareSelection.length;
+  const privateInSelectionCount = useMemo(() => {
+    if (!effectiveShareTypes) return 0;
+    return selectedSections.filter(
+      (type) => !effectiveShareTypes.includes(type)
+    ).length;
+  }, [selectedSections, effectiveShareTypes]);
 
   const shareUrl = useMemo(() => {
     if (!username || shareSelection.length === 0) return null;
@@ -124,12 +143,14 @@ export function useContextShare({
   }
 
   function isSectionPublic(sectionType: string) {
-    return !shareSectionTypes || shareSectionTypes.includes(sectionType);
+    if (!effectiveShareTypes) return true;
+    return effectiveShareTypes.includes(sectionType);
   }
 
   async function copyContext() {
     if (!contextText) return;
     await navigator.clipboard.writeText(contextText);
+    recordCopy();
     setCopiedContext(true);
     setTimeout(() => setCopiedContext(false), 2000);
   }
@@ -150,6 +171,9 @@ export function useContextShare({
     contextText,
     shareUrl,
     selectionCount,
+    linkSelectionCount,
+    privateInSelectionCount,
+    shareSelection,
     wordCount,
     copiedLink,
     copiedContext,

@@ -65,3 +65,12 @@ export function brandCssVariables(): Record<string, string> {
 }
 
 export type Brand = typeof brand;
+
+/** Static brand assets — served from /public/brand */
+export const brandAssets = {
+  logoIcon: "/brand/logo-icon.svg",
+  logoHorizontalWhite: "/brand/logo-horizontal-white.svg",
+  logoHorizontalGreen: "/brand/logo-horizontal-green.svg",
+} as const;
+
+export type LogoHorizontalVariant = "white" | "green";

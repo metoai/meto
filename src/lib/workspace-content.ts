@@ -1,27 +1,30 @@
 export const WORKSPACE_COPY = {
   bannerTitle: "One link. Every AI.",
   bannerBody:
-    "Your Meto link is you — portable context you can paste into ChatGPT, Claude, Gemini, or any AI. It reads only the sections you choose below, so every conversation starts with the real you.",
+    "Public sections become a link any AI can read. Private sections stay yours — paste them as text when you need to.",
   steps: [
-    { label: "Choose", detail: "Pick what to share" },
-    { label: "Copy", detail: "Grab your link" },
-    { label: "Paste", detail: "Drop it in any AI" },
+    { label: "Choose", detail: "Pick sections & scenario" },
+    { label: "Copy", detail: "Link or formatted text" },
+    { label: "Paste", detail: "Drop into any AI chat" },
   ],
-  linkLabel: "Your Meto link",
+  linkLabel: "Public link",
+  linkSublabel: "Only public sections — same as your meto.ai profile",
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
   linkHint:
-    "Paste this link into any AI chat. It will fetch and read your selected sections.",
-  copyTextInstead: "Copy as text instead",
+    "Paste into ChatGPT, Claude, Gemini, or any AI. It fetches your public sections only.",
+  copyTextInstead: "Copy full text instead",
   copiedContext: "Copied ✓",
   copyContext: "Copy context",
-  previewLabel: "Preview — what AI will read",
+  previewLabel: "Text preview",
+  previewSublabel: "All selected sections — includes private if you picked them",
   emptySelectionTitle: "Choose what to share",
   emptySelectionBody:
-    "Pick a scenario or toggle sections on the right. Your link and preview appear here.",
-  noUsername:
-    "Claim a username in Settings to get your personal link.",
+    "Pick a scenario, then toggle sections. Public ones go in your link; everything selected goes in text copy.",
+  noUsername: "Claim a username in Settings to get your personal link.",
   noPublicInSelection:
-    "Private sections won’t appear in your link. Make them public in Your profile, or pick public sections only.",
-  sectionPickerLabel: "What AI should read",
+    "No public sections selected. Toggle sections public in Profile, or copy as text below.",
+  sectionPickerLabel: "Sections to include",
+  sectionPickerHint:
+    "Tap a section to include it · toggle public/private here or in Profile",
 } as const;

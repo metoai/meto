@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   description:
     "Build your AI identity once. Paste it everywhere. Stop introducing yourself to AI.",
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
     title: "Meto — Your AI Identity",

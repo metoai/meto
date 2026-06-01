@@ -8,6 +8,10 @@ import {
   availablePresetSectionTypes,
   friendlySectionTitle,
 } from "@/lib/section-display";
+import {
+  getSectionStatus,
+  statusSortPriority,
+} from "@/lib/section-status";
 import type { ContextSection } from "@/lib/types";
 
 export type ProfileSectionDraft = ContextSection & {
@@ -18,6 +22,9 @@ export type ProfileSectionDraft = ContextSection & {
 type ProfileGridViewProps = {
   sections: ProfileSectionDraft[];
   username: string;
+  tieredLayout?: boolean;
+  hideLiveBanner?: boolean;
+  initialSectionType?: string | null;
   savingId: string | null;
   onUsernameClaimed: (username: string) => void;
   onUpdateContent: (id: string, content: string) => void;
@@ -35,6 +42,9 @@ type ProfileGridViewProps = {
 export function ProfileGridView({
   sections,
   username,
+  tieredLayout = false,
+  hideLiveBanner = false,
+  initialSectionType = null,
   savingId,
   onUsernameClaimed,
   onUpdateContent,
@@ -91,6 +101,20 @@ export function ProfileGridView({
   );
 
   useEffect(() => {
+    if (!initialSectionType) return;
+    const match = sections.find(
+      (section) => section.section_type === initialSectionType
+    );
+    if (!match) return;
+    setExpandedCardId(match.id);
+    requestAnimationFrame(() => {
+      document
+        .getElementById(`section-${match.section_type}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }, [initialSectionType, sections]);
+
+  useEffect(() => {
     if (!expandedCardId) return;
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -138,18 +162,30 @@ export function ProfileGridView({
     sections.map((section) => section.section_type)
   );
 
+  const displaySections = tieredLayout
+    ? [...sections].sort((a, b) => {
+        const priorityDiff =
+          statusSortPriority(getSectionStatus(a)) -
+          statusSortPriority(getSectionStatus(b));
+        if (priorityDiff !== 0) return priorityDiff;
+        return a.display_order - b.display_order;
+      })
+    : sections;
+
   return (
     <div className="w-full">
-      <ProfileLiveBanner
-        username={username}
-        onUsernameClaimed={onUsernameClaimed}
-      />
+      {!hideLiveBanner ? (
+        <ProfileLiveBanner
+          username={username}
+          onUsernameClaimed={onUsernameClaimed}
+        />
+      ) : null}
 
       <div
         ref={gridRef}
         className="grid grid-cols-1 gap-2.5 md:grid-cols-2"
       >
-        {sections.map((section) => (
+        {displaySections.map((section) => (
           <ProfileSectionGridCard
             key={section.id}
             id={section.id}
@@ -159,6 +195,8 @@ export function ProfileGridView({
             savedContent={section.savedContent}
             isPublic={section.is_public}
             updatedAt={section.updated_at}
+            username={username}
+            tieredLayout={tieredLayout}
             expanded={expandedCardId === section.id}
             isSaving={savingId === section.id}
             showSavePrompt={savePromptCardId === section.id}

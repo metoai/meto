@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { saveProfileSections, userHasSections } from "@/lib/profile-sections";
+import {
+  mergeProfileSectionUpdates,
+  saveProfileSections,
+  userHasSections,
+} from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
 
 type CollectedProfile = {
@@ -31,11 +35,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const alreadyHasSections = await userHasSections(supabase, user.id);
-    if (alreadyHasSections) {
-      return NextResponse.json({ success: true, skipped: true });
-    }
-
     const sections: Record<string, string> = {};
     for (const key of ["about", "work", "projects", "goals"] as const) {
       const value = collected[key];
@@ -49,6 +48,13 @@ export async function POST(request: Request) {
         { error: "No profile content to save." },
         { status: 400 }
       );
+    }
+
+    const alreadyHasSections = await userHasSections(supabase, user.id);
+
+    if (alreadyHasSections) {
+      await mergeProfileSectionUpdates(supabase, user.id, sections);
+      return NextResponse.json({ success: true, merged: true });
     }
 
     await saveProfileSections(supabase, user.id, sections);

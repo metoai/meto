@@ -2,7 +2,13 @@
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { formatRelativeTime } from "@/lib/profile-utils";
+import { PublicToggle } from "@/components/dashboard/public-toggle";
+import {
+  getSectionStatus,
+  statusBorderColor,
+  statusRecencyLabel,
+} from "@/lib/section-status";
+import { SectionStatusBadge } from "@/components/dashboard/ui/section-status-badge";
 import {
   friendlySectionTitle,
   sectionPlaceholder,
@@ -31,6 +37,8 @@ type ProfileSectionGridCardProps = {
   savedContent: string;
   isPublic: boolean;
   updatedAt: string;
+  username?: string;
+  tieredLayout?: boolean;
   expanded: boolean;
   isSaving: boolean;
   showSavePrompt: boolean;
@@ -51,6 +59,8 @@ export function ProfileSectionGridCard({
   savedContent,
   isPublic,
   updatedAt,
+  username,
+  tieredLayout = false,
   expanded,
   isSaving,
   showSavePrompt,
@@ -71,9 +81,12 @@ export function ProfileSectionGridCard({
   const placeholder = emptyPlaceholder(sectionType);
   const isDirty = content !== savedContent;
   const isEmpty = !content.trim();
-  const footerLabel = isEmpty
-    ? "Not set"
-    : `Updated ${formatRelativeTime(updatedAt)}`;
+  const sectionStatus = getSectionStatus({
+    section_type: sectionType,
+    content,
+    updated_at: updatedAt,
+  } as Parameters<typeof getSectionStatus>[0]);
+  const footerLabel = statusRecencyLabel(sectionStatus, updatedAt);
 
   useEffect(() => {
     if (!expanded) return;
@@ -105,27 +118,43 @@ export function ProfileSectionGridCard({
   return (
     <article
       ref={cardRef}
+      id={`section-${sectionType}`}
       data-profile-card={id}
       onClick={handleCardClick}
-      className={`relative flex min-h-[140px] cursor-pointer flex-col rounded-xl border bg-white px-[18px] py-4 transition-all duration-150 ease-in-out md:duration-200 ${
+      className={`relative flex min-h-[140px] cursor-pointer flex-col rounded-xl border bg-white transition-all duration-150 ease-in-out ${
+        tieredLayout ? "overflow-hidden !p-0" : "px-[18px] py-4"
+      } ${
         expanded
-          ? "col-span-1 border-[#0F6E56] shadow-[0_0_0_3px_#E8F5F0] md:col-span-2"
-          : "border-[#E8E8E4] hover:border-[#C0C0B8]"
+          ? tieredLayout
+            ? "col-span-1 border-[#0F6E56] shadow-[0_0_0_3px_#E8F5F0] md:col-span-2"
+            : "col-span-1 border-[#0F6E56] shadow-[0_0_0_3px_#E8F5F0] md:col-span-2"
+          : "border-black/[0.08] hover:scale-[1.005] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
       }`}
+      style={
+        tieredLayout && !expanded
+          ? { borderLeftWidth: 3, borderLeftColor: statusBorderColor(sectionStatus) }
+          : undefined
+      }
     >
-      <div className="mb-2.5 flex items-start justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.07em] text-[#9B9B93]">
-          {displayTitle}
-        </span>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-            isPublic
-              ? "bg-[#E8F5F0] text-[#0F6E56]"
-              : "bg-[#F7F7F5] text-[#9B9B93]"
-          }`}
+      <div className={tieredLayout ? "flex flex-col px-5 py-4" : ""}>
+      <div className="mb-2.5 flex items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <span className="text-sm font-medium text-[#1A1A18]">
+            {displayTitle}
+          </span>
+          {tieredLayout ? <SectionStatusBadge status={sectionStatus} /> : null}
+        </div>
+        <div
+          className="flex shrink-0 items-center gap-2"
+          data-card-action
+          onClick={(e) => e.stopPropagation()}
         >
-          {isPublic ? "Public" : "Private"}
-        </span>
+          <PublicToggle
+            isPublic={isPublic}
+            onChange={onTogglePublic}
+            username={username}
+          />
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 transition-[max-height] duration-200 ease-in-out">
@@ -229,18 +258,7 @@ export function ProfileSectionGridCard({
               ···
             </button>
             {menuOpen ? (
-              <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[140px] overflow-hidden rounded-lg border border-[#E8E8E4] bg-white py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                    onTogglePublic();
-                  }}
-                  className="block w-full px-3 py-2 text-left text-[13px] text-[#1A1A18] transition-colors hover:bg-[#F7F7F5]"
-                >
-                  {isPublic ? "Make private" : "Make public"}
-                </button>
+              <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden rounded-lg border border-[#E8E8E4] bg-white py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -256,6 +274,7 @@ export function ProfileSectionGridCard({
             ) : null}
           </div>
         )}
+      </div>
       </div>
     </article>
   );

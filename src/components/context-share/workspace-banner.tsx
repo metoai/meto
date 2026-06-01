@@ -31,19 +31,18 @@ export function WorkspaceBanner() {
         aria-hidden
       />
 
-      <div className="relative z-10 flex items-start justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5">
+      <div className="relative z-10 flex items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5">
         <div className="min-w-0">
           <p className="text-[22px] font-semibold leading-[1.2] tracking-[-0.02em] text-[var(--text)] sm:text-[26px]">
             {WORKSPACE_COPY.bannerTitle}
           </p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--text-secondary)] sm:text-sm">
-            Paste your Meto link into any AI and it reads exactly what you
-            select below.
+            {WORKSPACE_COPY.bannerBody}
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center pt-1">
-          <MetoMark className="h-11 w-11 sm:h-12 sm:w-12" />
+        <div className="flex shrink-0 items-center self-center">
+          <MetoMark size="xl" />
         </div>
       </div>
     </div>

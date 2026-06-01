@@ -10,7 +10,7 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
       <header className="flex items-center justify-between border-b border-brand-border px-6 py-5 md:px-10">
-        <MetoLogo />
+        <MetoLogo size="lg" />
         <Link
           href="/auth/signup"
           className="rounded-brand-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover"

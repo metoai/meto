@@ -1,12 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import type { CompileFormat } from "@/lib/types";
 import { WORKSPACE_COPY } from "@/lib/workspace-content";
+import { AiPlatformIcon } from "@/components/ui/ai-platform-icon";
+import { PLATFORM_OPTIONS } from "@/lib/context-share/config";
 
 type PreviewPanelProps = {
   contextText: string;
   selectedFormat: CompileFormat;
   selectionCount: number;
+  linkSelectionCount?: number;
+  privateInSelectionCount?: number;
   wordCount: number;
   copiedContext: boolean;
   onCopyContext: () => void;
@@ -20,7 +25,10 @@ type PreviewPanelProps = {
 
 export function PreviewPanel({
   contextText,
+  selectedFormat,
   selectionCount,
+  linkSelectionCount = 0,
+  privateInSelectionCount = 0,
   copiedContext,
   onCopyContext,
   shareUrl,
@@ -32,16 +40,16 @@ export function PreviewPanel({
 }: PreviewPanelProps) {
   if (selectionCount === 0) {
     return (
-      <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-[10px] border border-dashed border-[var(--border)] bg-[var(--surface)] px-6 py-10 text-center">
+      <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-[#FAFAF8] px-6 py-10 text-center">
         <p className="text-sm font-medium text-[var(--text)]">
           {workspaceLayout
             ? WORKSPACE_COPY.emptySelectionTitle
             : "Nothing selected yet"}
         </p>
-        <p className="mt-1 max-w-xs text-xs text-[var(--muted)]">
+        <p className="mt-1 max-w-xs text-xs leading-relaxed text-[var(--muted)]">
           {workspaceLayout
             ? WORKSPACE_COPY.emptySelectionBody
-            : "Pick a scenario or toggle sections on the right — your context block will appear here live."}
+            : "Pick a scenario or toggle sections — your context block appears here live."}
         </p>
       </div>
     );
@@ -49,54 +57,88 @@ export function PreviewPanel({
 
   if (workspaceLayout) {
     const linkReady = Boolean(shareUrl);
+    const hasUsername = Boolean(username);
 
     return (
-      <div className="flex h-full min-h-0 flex-col">
+      <div className="flex h-full min-h-0 flex-col rounded-xl border border-black/[0.08] bg-white p-4">
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-medium text-[var(--muted)]">
+            <p className="text-xs font-medium text-[#1A1A18]">
               {WORKSPACE_COPY.linkLabel}
             </p>
-            <div className="mt-1.5 rounded-[10px] border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5">
-              {linkReady ? (
-                <p className="break-all font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
-                  {shareUrl}
+            <p className="mt-0.5 text-[10px] text-[#9B9B93]">
+              {WORKSPACE_COPY.linkSublabel}
+            </p>
+            {!hasUsername ? (
+              <div className="mt-2 rounded-xl border border-[#E8E8E4] bg-[#F7F7F5] px-4 py-3.5">
+                <p className="text-[13px] text-[#6B6B63]">
+                  Claim a username to get your personal link
                 </p>
-              ) : (
-                <p className="text-xs leading-relaxed text-[var(--muted)]">
-                  {!username
-                    ? WORKSPACE_COPY.noUsername
-                    : WORKSPACE_COPY.noPublicInSelection}
-                </p>
-              )}
-            </div>
+                <Link
+                  href="/settings"
+                  className="mt-2.5 inline-block rounded-lg bg-[#0F6E56] px-4 py-[7px] text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[#1D9E75]"
+                >
+                  Claim username →
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-2 rounded-xl border border-[var(--border)] bg-[#FAFAF8] px-3 py-2.5">
+                {linkReady ? (
+                  <p className="break-all font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
+                    {shareUrl}
+                  </p>
+                ) : (
+                  <p className="text-xs leading-relaxed text-[var(--muted)]">
+                    {WORKSPACE_COPY.noPublicInSelection}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
+
+          {hasUsername && linkReady ? (
+            <p className="text-[11px] text-[#9B9B93]">
+              {linkSelectionCount} public section
+              {linkSelectionCount === 1 ? "" : "s"} in link
+              {privateInSelectionCount > 0
+                ? ` · ${privateInSelectionCount} private (text only)`
+                : ""}
+            </p>
+          ) : null}
 
           <button
             type="button"
             onClick={() => void onCopyLink()}
             disabled={!linkReady}
-            className={`w-full rounded-[10px] border-none px-3 py-3 text-sm font-medium text-white transition-[background] duration-150 ease-in-out disabled:opacity-40 ${
-              copiedLink
-                ? "bg-[var(--primary-hover)]"
-                : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
+            className={`w-full rounded-xl border-none px-3 py-3 text-sm font-medium text-white transition-[background] duration-150 ease-in-out disabled:cursor-not-allowed disabled:opacity-40 ${
+              copiedLink ? "bg-[#1D9E75]" : "bg-[#0F6E56] hover:bg-[#1D9E75]"
             }`}
           >
             {copiedLink ? WORKSPACE_COPY.copiedLink : WORKSPACE_COPY.copyLink}
           </button>
 
+          <div className="flex items-center justify-center gap-3 pt-0.5">
+            {PLATFORM_OPTIONS.filter((p) => p.id !== "universal").map((p) => (
+              <AiPlatformIcon key={p.id} format={p.id} size={18} />
+            ))}
+            <span className="text-[10px] text-[#9B9B93]">works in any AI</span>
+          </div>
+
           {linkReady ? (
-            <p className="text-center text-xs leading-relaxed text-[var(--muted)]">
+            <p className="text-center text-[11px] leading-relaxed text-[var(--muted)]">
               {WORKSPACE_COPY.linkHint}
             </p>
           ) : null}
         </div>
 
-        <div className="mt-5 min-h-0 flex-1">
-          <p className="mb-1.5 text-xs font-medium text-[var(--muted)]">
+        <div className="mt-5 min-h-0 flex-1 border-t border-black/[0.06] pt-4">
+          <p className="text-xs font-medium text-[#1A1A18]">
             {WORKSPACE_COPY.previewLabel}
           </p>
-          <pre className="scrollbar-hidden max-h-[220px] min-h-[140px] overflow-y-auto whitespace-pre-wrap rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
+          <p className="mt-0.5 text-[10px] text-[#9B9B93]">
+            {WORKSPACE_COPY.previewSublabel}
+          </p>
+          <pre className="scrollbar-hidden mt-2 max-h-[200px] min-h-[120px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-[var(--border)] bg-[#FAFAF8] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
             {contextText}
           </pre>
         </div>
@@ -105,8 +147,13 @@ export function PreviewPanel({
           type="button"
           onClick={() => void onCopyContext()}
           disabled={!contextText}
-          className="mt-3 w-full rounded-[10px] border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-[border-color,color] duration-150 ease-in-out hover:border-[var(--border-hover)] hover:text-[var(--text)] disabled:opacity-40"
+          className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${
+            copiedContext
+              ? "border-[#C0E0D8] bg-[#F0FAF7] text-[#0F6E56]"
+              : "border-[var(--border)] bg-white text-[#6B6B63] hover:border-[#C0C0B8] hover:text-[#1A1A18]"
+          }`}
         >
+          <AiPlatformIcon format={selectedFormat} size={16} />
           {copiedContext
             ? WORKSPACE_COPY.copiedContext
             : WORKSPACE_COPY.copyTextInstead}
@@ -128,12 +175,13 @@ export function PreviewPanel({
           type="button"
           onClick={() => void onCopyContext()}
           disabled={!contextText}
-          className={`w-full rounded-[10px] border-none px-3 py-3 text-sm font-medium text-white transition-[background] duration-150 ease-in-out disabled:opacity-40 ${
+          className={`flex w-full items-center justify-center gap-2 rounded-[10px] border-none px-3 py-3 text-sm font-medium text-white transition-[background] duration-150 ease-in-out disabled:opacity-40 ${
             copiedContext
               ? "bg-[var(--primary-hover)]"
               : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
           }`}
         >
+          <AiPlatformIcon format={selectedFormat} size={18} />
           {copiedContext ? "Copied ✓" : "Copy context"}
         </button>
 

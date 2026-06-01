@@ -124,7 +124,7 @@ export function OnboardingFlow() {
     return (
       <div className="flex min-h-screen flex-col bg-brand-background">
         <header className="px-6 py-5">
-          <MetoLogo />
+          <MetoLogo size="lg" />
         </header>
 
         <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-6 pb-16">
@@ -200,7 +200,7 @@ export function OnboardingFlow() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <MetoLogo href="" />
+          <MetoLogo href="" size="md" />
         </header>
 
         <main className="mx-auto w-full max-w-2xl flex-1 px-6 pb-16">
@@ -252,7 +252,7 @@ export function OnboardingFlow() {
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <MetoLogo href="" />
+        <MetoLogo href="" size="md" />
       </header>
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-6">

@@ -6,7 +6,6 @@ import { IntentGrid } from "@/components/context-share/intent-grid";
 import { PlatformTabs } from "@/components/context-share/platform-tabs";
 import { PreviewPanel } from "@/components/context-share/preview-panel";
 import { SectionPicker } from "@/components/context-share/section-picker";
-import { WorkspaceBanner } from "@/components/context-share/workspace-banner";
 import { WORKSPACE_COPY } from "@/lib/workspace-content";
 
 export type ContextComposerProps = {
@@ -19,6 +18,7 @@ export type ContextComposerProps = {
   variant?: "light" | "dark";
   embedded?: boolean;
   workspaceLayout?: boolean;
+  onToggleSectionPublic?: (sectionId: string) => void;
 };
 
 export function ContextComposer({
@@ -30,6 +30,7 @@ export function ContextComposer({
   showShareLink = true,
   embedded = false,
   workspaceLayout = false,
+  onToggleSectionPublic,
 }: ContextComposerProps) {
   const share = useContextShare({
     sections,
@@ -53,11 +54,9 @@ export function ContextComposer({
   }
 
   const showHeader = !embedded;
-  const showWorkspaceBanner = embedded && workspaceLayout;
 
   return (
     <div className={embedded ? "w-full" : "rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6"}>
-      {showWorkspaceBanner ? <WorkspaceBanner /> : null}
       {showHeader ? (
         <header className="mb-6">
           <h2 className="page-title">Share with AI</h2>
@@ -69,29 +68,12 @@ export function ContextComposer({
       ) : null}
 
       <div
-        className={`grid gap-5 lg:gap-6 ${
+        className={`grid gap-5 md:gap-6 ${
           workspaceLayout
-            ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+            ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
             : "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
         }`}
       >
-        <div className="lg:sticky lg:top-4 lg:self-start">
-          <PreviewPanel
-            contextText={share.contextText}
-            selectedFormat={share.selectedFormat}
-            selectionCount={share.selectionCount}
-            wordCount={share.wordCount}
-            copiedContext={share.copiedContext}
-            onCopyContext={share.copyContext}
-            shareUrl={share.shareUrl}
-            copiedLink={share.copiedLink}
-            onCopyLink={share.copyLink}
-            username={username}
-            showShareLink={showShareLink}
-            workspaceLayout={workspaceLayout}
-          />
-        </div>
-
         <div className="space-y-5">
           {sections.length === 0 ? (
             <p className="rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
@@ -103,6 +85,7 @@ export function ContextComposer({
               <IntentGrid
                 selectedPreset={share.selectedPreset}
                 onSelect={share.applyPreset}
+                workspaceLayout={workspaceLayout}
               />
               <SectionPicker
                 sections={sections}
@@ -111,6 +94,9 @@ export function ContextComposer({
                 onSelectAll={share.selectAllSections}
                 onClearAll={share.clearAllSections}
                 isSectionPublic={share.isSectionPublic}
+                onTogglePublic={onToggleSectionPublic}
+                username={username}
+                workspaceLayout={workspaceLayout}
                 label={
                   workspaceLayout
                     ? WORKSPACE_COPY.sectionPickerLabel
@@ -123,6 +109,31 @@ export function ContextComposer({
               />
             </>
           )}
+        </div>
+
+        <div
+          className={`${
+            workspaceLayout
+              ? "md:sticky md:top-0 md:self-start"
+              : "lg:sticky lg:top-4 lg:self-start"
+          }`}
+        >
+          <PreviewPanel
+            contextText={share.contextText}
+            selectedFormat={share.selectedFormat}
+            selectionCount={share.selectionCount}
+            linkSelectionCount={share.linkSelectionCount}
+            privateInSelectionCount={share.privateInSelectionCount}
+            wordCount={share.wordCount}
+            copiedContext={share.copiedContext}
+            onCopyContext={share.copyContext}
+            shareUrl={share.shareUrl}
+            copiedLink={share.copiedLink}
+            onCopyLink={share.copyLink}
+            username={username}
+            showShareLink={showShareLink}
+            workspaceLayout={workspaceLayout}
+          />
         </div>
       </div>
     </div>

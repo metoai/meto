@@ -6,6 +6,9 @@ import {
 } from "@/lib/gemini";
 import {
   buildCurrentSectionsMap,
+  buildGapFixAllUpdatePrompt,
+  buildGapFixUpdatePrompt,
+  GAP_FIX_INIT_USER_LINE,
   buildRippleSectionReviewPrompt,
   buildUpdateApplyReviewPrompt,
   buildUpdateContextPrompt,
@@ -39,23 +42,27 @@ function normalizeUpdates(raw: unknown): Record<string, string> {
   return updates;
 }
 
-function parseUpdateChatResponse(text: string): UpdateChatResult {
-  const cleaned = text
-    .replace(/^```(?:json)?\s*/i, "")
-    .replace(/\s*```$/i, "")
-    .trim();
+function safeParseUpdateChatResponse(text: string): UpdateChatResult | null {
+  try {
+    const cleaned = text
+      .replace(/^```(?:json)?\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
 
-  const parsed = JSON.parse(cleaned) as {
-    reply?: string;
-    done?: boolean;
-    updates?: unknown;
-  };
+    const parsed = JSON.parse(cleaned) as {
+      reply?: string;
+      done?: boolean;
+      updates?: unknown;
+    };
 
-  return {
-    reply: parsed.reply?.trim() || "Got it.",
-    done: Boolean(parsed.done),
-    updates: normalizeUpdates(parsed.updates),
-  };
+    return {
+      reply: parsed.reply?.trim() || "Got it.",
+      done: Boolean(parsed.done),
+      updates: normalizeUpdates(parsed.updates),
+    };
+  } catch {
+    return null;
+  }
 }
 
 async function reviewRippleSections(
@@ -66,18 +73,25 @@ async function reviewRippleSections(
   const missing = getMissingRippleSections(updates);
   if (missing.length === 0) return updates;
 
-  const rippleRaw = await generateWithGemini(
-    buildRippleSectionReviewPrompt(
-      currentSections,
-      updates,
-      conversation,
-      missing
-    ),
-    { temperature: 0.3 }
-  );
-  const ripple = parseUpdateChatResponse(rippleRaw);
+  try {
+    const rippleRaw = await generateWithGemini(
+      buildRippleSectionReviewPrompt(
+        currentSections,
+        updates,
+        conversation,
+        missing
+      ),
+      { temperature: 0.3 }
+    );
+    const ripple = safeParseUpdateChatResponse(rippleRaw);
+    if (ripple?.updates && Object.keys(ripple.updates).length > 0) {
+      return { ...updates, ...ripple.updates };
+    }
+  } catch (error) {
+    console.error("Ripple review failed:", error);
+  }
 
-  return { ...updates, ...ripple.updates };
+  return updates;
 }
 
 export async function POST(request: Request) {
@@ -95,6 +109,14 @@ export async function POST(request: Request) {
       messages?: ChatMessage[];
       apply?: boolean;
       updates?: Record<string, string>;
+      gapFix?: {
+        sectionType?: string;
+        insight?: string;
+        mode?: "single" | "all";
+        allGaps?: { sectionType: string; insight: string; title?: string }[];
+        focusIndex?: number;
+      };
+      gapFixInit?: boolean;
     };
 
     const { data: allSections, error: allSectionsError } = await supabase
@@ -115,25 +137,38 @@ export async function POST(request: Request) {
       }));
 
     if (body.apply && body.updates) {
+      const proposed = normalizeUpdates(body.updates);
+      if (Object.keys(proposed).length === 0) {
+        return NextResponse.json(
+          { error: "No updates to save." },
+          { status: 400 }
+        );
+      }
+
       const messages = body.messages ?? [];
       const conversation = messages
         .map((m) => `${m.role === "user" ? "User" : "Meto"}: ${m.content}`)
         .join("\n");
 
-      const reviewRaw = await generateWithGemini(
-        buildUpdateApplyReviewPrompt(
-          currentSections,
-          body.updates,
-          conversation,
-          customSections
-        ),
-        { temperature: 0.3 }
-      );
-      const reviewed = parseUpdateChatResponse(reviewRaw);
-      let finalUpdates =
-        Object.keys(reviewed.updates).length > 0
-          ? reviewed.updates
-          : body.updates;
+      let finalUpdates = proposed;
+
+      try {
+        const reviewRaw = await generateWithGemini(
+          buildUpdateApplyReviewPrompt(
+            currentSections,
+            proposed,
+            conversation,
+            customSections
+          ),
+          { temperature: 0.3 }
+        );
+        const reviewed = safeParseUpdateChatResponse(reviewRaw);
+        if (reviewed?.updates && Object.keys(reviewed.updates).length > 0) {
+          finalUpdates = reviewed.updates;
+        }
+      } catch (error) {
+        console.error("Apply review failed, saving proposed updates:", error);
+      }
 
       finalUpdates = await reviewRippleSections(
         currentSections,
@@ -162,7 +197,48 @@ export async function POST(request: Request) {
         );
       }
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({
+        success: true,
+        savedSections: Object.keys(finalUpdates),
+      });
+    }
+
+    const gapSectionType = body.gapFix?.sectionType?.trim();
+    const gapInsight = body.gapFix?.insight?.trim() ?? "";
+    const gapMode = body.gapFix?.mode ?? "single";
+    const allGaps = body.gapFix?.allGaps ?? [];
+    const focusIndex = body.gapFix?.focusIndex ?? 0;
+    const useGapFixAll =
+      gapMode === "all" && allGaps.length > 0 && gapSectionType;
+
+    if (body.gapFixInit && gapSectionType) {
+      const raw = await generateWithGemini(
+        useGapFixAll
+          ? buildGapFixAllUpdatePrompt(
+              currentSections,
+              GAP_FIX_INIT_USER_LINE,
+              allGaps,
+              focusIndex
+            )
+          : buildGapFixUpdatePrompt(
+              currentSections,
+              GAP_FIX_INIT_USER_LINE,
+              gapSectionType,
+              gapInsight,
+              customSections
+            ),
+        { temperature: 0.25 }
+      );
+
+      const parsed =
+        safeParseUpdateChatResponse(raw) ??
+        ({
+          reply: "What's the one thing AI should always get right about you?",
+          done: false,
+          updates: {},
+        } satisfies UpdateChatResult);
+
+      return NextResponse.json(parsed);
     }
 
     const messages = body.messages ?? [];
@@ -177,16 +253,39 @@ export async function POST(request: Request) {
       .map((m) => `${m.role === "user" ? "User" : "Meto"}: ${m.content}`)
       .join("\n");
 
+    const useGapFixPrompt = Boolean(gapSectionType);
+
     const raw = await generateWithGemini(
-      buildUpdateContextPrompt(
-        currentSections,
-        conversation,
-        customSections
-      ),
-      { temperature: 0.5 }
+      useGapFixAll
+        ? buildGapFixAllUpdatePrompt(
+            currentSections,
+            conversation,
+            allGaps,
+            focusIndex
+          )
+        : useGapFixPrompt
+          ? buildGapFixUpdatePrompt(
+              currentSections,
+              conversation,
+              gapSectionType!,
+              gapInsight,
+              customSections
+            )
+          : buildUpdateContextPrompt(
+              currentSections,
+              conversation,
+              customSections
+            ),
+      { temperature: useGapFixPrompt || useGapFixAll ? 0.25 : 0.5 }
     );
 
-    const result = parseUpdateChatResponse(raw);
+    const result =
+      safeParseUpdateChatResponse(raw) ??
+      ({
+        reply: "Got it — tell me a bit more so I can update the right sections.",
+        done: false,
+        updates: {},
+      } satisfies UpdateChatResult);
 
     if (result.done && Object.keys(result.updates).length > 0) {
       result.updates = await reviewRippleSections(

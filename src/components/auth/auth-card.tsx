@@ -1,3 +1,5 @@
+import { MetoMark } from "@/components/meto-mark";
+
 type AuthPageProps = {
   title: string;
   subtitle: string;
@@ -8,17 +10,8 @@ type AuthPageProps = {
 export function AuthPage({ title, subtitle, children, footer }: AuthPageProps) {
   return (
     <div className="landing-animate-in w-full max-w-[360px]">
-      <div className="mb-5 flex justify-center">
-        <svg viewBox="0 0 24 24" fill="none" className="h-10 w-10" aria-hidden>
-          <rect width="24" height="24" rx="6" fill="#0F6E56" />
-          <path
-            d="M8 12h8M13 9l3 3-3 3"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+      <div className="mb-6 flex w-full justify-center">
+        <MetoMark size="2xl" />
       </div>
       <div className="mb-7 text-center">
         <h1 className="text-[22px] font-semibold text-[var(--text)]">{title}</h1>

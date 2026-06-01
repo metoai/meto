@@ -6,13 +6,18 @@ import { INTENT_PRESETS } from "@/lib/context-share/config";
 type IntentGridProps = {
   selectedPreset: ContextPresetId;
   onSelect: (preset: Exclude<ContextPresetId, "custom">) => void;
+  workspaceLayout?: boolean;
 };
 
-export function IntentGrid({ selectedPreset, onSelect }: IntentGridProps) {
+export function IntentGrid({
+  selectedPreset,
+  onSelect,
+  workspaceLayout = false,
+}: IntentGridProps) {
   return (
-    <div className="space-y-2">
+    <div className={workspaceLayout ? "space-y-2" : "space-y-2"}>
       <p className="text-xs font-medium text-[var(--muted)]">
-        Start from a scenario
+        {workspaceLayout ? "Start with a scenario" : "Start from a scenario"}
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
         {INTENT_PRESETS.map((preset) => {
