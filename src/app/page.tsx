@@ -12,6 +12,7 @@ import {
 } from "react";
 import { ProfileAuthModal, type AuthModalMode } from "@/components/auth/profile-auth-modal";
 import { LandingAiPartners } from "@/components/landing/landing-ai-partners";
+import { MetoMarkBadge } from "@/components/meto-mark";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "meto_landing_session";
@@ -57,21 +58,6 @@ function createId() {
   return crypto.randomUUID();
 }
 
-function MetoAvatar({ className = "h-7 w-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
-      <circle cx="12" cy="12" r="10" fill="#0F6E56" />
-      <path
-        d="M8 12h8M13 9l3 3-3 3"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function SendIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden>
@@ -89,7 +75,7 @@ function SendIcon() {
 function OpeningMessage() {
   return (
     <div className="flex gap-3 text-left">
-      <MetoAvatar />
+      <MetoMarkBadge />
       <div>
         <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">Meto</p>
         <p className="text-sm leading-normal text-[var(--text)]">
@@ -429,7 +415,7 @@ export default function Home() {
       <header className="landing-animate-in border-b border-[var(--border)] bg-white px-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between py-4">
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <MetoAvatar className="h-5 w-5" />
+            <MetoMarkBadge size="sm" />
             <span className="text-base font-medium text-[var(--text)]">meto</span>
           </Link>
 
@@ -554,7 +540,7 @@ export default function Home() {
                   >
                     {message.role === "assistant" ? (
                       <div className="flex max-w-[92%] gap-3">
-                        <MetoAvatar />
+                        <MetoMarkBadge />
                         <div>
                           <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
                             Meto
@@ -573,7 +559,7 @@ export default function Home() {
                 ))}
                 {typing ? (
                   <div className="landing-animate-message flex gap-3 text-left">
-                    <MetoAvatar />
+                    <MetoMarkBadge />
                     <div>
                       <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
                         Meto
