@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { UpgradeLockedLink } from "@/components/billing/upgrade-locked-link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { ArrowRight, TrendingUp, Zap } from "lucide-react";
@@ -82,14 +83,15 @@ function FixesProgressStrip({
         </div>
 
         {highCount > 0 ? (
-          <Link
+          <UpgradeLockedLink
+            feature="gap_fix"
             href={buildGapFixAllUpdateUrl()}
             onClick={onFixAllStart}
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0F6E56] px-4 py-2.5 text-sm text-white transition-colors duration-150 hover:bg-[#1D9E75] lg:self-center"
           >
             <Zap className="h-4 w-4" />
             Fix all high-impact ({highCount})
-          </Link>
+          </UpgradeLockedLink>
         ) : null}
       </div>
     </div>
@@ -134,14 +136,15 @@ function GapCard({
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2 xl:flex-col xl:items-stretch">
-          <Link
+          <UpgradeLockedLink
+            feature="gap_fix"
             href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
             onClick={onFixStart}
             className="inline-flex items-center justify-center gap-1 rounded-lg bg-[#0F6E56] px-3 py-1.5 text-xs text-white transition-colors duration-150 hover:bg-[#1D9E75]"
           >
             Fix with AI
             <ArrowRight className="h-3 w-3" />
-          </Link>
+          </UpgradeLockedLink>
           <Link
             href={buildGapFixProfileUrl(gap.section_type)}
             onClick={onFixStart}

@@ -14,6 +14,7 @@ import {
   buildUpdateContextPrompt,
   getMissingRippleSections,
 } from "@/lib/meto-prompts";
+import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -104,6 +105,9 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const aiAccess = await assertAiAccess(user.id, "quick_update");
+    if (!aiAccess.ok) return aiAccess.response;
 
     const body = (await request.json()) as {
       messages?: ChatMessage[];
@@ -197,6 +201,8 @@ export async function POST(request: Request) {
         );
       }
 
+      await recordAiUsage(user.id);
+
       return NextResponse.json({
         success: true,
         savedSections: Object.keys(finalUpdates),
@@ -237,6 +243,8 @@ export async function POST(request: Request) {
           done: false,
           updates: {},
         } satisfies UpdateChatResult);
+
+      await recordAiUsage(user.id);
 
       return NextResponse.json(parsed);
     }
@@ -294,6 +302,8 @@ export async function POST(request: Request) {
         conversation
       );
     }
+
+    await recordAiUsage(user.id);
 
     return NextResponse.json(result);
   } catch (error) {

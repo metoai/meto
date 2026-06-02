@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { UpgradeLockedLink } from "@/components/billing/upgrade-locked-link";
 import { ArrowRight, Loader2, Sparkles, TrendingUp, Zap } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ContextScoreResult } from "@/lib/context-score";
@@ -258,6 +259,11 @@ export function ContextScorePanel({
             <p className="mt-1 text-xs leading-relaxed text-[#6B6B63]">
               {score.summary}
             </p>
+            {score.used_fallback ? (
+              <p className="mt-2 text-[11px] text-[#9B9B93]">
+                Estimated score (Free). Upgrade for LLM analysis.
+              </p>
+            ) : null}
           </div>
         </div>
         {analyzing ? (
@@ -270,7 +276,8 @@ export function ContextScorePanel({
 
       {score.gaps.length > 1 ? (
         <div className="mb-4">
-          <Link
+          <UpgradeLockedLink
+            feature="gap_fix"
             href={buildGapFixAllUpdateUrl()}
             onClick={() => handleFixAllStart(score.score, score.gaps)}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#0F6E56] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#1D9E75] sm:w-auto"
@@ -280,7 +287,7 @@ export function ContextScorePanel({
             <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">
               {score.gaps.length} gaps
             </span>
-          </Link>
+          </UpgradeLockedLink>
           <p className="mt-2 text-[11px] text-[#9B9B93]">
             One quick run — Meto walks through each gap step by step.
           </p>
@@ -298,14 +305,15 @@ export function ContextScorePanel({
                 {gap.insight}
               </p>
               <div className="mt-2.5 flex flex-wrap gap-2">
-                <Link
+                <UpgradeLockedLink
+                  feature="gap_fix"
                   href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
                   onClick={() => handleFixStart(score.score, score.gaps)}
                   className="inline-flex items-center gap-1 rounded-lg border border-[#0F6E56] bg-white px-3 py-1.5 text-xs font-medium text-[#0F6E56] transition-colors hover:bg-[#F0FAF7]"
                 >
                   Fix with AI
                   <ArrowRight className="h-3 w-3" />
-                </Link>
+                </UpgradeLockedLink>
                 <Link
                   href={buildGapFixProfileUrl(gap.section_type)}
                   onClick={() => handleFixStart(score.score, score.gaps)}

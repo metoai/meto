@@ -12,24 +12,29 @@ import {
 } from "react";
 import { ProfileAuthModal, type AuthModalMode } from "@/components/auth/profile-auth-modal";
 import { LandingAiPartners } from "@/components/landing/landing-ai-partners";
+import {
+  LandingOpeningMessage,
+  LandingProfileProgress,
+} from "@/components/landing/landing-chat-ui";
 import { MetoMarkBadge } from "@/components/meto-mark";
+import {
+  EMPTY_COLLECTED,
+  hasCollectedContent,
+  LANDING_SAVE_PROMPT_AFTER,
+  mergeCollected,
+  type CollectedProfile,
+} from "@/lib/landing-chat";
+import { LANDING_HERO } from "@/lib/landing-copy";
+import { MARKETING_NAV_LINKS } from "@/lib/marketing-nav";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "meto_landing_session";
 const PENDING_SAVE_KEY = "meto_landing_pending_save";
-const PENDING_MESSAGE_KEY = "meto_landing_pending_message";
 
 type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
-};
-
-type CollectedProfile = {
-  about: string | null;
-  work: string | null;
-  projects: string | null;
-  goals: string | null;
 };
 
 type LandingSession = {
@@ -38,21 +43,6 @@ type LandingSession = {
   collected: CollectedProfile;
   profileReady: boolean;
 };
-
-const EMPTY_COLLECTED: CollectedProfile = {
-  about: null,
-  work: null,
-  projects: null,
-  goals: null,
-};
-
-const LANDING_SAVE_PROMPT_AFTER = 3;
-
-const NAV_LINKS = [
-  { label: "How it works", href: "/#chat" },
-  { label: "Examples", href: "/profile/dibo" },
-  { label: "Pricing", href: "/pricing" },
-];
 
 function createId() {
   return crypto.randomUUID();
@@ -72,20 +62,6 @@ function SendIcon() {
   );
 }
 
-function OpeningMessage() {
-  return (
-    <div className="flex gap-3 text-left">
-      <MetoMarkBadge />
-      <div>
-        <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">Meto</p>
-        <p className="text-sm leading-normal text-[var(--text)]">
-          Hey — what do you do and what are you working on right now?
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function loadSession(): LandingSession | null {
   if (typeof window === "undefined") return null;
   try {
@@ -99,22 +75,6 @@ function loadSession(): LandingSession | null {
 
 function saveSession(session: LandingSession) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-}
-
-function hasCollectedContent(collected: CollectedProfile) {
-  return Object.values(collected).some((value) => value?.trim());
-}
-
-function mergeCollected(
-  current: CollectedProfile,
-  incoming: CollectedProfile
-): CollectedProfile {
-  return {
-    about: incoming.about ?? current.about,
-    work: incoming.work ?? current.work,
-    projects: incoming.projects ?? current.projects,
-    goals: incoming.goals ?? current.goals,
-  };
 }
 
 export default function Home() {
@@ -135,9 +95,8 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>("gate");
-  const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [savePromptDismissed, setSavePromptDismissed] = useState(false);
-  const resumePendingRef = useRef(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const chatStarted = userMessageCount > 0;
@@ -204,7 +163,6 @@ export default function Home() {
     }
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PENDING_SAVE_KEY);
-    localStorage.removeItem(PENDING_MESSAGE_KEY);
     return true;
   }, [collected]);
 
@@ -212,12 +170,16 @@ export default function Home() {
     if (saving) return;
     try {
       setSaving(true);
+      setSaveError(null);
       await persistProfile();
       setAuthModalOpen(false);
-      router.push("/dashboard/workspace");
+      router.push("/dashboard");
       router.refresh();
     } catch (error) {
       console.error(error);
+      setSaveError(
+        error instanceof Error ? error.message : "Failed to save profile."
+      );
     } finally {
       setSaving(false);
     }
@@ -239,7 +201,7 @@ export default function Home() {
         try {
           setSaving(true);
           await persistProfile();
-          router.push("/dashboard/workspace");
+          router.push("/dashboard");
           router.refresh();
         } catch (error) {
           console.error(error);
@@ -279,17 +241,9 @@ export default function Home() {
   }, [input]);
 
   const sendMessage = useCallback(
-    async (content: string, skipAuthCheck = false) => {
+    async (content: string) => {
       const trimmed = content.trim();
       if (!trimmed || typing) return;
-
-      if (!skipAuthCheck && !isLoggedIn) {
-        setPendingMessage(trimmed);
-        localStorage.setItem(PENDING_MESSAGE_KEY, trimmed);
-        setAuthModalMode("gate");
-        setAuthModalOpen(true);
-        return;
-      }
 
       const userMessage: ChatMessage = {
         id: createId(),
@@ -299,9 +253,8 @@ export default function Home() {
       const nextMessages = [...messages, userMessage];
       setMessages(nextMessages);
       setInput("");
-      setPendingMessage(null);
-      localStorage.removeItem(PENDING_MESSAGE_KEY);
       setTyping(true);
+      setSaveError(null);
 
       try {
         const res = await fetch("/api/landing-chat", {
@@ -309,6 +262,7 @@ export default function Home() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionId,
+            collected,
             messages: nextMessages.map(({ role, content: text }) => ({
               role,
               content: text,
@@ -316,6 +270,9 @@ export default function Home() {
           }),
         });
         const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error ?? "Chat request failed.");
+        }
         setMessages((current) => [
           ...current,
           {
@@ -345,36 +302,12 @@ export default function Home() {
         setTyping(false);
       }
     },
-    [isLoggedIn, messages, sessionId, typing]
+    [collected, messages, sessionId, typing]
   );
-
-  const flushPendingMessage = useCallback(async () => {
-    const msg = (
-      pendingMessage ?? localStorage.getItem(PENDING_MESSAGE_KEY)
-    )?.trim();
-    if (!msg || resumePendingRef.current) return;
-    resumePendingRef.current = true;
-    localStorage.removeItem(PENDING_MESSAGE_KEY);
-    setPendingMessage(null);
-    setAuthModalOpen(false);
-    try {
-      await sendMessage(msg, true);
-    } finally {
-      resumePendingRef.current = false;
-    }
-  }, [pendingMessage, sendMessage]);
-
-  useEffect(() => {
-    if (!hydrated || !isLoggedIn) return;
-    const pendingMsg = localStorage.getItem(PENDING_MESSAGE_KEY)?.trim();
-    if (!pendingMsg) return;
-    void flushPendingMessage();
-  }, [hydrated, isLoggedIn, flushPendingMessage]);
 
   async function handleAuthSuccess() {
     const loggedIn = await refreshAuthState();
     if (!loggedIn) return;
-    await flushPendingMessage();
     const pendingSave = localStorage.getItem(PENDING_SAVE_KEY) === "true";
     if (
       pendingSave &&
@@ -423,7 +356,7 @@ export default function Home() {
             className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex"
             aria-label="Main"
           >
-            {NAV_LINKS.map((link) => (
+            {MARKETING_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -492,7 +425,7 @@ export default function Home() {
             className="mx-auto mb-4 max-w-6xl rounded-xl border border-[var(--border)] bg-white p-3 lg:hidden"
             aria-label="Mobile"
           >
-            {NAV_LINKS.map((link) => (
+            {MARKETING_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -509,16 +442,47 @@ export default function Home() {
       <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-[680px] flex-col items-center justify-center px-4 pb-12 pt-8 sm:px-6">
         <div className="landing-animate-in w-full text-center">
           <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
-            Your AI identity
+            {LANDING_HERO.eyebrow}
           </p>
-          <h1 className="mb-3.5 text-[34px] font-semibold leading-[1.1] tracking-[-0.5px] text-[var(--text)] sm:text-[52px]">
-            Stop introducing yourself to AI.
+          <h1 className="mb-3.5 text-balance text-[34px] font-semibold leading-[1.1] tracking-[-0.5px] text-[var(--text)] sm:text-[52px]">
+            {LANDING_HERO.headline}
           </h1>
-          <p className="mx-auto mb-10 max-w-[420px] text-base leading-normal text-[var(--text-secondary)]">
-            Tell Meto about yourself once.
-            <br />
-            Every AI already knows you.
+          <p
+            className={`mx-auto max-w-[520px] text-balance text-base leading-relaxed text-[var(--text-secondary)] ${
+              chatStarted ? "mb-10" : "mb-8"
+            }`}
+          >
+            {LANDING_HERO.subhead}
           </p>
+          {!chatStarted ? (
+            <button
+              type="button"
+              onClick={() => {
+                document
+                  .getElementById("chat")
+                  ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                textareaRef.current?.focus();
+              }}
+              className="group mx-auto mb-10 flex w-fit flex-col items-center gap-1.5 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
+              aria-label={`${LANDING_HERO.cta} — scroll to chat`}
+            >
+              <span>{LANDING_HERO.cta}</span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-5 w-5 transition-transform duration-150 group-hover:translate-y-0.5"
+                aria-hidden
+              >
+                <path
+                  d="M12 5v14M6 13l6 6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          ) : null}
         </div>
 
         <div
@@ -528,9 +492,10 @@ export default function Home() {
         >
           <div className="landing-scrollbar-hidden max-h-[min(42vh,360px)] overflow-y-auto p-4">
             {!chatStarted ? (
-              <OpeningMessage />
+              <LandingOpeningMessage />
             ) : (
               <div className="space-y-5">
+                <LandingOpeningMessage />
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -582,6 +547,17 @@ export default function Home() {
                         I&apos;ve got a good picture of you. Save it to your
                         dashboard, or keep chatting if you want to add more.
                       </p>
+                      {saveError ? (
+                        <p className="mt-2 text-xs text-red-600" role="alert">
+                          {saveError}
+                        </p>
+                      ) : null}
+                      {!isLoggedIn ? (
+                        <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                          Sign in to save — your chat stays on this device until
+                          then.
+                        </p>
+                      ) : null}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
                         <button
                           type="button"
@@ -617,19 +593,30 @@ export default function Home() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              placeholder="I'm a designer working on..."
+              placeholder={
+                chatStarted
+                  ? "Answer in your own words…"
+                  : LANDING_HERO.inputPlaceholder
+              }
               disabled={typing}
               className="min-h-[24px] flex-1 resize-none bg-transparent text-sm leading-normal text-[var(--text)] outline-none placeholder:text-[var(--placeholder)]"
             />
             <button
               type="submit"
               disabled={!input.trim() || typing}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white transition-[background] duration-150 ease-in-out hover:bg-[var(--primary-hover)] disabled:pointer-events-none"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-white transition-[background] duration-150 ease-in-out hover:bg-[var(--primary-hover)] disabled:pointer-events-none disabled:opacity-40"
               aria-label="Send"
             >
               <SendIcon />
             </button>
           </form>
+          {chatStarted ? (
+            <LandingProfileProgress collected={collected} />
+          ) : (
+            <p className="border-t border-[var(--border)] px-4 py-2.5 text-center text-[11px] text-[var(--placeholder)]">
+              One question at a time — no account needed to try
+            </p>
+          )}
         </div>
 
         <LandingAiPartners className="mt-6" />
@@ -642,7 +629,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--text-secondary)] sm:flex-row">
           <p>© {new Date().getFullYear()} Meto</p>
           <div className="flex flex-wrap justify-center gap-5">
-            {NAV_LINKS.map((link) => (
+            {MARKETING_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}

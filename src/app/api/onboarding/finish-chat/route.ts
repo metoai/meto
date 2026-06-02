@@ -5,6 +5,12 @@ import {
   generateWithGemini,
   parseJsonFromGemini,
 } from "@/lib/gemini";
+import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
+import { upgradeRequiredResponse } from "@/lib/billing-errors";
+import {
+  getEntitlementsForUser,
+  markOnboardingAiUsed,
+} from "@/lib/billing-profile";
 import { saveProfileSections } from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,6 +26,14 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const entitlements = await getEntitlementsForUser(user.id);
+    if (!entitlements.canRedoOnboardingAi) {
+      return upgradeRequiredResponse("onboarding_ai");
+    }
+
+    const aiAccess = await assertAiAccess(user.id, "onboarding_ai");
+    if (!aiAccess.ok) return aiAccess.response;
 
     const { messages } = (await request.json()) as { messages: ChatMessage[] };
 
@@ -47,6 +61,9 @@ export async function POST(request: Request) {
       messages,
       completed: true,
     });
+
+    await markOnboardingAiUsed(user.id, "chat");
+    await recordAiUsage(user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

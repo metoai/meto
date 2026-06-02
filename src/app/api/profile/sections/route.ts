@@ -1,5 +1,15 @@
 import { NextResponse } from "next/server";
+import { upgradeRequiredResponse } from "@/lib/billing-errors";
+import { getEntitlementsForUser } from "@/lib/billing-profile";
+import { SECTION_KEYS } from "@/lib/meto-prompts";
 import { createClient } from "@/lib/supabase/server";
+
+function isCustomSectionType(sectionType: string) {
+  return (
+    sectionType === "custom" ||
+    !SECTION_KEYS.includes(sectionType as (typeof SECTION_KEYS)[number])
+  );
+}
 
 export async function GET() {
   try {
@@ -42,6 +52,22 @@ export async function POST(request: Request) {
     }
 
     const { title, content, section_type = "custom" } = await request.json();
+
+    if (isCustomSectionType(section_type)) {
+      const entitlements = await getEntitlementsForUser(user.id);
+      const { data: existingSections } = await supabase
+        .from("context_sections")
+        .select("section_type")
+        .eq("user_id", user.id);
+
+      const customCount = (existingSections ?? []).filter((row) =>
+        isCustomSectionType(row.section_type)
+      ).length;
+
+      if (customCount >= entitlements.maxCustomSections) {
+        return upgradeRequiredResponse("custom_sections");
+      }
+    }
 
     if (!title?.trim() || !content?.trim()) {
       return NextResponse.json(

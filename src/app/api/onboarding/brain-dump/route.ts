@@ -5,6 +5,12 @@ import {
   generateWithGemini,
   parseJsonFromGemini,
 } from "@/lib/gemini";
+import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
+import { upgradeRequiredResponse } from "@/lib/billing-errors";
+import {
+  getEntitlementsForUser,
+  markOnboardingAiUsed,
+} from "@/lib/billing-profile";
 import { saveProfileSections } from "@/lib/profile-sections";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,6 +24,14 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const entitlements = await getEntitlementsForUser(user.id);
+    if (!entitlements.canRedoOnboardingAi) {
+      return upgradeRequiredResponse("onboarding_ai");
+    }
+
+    const aiAccess = await assertAiAccess(user.id, "onboarding_ai");
+    if (!aiAccess.ok) return aiAccess.response;
 
     const { rawText } = await request.json();
 
@@ -35,6 +49,8 @@ export async function POST(request: Request) {
     const sections = parseJsonFromGemini(text);
 
     await saveProfileSections(supabase, user.id, sections);
+    await markOnboardingAiUsed(user.id, "brain_dump");
+    await recordAiUsage(user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

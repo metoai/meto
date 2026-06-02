@@ -13,6 +13,11 @@ import {
   readGapFixSession,
 } from "@/lib/context-score-actions";
 import {
+  billingErrorMessage,
+  isAiLimitResponse,
+  isUpgradeRequiredResponse,
+} from "@/lib/billing-errors";
+import {
   readUpdateHistory,
   recordUpdate,
   type UpdateHistoryEntry,
@@ -135,7 +140,10 @@ export function useQuickUpdateChat(
         const data = await res.json();
 
         if (!res.ok) {
-          throw new Error(data.error ?? "Failed to start gap fix.");
+          if (isAiLimitResponse(data) || isUpgradeRequiredResponse(data)) {
+            throw new Error(billingErrorMessage(data, "Upgrade required."));
+          }
+          throw new Error(billingErrorMessage(data, "Failed to start gap fix."));
         }
 
         setMessages([
@@ -202,7 +210,10 @@ export function useQuickUpdateChat(
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "Update failed.");
+        if (isAiLimitResponse(data) || isUpgradeRequiredResponse(data)) {
+          throw new Error(billingErrorMessage(data, "Upgrade required."));
+        }
+        throw new Error(billingErrorMessage(data, "Update failed."));
       }
 
       setMessages((current) => [
@@ -246,7 +257,10 @@ export function useQuickUpdateChat(
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "Failed to apply updates.");
+        if (isAiLimitResponse(data) || isUpgradeRequiredResponse(data)) {
+          throw new Error(billingErrorMessage(data, "Upgrade required."));
+        }
+        throw new Error(billingErrorMessage(data, "Failed to apply updates."));
       }
 
       setApplied(true);

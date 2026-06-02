@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Meto — Your AI Identity",
   description:
-    "Build your AI identity once. Paste it everywhere. Stop introducing yourself to AI.",
+    "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.",
   icons: {
     icon: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Meto — Your AI Identity",
     description:
-      "Build your AI identity once. Paste it everywhere. Stop introducing yourself to AI.",
+      "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.",
     url: siteUrl,
     siteName: "Meto",
     type: "website",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Meto — Your AI Identity",
     description:
-      "Build your AI identity once. Paste it everywhere.",
+      "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.",
   },
 };
 

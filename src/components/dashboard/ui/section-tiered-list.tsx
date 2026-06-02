@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { UpgradeLockedLink } from "@/components/billing/upgrade-locked-link";
 import { Pencil } from "lucide-react";
 import type { ContextScoreGap } from "@/lib/context-score";
 import type { ContextSection } from "@/lib/types";
@@ -95,13 +96,14 @@ export function SectionTieredList({
                     <span className="text-xs leading-relaxed text-[#92400E]">
                       ⚠ {gap.insight}
                     </span>
-                    <Link
+                    <UpgradeLockedLink
+                      feature="gap_fix"
                       href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
                       onClick={() => handleFixClick()}
                       className="shrink-0 text-xs text-[#0F6E56] transition-colors duration-150 hover:text-[#1D9E75]"
                     >
                       Fix with AI →
-                    </Link>
+                    </UpgradeLockedLink>
                   </div>
                 ) : null}
               </div>

@@ -15,6 +15,7 @@ import {
   PRIMARY_NAV,
   SECONDARY_NAV,
 } from "@/components/portal/portal-nav";
+import { TrialBanner } from "@/components/billing/trial-banner";
 import { createClient } from "@/lib/supabase/client";
 
 type PortalLayoutProps = {
@@ -428,6 +429,15 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
   }, [mobileNavOpen]);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !portal?.refresh) return;
+    if (!window.location.search.includes("upgraded=1")) return;
+    void portal.refresh();
+    const url = new URL(window.location.href);
+    url.searchParams.delete("upgraded");
+    window.history.replaceState({}, "", url.pathname + url.search);
+  }, [portal]);
+
+  useEffect(() => {
     if (!portal?.loaded) return;
     let cancelled = false;
 
@@ -488,6 +498,10 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
             </Link>
           </div>
         </header>
+
+        {portal?.entitlements ? (
+          <TrialBanner entitlements={portal.entitlements} />
+        ) : null}
 
         <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {children}

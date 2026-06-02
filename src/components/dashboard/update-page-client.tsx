@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { SuccessToast } from "@/components/dashboard-shell";
+import { UpdateUpgradeWall } from "@/components/billing/update-upgrade-wall";
 import { QuickUpdateChat } from "@/components/dashboard/quick-update-chat";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { useQuickUpdateSidebarOptional } from "@/components/portal/quick-update-sidebar-context";
@@ -76,19 +77,21 @@ export function UpdatePageClient() {
   return (
     <>
       <SuccessToast />
-      <div className="flex min-h-0 flex-1 flex-col">
-        <QuickUpdateChat
-          variant="full"
-          displayName={displayName}
-          gapFix={gapFix}
-          onApplied={({ finishedAll }) => {
-            void refresh();
-            if (finishedAll) {
-              router.push("/dashboard/fixes");
-            }
-          }}
-        />
-      </div>
+      <UpdateUpgradeWall>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <QuickUpdateChat
+            variant="full"
+            displayName={displayName}
+            gapFix={gapFix}
+            onApplied={({ finishedAll }) => {
+              void refresh();
+              if (finishedAll) {
+                router.push("/dashboard/fixes");
+              }
+            }}
+          />
+        </div>
+      </UpdateUpgradeWall>
     </>
   );
 }

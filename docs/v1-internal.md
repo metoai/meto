@@ -48,7 +48,7 @@ Billing and several prompt features are still deferred.
 | **Gemini format in UI** | Prompt exists; dashboard/workspace only shows 3 format tabs |
 | **Compact format** | Mentioned in prompts; not implemented |
 | **Section regenerator (prompt 1D)** | Not wired to UI |
-| **Billing / Pro** | Landing mentions Pro “later”; no Stripe |
+| **Billing / Pro** | Trial → Free → Pro; Polar Checkout + webhook; entitlements on LLM routes |
 | **Public page AI compile** | Public profile uses `compileLocally`, not LLM |
 | **Onboarding re-run** | Reset profile clears data; no dedicated “redo onboarding” flow |
 

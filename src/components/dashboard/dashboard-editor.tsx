@@ -3,7 +3,9 @@
 import { Plus, RefreshCw, RotateCcw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useUpgradeModal } from "@/components/billing/upgrade-gate";
 import { ContextBuilder } from "@/components/ContextBuilder";
+import { useEntitlements } from "@/hooks/use-entitlements";
 import { ProfileGridView } from "@/components/dashboard/profile-grid-view";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import type { CompileFormat, ContextSection } from "@/lib/types";
@@ -39,6 +41,8 @@ export function DashboardEditor({
 }) {
   const router = useRouter();
   const portal = usePortalDataOptional();
+  const { entitlements } = useEntitlements();
+  const { openUpgrade, modal: upgradeModal } = useUpgradeModal();
   const [sections, setSections] = useState<SectionDraft[]>([]);
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -115,6 +119,10 @@ export function DashboardEditor({
           }),
         });
         const data = await res.json();
+        if (res.status === 402) {
+          openUpgrade("llm_compile");
+          return;
+        }
         if (!res.ok) throw new Error(data.error ?? "Compile failed.");
         setFormat(selectedFormat);
       } catch (err) {
@@ -123,7 +131,7 @@ export function DashboardEditor({
         setCompiling(false);
       }
     },
-    []
+    [openUpgrade]
   );
 
   const applyPortalData = useCallback(() => {
@@ -273,6 +281,10 @@ export function DashboardEditor({
         }),
       });
       const data = await res.json();
+      if (res.status === 402) {
+        openUpgrade("custom_sections");
+        return;
+      }
       if (!res.ok) throw new Error(data.error ?? "Failed to add section.");
 
       setSections((prev) => [
@@ -585,7 +597,13 @@ export function DashboardEditor({
             <button
               type="button"
               disabled={compiling}
-              onClick={() => compileProfile(format, { force: true })}
+              onClick={() => {
+                if (!entitlements?.canUseLlmCompile) {
+                  openUpgrade("llm_compile");
+                  return;
+                }
+                void compileProfile(format, { force: true });
+              }}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] px-4 py-2.5 text-sm text-[var(--color-text)] transition-colors hover:border-[var(--color-accent)] disabled:opacity-50"
             >
               <RefreshCw
@@ -668,6 +686,7 @@ export function DashboardEditor({
           </div>
         </div>
       )}
+      {upgradeModal}
     </>
   );
 }

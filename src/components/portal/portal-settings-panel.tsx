@@ -4,6 +4,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PlanUsageCard } from "@/components/billing/plan-usage-card";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { createClient } from "@/lib/supabase/client";
 
@@ -268,7 +269,10 @@ export function PortalSettingsPanel() {
         ) : null}
       </div>
 
-      <aside className="w-full shrink-0 rounded-xl border border-[#E8E8E4] bg-[#F7F7F5] p-5 lg:w-[280px]">
+      <aside className="w-full shrink-0 space-y-4 lg:w-[280px]">
+        <PlanUsageCard compact />
+
+        <div className="rounded-xl border border-[#E8E8E4] bg-[#F7F7F5] p-5">
         <p className="mb-1.5 text-[13px] font-medium text-[#1A1A18]">
           Your public profile
         </p>
@@ -298,6 +302,7 @@ export function PortalSettingsPanel() {
         <p className="text-xs leading-normal text-[#9B9B93]">
           This appears in your sidebar and on your public profile.
         </p>
+        </div>
       </aside>
     </div>
   );

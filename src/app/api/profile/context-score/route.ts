@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
+import { getEntitlementsForUser } from "@/lib/billing-profile";
 import {
   applyResolvedSections,
   analyzeContextScore,
+  analyzeContextScoreLocally,
   type ContextScoreResult,
 } from "@/lib/context-score";
 import { friendlyGeminiError } from "@/lib/gemini";
@@ -178,7 +181,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await analyzeContextScore(sections);
+    const entitlements = await getEntitlementsForUser(user.id);
+    let result;
+
+    if (entitlements.canUseLlmScore) {
+      const aiAccess = await assertAiAccess(user.id, "llm_score");
+      if (!aiAccess.ok) return aiAccess.response;
+      result = await analyzeContextScore(sections);
+      await recordAiUsage(user.id);
+    } else {
+      result = analyzeContextScoreLocally(sections);
+    }
+
     const applied = applyResolvedSections(
       result,
       resolvedSections,

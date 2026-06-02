@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/dashboard/ui/dashboard-card";
 import { SectionQualityBars } from "@/components/dashboard/ui/section-quality-bars";
 import { SignalHero } from "@/components/dashboard/ui/signal-hero";
 import { WorkspaceQuickAccess } from "@/components/dashboard/ui/workspace-quick-access";
+import { PlanUsageCard } from "@/components/billing/plan-usage-card";
 import { PortalPageShell } from "@/components/portal/portal-page-shell";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { useContextScore } from "@/hooks/use-context-score";
@@ -77,6 +78,8 @@ export function DashboardPageClient() {
             title="Dashboard"
             subtitle="How well AI understands you — and what to improve next."
           />
+
+          <PlanUsageCard compact />
 
           {loaded && !loading && score ? (
             <div className="space-y-5">

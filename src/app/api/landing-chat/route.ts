@@ -3,25 +3,22 @@ import {
   generateWithGemini,
   parseJsonFromGemini,
 } from "@/lib/gemini";
+import {
+  EMPTY_COLLECTED,
+  LANDING_OPENING,
+  mergeCollected,
+  type CollectedProfile,
+  type LandingChatMessage,
+} from "@/lib/landing-chat";
 import { METO_SCOPE_GUARD } from "@/lib/meto-prompts";
 
-type ChatMessage = { role: "user" | "assistant"; content: string };
-
-type CollectedProfile = {
-  about: string | null;
-  work: string | null;
-  projects: string | null;
-  goals: string | null;
-};
+type ChatMessage = LandingChatMessage;
 
 type LandingChatResult = {
   message: string;
   profile_ready: boolean;
   collected: CollectedProfile;
 };
-
-const LANDING_OPENING =
-  "Hey — what do you do and what are you working on right now?";
 
 const LANDING_CHAT_SYSTEM_PROMPT = `${METO_SCOPE_GUARD}
 
@@ -58,13 +55,6 @@ Respond ONLY with valid JSON:
 
 Always merge new facts into collected — never drop fields you already know. Use null only for topics not yet covered.`;
 
-const EMPTY_COLLECTED: CollectedProfile = {
-  about: null,
-  work: null,
-  projects: null,
-  goals: null,
-};
-
 function normalizeCollected(raw: unknown): CollectedProfile {
   if (!raw || typeof raw !== "object") {
     return EMPTY_COLLECTED;
@@ -81,18 +71,6 @@ function normalizeCollected(raw: unknown): CollectedProfile {
     work: pick("work"),
     projects: pick("projects"),
     goals: pick("goals"),
-  };
-}
-
-function mergeCollected(
-  prior: CollectedProfile,
-  incoming: CollectedProfile
-): CollectedProfile {
-  return {
-    about: incoming.about ?? prior.about,
-    work: incoming.work ?? prior.work,
-    projects: incoming.projects ?? prior.projects,
-    goals: incoming.goals ?? prior.goals,
   };
 }
 

@@ -5,6 +5,9 @@ import {
   friendlyGeminiError,
   isRetryableGeminiError,
 } from "@/lib/gemini";
+import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
+import { upgradeRequiredResponse } from "@/lib/billing-errors";
+import { getEntitlementsForUser } from "@/lib/billing-profile";
 import type { CompileFormat } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -149,6 +152,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const entitlements = await getEntitlementsForUser(user.id);
+
+    if (force && !localOnly && !entitlements.canUseLlmCompile) {
+      return upgradeRequiredResponse("llm_compile");
+    }
+
     if (!force && !localOnly) {
       const saved = await getSavedCompiled(user.id, format);
       const latestUpdate = await getLatestSectionUpdate(user.id);
@@ -168,12 +177,16 @@ export async function POST(request: Request) {
     let compiled: string;
     let usedFallback = false;
 
-    if (localOnly) {
+    if (localOnly || !entitlements.canUseLlmCompile) {
       compiled = compileLocally(format, sections);
       usedFallback = true;
     } else {
+      const aiAccess = await assertAiAccess(user.id, "llm_compile");
+      if (!aiAccess.ok) return aiAccess.response;
+
       try {
         compiled = await compileProfileWithGemini(sections, format);
+        await recordAiUsage(user.id);
       } catch (error) {
         if (isRetryableGeminiError(error)) {
           compiled = compileLocally(format, sections);

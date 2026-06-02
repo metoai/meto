@@ -107,15 +107,16 @@ Let visitors **try Meto before signup**. A lightweight interview collects partia
   ├─ Static opening (client-only, no API):
   │    "Hey — what do you do and what are you working on right now?"
   │
-  ├─ User must be logged in to send messages
-  │    └─ If not: auth modal → queue message in localStorage
+  ├─ User can chat without signing in (try before signup)
   │
-  ├─ Each turn: POST /api/landing-chat { messages[] }
+  ├─ Each turn: POST /api/landing-chat { messages[], collected }
   │    └─ LLM returns { message, profile_ready, collected }
   │
   ├─ Client merges collected fields (non-null overwrites prior)
   │
   ├─ Save prompt when profile_ready OR ≥3 user messages with content
+  │
+  ├─ Save requires auth → auth modal if not logged in (pending save in localStorage)
   │
   └─ POST /api/onboarding/save-from-landing { collected }
        └─ Inserts up to 4 sections → redirect /dashboard
@@ -151,11 +152,12 @@ Let visitors **try Meto before signup**. A lightweight interview collects partia
 |-----|---------|---------|
 | `meto_landing_session` | localStorage | Messages + collected + sessionId |
 | `meto_landing_pending_save` | localStorage | User clicked save before login |
-| `meto_landing_pending_message` | localStorage | Message to send after OAuth |
+| `meto_landing_pending_message` | localStorage | (legacy) deferred message after OAuth — no longer used |
 
 ### Files
 
-- UI: `src/app/page.tsx`
+- UI: `src/app/page.tsx`, `src/components/landing/landing-chat-ui.tsx`
+- Shared types/helpers: `src/lib/landing-chat.ts`
 - API: `src/app/api/landing-chat/route.ts`
 - Save: `src/app/api/onboarding/save-from-landing/route.ts`
 

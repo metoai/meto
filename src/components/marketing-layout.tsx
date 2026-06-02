@@ -2,14 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MetoLogo } from "@/components/meto-logo";
+import { MetoMarkBadge } from "@/components/meto-mark";
+import { MARKETING_NAV_LINKS } from "@/lib/marketing-nav";
 import { createClient } from "@/lib/supabase/client";
-
-const NAV_LINKS = [
-  { label: "How it works", href: "/#chat" },
-  { label: "Examples", href: "/profile/dibo" },
-  { label: "Pricing", href: "/pricing" },
-];
 
 type MarketingLayoutProps = {
   children: React.ReactNode;
@@ -34,15 +29,16 @@ export function MarketingLayout({
     <div className="relative min-h-screen bg-white text-[var(--text)]">
       <header className="landing-animate-in border-b border-[var(--border)] bg-white px-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between py-4">
-          <Link href="/" className="flex shrink-0 items-center">
-            <MetoLogo size="lg" />
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            <MetoMarkBadge size="sm" />
+            <span className="text-base font-medium text-[var(--text)]">meto</span>
           </Link>
 
           <nav
             className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex"
             aria-label="Main"
           >
-            {NAV_LINKS.map((link) => (
+            {MARKETING_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -111,7 +107,7 @@ export function MarketingLayout({
             className="mx-auto mb-4 max-w-6xl rounded-xl border border-[var(--border)] bg-white p-3 lg:hidden"
             aria-label="Mobile"
           >
-            {NAV_LINKS.map((link) => (
+            {MARKETING_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
@@ -134,7 +130,7 @@ export function MarketingLayout({
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--text-secondary)] sm:flex-row">
             <p>© {new Date().getFullYear()} Meto</p>
             <div className="flex flex-wrap justify-center gap-5">
-              {NAV_LINKS.map((link) => (
+              {MARKETING_NAV_LINKS.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}

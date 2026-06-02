@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import type { Entitlements } from "@/lib/entitlements";
 import { getProfileCompletion } from "@/lib/profile-utils";
 import type { ContextSection, UserProfile } from "@/lib/types";
 
@@ -20,6 +21,8 @@ type PortalDataContextValue = {
   loaded: boolean;
   loading: boolean;
   dataVersion: number;
+  entitlements: Entitlements | null;
+  entitlementsLoaded: boolean;
   refresh: () => Promise<void>;
   setProfile: (profile: UserProfile | null) => void;
   setSections: (sections: ContextSection[]) => void;
@@ -34,15 +37,19 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dataVersion, setDataVersion] = useState(0);
+  const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
+  const [entitlementsLoaded, setEntitlementsLoaded] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
-      const [profileRes, sectionsRes] = await Promise.all([
+      const [profileRes, sectionsRes, entitlementsRes] = await Promise.all([
         fetch("/api/profile/me"),
         fetch("/api/profile/sections"),
+        fetch("/api/profile/entitlements"),
       ]);
       const profileData = await profileRes.json();
       const sectionsData = await sectionsRes.json();
+      const entitlementsData = await entitlementsRes.json();
 
       if (profileRes.ok) {
         setProfile(profileData.profile ?? null);
@@ -53,6 +60,11 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
         setSections(sectionsData.sections ?? []);
       }
 
+      if (entitlementsRes.ok) {
+        setEntitlements(entitlementsData.entitlements ?? null);
+      }
+
+      setEntitlementsLoaded(true);
       setDataVersion((version) => version + 1);
       setLoaded(true);
     } catch {
@@ -80,6 +92,8 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
       loaded,
       loading,
       dataVersion,
+      entitlements,
+      entitlementsLoaded,
       refresh,
       setProfile,
       setSections,
@@ -93,6 +107,8 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
       loaded,
       loading,
       dataVersion,
+      entitlements,
+      entitlementsLoaded,
       refresh,
     ]
   );
