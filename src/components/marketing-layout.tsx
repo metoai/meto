@@ -9,11 +9,14 @@ import { createClient } from "@/lib/supabase/client";
 type MarketingLayoutProps = {
   children: React.ReactNode;
   showFooter?: boolean;
+  /** Pricing and long pages read better top-aligned. */
+  contentAlign?: "center" | "top";
 };
 
 export function MarketingLayout({
   children,
   showFooter = false,
+  contentAlign = "center",
 }: MarketingLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -121,7 +124,13 @@ export function MarketingLayout({
         ) : null}
       </header>
 
-      <main className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center px-4 py-8 sm:px-6">
+      <main
+        className={`flex min-h-[calc(100vh-73px)] flex-col px-4 py-10 sm:px-6 sm:py-14 ${
+          contentAlign === "top"
+            ? "items-center"
+            : "items-center justify-center py-8"
+        }`}
+      >
         {children}
       </main>
 

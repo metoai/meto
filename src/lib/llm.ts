@@ -22,6 +22,9 @@ const GEMINI_FALLBACK_MODELS = [
   "gemini-2.0-flash",
 ];
 
+const LLM_TIMEOUT_MS = 60_000;
+const MAX_MODEL_ATTEMPTS = 2;
+
 const SECTION_KEY_SET = new Set([
   "about",
   "work",
@@ -45,7 +48,7 @@ function getDeepSeekModelCandidates(): string[] {
         (model): model is string => Boolean(model)
       )
     )
-  );
+  ).slice(0, MAX_MODEL_ATTEMPTS);
 }
 
 function getGeminiModelCandidates(): string[] {
@@ -56,7 +59,7 @@ function getGeminiModelCandidates(): string[] {
         (model): model is string => Boolean(model)
       )
     )
-  );
+  ).slice(0, MAX_MODEL_ATTEMPTS);
 }
 
 function getDeepSeekApiKey() {
@@ -126,6 +129,21 @@ export function friendlyLlmError(error: unknown): string {
   return "AI request failed. Please try again.";
 }
 
+async function withTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${LLM_TIMEOUT_MS / 1000}s`));
+    }, LLM_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 async function callDeepSeek(
   model: string,
   prompt: string,
@@ -143,6 +161,7 @@ async function callDeepSeek(
       temperature,
       stream: false,
     }),
+    signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
   });
 
   const data = (await response.json()) as {
@@ -174,7 +193,10 @@ async function callGemini(
     model: modelName,
     generationConfig: { temperature },
   });
-  const result = await model.generateContent(prompt);
+  const result = await withTimeout(
+    model.generateContent(prompt),
+    `Gemini (${modelName})`
+  );
   const text = result.response.text()?.trim();
   if (!text) {
     throw new Error("Gemini returned an empty response.");

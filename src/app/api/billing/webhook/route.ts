@@ -4,11 +4,10 @@ import {
   validateEvent,
   WebhookVerificationError,
 } from "@polar-sh/sdk/webhooks";
-import { setPlanFromPolar } from "@/lib/billing-profile";
 import {
   resolveUserIdFromSubscription,
-  subscriptionGrantsPro,
 } from "@/lib/polar-billing";
+import { applyPolarSubscriptionToProfile } from "@/lib/polar-sync";
 
 export const runtime = "nodejs";
 
@@ -25,17 +24,13 @@ async function applySubscription(subscription: Subscription) {
   if (!userId) {
     console.warn("Polar webhook: could not resolve user for subscription", {
       subscriptionId: subscription.id,
+      customerId: subscription.customerId,
+      metadata: subscription.metadata,
     });
     return;
   }
 
-  const active = subscriptionGrantsPro(subscription);
-
-  await setPlanFromPolar(userId, {
-    plan: active ? "pro" : "free",
-    polarCustomerId: subscription.customerId,
-    polarSubscriptionId: active ? subscription.id : null,
-  });
+  await applyPolarSubscriptionToProfile(subscription, userId);
 }
 
 export async function POST(request: Request) {

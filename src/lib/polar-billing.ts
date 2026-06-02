@@ -32,9 +32,15 @@ export async function resolveUserIdFromSubscription(
   return findUserIdByPolarCustomer(subscription.customerId);
 }
 
-export function subscriptionGrantsPro(subscription: Subscription): boolean {
-  return (
+export function subscriptionGrantsPro(
+  subscription: Subscription,
+  proProductId?: string
+): boolean {
+  const active =
     subscription.status === SubscriptionStatus.Active ||
-    subscription.status === SubscriptionStatus.Trialing
-  );
+    subscription.status === SubscriptionStatus.Trialing;
+
+  if (!active) return false;
+  if (proProductId && subscription.productId !== proProductId) return false;
+  return true;
 }

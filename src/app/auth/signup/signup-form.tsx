@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   AuthCard,
   AuthDivider,
@@ -10,16 +10,57 @@ import {
   AuthGoogleButton,
   AuthPrimaryButton,
 } from "@/components/auth/auth-card";
+import { openProCheckout } from "@/lib/billing-client";
+import {
+  clearPricingPlanChoice,
+  parsePricingPlanChoice,
+  setPricingPlanChoice,
+} from "@/lib/pricing-intent";
 import { createClient } from "@/lib/supabase/client";
 
 export function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const planChoice = parsePricingPlanChoice(searchParams.get("plan"));
+
+  useEffect(() => {
+    if (planChoice) setPricingPlanChoice(planChoice);
+  }, [planChoice]);
+
+  async function redirectAfterSignup() {
+    const pendingSave =
+      localStorage.getItem("meto_landing_pending_save") === "true";
+
+    if (planChoice === "pro") {
+      try {
+        await openProCheckout();
+        return;
+      } catch (checkoutError) {
+        setError(
+          checkoutError instanceof Error
+            ? checkoutError.message
+            : "Could not start checkout."
+        );
+        setLoading(false);
+        return;
+      }
+    }
+
+    if (pendingSave) {
+      router.push("/");
+    } else {
+      router.push("/dashboard");
+    }
+    clearPricingPlanChoice();
+    router.refresh();
+  }
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +75,13 @@ export function SignupForm() {
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(pendingSave ? "/" : "/dashboard")}`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+          planChoice === "pro"
+            ? "/dashboard"
+            : pendingSave
+              ? "/"
+              : "/dashboard"
+        )}`,
       },
     });
 
@@ -44,21 +91,23 @@ export function SignupForm() {
       return;
     }
 
-    if (pendingSave) {
-      router.push("/");
-    } else {
-      router.push("/dashboard");
-    }
-    router.refresh();
+    await redirectAfterSignup();
   }
 
   async function handleGoogleSignup() {
     setLoading(true);
     setError(null);
 
+    if (planChoice) setPricingPlanChoice(planChoice);
+
     const pendingSave =
       localStorage.getItem("meto_landing_pending_save") === "true";
-    const next = pendingSave ? "/" : "/dashboard";
+    const next =
+      planChoice === "pro"
+        ? "/dashboard"
+        : pendingSave
+          ? "/"
+          : "/dashboard";
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -76,14 +125,21 @@ export function SignupForm() {
   return (
     <AuthCard
       title="Create your profile"
-      subtitle="Free to start. No credit card."
+      subtitle={
+        planChoice === "pro"
+          ? "Create your account, then we'll take you to checkout."
+          : "Free to start. No credit card."
+      }
       footer={
         <>
           Already have an account?{" "}
           <Link
-            href="/auth/login"
+            href={
+              planChoice
+                ? `/auth/login?plan=${planChoice}`
+                : "/auth/login"
+            }
             className="cursor-pointer text-[var(--primary)]"
-            onClick={() => localStorage.setItem("meto_landing_pending_save", "true")}
           >
             Sign in
           </Link>

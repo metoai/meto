@@ -1,4 +1,8 @@
-import { getAiUsageSnapshot, resetAiUsageForProUpgrade } from "@/lib/ai-usage";
+import {
+  getAiUsageSnapshotFromRow,
+  syncAiUsagePeriod,
+  resetAiUsageForProUpgrade,
+} from "@/lib/ai-usage";
 import { trialEndsAtFromStart } from "@/lib/ai-usage-limits";
 import {
   getEntitlements,
@@ -107,9 +111,8 @@ export async function syncBillingState(
 export async function getEntitlementsForUser(
   userId: string
 ): Promise<Entitlements> {
-  const row = await syncBillingState(userId);
-  const usage = await getAiUsageSnapshot(userId);
-  return getEntitlements(row, usage);
+  const row = await syncAiUsagePeriod(userId);
+  return getEntitlements(row, getAiUsageSnapshotFromRow(row));
 }
 
 export async function markOnboardingAiUsed(

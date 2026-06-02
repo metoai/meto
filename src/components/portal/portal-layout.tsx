@@ -392,8 +392,8 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
   const pathname = usePathname();
   const portal = usePortalDataOptional();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [issueCount, setIssueCount] = useState(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const issueCount = portal?.issueCount ?? 0;
 
   useEffect(() => {
     try {
@@ -431,29 +431,16 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
   useEffect(() => {
     if (typeof window === "undefined" || !portal?.refresh) return;
     if (!window.location.search.includes("upgraded=1")) return;
-    void portal.refresh();
-    const url = new URL(window.location.href);
-    url.searchParams.delete("upgraded");
-    window.history.replaceState({}, "", url.pathname + url.search);
+
+    void fetch("/api/billing/sync", { method: "POST" })
+      .then(() => portal.refresh())
+      .catch(() => {})
+      .finally(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("upgraded");
+        window.history.replaceState({}, "", url.pathname + url.search);
+      });
   }, [portal]);
-
-  useEffect(() => {
-    if (!portal?.loaded) return;
-    let cancelled = false;
-
-    fetch("/api/profile/context-score")
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled) return;
-        const gaps = data.score?.gaps?.length ?? 0;
-        setIssueCount(gaps);
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, [portal?.loaded, portal?.dataVersion]);
 
   return (
     <div className="h-screen overflow-hidden bg-[#FAFAFA] text-[var(--text)]">

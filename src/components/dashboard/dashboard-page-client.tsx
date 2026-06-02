@@ -79,16 +79,16 @@ export function DashboardPageClient() {
             subtitle="How well AI understands you — and what to improve next."
           />
 
-          <PlanUsageCard compact />
-
           {loaded && !loading && score ? (
-            <div className="space-y-5">
+            <div className="space-y-4">
               <SignalHero
                 score={score}
                 sections={sections}
                 celebrating={celebrating}
                 scoreDelta={scoreDelta}
               />
+
+              <PlanUsageCard compact showCompareLink={false} />
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <SectionQualityBars

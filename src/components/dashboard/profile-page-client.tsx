@@ -49,11 +49,6 @@ export function ProfilePageClient() {
           </div>
         ) : null}
 
-        <p className="mb-3 text-xs text-[#9B9B93]">
-          Public sections appear on your profile link. You can toggle
-          public/private here or in Workspace — they stay in sync.
-        </p>
-
         <DashboardEditor
           panel="profile"
           embedded

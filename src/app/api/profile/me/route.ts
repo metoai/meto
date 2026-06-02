@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { catchApiError } from "@/lib/api-error";
 import { normalizeUsername, validateUsername } from "@/lib/username";
 import { createClient } from "@/lib/supabase/server";
 
@@ -117,13 +118,6 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ profile: data });
   } catch (error) {
-    console.error("PATCH profile error:", error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to update profile.",
-      },
-      { status: 500 }
-    );
+    return catchApiError(error, "Failed to update profile.");
   }
 }

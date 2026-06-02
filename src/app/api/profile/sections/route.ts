@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { upgradeRequiredResponse } from "@/lib/billing-errors";
 import { getEntitlementsForUser } from "@/lib/billing-profile";
 import { SECTION_KEYS } from "@/lib/meto-prompts";
+import { SECTION_SELECT } from "@/lib/section-fields";
 import { createClient } from "@/lib/supabase/server";
 
 function isCustomSectionType(sectionType: string) {
@@ -24,7 +25,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("context_sections")
-      .select("*")
+      .select(SECTION_SELECT)
       .eq("user_id", user.id)
       .order("display_order", { ascending: true });
 
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
         section_type,
         display_order: displayOrder,
       })
-      .select()
+      .select(SECTION_SELECT)
       .single();
 
     if (error) throw error;

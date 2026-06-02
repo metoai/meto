@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { SECTION_SELECT } from "@/lib/section-fields";
 import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = { params: { id: string } };
@@ -29,7 +30,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       .update(updates)
       .eq("id", params.id)
       .eq("user_id", user.id)
-      .select()
+      .select(SECTION_SELECT)
       .single();
 
     if (error) throw error;

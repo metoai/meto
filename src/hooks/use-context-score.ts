@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import type { ContextScoreResult } from "@/lib/context-score";
 import {
   clearCelebratePending,
@@ -17,6 +18,7 @@ export function scoreColor(score: number) {
 }
 
 export function useContextScore(dataVersion = 0) {
+  const portal = usePortalDataOptional();
   const [score, setScore] = useState<ContextScoreResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
@@ -40,6 +42,13 @@ export function useContextScore(dataVersion = 0) {
     previousScoreRef.current = nextScore;
     recordScore(nextScore);
   }, []);
+
+  const syncIssueCount = useCallback(
+    (next: ContextScoreResult | null) => {
+      portal?.setIssueCount(next?.gaps?.length ?? 0);
+    },
+    [portal]
+  );
 
   const loadScore = useCallback(async () => {
     if (loadInFlightRef.current) return;
@@ -79,6 +88,7 @@ export function useContextScore(dataVersion = 0) {
 
       if (!shouldAnalyze && getData.score) {
         setScore(getData.score);
+        syncIssueCount(getData.score);
         maybeCelebrate(getData.score.score);
         lastLoadedVersionRef.current = dataVersion;
         return;
@@ -100,6 +110,7 @@ export function useContextScore(dataVersion = 0) {
 
       const next = postData.score ?? null;
       setScore(next);
+      syncIssueCount(next);
       if (next) {
         maybeCelebrate(next.score);
         lastAnalyzeAtRef.current = Date.now();
@@ -116,7 +127,7 @@ export function useContextScore(dataVersion = 0) {
       setLoading(false);
       setAnalyzing(false);
     }
-  }, [dataVersion, maybeCelebrate]);
+  }, [dataVersion, maybeCelebrate, syncIssueCount]);
 
   useEffect(() => {
     void loadScore();

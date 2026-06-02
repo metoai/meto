@@ -73,13 +73,11 @@ export function TrialBanner({ entitlements }: TrialBannerProps) {
           >
             Compare plans
           </Link>
-          {urgent ? (
-            <UpgradeButton
-              loading={loading}
-              setLoading={setLoading}
-              label="Subscribe now"
-            />
-          ) : null}
+          <UpgradeButton
+            loading={loading}
+            setLoading={setLoading}
+            label={urgent ? "Subscribe now" : "Upgrade to Pro"}
+          />
         </div>
       </div>
     </div>

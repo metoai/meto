@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { catchApiError } from "@/lib/api-error";
 import { syncBillingState, setPlanFromPolar } from "@/lib/billing-profile";
 import { getPolar, getPolarProProductId, getSiteOrigin } from "@/lib/polar";
 import { createClient } from "@/lib/supabase/server";
@@ -27,7 +28,7 @@ export async function POST() {
       metadata: {
         meto_user_id: user.id,
       },
-      successUrl: `${origin}/dashboard?upgraded=1`,
+      successUrl: `${origin}/billing/success`,
       returnUrl: `${origin}/pricing?canceled=1`,
       allowDiscountCodes: true,
     });
@@ -48,15 +49,6 @@ export async function POST() {
 
     return NextResponse.json({ url: checkout.url });
   } catch (error) {
-    console.error("Polar checkout error:", error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to start checkout.",
-      },
-      { status: 500 }
-    );
+    return catchApiError(error, "Failed to start checkout.");
   }
 }

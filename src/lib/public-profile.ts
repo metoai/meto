@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { compileLocally } from "@/lib/compile-local";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
 
@@ -218,9 +219,10 @@ export function buildPersonJsonLd(profile: PublicProfile, siteUrl: string) {
 }
 
 export async function fetchPublicProfileByUsername(
-  supabase: SupabaseClient,
+  _supabase: SupabaseClient,
   username: string
 ): Promise<PublicProfile | null> {
+  const supabase = createAdminClient();
   const normalized = username.toLowerCase();
 
   const { data: profile } = await supabase

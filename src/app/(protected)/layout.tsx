@@ -1,5 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { PricingIntentFulfillment } from "@/components/billing/pricing-intent-fulfillment";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function ProtectedLayout({
   children,
@@ -15,5 +16,10 @@ export default async function ProtectedLayout({
     redirect("/auth/login");
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <PricingIntentFulfillment />
+      {children}
+    </>
+  );
 }

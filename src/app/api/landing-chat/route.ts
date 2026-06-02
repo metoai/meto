@@ -11,8 +11,15 @@ import {
   type LandingChatMessage,
 } from "@/lib/landing-chat";
 import { METO_SCOPE_GUARD } from "@/lib/meto-prompts";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 type ChatMessage = LandingChatMessage;
+
+const MAX_MESSAGES = 40;
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_BODY_BYTES = 100_000;
+const RATE_LIMIT = 30;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
 
 type LandingChatResult = {
   message: string;
@@ -139,11 +146,34 @@ function parseLandingChatResponse(
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
+    const ip = getClientIp(request);
+    const rate = checkRateLimit(`landing-chat:${ip}`, RATE_LIMIT, RATE_WINDOW_MS);
+    if (!rate.ok) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(rate.retryAfterSec) },
+        }
+      );
+    }
+
+    const rawBody = await request.text();
+    if (rawBody.length > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: "Request too large." }, { status: 413 });
+    }
+
+    let body: {
       messages?: ChatMessage[];
       sessionId?: string;
       collected?: CollectedProfile;
     };
+
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+    }
 
     const messages = body.messages ?? [];
 
@@ -152,6 +182,20 @@ export async function POST(request: Request) {
         { error: "Messages are required." },
         { status: 400 }
       );
+    }
+
+    if (messages.length > MAX_MESSAGES) {
+      return NextResponse.json({ error: "Too many messages." }, { status: 400 });
+    }
+
+    for (const message of messages) {
+      if (
+        (message.role !== "user" && message.role !== "assistant") ||
+        typeof message.content !== "string" ||
+        message.content.length > MAX_MESSAGE_LENGTH
+      ) {
+        return NextResponse.json({ error: "Invalid message." }, { status: 400 });
+      }
     }
 
     const priorCollected = normalizeCollected(body.collected ?? EMPTY_COLLECTED);

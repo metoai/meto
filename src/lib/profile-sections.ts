@@ -87,7 +87,7 @@ export async function userHasSections(
 ) {
   const { count, error } = await supabase
     .from("context_sections")
-    .select("*", { count: "exact", head: true })
+    .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 
   if (error) {

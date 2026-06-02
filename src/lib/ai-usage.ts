@@ -119,10 +119,7 @@ export async function syncAiUsagePeriod(userId: string): Promise<UsageRow> {
   return full;
 }
 
-export async function getAiUsageSnapshot(
-  userId: string
-): Promise<AiUsageSnapshot> {
-  const row = await syncAiUsagePeriod(userId);
+export function getAiUsageSnapshotFromRow(row: UsageRow): AiUsageSnapshot {
   const effective = getEntitlements(row).plan;
   const limit = aiLimitForPlan(effective);
   const used = row.ai_calls_used ?? 0;
@@ -134,6 +131,13 @@ export async function getAiUsageSnapshot(
     periodStart: row.ai_usage_period_start,
     periodLabel: periodLabel(effective),
   };
+}
+
+export async function getAiUsageSnapshot(
+  userId: string
+): Promise<AiUsageSnapshot> {
+  const row = await syncAiUsagePeriod(userId);
+  return getAiUsageSnapshotFromRow(row);
 }
 
 export async function resetAiUsageForProUpgrade(userId: string) {
