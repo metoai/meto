@@ -22,9 +22,14 @@ export function getPublicProfileUrl(username: string) {
   return `${getSiteUrl()}${getPublicProfilePath(username)}`;
 }
 
-/** Plain-text context block — best URL for AI tools to fetch. */
+/** Plain-text context (legacy path). */
 export function getPublicContextUrl(username: string) {
   return `${getSiteUrl()}${getPublicProfilePath(username)}/context`;
+}
+
+/** Plain-text API — most reliable for ChatGPT / Claude web fetch. */
+export function getPublicContextApiUrl(username: string) {
+  return `${getSiteUrl()}/api/public/profile/${username.trim().toLowerCase()}/context`;
 }
 
 export function getAiProfileJsonUrl(username: string) {

@@ -143,6 +143,7 @@ export function OnboardingFlow() {
 
   async function sendChatMessage(content: string) {
     const userMessage: ChatMessage = { role: "user", content };
+    const priorMessages = messages;
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setChatInput("");
@@ -198,6 +199,8 @@ export function OnboardingFlow() {
         { role: "assistant", content: data.reply },
       ]);
     } catch (err) {
+      setMessages(priorMessages);
+      setChatInput(content);
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
@@ -439,12 +442,17 @@ export function OnboardingFlow() {
           >
             <textarea
               value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
+              onChange={(e) => {
+                setChatInput(e.target.value);
+                const el = e.target;
+                el.style.height = "auto";
+                el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+              }}
               onKeyDown={handleChatKeyDown}
               rows={1}
               disabled={loading}
               placeholder="Answer in your own words…"
-              className="min-h-[24px] flex-1 resize-none bg-transparent text-sm leading-normal text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] disabled:opacity-50"
+              className="max-h-[120px] min-h-[24px] flex-1 resize-none bg-transparent text-sm leading-normal text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] disabled:opacity-50"
             />
             <button
               type="submit"

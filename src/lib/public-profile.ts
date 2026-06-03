@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { compileLocally } from "@/lib/compile-local";
 import {
   getAiProfileJsonUrl,
+  getPublicContextApiUrl,
   getPublicContextUrl,
   getPublicProfileUrl,
   getSiteUrl,
@@ -65,8 +66,9 @@ export type AiProfileDocument = {
   expertise: string[];
   links: PublicProfileLink[];
   profileUrl: string;
-  /** Plain-text context for AI tools. */
+  /** Plain-text context for AI tools (API URL). */
   contextUrl: string;
+  legacyContextUrl: string;
   /** Structured JSON document. */
   jsonUrl: string;
 };
@@ -195,7 +197,8 @@ export function toAiProfileDocument(
     expertise: profile.skills,
     links: profile.links,
     profileUrl: getPublicProfileUrl(profile.username),
-    contextUrl: getPublicContextUrl(profile.username),
+    contextUrl: getPublicContextApiUrl(profile.username),
+    legacyContextUrl: getPublicContextUrl(profile.username),
     jsonUrl: getAiProfileJsonUrl(profile.username),
   };
 }

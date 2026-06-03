@@ -7,6 +7,7 @@ import {
 } from "@/lib/public-profile";
 import {
   getAiProfileJsonUrl,
+  getPublicContextApiUrl,
   getPublicContextUrl,
   getPublicProfileUrl,
   getSiteUrl,
@@ -33,7 +34,8 @@ export async function generateMetadata({
   }
 
   const profileUrl = getPublicProfileUrl(publicProfile.username);
-  const contextUrl = getPublicContextUrl(publicProfile.username);
+  const contextUrl = getPublicContextApiUrl(publicProfile.username);
+  const legacyContextUrl = getPublicContextUrl(publicProfile.username);
   const description = publicProfile.hasPublicContent
     ? publicProfile.compiled.slice(0, 300) || publicProfile.aiSummary
     : `${publicProfile.name} on Meto — no public profile sections yet.`;
@@ -53,12 +55,17 @@ export async function generateMetadata({
       title: `${publicProfile.name} — Meto`,
       description,
     },
+    robots: { index: true, follow: true },
     alternates: {
       canonical: profileUrl,
       types: {
         "text/plain": contextUrl,
         "application/json": getAiProfileJsonUrl(publicProfile.username),
       },
+    },
+    other: {
+      "meto:context-api": contextUrl,
+      "meto:context-legacy": legacyContextUrl,
     },
   };
 }

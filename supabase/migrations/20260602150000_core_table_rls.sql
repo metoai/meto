@@ -65,3 +65,7 @@ create index if not exists profiles_polar_customer_id_idx
 create index if not exists profiles_username_idx
   on public.profiles (lower(username))
   where username is not null;
+
+revoke execute on function public.delete_own_account() from anon;
+revoke execute on function public.handle_new_user() from anon;
+revoke execute on function public.handle_new_user() from authenticated;

@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import type { ContextScoreResult } from "@/lib/context-score";
 import type { Entitlements } from "@/lib/entitlements";
 import { getProfileCompletion } from "@/lib/profile-utils";
 import type { ContextSection, UserProfile } from "@/lib/types";
@@ -24,10 +25,13 @@ type PortalDataContextValue = {
   entitlements: Entitlements | null;
   entitlementsLoaded: boolean;
   issueCount: number;
+  contextScore: ContextScoreResult | null;
+  contextScoreStale: boolean;
   refresh: () => Promise<void>;
   setProfile: (profile: UserProfile | null) => void;
   setSections: (sections: ContextSection[]) => void;
   setIssueCount: (count: number) => void;
+  setContextScore: (score: ContextScoreResult | null) => void;
 };
 
 const PortalDataContext = createContext<PortalDataContextValue | null>(null);
@@ -42,6 +46,10 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
   const [entitlementsLoaded, setEntitlementsLoaded] = useState(false);
   const [issueCount, setIssueCount] = useState(0);
+  const [contextScore, setContextScore] = useState<ContextScoreResult | null>(
+    null
+  );
+  const [contextScoreStale, setContextScoreStale] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -54,6 +62,8 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
         setSections(data.sections ?? []);
         setEntitlements(data.entitlements ?? null);
         setIssueCount(data.issueCount ?? 0);
+        setContextScore(data.contextScore ?? null);
+        setContextScoreStale(Boolean(data.contextScoreStale));
       }
 
       setEntitlementsLoaded(true);
@@ -87,10 +97,13 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
       entitlements,
       entitlementsLoaded,
       issueCount,
+      contextScore,
+      contextScoreStale,
       refresh,
       setProfile,
       setSections,
       setIssueCount,
+      setContextScore,
     }),
     [
       profile,
@@ -104,6 +117,8 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
       entitlements,
       entitlementsLoaded,
       issueCount,
+      contextScore,
+      contextScoreStale,
       refresh,
     ]
   );

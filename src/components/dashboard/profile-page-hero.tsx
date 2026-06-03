@@ -5,7 +5,7 @@ import { useState } from "react";
 import { DashboardCard } from "@/components/dashboard/ui/dashboard-card";
 import type { ContextSection } from "@/lib/types";
 import {
-  getPublicContextUrl,
+  getPublicContextApiUrl,
   getPublicProfileUrl,
   normalizeUsername,
   validateUsername,
@@ -46,7 +46,7 @@ export function ProfilePageHero({
 
   async function handleCopyForAi() {
     if (!username) return;
-    await navigator.clipboard.writeText(getPublicContextUrl(username));
+    await navigator.clipboard.writeText(getPublicContextApiUrl(username));
     setCopiedAi(true);
     setTimeout(() => setCopiedAi(false), 2000);
   }

@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { MetoLogo } from "@/components/meto-logo";
 import type { PublicProfile } from "@/lib/public-profile";
-import { getPublicContextUrl, getPublicProfileUrl } from "@/lib/site";
+import {
+  getPublicContextApiUrl,
+  getPublicContextUrl,
+  getPublicProfileUrl,
+} from "@/lib/site";
 
 type PublicProfileViewProps = {
   profile: PublicProfile;
@@ -9,7 +13,8 @@ type PublicProfileViewProps = {
 
 export function PublicProfileView({ profile }: PublicProfileViewProps) {
   const profileUrl = getPublicProfileUrl(profile.username);
-  const contextUrl = getPublicContextUrl(profile.username);
+  const contextUrl = getPublicContextApiUrl(profile.username);
+  const legacyContextUrl = getPublicContextUrl(profile.username);
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
@@ -53,7 +58,8 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
                 AI-readable context
               </h2>
               <p className="mt-2 text-sm text-brand-text-muted">
-                Share this plain-text link with ChatGPT, Claude, or other AI tools:
+                Share this link with ChatGPT, Claude, or other AI tools (plain
+                text, no login):
               </p>
               <a
                 href={contextUrl}
@@ -61,6 +67,12 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
               >
                 {contextUrl}
               </a>
+              <p className="mt-2 text-xs text-brand-text-muted">
+                Alternate:{" "}
+                <a href={legacyContextUrl} className="underline">
+                  {legacyContextUrl}
+                </a>
+              </p>
               <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-white p-4 text-sm leading-relaxed text-brand-text-muted">
                 {profile.compiled}
               </pre>

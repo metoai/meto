@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  getPublicContextUrl,
+  getPublicContextApiUrl,
   getPublicProfileUrl,
   normalizeUsername,
   validateUsername,
@@ -35,7 +35,7 @@ export function ProfileLiveBanner({
 
   async function handleCopyForAi() {
     if (!username) return;
-    await navigator.clipboard.writeText(getPublicContextUrl(username));
+    await navigator.clipboard.writeText(getPublicContextApiUrl(username));
     setCopiedAi(true);
     setTimeout(() => setCopiedAi(false), 2000);
   }

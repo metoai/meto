@@ -20,6 +20,7 @@ export function normalizeUsername(username: string) {
 }
 
 export {
+  getPublicContextApiUrl,
   getPublicContextUrl,
   getPublicProfileUrl,
   publicProfileLabel,
