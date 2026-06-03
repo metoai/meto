@@ -17,6 +17,8 @@ import {
   isAiLimitResponse,
   isUpgradeRequiredResponse,
 } from "@/lib/billing-errors";
+import { postChatStream } from "@/lib/chat-stream-client";
+import { streamPlainTextForDisplay } from "@/lib/stream-prompt";
 import {
   readUpdateHistory,
   recordUpdate,
@@ -120,6 +122,32 @@ export function useQuickUpdateChat(
     resizeTextarea();
   }, [input]);
 
+  const applyStreamResult = useCallback((data: Record<string, unknown>) => {
+    const reply = typeof data.reply === "string" ? data.reply : null;
+    const done = Boolean(data.done);
+    const updates =
+      data.updates && typeof data.updates === "object"
+        ? (data.updates as Record<string, string>)
+        : {};
+
+    if (done && Object.keys(updates).length > 0) {
+      setPendingUpdates(updates);
+    }
+
+    return reply;
+  }, []);
+
+  const handleStreamError = useCallback((err: unknown, fallback: string) => {
+    const data =
+      err instanceof Error && "data" in err
+        ? (err as Error & { data?: Record<string, unknown> }).data
+        : undefined;
+    if (data && (isAiLimitResponse(data) || isUpgradeRequiredResponse(data))) {
+      return billingErrorMessage(data, "Upgrade required.");
+    }
+    return err instanceof Error ? err.message : fallback;
+  }, []);
+
   const initGapFixChat = useCallback(
     async (target: GapFixIntent) => {
       setTyping(true);
@@ -128,47 +156,58 @@ export function useQuickUpdateChat(
       setApplied(false);
       setGapFixPaused(false);
 
+      const assistantId = createId();
+
       try {
-        const res = await fetch("/api/profile/update-chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        setMessages([{ id: assistantId, role: "assistant", content: "" }]);
+
+        const { data } = await postChatStream(
+          "/api/profile/update-chat",
+          {
             gapFixInit: true,
             gapFix: gapFixPayload(target),
-          }),
-        });
-        const data = await res.json();
-
-        if (!res.ok) {
-          if (isAiLimitResponse(data) || isUpgradeRequiredResponse(data)) {
-            throw new Error(billingErrorMessage(data, "Upgrade required."));
-          }
-          throw new Error(billingErrorMessage(data, "Failed to start gap fix."));
-        }
-
-        setMessages([
-          {
-            id: createId(),
-            role: "assistant",
-            content: data.reply,
           },
-        ]);
+          {
+            onToken: (_, full) => {
+              setMessages([
+                {
+                  id: assistantId,
+                  role: "assistant",
+                  content: streamPlainTextForDisplay(full),
+                },
+              ]);
+            },
+            onEvent: (event) => {
+              if (typeof event.reply === "string") {
+                setMessages([
+                  {
+                    id: assistantId,
+                    role: "assistant",
+                    content: event.reply,
+                  },
+                ]);
+              }
+            },
+          }
+        );
 
-        if (data.done && data.updates && Object.keys(data.updates).length > 0) {
-          setPendingUpdates(data.updates);
+        applyStreamResult(data ?? {});
+        const reply = typeof data?.reply === "string" ? data.reply : null;
+        if (reply) {
+          setMessages([
+            { id: assistantId, role: "assistant", content: reply },
+          ]);
         }
-
         setGapFixInitDone(true);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to start gap fix."
-        );
+        setMessages([]);
+        setError(handleStreamError(err, "Failed to start gap fix."));
         setGapFixInitDone(true);
       } finally {
         setTyping(false);
       }
     },
-    []
+    [applyStreamResult, handleStreamError]
   );
 
   useEffect(() => {
@@ -187,7 +226,11 @@ export function useQuickUpdateChat(
       content: trimmed,
     };
     const nextMessages = [...messages, userMessage];
-    setMessages(nextMessages);
+    const assistantId = createId();
+    setMessages([
+      ...nextMessages,
+      { id: assistantId, role: "assistant", content: "" },
+    ]);
     setInput("");
     setTyping(true);
     setError(null);
@@ -196,40 +239,50 @@ export function useQuickUpdateChat(
     lastUserMessageRef.current = trimmed;
 
     try {
-      const res = await fetch("/api/profile/update-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data } = await postChatStream(
+        "/api/profile/update-chat",
+        {
           messages: nextMessages.map(({ role, content: text }) => ({
             role,
             content: text,
           })),
           ...(gapFix ? { gapFix: gapFixPayload(gapFix) } : {}),
-        }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (isAiLimitResponse(data) || isUpgradeRequiredResponse(data)) {
-          throw new Error(billingErrorMessage(data, "Upgrade required."));
-        }
-        throw new Error(billingErrorMessage(data, "Update failed."));
-      }
-
-      setMessages((current) => [
-        ...current,
-        {
-          id: createId(),
-          role: "assistant",
-          content: data.reply,
         },
-      ]);
+        {
+          onToken: (_, full) => {
+            setMessages((current) =>
+              current.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: streamPlainTextForDisplay(full) }
+                  : m
+              )
+            );
+          },
+          onEvent: (event) => {
+            if (typeof event.reply === "string") {
+              setMessages((current) =>
+                current.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, content: event.reply as string }
+                    : m
+                )
+              );
+            }
+          },
+        }
+      );
 
-      if (data.done && data.updates && Object.keys(data.updates).length > 0) {
-        setPendingUpdates(data.updates);
+      applyStreamResult(data ?? {});
+      if (typeof data?.reply === "string") {
+        setMessages((current) =>
+          current.map((m) =>
+            m.id === assistantId ? { ...m, content: data.reply as string } : m
+          )
+        );
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setMessages(nextMessages);
+      setError(handleStreamError(err, "Something went wrong."));
     } finally {
       setTyping(false);
     }

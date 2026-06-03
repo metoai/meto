@@ -9,6 +9,7 @@ import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { upgradeRequiredResponse } from "@/lib/billing-errors";
 import { getEntitlementsForUser } from "@/lib/billing-profile";
 import type { CompileFormat } from "@/lib/types";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 const VALID_FORMATS: CompileFormat[] = [
@@ -127,6 +128,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const limited = await enforceRateLimit(
+      request,
+      "compile",
+      30,
+      60 * 60 * 1000,
+      user.id
+    );
+    if (limited) return limited;
+
     const {
       format = "universal",
       force = false,
@@ -186,7 +196,7 @@ export async function POST(request: Request) {
 
       try {
         compiled = await compileProfileWithGemini(sections, format);
-        await recordAiUsage(user.id);
+        await recordAiUsage(user.id, 1, aiAccess.row);
       } catch (error) {
         if (isRetryableGeminiError(error)) {
           compiled = compileLocally(format, sections);

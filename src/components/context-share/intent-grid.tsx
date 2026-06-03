@@ -30,7 +30,7 @@ export function IntentGrid({
               onClick={() => onSelect(preset.id)}
               className={`cursor-pointer rounded-[10px] border px-3.5 py-2.5 text-left transition-[border-color,background-color] duration-150 ease-in-out ${
                 active
-                  ? "border-[var(--primary)] bg-[#F0FAF7]"
+                  ? "border-[var(--primary)] bg-[var(--primary-light)]"
                   : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--border-hover)]"
               }`}
             >
@@ -44,7 +44,7 @@ export function IntentGrid({
           );
         })}
         {selectedPreset === "custom" ? (
-          <div className="flex items-center rounded-[10px] border border-dashed border-[var(--primary)] bg-[#F0FAF7] px-3.5 py-2.5">
+          <div className="flex items-center rounded-[10px] border border-dashed border-[var(--primary)] bg-[var(--primary-light)] px-3.5 py-2.5">
             <span className="text-[13px] font-medium text-[var(--primary)]">
               Custom mix
             </span>

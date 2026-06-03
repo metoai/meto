@@ -32,7 +32,7 @@ export default function BillingSuccessPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-white px-4 text-center">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-[var(--card)] px-4 text-center">
       <MetoMarkBadge size="lg" />
       <p className="mt-4 text-sm font-medium text-[var(--text)]">
         {error ? "Something went wrong" : "Activating Meto Pro…"}

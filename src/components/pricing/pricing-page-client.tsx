@@ -85,8 +85,8 @@ function PlanCard({
       onClick={onChoose}
       className={`group flex h-full w-full flex-col rounded-2xl border p-5 text-left transition-[border-color,box-shadow,transform] duration-150 disabled:opacity-60 sm:p-6 ${
         featured
-          ? "border-[var(--primary)] bg-white shadow-[0_0_0_1px_rgba(15,110,86,0.08)] hover:shadow-[0_8px_30px_rgba(15,110,86,0.08)]"
-          : "border-[var(--border)] bg-white hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
+          ? "border-[var(--primary)] bg-[var(--card)] shadow-[0_0_0_1px_rgba(15,110,86,0.08)] hover:shadow-[0_8px_30px_rgba(15,110,86,0.08)]"
+          : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
       }`}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -173,7 +173,7 @@ export function PricingPageClient() {
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden bg-white text-[var(--text)]">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[var(--card)] text-[var(--text)]">
       <header className="shrink-0 px-4 pt-5 sm:px-8">
         <Link
           href="/"

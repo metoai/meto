@@ -13,11 +13,11 @@ export function ProgressBar({
     <div>
       {label ? (
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm text-[#6B6B63]">{label}</span>
-          <span className="text-sm tabular-nums text-[#1A1A18]">{clamped}%</span>
+          <span className="text-sm text-[var(--text-secondary)]">{label}</span>
+          <span className="text-sm tabular-nums text-[var(--text)]">{clamped}%</span>
         </div>
       ) : null}
-      <div className="h-1.5 overflow-hidden rounded-full bg-[#F7F7F5]">
+      <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface)]">
         <div
           className="h-full rounded-full transition-all duration-300 ease-in-out"
           style={{ width: `${clamped}%`, backgroundColor: color }}

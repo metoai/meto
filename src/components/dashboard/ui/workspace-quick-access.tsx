@@ -100,24 +100,24 @@ export function WorkspaceQuickAccess({
         <SectionLabel>Workspace</SectionLabel>
         <Link
           href="/dashboard/workspace"
-          className="text-xs text-[#0F6E56] transition-colors duration-150 hover:text-[#1D9E75]"
+          className="text-xs text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
         >
           Open full workspace →
         </Link>
       </div>
 
       {!compact ? (
-        <pre className="mt-3 max-h-[72px] overflow-hidden whitespace-pre-wrap font-mono-brand text-xs leading-relaxed text-[#6B6B63]">
+        <pre className="mt-3 max-h-[72px] overflow-hidden whitespace-pre-wrap font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
           {preview || "Add profile sections to generate your AI context…"}
         </pre>
       ) : null}
 
       <div
-        className={`rounded-xl border border-black/[0.08] bg-[#FAFAF8] ${
+        className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--elevated)] ${
           compact ? "mt-2.5 p-2.5" : "mt-4 p-3"
         }`}
       >
-        <p className="text-xs font-medium text-[#1A1A18]">
+        <p className="text-xs font-medium text-[var(--text)]">
           {compact
             ? "Share your public profile link"
             : "Public link — only public profile sections"}
@@ -127,29 +127,29 @@ export function WorkspaceQuickAccess({
             <button
               type="button"
               onClick={() => void handleCopyProfileLink()}
-              className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-xs text-[#6B6B63] transition-all duration-150 hover:border-[#C0C0B8] hover:text-[#1A1A18]"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)]"
             >
               <Link2 className="h-3.5 w-3.5" strokeWidth={1.75} />
               {copiedLink ? "Copied profile link!" : "Copy profile link"}
             </button>
-            <span className="text-xs text-[#9B9B93]">metoai.site/profile/{username}</span>
+            <span className="text-xs text-[var(--muted)]">metoai.site/profile/{username}</span>
           </div>
         ) : (
           <form
             onSubmit={handleClaim}
             className="mt-2 flex flex-wrap items-center gap-2"
           >
-            <span className="text-xs text-[#9B9B93]">metoai.site/profile/</span>
+            <span className="text-xs text-[var(--muted)]">metoai.site/profile/</span>
             <input
               value={claimValue}
               onChange={(e) => setClaimValue(e.target.value)}
               placeholder="yourname"
-              className="min-w-[140px] flex-1 rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-xs text-[#1A1A18] outline-none transition-colors focus:border-[#C0C0B8]"
+              className="min-w-[140px] flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text)] outline-none transition-colors focus:border-[var(--border-hover)]"
             />
             <button
               type="submit"
               disabled={claiming}
-              className="rounded-lg bg-[#0F6E56] px-3 py-2 text-xs font-medium text-white transition-colors duration-150 hover:bg-[#1D9E75] disabled:opacity-50"
+              className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
             >
               {claiming ? "Claiming..." : "Claim username"}
             </button>
@@ -164,7 +164,7 @@ export function WorkspaceQuickAccess({
 
       {!compact ? (
         <>
-          <p className="mt-3 text-xs text-[#9B9B93]">
+          <p className="mt-3 text-xs text-[var(--muted)]">
             Or copy formatted text for:
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -174,7 +174,7 @@ export function WorkspaceQuickAccess({
                 type="button"
                 onClick={() => void handleCopy(id)}
                 disabled={!contextPreview.trim()}
-                className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-xs text-[#6B6B63] transition-all duration-150 hover:border-[#C0C0B8] hover:text-[#1A1A18] disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)] disabled:opacity-40"
               >
                 <AiPlatformIcon format={id} size={14} />
                 {copiedFormat === id ? "Copied!" : label}
@@ -184,7 +184,7 @@ export function WorkspaceQuickAccess({
               type="button"
               onClick={() => void handleCopy("universal")}
               disabled={!contextPreview.trim()}
-              className="inline-flex items-center gap-2 rounded-lg border border-black/[0.08] bg-white px-3 py-2 text-xs text-[#6B6B63] transition-all duration-150 hover:border-[#C0C0B8] hover:text-[#1A1A18] disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)] disabled:opacity-40"
             >
               <AiPlatformIcon format="universal" size={14} />
               {copiedFormat === "universal" ? "Copied!" : "Any AI"}
@@ -194,7 +194,7 @@ export function WorkspaceQuickAccess({
       ) : null}
 
       {!compact ? (
-        <p className="mt-3 text-xs text-[#9B9B93]">
+        <p className="mt-3 text-xs text-[var(--muted)]">
           Copied {stats.weekCount} time{stats.weekCount === 1 ? "" : "s"} this week
           {stats.lastCopiedAt
             ? ` — last on ${formatLastCopied(stats.lastCopiedAt)}`

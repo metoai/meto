@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { getEntitlementsForUser } from "@/lib/billing-profile";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import {
   applyResolvedSections,
   analyzeContextScore,
@@ -144,6 +145,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const limited = await enforceRateLimit(
+      request,
+      "context-score",
+      20,
+      60 * 60 * 1000,
+      user.id
+    );
+    if (limited) return limited;
+
     const { force = false, fixedSections = [] } = (await request
       .json()
       .catch(() => ({}))) as {
@@ -188,7 +198,7 @@ export async function POST(request: Request) {
       const aiAccess = await assertAiAccess(user.id, "llm_score");
       if (!aiAccess.ok) return aiAccess.response;
       result = await analyzeContextScore(sections);
-      await recordAiUsage(user.id);
+      await recordAiUsage(user.id, 1, aiAccess.row);
     } else {
       result = analyzeContextScoreLocally(sections);
     }

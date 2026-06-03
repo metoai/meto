@@ -40,7 +40,7 @@ export function PreviewPanel({
 }: PreviewPanelProps) {
   if (selectionCount === 0) {
     return (
-      <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-[#FAFAF8] px-6 py-10 text-center">
+      <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border)] bg-[var(--elevated)] px-6 py-10 text-center">
         <p className="text-sm font-medium text-[var(--text)]">
           {workspaceLayout
             ? WORKSPACE_COPY.emptySelectionTitle
@@ -60,29 +60,29 @@ export function PreviewPanel({
     const hasUsername = Boolean(username);
 
     return (
-      <div className="flex h-full min-h-0 flex-col rounded-xl border border-black/[0.08] bg-white p-4">
+      <div className="flex h-full min-h-0 flex-col rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4">
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-medium text-[#1A1A18]">
+            <p className="text-xs font-medium text-[var(--text)]">
               {WORKSPACE_COPY.linkLabel}
             </p>
-            <p className="mt-0.5 text-[10px] text-[#9B9B93]">
+            <p className="mt-0.5 text-[10px] text-[var(--muted)]">
               {WORKSPACE_COPY.linkSublabel}
             </p>
             {!hasUsername ? (
-              <div className="mt-2 rounded-xl border border-[#E8E8E4] bg-[#F7F7F5] px-4 py-3.5">
-                <p className="text-[13px] text-[#6B6B63]">
+              <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3.5">
+                <p className="text-[13px] text-[var(--text-secondary)]">
                   Claim a username to get your personal link
                 </p>
                 <Link
                   href="/settings"
-                  className="mt-2.5 inline-block rounded-lg bg-[#0F6E56] px-4 py-[7px] text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[#1D9E75]"
+                  className="mt-2.5 inline-block rounded-lg bg-[var(--primary)] px-4 py-[7px] text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)]"
                 >
                   Claim username →
                 </Link>
               </div>
             ) : (
-              <div className="mt-2 rounded-xl border border-[var(--border)] bg-[#FAFAF8] px-3 py-2.5">
+              <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--elevated)] px-3 py-2.5">
                 {linkReady ? (
                   <p className="break-all font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
                     {shareUrl}
@@ -97,7 +97,7 @@ export function PreviewPanel({
           </div>
 
           {hasUsername && linkReady ? (
-            <p className="text-[11px] text-[#9B9B93]">
+            <p className="text-[11px] text-[var(--muted)]">
               {linkSelectionCount} public section
               {linkSelectionCount === 1 ? "" : "s"} in link
               {privateInSelectionCount > 0
@@ -111,7 +111,7 @@ export function PreviewPanel({
             onClick={() => void onCopyLink()}
             disabled={!linkReady}
             className={`w-full rounded-xl border-none px-3 py-3 text-sm font-medium text-white transition-[background] duration-150 ease-in-out disabled:cursor-not-allowed disabled:opacity-40 ${
-              copiedLink ? "bg-[#1D9E75]" : "bg-[#0F6E56] hover:bg-[#1D9E75]"
+              copiedLink ? "bg-[#1D9E75]" : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
             }`}
           >
             {copiedLink ? WORKSPACE_COPY.copiedLink : WORKSPACE_COPY.copyLink}
@@ -121,7 +121,7 @@ export function PreviewPanel({
             {PLATFORM_OPTIONS.filter((p) => p.id !== "universal").map((p) => (
               <AiPlatformIcon key={p.id} format={p.id} size={18} />
             ))}
-            <span className="text-[10px] text-[#9B9B93]">works in any AI</span>
+            <span className="text-[10px] text-[var(--muted)]">works in any AI</span>
           </div>
 
           {linkReady ? (
@@ -131,14 +131,14 @@ export function PreviewPanel({
           ) : null}
         </div>
 
-        <div className="mt-5 min-h-0 flex-1 border-t border-black/[0.06] pt-4">
-          <p className="text-xs font-medium text-[#1A1A18]">
+        <div className="mt-5 min-h-0 flex-1 border-t border-[var(--border-subtle)] pt-4">
+          <p className="text-xs font-medium text-[var(--text)]">
             {WORKSPACE_COPY.previewLabel}
           </p>
-          <p className="mt-0.5 text-[10px] text-[#9B9B93]">
+          <p className="mt-0.5 text-[10px] text-[var(--muted)]">
             {WORKSPACE_COPY.previewSublabel}
           </p>
-          <pre className="scrollbar-hidden mt-2 max-h-[200px] min-h-[120px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-[var(--border)] bg-[#FAFAF8] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
+          <pre className="scrollbar-hidden mt-2 max-h-[200px] min-h-[120px] overflow-y-auto whitespace-pre-wrap rounded-xl border border-[var(--border)] bg-[var(--elevated)] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
             {contextText}
           </pre>
         </div>
@@ -149,8 +149,8 @@ export function PreviewPanel({
           disabled={!contextText}
           className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-[13px] font-medium transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${
             copiedContext
-              ? "border-[#C0E0D8] bg-[#F0FAF7] text-[#0F6E56]"
-              : "border-[var(--border)] bg-white text-[#6B6B63] hover:border-[#C0C0B8] hover:text-[#1A1A18]"
+              ? "border-[var(--accent-border)] bg-[var(--primary-light)] text-[var(--primary)]"
+              : "border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text)]"
           }`}
         >
           <AiPlatformIcon format={selectedFormat} size={16} />

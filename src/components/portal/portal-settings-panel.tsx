@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PlanUsageCard } from "@/components/billing/plan-usage-card";
 import { usePortalData } from "@/components/portal/portal-data-context";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
-const labelClass = "mb-[5px] block text-[13px] font-medium text-[#1A1A18]";
+const labelClass = "mb-[5px] block text-[13px] font-medium text-[var(--text)]";
 const inputClass =
-  "w-full rounded-lg border border-[#E8E8E4] px-3 py-[9px] text-sm text-[#1A1A18] outline-none transition-[border-color] duration-150 focus:border-[#0F6E56]";
+  "w-full rounded-lg border border-[var(--border)] px-3 py-[9px] text-sm text-[var(--text)] outline-none transition-[border-color] duration-150 focus:border-[var(--primary)]";
 
 export function PortalSettingsPanel() {
   const router = useRouter();
@@ -116,15 +117,25 @@ export function PortalSettingsPanel() {
         ) : null}
         {success ? (
           <p
-            className="mb-4 rounded-lg border border-[#C0E0D8] bg-[#E8F5F0] px-4 py-3 text-sm text-[#0F6E56]"
+            className="mb-4 rounded-lg border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3 text-sm text-[var(--primary)]"
             role="status"
           >
             {success}
           </p>
         ) : null}
 
+        <section className="mb-8">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
+            Appearance
+          </p>
+          <p className="mb-3 text-[13px] text-[var(--text-secondary)]">
+            Choose light, dark, or match your system setting.
+          </p>
+          <ThemeToggle />
+        </section>
+
         <form onSubmit={handleSave}>
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#C0C0B8]">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
             Profile
           </p>
 
@@ -140,9 +151,9 @@ export function PortalSettingsPanel() {
                 readOnly
                 disabled
                 autoComplete="email"
-                className={`${inputClass} cursor-not-allowed bg-[#F7F7F5] text-[#9B9B93] focus:border-[#E8E8E4]`}
+                className={`${inputClass} cursor-not-allowed bg-[var(--surface)] text-[var(--muted)] focus:border-[var(--border)]`}
               />
-              <p className="mt-1 text-[11px] text-[#C0C0B8]">Email cannot be changed</p>
+              <p className="mt-1 text-[11px] text-[var(--placeholder)]">Email cannot be changed</p>
             </div>
 
             <div>
@@ -163,8 +174,8 @@ export function PortalSettingsPanel() {
               <label htmlFor="settings-username" className={labelClass}>
                 Username
               </label>
-              <div className="flex overflow-hidden rounded-lg border border-[#E8E8E4] focus-within:border-[#0F6E56]">
-                <span className="shrink-0 select-none whitespace-nowrap border-r border-[#E8E8E4] bg-[#F7F7F5] px-3 py-[9px] text-sm text-[#9B9B93]">
+              <div className="flex overflow-hidden rounded-lg border border-[var(--border)] focus-within:border-[var(--primary)]">
+                <span className="shrink-0 select-none whitespace-nowrap border-r border-[var(--border)] bg-[var(--surface)] px-3 py-[9px] text-sm text-[var(--muted)]">
                   metoai.site/profile/
                 </span>
                 <input
@@ -175,7 +186,7 @@ export function PortalSettingsPanel() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="yourname"
                   autoComplete="off"
-                  className="min-w-0 flex-1 border-none bg-white px-3 py-[9px] text-sm text-[#1A1A18] outline-none"
+                  className="min-w-0 flex-1 border-none bg-[var(--card)] px-3 py-[9px] text-sm text-[var(--text)] outline-none"
                 />
               </div>
             </div>
@@ -200,7 +211,7 @@ export function PortalSettingsPanel() {
           <button
             type="submit"
             disabled={saving || !isDirty}
-            className="mt-1.5 inline-flex items-center gap-2 rounded-lg bg-[#0F6E56] px-5 py-[9px] text-sm font-medium text-white transition-colors duration-150 hover:bg-[#1D9E75] disabled:opacity-50"
+            className="mt-1.5 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-5 py-[9px] text-sm font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -213,17 +224,17 @@ export function PortalSettingsPanel() {
           </button>
         </form>
 
-        <div className="mt-8 border-t border-[#E8E8E4] pt-6">
+        <div className="mt-8 border-t border-[var(--border)] pt-6">
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#F87171]">
             Danger zone
           </p>
-          <p className="mb-3.5 text-[13px] text-[#6B6B63]">
+          <p className="mb-3.5 text-[13px] text-[var(--text-secondary)]">
             Permanently delete your account and all profile data.
           </p>
           <button
             type="button"
             onClick={() => setShowDeleteModal(true)}
-            className="inline-flex items-center rounded-lg border border-[#FCA5A5] bg-white px-4 py-2 text-[13px] font-medium text-[#EF4444] transition-all duration-150 hover:border-[#EF4444] hover:bg-[#FEF2F2]"
+            className="inline-flex items-center rounded-lg border border-[#FCA5A5] bg-[var(--card)] px-4 py-2 text-[13px] font-medium text-[#EF4444] transition-all duration-150 hover:border-[#EF4444] hover:bg-[#FEF2F2]"
           >
             <Trash2 className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.75} />
             Delete account
@@ -232,7 +243,7 @@ export function PortalSettingsPanel() {
 
         {showDeleteModal ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
-            <div className="w-full max-w-md rounded-xl border border-[#E8E8E4] bg-white p-6">
+            <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
               <h3 className="text-lg font-semibold text-[var(--text)]">
                 Delete account?
               </h3>
@@ -244,7 +255,7 @@ export function PortalSettingsPanel() {
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="rounded-[7px] px-4 py-2 text-sm text-[#9B9B93] hover:text-[var(--text)]"
+                  className="rounded-[7px] px-4 py-2 text-sm text-[var(--muted)] hover:text-[var(--text)]"
                 >
                   Cancel
                 </button>
@@ -272,11 +283,11 @@ export function PortalSettingsPanel() {
       <aside className="w-full shrink-0 space-y-4 lg:w-[280px]">
         <PlanUsageCard compact />
 
-        <div className="rounded-xl border border-[#E8E8E4] bg-[#F7F7F5] p-5">
-        <p className="mb-1.5 text-[13px] font-medium text-[#1A1A18]">
+        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+        <p className="mb-1.5 text-[13px] font-medium text-[var(--text)]">
           Your public profile
         </p>
-        <p className="mb-3.5 text-xs leading-relaxed text-[#6B6B63]">
+        <p className="mb-3.5 text-xs leading-relaxed text-[var(--text-secondary)]">
           Your profile is visible at your Meto link. Anyone — or any AI — can read
           the sections you&apos;ve marked public.
         </p>
@@ -286,20 +297,20 @@ export function PortalSettingsPanel() {
             href={`/profile/${profileUsername}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono-brand text-xs text-[#0F6E56] hover:text-[#1D9E75]"
+            className="font-mono-brand text-xs text-[var(--primary)] hover:text-[var(--primary-hover)]"
           >
             metoai.site/profile/{profileUsername}
           </Link>
         ) : (
-          <p className="text-xs text-[#9B9B93]">
+          <p className="text-xs text-[var(--muted)]">
             Set a username above to get your link.
           </p>
         )}
 
-        <div className="my-3.5 border-t border-[#E8E8E4]" />
+        <div className="my-3.5 border-t border-[var(--border)]" />
 
-        <p className="mb-1 text-xs font-medium text-[#6B6B63]">Display name</p>
-        <p className="text-xs leading-normal text-[#9B9B93]">
+        <p className="mb-1 text-xs font-medium text-[var(--text-secondary)]">Display name</p>
+        <p className="text-xs leading-normal text-[var(--muted)]">
           This appears in your sidebar and on your public profile.
         </p>
         </div>

@@ -76,18 +76,18 @@ export function SectionTieredList({
             >
               <div className="min-w-0 flex-1 px-5 py-4">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-sm text-[#1A1A18]">{title}</h3>
+                  <h3 className="text-sm text-[var(--text)]">{title}</h3>
                   <SectionStatusBadge status={status} />
                   <VisibilityBadge isPublic={section.is_public} />
                 </div>
 
-                <p className="mt-1.5 text-sm leading-relaxed text-[#6B6B63]">
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
                   {preview || (
-                    <span className="text-[#C0C0B8]">No content yet</span>
+                    <span className="text-[var(--placeholder)]">No content yet</span>
                   )}
                 </p>
 
-                <p className="mt-2 text-xs text-[#9B9B93]">
+                <p className="mt-2 text-xs text-[var(--muted)]">
                   {statusRecencyLabel(status, section.updated_at)}
                 </p>
 
@@ -100,7 +100,7 @@ export function SectionTieredList({
                       feature="gap_fix"
                       href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
                       onClick={() => handleFixClick()}
-                      className="shrink-0 text-xs text-[#0F6E56] transition-colors duration-150 hover:text-[#1D9E75]"
+                      className="shrink-0 text-xs text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
                     >
                       Fix with AI →
                     </UpgradeLockedLink>
@@ -111,7 +111,7 @@ export function SectionTieredList({
               <div className="flex shrink-0 items-center px-4">
                 <Link
                   href={editHref(section.section_type)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[#9B9B93] transition-all duration-150 hover:bg-[#F7F7F5] hover:text-[#1A1A18]"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted)] transition-all duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
                   aria-label={`Edit ${title}`}
                 >
                   <Pencil className="h-4 w-4" strokeWidth={1.75} />

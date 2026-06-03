@@ -71,29 +71,29 @@ export function ProfileLiveBanner({
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-[#E8E8E4] bg-white px-[18px] py-[14px]">
+    <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--card)] px-[18px] py-[14px]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className="h-[7px] w-[7px] shrink-0 rounded-full bg-[#0F6E56]"
+              className="h-[7px] w-[7px] shrink-0 rounded-full bg-[var(--primary)]"
               aria-hidden
             />
-            <span className="text-[13px] font-medium text-[#0F6E56]">
+            <span className="text-[13px] font-medium text-[var(--primary)]">
               Profile live
             </span>
           </div>
           {claimed ? (
-            <p className="mt-1 text-xs text-[#9B9B93]">
+            <p className="mt-1 text-xs text-[var(--muted)]">
               metoai.site/profile/{username}
             </p>
           ) : (
-            <p className="mt-1 text-xs text-[#9B9B93]">
+            <p className="mt-1 text-xs text-[var(--muted)]">
               Claim your URL to go live{" "}
               <button
                 type="button"
                 onClick={() => setClaimOpen((open) => !open)}
-                className="font-medium text-[#0F6E56] transition-colors hover:text-[#1D9E75]"
+                className="font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
               >
                 Claim →
               </button>
@@ -106,14 +106,14 @@ export function ProfileLiveBanner({
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="cursor-pointer text-xs text-[#6B6B63] transition-colors hover:text-[#1A1A18]"
+              className="cursor-pointer text-xs text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
             >
               {copied ? "Copied ✓" : "Copy link"}
             </button>
             <button
               type="button"
               onClick={() => void handleCopyForAi()}
-              className="cursor-pointer text-xs font-medium text-[#0F6E56] transition-colors hover:text-[#1D9E75]"
+              className="cursor-pointer text-xs font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
             >
               {copiedAi ? "Copied ✓" : "Copy for AI"}
             </button>
@@ -121,7 +121,7 @@ export function ProfileLiveBanner({
               href={`/profile/${username}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-[7px] border border-[#C0E0D8] bg-[#E8F5F0] px-3 py-1 text-xs font-medium text-[#0F6E56] transition-colors hover:bg-[#F0FAF7]"
+              className="rounded-[7px] border border-[var(--accent-border)] bg-[var(--primary-light)] px-3 py-1 text-xs font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary-light)]"
             >
               View →
             </a>
@@ -132,19 +132,19 @@ export function ProfileLiveBanner({
       {claimOpen && !claimed ? (
         <form
           onSubmit={handleClaim}
-          className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#E8E8E4] pt-3"
+          className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3"
         >
-          <span className="text-xs text-[#9B9B93]">metoai.site/profile/</span>
+          <span className="text-xs text-[var(--muted)]">metoai.site/profile/</span>
           <input
             value={claimValue}
             onChange={(e) => setClaimValue(e.target.value)}
             placeholder="yourname"
-            className="min-w-[120px] flex-1 rounded-lg border border-[#E8E8E4] bg-white px-3 py-1.5 text-sm text-[#1A1A18] outline-none focus:border-[#C0C0B8]"
+            className="min-w-[120px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm text-[var(--text)] outline-none focus:border-[var(--border-hover)]"
           />
           <button
             type="submit"
             disabled={claimSaving}
-            className="rounded-[7px] bg-[#0F6E56] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1D9E75] disabled:opacity-50"
+            className="rounded-[7px] bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
             {claimSaving ? "Claiming…" : "Claim"}
           </button>

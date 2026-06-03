@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  AuthCard,
   AuthDivider,
   AuthField,
   AuthGoogleButton,
+  AuthPage,
   AuthPrimaryButton,
 } from "@/components/auth/auth-card";
 import { openProCheckout } from "@/lib/billing-client";
@@ -123,12 +123,12 @@ export function SignupForm() {
   }
 
   return (
-    <AuthCard
+    <AuthPage
       title="Create your profile"
       subtitle={
         planChoice === "pro"
-          ? "Create your account, then we'll take you to checkout."
-          : "Free to start. No credit card."
+          ? "Account first, then checkout."
+          : "Free to start — no credit card."
       }
       footer={
         <>
@@ -139,49 +139,51 @@ export function SignupForm() {
                 ? `/auth/login?plan=${planChoice}`
                 : "/auth/login"
             }
-            className="cursor-pointer text-[var(--primary)]"
+            className="font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
           >
             Sign in
           </Link>
         </>
       }
     >
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col">
         <AuthGoogleButton onClick={() => void handleGoogleSignup()} disabled={loading} />
 
         <AuthDivider />
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          <AuthField
-            id="fullName"
-            label="Full name"
-            value={fullName}
-            onChange={setFullName}
-            placeholder="Your name"
-            autoComplete="name"
-          />
-          <AuthField
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
+        <form onSubmit={handleSignup} className="space-y-2">
+          <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
+            <AuthField
+              id="fullName"
+              label="Name"
+              value={fullName}
+              onChange={setFullName}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+            <AuthField
+              id="email"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="you@company.com"
+              autoComplete="email"
+            />
+          </div>
           <AuthField
             id="password"
             label="Password"
             type="password"
             value={password}
             onChange={setPassword}
-            placeholder="At least 6 characters"
+            placeholder="6+ characters"
             autoComplete="new-password"
             minLength={6}
           />
 
           {error ? (
-            <p className="text-sm text-red-500" role="alert">
+            <p className="text-[12px] leading-snug text-red-500" role="alert">
               {error}
             </p>
           ) : null}
@@ -191,6 +193,6 @@ export function SignupForm() {
           </AuthPrimaryButton>
         </form>
       </div>
-    </AuthCard>
+    </AuthPage>
   );
 }

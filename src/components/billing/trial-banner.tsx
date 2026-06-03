@@ -43,12 +43,12 @@ export function TrialBanner({ entitlements }: TrialBannerProps) {
       className={`shrink-0 border-b px-4 py-2.5 md:px-6 ${
         urgent
           ? "border-[#F5D0A8] bg-[#FFF8ED]"
-          : "border-[#C0E0D8] bg-[#E8F5F0]"
+          : "border-[var(--accent-border)] bg-[var(--primary-light)]"
       }`}
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p
-          className={`text-[13px] ${urgent ? "text-[#7A4E00]" : "text-[#0F6E56]"}`}
+          className={`text-[13px] ${urgent ? "text-[#7A4E00]" : "text-[var(--primary)]"}`}
         >
           {urgent ? (
             <>
@@ -69,7 +69,7 @@ export function TrialBanner({ entitlements }: TrialBannerProps) {
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/pricing"
-            className="text-[13px] text-[#6B6B63] underline-offset-2 hover:underline"
+            className="text-[13px] text-[var(--text-secondary)] underline-offset-2 hover:underline"
           >
             Compare plans
           </Link>
@@ -101,7 +101,7 @@ function UpgradeButton({
         setLoading(true);
         void openProCheckout().catch(() => setLoading(false));
       }}
-      className="rounded-lg bg-[#0F6E56] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[#1D9E75] disabled:opacity-60"
+      className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
     >
       {loading ? "Loading…" : label}
     </button>

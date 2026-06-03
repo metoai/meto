@@ -14,4 +14,5 @@ export {
   isLlmQuotaError as isGeminiQuotaError,
   isRetryableLlmError as isRetryableGeminiError,
   parseJsonFromText as parseJsonFromGemini,
+  streamText as streamWithGemini,
 } from "@/lib/llm";

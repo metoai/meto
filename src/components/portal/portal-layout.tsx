@@ -10,12 +10,12 @@ import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sid
 import {
   DASHBOARD_HOME,
   FIXES_NAV,
-  MOBILE_TAB_NAV,
   navIdFromPathname,
   PRIMARY_NAV,
   SECONDARY_NAV,
 } from "@/components/portal/portal-nav";
 import { TrialBanner } from "@/components/billing/trial-banner";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 type PortalLayoutProps = {
@@ -34,14 +34,14 @@ function navItemClass(active: boolean, collapsed: boolean, muted = false) {
     : "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium leading-none transition-all duration-150";
 
   if (active) {
-    return `${base} bg-white text-[#0F6E56] shadow-[0_1px_2px_rgba(0,0,0,0.04)] ring-1 ring-black/[0.06]`;
+    return `${base} bg-[var(--card)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border-subtle)]`;
   }
 
   if (muted) {
-    return `${base} text-[#9B9B93] hover:bg-white/70 hover:text-[#6B6B63]`;
+    return `${base} text-[var(--muted)] hover:bg-[var(--card)]/70 hover:text-[var(--text-secondary)]`;
   }
 
-  return `${base} text-[#6B6B63] hover:bg-white/70 hover:text-[#1A1A18]`;
+  return `${base} text-[var(--text-secondary)] hover:bg-[var(--card)]/70 hover:text-[var(--text)]`;
 }
 
 type SidebarContentProps = {
@@ -83,7 +83,7 @@ function SidebarContent({
   const initial = (sidebarDisplayName || username || "?")[0]?.toUpperCase();
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col bg-[#F7F7F5]">
+    <div className="flex h-full min-h-0 flex-1 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface)]/85 backdrop-blur-xl">
       <div
         className={`flex h-[60px] shrink-0 items-center ${
           collapsed ? "justify-between px-2" : "justify-between px-4"
@@ -99,16 +99,17 @@ function SidebarContent({
         >
           <MetoMark className="h-6 w-6 shrink-0" />
           {!collapsed ? (
-            <span className="text-[16px] font-semibold tracking-[-0.03em] text-[#1A1A18]">
+            <span className="text-[16px] font-semibold tracking-[-0.03em] text-[var(--text)]">
               meto
             </span>
           ) : null}
         </Link>
+        {!onClose ? <ThemeToggle compact className="shrink-0" /> : null}
         {onToggleCollapsed && !onClose ? (
           <button
             type="button"
             onClick={onToggleCollapsed}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#9B9B93] transition-colors hover:bg-white hover:text-[#1A1A18]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] transition-colors hover:bg-[var(--card)] hover:text-[var(--text)]"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
@@ -123,7 +124,7 @@ function SidebarContent({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#6B6B63] transition-colors hover:bg-white hover:text-[#1A1A18]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors hover:bg-[var(--card)] hover:text-[var(--text)]"
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />
@@ -133,8 +134,8 @@ function SidebarContent({
 
       <div className={`flex-1 overflow-y-auto pb-3 ${collapsed ? "px-2" : "px-3"}`}>
         <nav aria-label="Main">
-          {!collapsed ? (
-            <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[#9B9B93]">
+          {!collapsed && !onClose ? (
+            <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
               Menu
             </p>
           ) : null}
@@ -149,15 +150,15 @@ function SidebarContent({
                 >
                   {activeId === id && !collapsed ? (
                     <span
-                      className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#0F6E56]"
+                      className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--primary)]"
                       aria-hidden
                     />
                   ) : null}
                   <Icon
                     className={`h-[17px] w-[17px] shrink-0 ${
                       activeId === id
-                        ? "text-[#0F6E56]"
-                        : "text-[#9B9B93] group-hover:text-[#6B6B63]"
+                        ? "text-[var(--primary)]"
+                        : "text-[var(--muted)] group-hover:text-[var(--text-secondary)]"
                     }`}
                     strokeWidth={1.75}
                   />
@@ -167,12 +168,14 @@ function SidebarContent({
             ))}
           </ul>
 
-          {!collapsed ? (
-            <p className="mb-2 mt-5 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[#9B9B93]">
+          {!collapsed && !onClose ? (
+            <p className="mb-2 mt-5 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
               Improve
             </p>
+          ) : collapsed ? (
+            <div className="my-3 border-t border-[var(--border-subtle)]" aria-hidden />
           ) : (
-            <div className="my-3 border-t border-black/[0.06]" aria-hidden />
+            <div className="my-2 border-t border-[var(--border-subtle)]" aria-hidden />
           )}
           <ul className="space-y-1">
             {SECONDARY_NAV.map(({ id, label, href, icon: Icon }) => {
@@ -189,7 +192,7 @@ function SidebarContent({
                   >
                     {activeId === id && !collapsed ? (
                       <span
-                        className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#0F6E56]"
+                        className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[var(--primary)]"
                         aria-hidden
                       />
                     ) : null}
@@ -197,13 +200,13 @@ function SidebarContent({
                       <Icon
                         className={`h-[17px] w-[17px] ${
                           activeId === id
-                            ? "text-[#0F6E56]"
-                            : "text-[#9B9B93] group-hover:text-[#6B6B63]"
+                            ? "text-[var(--primary)]"
+                            : "text-[var(--muted)] group-hover:text-[var(--text-secondary)]"
                         }`}
                         strokeWidth={1.75}
                       />
                       {collapsed && badge > 0 ? (
-                        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#DC2626] ring-2 ring-[#F7F7F5]" />
+                        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-[#DC2626] ring-2 ring-[var(--surface)]" />
                       ) : null}
                     </span>
                     {!collapsed ? (
@@ -229,15 +232,15 @@ function SidebarContent({
           collapsed ? (
             <div className="mb-2 flex flex-col items-center gap-1">
               <div
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E8F5F0] text-xs font-semibold text-[#0F6E56]"
+                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary-light)] text-xs font-semibold text-[var(--primary)]"
                 title={sidebarDisplayName || username || "Profile"}
               >
                 {initial}
               </div>
               <Link
                 href="/settings"
-                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-white ${
-                  activeId === "settings" ? "text-[#0F6E56]" : "text-[#9B9B93]"
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[var(--card)] ${
+                  activeId === "settings" ? "text-[var(--primary)]" : "text-[var(--muted)]"
                 }`}
                 onClick={onNavigate}
                 aria-label="Settings"
@@ -247,25 +250,25 @@ function SidebarContent({
               </Link>
             </div>
           ) : (
-            <div className="mb-2 rounded-xl border border-black/[0.06] bg-white p-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+            <div className="mb-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-2.5">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#E8F5F0] text-xs font-semibold text-[#0F6E56]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-xs font-semibold text-[var(--primary)]">
                   {initial}
                 </div>
                 <div className="min-w-0 flex-1">
                   {sidebarDisplayName ? (
-                    <p className="truncate text-[13px] font-medium text-[#1A1A18]">
+                    <p className="truncate text-[13px] font-medium text-[var(--text)]">
                       {sidebarDisplayName}
                     </p>
                   ) : null}
                   {username ? (
-                    <p className="truncate text-[11px] text-[#9B9B93]">@{username}</p>
+                    <p className="truncate text-[11px] text-[var(--muted)]">@{username}</p>
                   ) : null}
                 </div>
                 <Link
                   href="/settings"
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-[#F7F7F5] ${
-                    activeId === "settings" ? "text-[#0F6E56]" : "text-[#9B9B93]"
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-[var(--surface)] ${
+                    activeId === "settings" ? "text-[var(--primary)]" : "text-[var(--muted)]"
                   }`}
                   onClick={onNavigate}
                   aria-label="Settings"
@@ -290,33 +293,6 @@ function SidebarContent({
         </button>
       </div>
     </div>
-  );
-}
-
-function MobileTabBar({ activeId }: { activeId: SidebarNavId }) {
-  return (
-    <nav
-      aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-black/[0.06] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
-    >
-      <ul className="flex h-[52px] items-stretch px-1">
-        {MOBILE_TAB_NAV.map(({ id, label, href, icon: Icon }) => (
-          <li key={id} className="flex-1">
-            <Link
-              href={href}
-              className={`flex h-full flex-col items-center justify-center gap-0.5 rounded-lg transition-colors duration-150 ${
-                activeId === id ? "text-[#0F6E56]" : "text-[#9B9B93]"
-              }`}
-            >
-              <Icon className="h-[18px] w-[18px]" strokeWidth={activeId === id ? 2 : 1.75} />
-              <span className={`text-[10px] ${activeId === id ? "font-medium" : ""}`}>
-                {label}
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 }
 
@@ -359,7 +335,7 @@ function PortalSidebarNav({
   return (
     <>
       <aside
-        className="fixed inset-y-0 left-0 z-30 hidden h-screen border-r border-black/[0.06] transition-[width] duration-200 ease-in-out md:flex"
+        className="fixed inset-y-0 left-0 z-30 hidden h-screen border-r border-[var(--border-subtle)] transition-[width] duration-200 ease-in-out md:flex"
         style={{ width: sidebarWidth }}
       >
         <SidebarContent {...sidebarProps} />
@@ -373,7 +349,7 @@ function PortalSidebarNav({
             aria-label="Close menu"
             onClick={onMobileClose}
           />
-          <aside className="relative flex h-full w-[260px] max-w-[85vw] border-r border-black/[0.06]">
+          <aside className="relative flex h-full w-[260px] max-w-[85vw] border-r border-[var(--border-subtle)]">
             <SidebarContent
               {...sidebarProps}
               onNavigate={onMobileClose}
@@ -382,8 +358,6 @@ function PortalSidebarNav({
           </aside>
         </div>
       ) : null}
-
-      <MobileTabBar activeId={activeId} />
     </>
   );
 }
@@ -443,7 +417,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
   }, [portal]);
 
   return (
-    <div className="h-screen overflow-hidden bg-[#FAFAFA] text-[var(--text)]">
+    <div className="h-screen overflow-hidden text-[var(--text)]">
       <PortalSidebarNav
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
@@ -453,16 +427,16 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
       />
 
       <div
-        className={`flex h-full min-w-0 flex-col pb-14 transition-[margin-left] duration-200 ease-in-out md:pb-0 ${
+        className={`flex h-full min-w-0 flex-col transition-[margin-left] duration-200 ease-in-out ${
           sidebarCollapsed ? "md:ml-[72px]" : "md:ml-[240px]"
         }`}
       >
-        <header className="shrink-0 border-b border-black/[0.06] bg-white md:hidden">
+        <header className="shrink-0 border-b border-[var(--border-subtle)] bg-[var(--card)] md:hidden">
           <div className="flex h-12 items-center justify-between px-3">
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-[#6B6B63] transition-colors hover:bg-[#F7F7F5] hover:text-[#1A1A18]"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
               aria-label="Open menu"
               aria-expanded={mobileNavOpen}
             >
@@ -471,7 +445,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
 
             <Link
               href={FIXES_NAV.href}
-              className="rounded-full bg-[#F7F7F5] px-3 py-1.5 text-[12px] text-[#6B6B63]"
+              className="rounded-full bg-[var(--surface)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)]"
             >
               {issueCount > 0 ? `${issueCount} fixes` : "Fixes"}
             </Link>

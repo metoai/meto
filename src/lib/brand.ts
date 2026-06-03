@@ -3,31 +3,65 @@
  * Colors, typography, spacing, and radii all flow from here into
  * CSS variables (layout), Tailwind (tailwind.config.ts), and components.
  */
+export const brandLight = {
+  primary: "#0F6E56",
+  primaryHover: "#1D9E75",
+  primaryLight: "#E8F5F0",
+  background: "#FFFFFF",
+  surface: "#F7F7F5",
+  card: "#FFFFFF",
+  text: "#1A1A18",
+  textMuted: "#6B6B63",
+  textSubtle: "#9B9B93",
+  border: "#E8E8E4",
+  codeText: "#6B6B63",
+  codeBackground: "#F7F7F5",
+} as const;
+
+/**
+ * Dark palette — keep in sync with `.dark` tokens in globals.css.
+ * Featured UI: `.brand-surface` (teal edge). Hero spots only: `.brand-spot` (grid + glow).
+ */
+export const brandDark = {
+  primary: "#2EB88A",
+  primaryHover: "#3DD19E",
+  primaryLight: "#0F2E24",
+  background: "#080C0B",
+  surface: "#0F1514",
+  card: "#151C1A",
+  text: "#EDECE8",
+  textMuted: "#A8A89E",
+  textSubtle: "#72726A",
+  border: "#2E2E2A",
+  codeText: "#A8A89E",
+  codeBackground: "#1A1A18",
+} as const;
+
 export const brand = {
   colors: {
     /** Primary — logo, CTAs, links */
-    primary: "#0F6E56",
+    primary: brandLight.primary,
     /** Hover states, accents */
-    primaryHover: "#1D9E75",
+    primaryHover: brandLight.primaryHover,
     /** Light backgrounds, badges, highlights */
-    primaryLight: "#E8F5F0",
+    primaryLight: brandLight.primaryLight,
     /** Page background */
-    background: "#FFFFFF",
+    background: brandLight.background,
     /** Slightly elevated surfaces (sidebar, preview) */
-    surface: "#F7F7F5",
+    surface: brandLight.surface,
     /** Card / panel background */
-    card: "#FFFFFF",
+    card: brandLight.card,
     /** Primary text */
-    text: "#1A1A18",
+    text: brandLight.text,
     /** Secondary / muted text */
-    textMuted: "#6B6B63",
+    textMuted: brandLight.textMuted,
     /** Tertiary / labels */
-    textSubtle: "#9B9B93",
+    textSubtle: brandLight.textSubtle,
     /** Borders */
-    border: "#E8E8E4",
+    border: brandLight.border,
     /** Code / copy blocks */
-    codeText: "#6B6B63",
-    codeBackground: "#F7F7F5",
+    codeText: brandLight.codeText,
+    codeBackground: brandLight.codeBackground,
   },
   fonts: {
     sans: "var(--font-geist-sans)",
@@ -41,22 +75,10 @@ export const brand = {
   },
 } as const;
 
-/** CSS custom properties injected on <html> — do not edit; derived from brand.colors */
+/** Non-color tokens injected on <html> — colors live in globals.css (:root / .dark) */
 export function brandCssVariables(): Record<string, string> {
-  const { colors, radius } = brand;
+  const { radius } = brand;
   return {
-    "--brand-primary": colors.primary,
-    "--brand-primary-hover": colors.primaryHover,
-    "--brand-primary-light": colors.primaryLight,
-    "--brand-background": colors.background,
-    "--brand-surface": colors.surface,
-    "--brand-card": colors.card,
-    "--brand-text": colors.text,
-    "--brand-text-muted": colors.textMuted,
-    "--brand-text-subtle": colors.textSubtle,
-    "--brand-border": colors.border,
-    "--brand-code-text": colors.codeText,
-    "--brand-code-bg": colors.codeBackground,
     "--brand-radius-sm": radius.sm,
     "--brand-radius-md": radius.md,
     "--brand-radius-lg": radius.lg,

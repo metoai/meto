@@ -12,6 +12,7 @@ import {
   markOnboardingAiUsed,
 } from "@/lib/billing-profile";
 import { saveProfileSections } from "@/lib/profile-sections";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -24,6 +25,15 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const limited = await enforceRateLimit(
+      request,
+      "onboarding-brain-dump",
+      10,
+      60 * 60 * 1000,
+      user.id
+    );
+    if (limited) return limited;
 
     const entitlements = await getEntitlementsForUser(user.id);
     if (!entitlements.canRedoOnboardingAi) {
@@ -50,7 +60,7 @@ export async function POST(request: Request) {
 
     await saveProfileSections(supabase, user.id, sections);
     await markOnboardingAiUsed(user.id, "brain_dump");
-    await recordAiUsage(user.id);
+    await recordAiUsage(user.id, 1, aiAccess.row);
 
     return NextResponse.json({ success: true });
   } catch (error) {

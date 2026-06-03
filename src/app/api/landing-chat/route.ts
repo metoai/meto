@@ -4,6 +4,13 @@ import {
   parseJsonFromGemini,
 } from "@/lib/gemini";
 import {
+  appendStreamFormat,
+  splitStreamOutput,
+  STREAM_JSON_MARKER,
+} from "@/lib/stream-prompt";
+import { streamPlainTextToSse } from "@/lib/stream-chat-server";
+import { createSseStream, sseResponse } from "@/lib/sse";
+import {
   EMPTY_COLLECTED,
   LANDING_OPENING,
   mergeCollected,
@@ -11,7 +18,7 @@ import {
   type LandingChatMessage,
 } from "@/lib/landing-chat";
 import { METO_SCOPE_GUARD } from "@/lib/meto-prompts";
-import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 type ChatMessage = LandingChatMessage;
 
@@ -61,6 +68,54 @@ Respond ONLY with valid JSON:
 }
 
 Always merge new facts into collected — never drop fields you already know. Use null only for topics not yet covered.`;
+
+const LANDING_CHAT_STREAM_SUFFIX = `
+
+For this response only:
+- Your plain-text reply IS the user-facing "message" (acknowledge what they said, then one new question).
+- After ${STREAM_JSON_MARKER}, output one line of minified JSON:
+  {"profile_ready":boolean,"collected":{"about":null|"text","work":null|"text","projects":null|"text","goals":null|"text"}}
+- Do NOT repeat a question the user already answered in the conversation.`;
+
+function parseLandingStreamResponse(
+  full: string,
+  priorCollected: CollectedProfile,
+  userTurns: number
+): LandingChatResult {
+  const { plain, jsonRaw } = splitStreamOutput(full);
+
+  if (jsonRaw) {
+    try {
+      const parsed = parseJsonFromGemini(jsonRaw) as Record<string, unknown>;
+      const message =
+        plain.trim() ||
+        (typeof parsed.message === "string" ? parsed.message.trim() : "") ||
+        "Tell me more — what are you currently working on?";
+      const collected = mergeCollected(
+        priorCollected,
+        normalizeCollected(parsed.collected)
+      );
+      const profile_ready = shouldMarkReady(
+        userTurns,
+        collected,
+        Boolean(parsed.profile_ready)
+      );
+      return { message, profile_ready, collected };
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (plain.trim()) {
+    return {
+      message: plain.trim(),
+      profile_ready: shouldMarkReady(userTurns, priorCollected, false),
+      collected: priorCollected,
+    };
+  }
+
+  return parseLandingChatResponse(full, priorCollected, userTurns);
+}
 
 function normalizeCollected(raw: unknown): CollectedProfile {
   if (!raw || typeof raw !== "object") {
@@ -146,17 +201,13 @@ function parseLandingChatResponse(
 
 export async function POST(request: Request) {
   try {
-    const ip = getClientIp(request);
-    const rate = checkRateLimit(`landing-chat:${ip}`, RATE_LIMIT, RATE_WINDOW_MS);
-    if (!rate.ok) {
-      return NextResponse.json(
-        { error: "Too many requests. Try again later." },
-        {
-          status: 429,
-          headers: { "Retry-After": String(rate.retryAfterSec) },
-        }
-      );
-    }
+    const limited = await enforceRateLimit(
+      request,
+      "landing-chat",
+      RATE_LIMIT,
+      RATE_WINDOW_MS
+    );
+    if (limited) return limited;
 
     const rawBody = await request.text();
     if (rawBody.length > MAX_BODY_BYTES) {
@@ -167,6 +218,7 @@ export async function POST(request: Request) {
       messages?: ChatMessage[];
       sessionId?: string;
       collected?: CollectedProfile;
+      stream?: boolean;
     };
 
     try {
@@ -202,8 +254,7 @@ export async function POST(request: Request) {
     const userTurns = countUserTurns(messages);
     const conversation = buildConversation(messages);
 
-    const text = await generateWithGemini(
-      `${LANDING_CHAT_SYSTEM_PROMPT}
+    const promptSuffix = `
 
 Profile collected so far:
 ${formatCollectedBlock(priorCollected)}
@@ -211,7 +262,44 @@ ${formatCollectedBlock(priorCollected)}
 User messages so far: ${userTurns}
 
 Conversation:
-${conversation}
+${conversation}`;
+
+    if (body.stream) {
+      const stream = createSseStream(async (emit) => {
+        const full = await streamPlainTextToSse(
+          appendStreamFormat(
+            `${LANDING_CHAT_SYSTEM_PROMPT}${LANDING_CHAT_STREAM_SUFFIX}${promptSuffix}`
+          ),
+          emit,
+          { temperature: 0.65 }
+        );
+
+        try {
+          const result = parseLandingStreamResponse(
+            full,
+            priorCollected,
+            userTurns
+          );
+          emit({
+            message: result.message,
+            profile_ready: result.profile_ready,
+            collected: result.collected,
+          });
+        } catch (parseError) {
+          console.error("Landing chat stream parse error:", parseError);
+          emit({
+            message: "Tell me more — what are you currently working on?",
+            profile_ready: shouldMarkReady(userTurns, priorCollected, false),
+            collected: priorCollected,
+          });
+        }
+      });
+
+      return sseResponse(stream);
+    }
+
+    const text = await generateWithGemini(
+      `${LANDING_CHAT_SYSTEM_PROMPT}${promptSuffix}
 
 Respond with JSON only.`,
       { temperature: 0.65 }

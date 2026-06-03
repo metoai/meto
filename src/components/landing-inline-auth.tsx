@@ -42,7 +42,7 @@ export function LandingInlineAuth({ onAuthSuccess }: LandingInlineAuthProps) {
         type="button"
         disabled={loading}
         onClick={() => void handleGoogle()}
-        className="mt-3 w-full rounded-xl bg-[#0F6E56] px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors duration-150 hover:bg-[#1D9E75] disabled:opacity-50"
+        className="mt-3 w-full rounded-xl bg-[var(--primary)] px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
       >
         {loading ? "Redirecting…" : "Continue with Google"}
       </button>
@@ -56,7 +56,7 @@ export function LandingInlineAuth({ onAuthSuccess }: LandingInlineAuthProps) {
         <Link
           href="/auth/login?next=/"
           onClick={() => onAuthSuccess()}
-          className="font-medium text-[#0F6E56] hover:underline"
+          className="font-medium text-[var(--primary)] hover:underline"
         >
           Sign in
         </Link>

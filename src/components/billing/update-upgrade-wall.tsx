@@ -23,10 +23,10 @@ export function UpdateUpgradeWall({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <h1 className="text-xl font-semibold text-[#1A1A18]">
+      <h1 className="text-xl font-semibold text-[var(--text)]">
         Quick update is a Pro feature
       </h1>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-[#6B6B63]">
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
         Your trial ended. Upgrade to tell Meto what changed in plain language —
         it updates every section that needs it. You can still edit sections
         manually on your profile.
@@ -39,25 +39,25 @@ export function UpdateUpgradeWall({ children }: { children: React.ReactNode }) {
             setLoading(true);
             void openProCheckout().catch(() => setLoading(false));
           }}
-          className="rounded-lg bg-[#0F6E56] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1D9E75] disabled:opacity-60"
+          className="rounded-lg bg-[var(--primary)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
         >
           {loading ? "Loading…" : "Upgrade to Pro"}
         </button>
         <Link
           href="/dashboard/profile"
-          className="rounded-lg border border-black/[0.08] px-5 py-2.5 text-sm text-[#6B6B63] hover:text-[#1A1A18]"
+          className="rounded-lg border border-[var(--border-subtle)] px-5 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text)]"
         >
           Edit profile manually
         </Link>
         <Link
           href="/pricing"
-          className="rounded-lg border border-black/[0.08] px-5 py-2.5 text-sm text-[#6B6B63] hover:text-[#1A1A18]"
+          className="rounded-lg border border-[var(--border-subtle)] px-5 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text)]"
         >
           Compare plans
         </Link>
       </div>
       {entitlements?.plan === "free" ? (
-        <p className="mt-6 text-xs text-[#9B9B93]">
+        <p className="mt-6 text-xs text-[var(--muted)]">
           Heuristic context score and gap list still work on your dashboard.
         </p>
       ) : null}

@@ -30,8 +30,8 @@ export function PlatformTabs({ selectedFormat, onSelect }: PlatformTabsProps) {
               title={platform.hint}
               className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 transition-all duration-150 ease-in-out ${
                 active
-                  ? "border-[#C0E0D8] bg-[#F0FAF7] text-[#0F6E56] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-                  : "border-[var(--border)] bg-white text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+                  ? "border-[var(--accent-border)] bg-[var(--primary-light)] text-[var(--primary)] shadow-[var(--shadow-sm)]"
+                  : "border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
               }`}
             >
               <AiPlatformIcon format={platform.id} size={20} />

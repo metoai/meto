@@ -204,9 +204,13 @@ export async function assertAiAccess(
 }
 
 /** Call after a successful LLM operation (one HTTP request = one call). */
-export async function recordAiUsage(userId: string, units = 1) {
+export async function recordAiUsage(
+  userId: string,
+  units = 1,
+  existingRow?: UsageRow
+) {
   const admin = createAdminClient();
-  const row = await syncAiUsagePeriod(userId);
+  const row = existingRow ?? (await syncAiUsagePeriod(userId));
   const used = (row.ai_calls_used ?? 0) + units;
 
   await admin

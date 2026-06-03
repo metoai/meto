@@ -19,7 +19,7 @@ export function AiPlatformIcon({
   if (!src) {
     return (
       <Sparkles
-        className={`shrink-0 text-[#9B9B93] ${className}`}
+        className={`shrink-0 text-[var(--muted)] ${className}`}
         style={{ width: size, height: size }}
         strokeWidth={1.75}
         aria-hidden

@@ -8,6 +8,7 @@
   --card: #ffffff;
   --border: #e8e8e4;
   --border-hover: #c0c0b8;
+  --border-subtle: rgba(0, 0, 0, 0.06);
   --primary: #0f6e56;
   --primary-hover: #1d9e75;
   --primary-light: #e8f5f0;
@@ -15,6 +16,43 @@
   --text-secondary: #6b6b63;
   --muted: #9b9b93;
   --placeholder: #c0c0b8;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04);
+  --texture-dot: #f0f0ec;
+  --elevated: #fafaf8;
+  --accent-border: #c0e0d8;
+  --chart-grid: #efefeb;
+  --chart-muted: #d4d4d0;
+
+  /* Brand accents — `.brand-spot` (pattern) + `.brand-surface` (teal edge on components) */
+  --brand-grid-line: transparent;
+  --brand-grid-opacity: 0;
+  --brand-glow-a: rgba(15, 110, 86, 0.07);
+  --brand-glow-b: rgba(29, 158, 117, 0.04);
+  --brand-glow-c: rgba(15, 110, 86, 0.03);
+  --brand-surface-border: var(--border-subtle);
+  --brand-surface-shadow: var(--shadow-sm);
+  --landing-chat-shadow: 0 1px 0 rgba(0, 0, 0, 0.02), 0 4px 8px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+  --landing-chat-focus-border: #b8ddd4;
+  --landing-chat-focus-shadow: 0 0 0 4px rgba(15, 110, 86, 0.07), 0 4px 8px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+  --landing-chat-active-shadow: 0 0 0 1px rgba(255, 255, 255, 1),
+    0 0 0 12px rgba(255, 255, 255, 0.85), 0 8px 24px rgba(0, 0, 0, 0.08),
+    0 24px 64px rgba(0, 0, 0, 0.12);
+
+  --brand-primary: #0f6e56;
+  --brand-primary-hover: #1d9e75;
+  --brand-primary-light: #e8f5f0;
+  --brand-background: #ffffff;
+  --brand-surface: #f7f7f5;
+  --brand-card: #ffffff;
+  --brand-text: #1a1a18;
+  --brand-text-muted: #6b6b63;
+  --brand-text-subtle: #9b9b93;
+  --brand-border: #e8e8e4;
+  --brand-code-text: #6b6b63;
+  --brand-code-bg: #f7f7f5;
 
   /* Legacy aliases used across components */
   --color-bg: var(--bg);
@@ -28,15 +66,71 @@
   --color-white: #ffffff;
 }
 
+.dark {
+  --bg: #080c0b;
+  --surface: #0f1514;
+  --card: #151c1a;
+  --border: #24302c;
+  --border-hover: #345248;
+  --border-subtle: rgba(46, 184, 138, 0.1);
+  --primary: #2eb88a;
+  --primary-hover: #3dd19e;
+  --primary-light: #0f2e24;
+  --text: #edece8;
+  --text-secondary: #a8a89e;
+  --muted: #72726a;
+  --placeholder: #555550;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(46, 184, 138, 0.06);
+  --texture-dot: #1a2422;
+  --elevated: #1a2220;
+  --accent-border: #2a4a40;
+  --chart-grid: #1f2b28;
+  --chart-muted: #5a6562;
+
+  --brand-grid-line: rgba(46, 184, 138, 0.05);
+  --brand-grid-opacity: 0.55;
+  --brand-glow-a: rgba(46, 184, 138, 0.09);
+  --brand-glow-b: rgba(29, 158, 117, 0.05);
+  --brand-glow-c: transparent;
+  --brand-surface-border: rgba(46, 184, 138, 0.14);
+  --brand-surface-shadow: 0 0 0 1px rgba(46, 184, 138, 0.06),
+    0 4px 20px rgba(0, 0, 0, 0.35);
+  --landing-chat-shadow: 0 0 0 1px rgba(46, 184, 138, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+  --landing-chat-focus-border: rgba(46, 184, 138, 0.35);
+  --landing-chat-focus-shadow: 0 0 0 1px rgba(46, 184, 138, 0.12),
+    0 0 0 6px rgba(46, 184, 138, 0.06), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --landing-chat-active-shadow: 0 0 0 1px rgba(46, 184, 138, 0.1),
+    0 8px 28px rgba(0, 0, 0, 0.45);
+
+  --brand-primary: #2eb88a;
+  --brand-primary-hover: #3dd19e;
+  --brand-primary-light: #0f2e24;
+  --brand-background: #080c0b;
+  --brand-surface: #0f1514;
+  --brand-card: #151c1a;
+  --brand-text: #edece8;
+  --brand-text-muted: #a8a89e;
+  --brand-text-subtle: #72726a;
+  --brand-border: #2e2e2a;
+  --brand-code-text: #a8a89e;
+  --brand-code-bg: #1a1a18;
+}
+
 html,
 body {
-  background: #ffffff;
-  color: #1a1a18;
+  background: var(--bg);
+  color: var(--text);
 }
 
 @layer base {
   html {
     color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
@@ -61,6 +155,84 @@ body {
 
   .landing-scrollbar-hidden::-webkit-scrollbar {
     display: none;
+  }
+
+  /**
+   * Localized brand accent — grid + glow inside ONE component (hero, banner, chat).
+   * Parent needs relative + overflow-hidden. Pattern does not cover the whole app.
+   */
+  .brand-spot {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .brand-spot::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+    background-image: linear-gradient(var(--brand-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--brand-grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: var(--brand-grid-opacity);
+  }
+
+  .brand-spot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 85% 70% at 50% -10%,
+        var(--brand-glow-a),
+        transparent 62%
+      ),
+      radial-gradient(
+        ellipse 40% 50% at 100% 20%,
+        var(--brand-glow-b),
+        transparent 55%
+      );
+  }
+
+  .brand-spot > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /** Featured components — teal border + soft lift (no grid) */
+  .brand-surface {
+    background-color: var(--card);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .brand-surface {
+    border-color: var(--brand-surface-border);
+    box-shadow: var(--brand-surface-shadow);
+  }
+
+  .landing-chat-shell {
+    box-shadow: var(--landing-chat-shadow);
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .landing-chat-shell:focus-within {
+    border-color: var(--landing-chat-focus-border) !important;
+    box-shadow: var(--landing-chat-focus-shadow) !important;
+  }
+
+  .landing-chat-shell.is-active {
+    box-shadow: var(--landing-chat-active-shadow) !important;
+  }
+
+  .landing-chat-shell.is-active:focus-within {
+    box-shadow: var(--landing-chat-focus-shadow) !important;
   }
 
   .scrollbar-hidden {
@@ -135,6 +307,17 @@ body {
   }
 }
 
+@keyframes landing-chat-focus {
+  from {
+    opacity: 1;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes landing-message-in {
   from {
     opacity: 0;
@@ -161,6 +344,10 @@ body {
 
 .landing-animate-in {
   animation: landing-fade-in 0.45s ease forwards;
+}
+
+.landing-chat-focus {
+  animation: landing-chat-focus 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .landing-animate-message {

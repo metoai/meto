@@ -31,8 +31,8 @@ function ChartTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-black/[0.06] bg-white px-2.5 py-1.5 text-[11px] shadow-sm">
-      <span className="font-medium tabular-nums text-[#1A1A18]">
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-2.5 py-1.5 text-[11px] shadow-sm">
+      <span className="font-medium tabular-nums text-[var(--text)]">
         {payload[0].value}%
       </span>
     </div>
@@ -68,7 +68,7 @@ export function ScoreSparklineChart({
         {isHero ? (
           <>
             <CartesianGrid
-              stroke="#EFEFEB"
+              stroke="var(--chart-grid)"
               strokeDasharray="4 6"
               vertical={false}
             />
@@ -77,7 +77,7 @@ export function ScoreSparklineChart({
               dataKey="label"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#9B9B93", fontSize: 10 }}
+              tick={{ fill: "var(--muted)", fontSize: 10 }}
               dy={6}
             />
             <Tooltip content={<ChartTooltip />} cursor={false} />
@@ -108,7 +108,7 @@ export function ScoreSparklineChart({
                     cy={cy}
                     r={5}
                     fill={color}
-                    stroke="#fff"
+                    stroke="var(--card)"
                     strokeWidth={2}
                   />
                 </g>
@@ -121,14 +121,14 @@ export function ScoreSparklineChart({
                 cy={cy}
                 r={4}
                 fill={color}
-                stroke="#fff"
+                stroke="var(--card)"
                 strokeWidth={2}
               />
             );
           }}
           activeDot={
             isHero
-              ? { r: 6, fill: color, stroke: "#fff", strokeWidth: 2 }
+              ? { r: 6, fill: color, stroke: "var(--card)", strokeWidth: 2 }
               : false
           }
           isAnimationActive

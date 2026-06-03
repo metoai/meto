@@ -4,10 +4,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  AuthCard,
   AuthDivider,
   AuthField,
   AuthGoogleButton,
+  AuthPage,
   AuthPrimaryButton,
 } from "@/components/auth/auth-card";
 import { createClient } from "@/lib/supabase/client";
@@ -73,24 +73,27 @@ export function LoginForm() {
   const displayError = error ?? callbackError;
 
   return (
-    <AuthCard
+    <AuthPage
       title="Welcome back"
-      subtitle="Sign in to your AI identity"
+      subtitle="Sign in to your AI profile."
       footer={
         <>
           No account?{" "}
-          <Link href="/auth/signup" className="cursor-pointer text-[var(--primary)]">
+          <Link
+            href="/auth/signup"
+            className="font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
+          >
             Sign up free
           </Link>
         </>
       }
     >
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col">
         <AuthGoogleButton onClick={() => void handleGoogleLogin()} disabled={loading} />
 
         <AuthDivider />
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-2.5">
           <AuthField
             id="email"
             label="Email"
@@ -111,7 +114,7 @@ export function LoginForm() {
           />
 
           {displayError ? (
-            <p className="text-sm text-red-500" role="alert">
+            <p className="text-[12px] leading-snug text-red-500" role="alert">
               {displayError}
             </p>
           ) : null}
@@ -121,6 +124,6 @@ export function LoginForm() {
           </AuthPrimaryButton>
         </form>
       </div>
-    </AuthCard>
+    </AuthPage>
   );
 }

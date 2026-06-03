@@ -4,6 +4,9 @@ import {
   friendlyGeminiError,
   generateWithGemini,
 } from "@/lib/gemini";
+import { createSseStream, sseResponse } from "@/lib/sse";
+import { appendStreamFormat, splitStreamOutput } from "@/lib/stream-prompt";
+import { streamPlainTextToSse } from "@/lib/stream-chat-server";
 import {
   buildCurrentSectionsMap,
   buildGapFixAllUpdatePrompt,
@@ -16,6 +19,7 @@ import {
 } from "@/lib/meto-prompts";
 import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
+import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -41,6 +45,61 @@ function normalizeUpdates(raw: unknown): Record<string, string> {
     }
   }
   return updates;
+}
+
+const UPDATE_STREAM_JSON_HINT = `After the marker, one line of JSON:
+{"done":boolean,"updates":{"section_key":"content",...}}`;
+
+function parseUpdateStreamFull(
+  full: string,
+  fallback: UpdateChatResult
+): UpdateChatResult {
+  const { plain, jsonRaw } = splitStreamOutput(full);
+
+  if (jsonRaw) {
+    try {
+      const cleaned = jsonRaw
+        .replace(/^```(?:json)?\s*/i, "")
+        .replace(/\s*```$/i, "")
+        .trim();
+      const parsed = JSON.parse(cleaned) as {
+        reply?: string;
+        done?: boolean;
+        updates?: unknown;
+      };
+      return {
+        reply:
+          plain.trim() ||
+          parsed.reply?.trim() ||
+          fallback.reply,
+        done: Boolean(parsed.done),
+        updates: normalizeUpdates(parsed.updates),
+      };
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (plain.trim()) {
+    return { reply: plain.trim(), done: false, updates: {} };
+  }
+
+  return safeParseUpdateChatResponse(full) ?? fallback;
+}
+
+async function finalizeUpdateResult(
+  currentSections: Record<string, string>,
+  result: UpdateChatResult,
+  conversation: string
+): Promise<UpdateChatResult> {
+  if (result.done && Object.keys(result.updates).length > 0) {
+    result.updates = await reviewRippleSections(
+      currentSections,
+      result.updates,
+      conversation
+    );
+  }
+  return result;
 }
 
 function safeParseUpdateChatResponse(text: string): UpdateChatResult | null {
@@ -106,6 +165,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const limited = await enforceRateLimit(
+      request,
+      "update-chat",
+      40,
+      60 * 60 * 1000,
+      user.id
+    );
+    if (limited) return limited;
+
     const aiAccess = await assertAiAccess(user.id, "quick_update");
     if (!aiAccess.ok) return aiAccess.response;
 
@@ -113,6 +181,7 @@ export async function POST(request: Request) {
       messages?: ChatMessage[];
       apply?: boolean;
       updates?: Record<string, string>;
+      stream?: boolean;
       gapFix?: {
         sectionType?: string;
         insight?: string;
@@ -122,6 +191,8 @@ export async function POST(request: Request) {
       };
       gapFixInit?: boolean;
     };
+
+    const useStream = Boolean(body.stream) && !body.apply;
 
     const { data: allSections, error: allSectionsError } = await supabase
       .from("context_sections")
@@ -201,7 +272,7 @@ export async function POST(request: Request) {
         );
       }
 
-      await recordAiUsage(user.id);
+      await recordAiUsage(user.id, 1, aiAccess.row);
 
       return NextResponse.json({
         success: true,
@@ -218,33 +289,53 @@ export async function POST(request: Request) {
       gapMode === "all" && allGaps.length > 0 && gapSectionType;
 
     if (body.gapFixInit && gapSectionType) {
-      const raw = await generateWithGemini(
-        useGapFixAll
-          ? buildGapFixAllUpdatePrompt(
-              currentSections,
-              GAP_FIX_INIT_USER_LINE,
-              allGaps,
-              focusIndex
-            )
-          : buildGapFixUpdatePrompt(
-              currentSections,
-              GAP_FIX_INIT_USER_LINE,
-              gapSectionType,
-              gapInsight,
-              customSections
-            ),
-        { temperature: 0.25 }
-      );
+      const gapInitFallback: UpdateChatResult = {
+        reply: "What's the one thing AI should always get right about you?",
+        done: false,
+        updates: {},
+      };
+
+      const gapInitPrompt = useGapFixAll
+        ? buildGapFixAllUpdatePrompt(
+            currentSections,
+            GAP_FIX_INIT_USER_LINE,
+            allGaps,
+            focusIndex
+          )
+        : buildGapFixUpdatePrompt(
+            currentSections,
+            GAP_FIX_INIT_USER_LINE,
+            gapSectionType,
+            gapInsight,
+            customSections
+          );
+
+      if (useStream) {
+        const stream = createSseStream(async (emit) => {
+          const full = await streamPlainTextToSse(
+            appendStreamFormat(`${gapInitPrompt}\n\n${UPDATE_STREAM_JSON_HINT}`),
+            emit,
+            { temperature: 0.25 }
+          );
+          const parsed = parseUpdateStreamFull(full, gapInitFallback);
+          await recordAiUsage(user.id, 1, aiAccess.row);
+          emit({
+            reply: parsed.reply,
+            done: parsed.done,
+            updates: parsed.updates,
+          });
+        });
+        return sseResponse(stream);
+      }
+
+      const raw = await generateWithGemini(gapInitPrompt, {
+        temperature: 0.25,
+      });
 
       const parsed =
-        safeParseUpdateChatResponse(raw) ??
-        ({
-          reply: "What's the one thing AI should always get right about you?",
-          done: false,
-          updates: {},
-        } satisfies UpdateChatResult);
+        safeParseUpdateChatResponse(raw) ?? gapInitFallback;
 
-      await recordAiUsage(user.id);
+      await recordAiUsage(user.id, 1, aiAccess.row);
 
       return NextResponse.json(parsed);
     }
@@ -262,48 +353,64 @@ export async function POST(request: Request) {
       .join("\n");
 
     const useGapFixPrompt = Boolean(gapSectionType);
+    const chatFallback: UpdateChatResult = {
+      reply: "Got it — tell me a bit more so I can update the right sections.",
+      done: false,
+      updates: {},
+    };
 
-    const raw = await generateWithGemini(
-      useGapFixAll
-        ? buildGapFixAllUpdatePrompt(
+    const chatPrompt = useGapFixAll
+      ? buildGapFixAllUpdatePrompt(
+          currentSections,
+          conversation,
+          allGaps,
+          focusIndex
+        )
+      : useGapFixPrompt
+        ? buildGapFixUpdatePrompt(
             currentSections,
             conversation,
-            allGaps,
-            focusIndex
+            gapSectionType!,
+            gapInsight,
+            customSections
           )
-        : useGapFixPrompt
-          ? buildGapFixUpdatePrompt(
-              currentSections,
-              conversation,
-              gapSectionType!,
-              gapInsight,
-              customSections
-            )
-          : buildUpdateContextPrompt(
-              currentSections,
-              conversation,
-              customSections
-            ),
-      { temperature: useGapFixPrompt || useGapFixAll ? 0.25 : 0.5 }
-    );
+        : buildUpdateContextPrompt(
+            currentSections,
+            conversation,
+            customSections
+          );
 
-    const result =
-      safeParseUpdateChatResponse(raw) ??
-      ({
-        reply: "Got it — tell me a bit more so I can update the right sections.",
-        done: false,
-        updates: {},
-      } satisfies UpdateChatResult);
+    const temperature = useGapFixPrompt || useGapFixAll ? 0.25 : 0.5;
 
-    if (result.done && Object.keys(result.updates).length > 0) {
-      result.updates = await reviewRippleSections(
-        currentSections,
-        result.updates,
-        conversation
-      );
+    if (useStream) {
+      const stream = createSseStream(async (emit) => {
+        const full = await streamPlainTextToSse(
+          appendStreamFormat(`${chatPrompt}\n\n${UPDATE_STREAM_JSON_HINT}`),
+          emit,
+          { temperature }
+        );
+        let result = parseUpdateStreamFull(full, chatFallback);
+        result = await finalizeUpdateResult(
+          currentSections,
+          result,
+          conversation
+        );
+        await recordAiUsage(user.id, 1, aiAccess.row);
+        emit({
+          reply: result.reply,
+          done: result.done,
+          updates: result.updates,
+        });
+      });
+      return sseResponse(stream);
     }
 
-    await recordAiUsage(user.id);
+    const raw = await generateWithGemini(chatPrompt, { temperature });
+
+    let result = safeParseUpdateChatResponse(raw) ?? chatFallback;
+    result = await finalizeUpdateResult(currentSections, result, conversation);
+
+    await recordAiUsage(user.id, 1, aiAccess.row);
 
     return NextResponse.json(result);
   } catch (error) {

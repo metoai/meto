@@ -4,8 +4,7 @@ import {
 import type { CompileFormat } from "@/lib/types";
 import {
   appendCustomSections,
-  buildFormatPrompt,
-  buildMasterCompilerPrompt,
+  buildSinglePassCompilePrompt,
   sectionsToMap,
 } from "@/lib/meto-prompts";
 
@@ -285,6 +284,118 @@ export async function generateText(
   throw lastError;
 }
 
+async function* streamDeepSeek(
+  input: string,
+  temperature: number
+): AsyncGenerator<string> {
+  if (!getDeepSeekApiKey()) {
+    throw new Error("DEEPSEEK_API_KEY is not configured.");
+  }
+
+  const modelName = getDeepSeekModelCandidates()[0];
+  const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getDeepSeekApiKey()}`,
+    },
+    body: JSON.stringify({
+      model: modelName,
+      messages: [{ role: "user", content: input }],
+      temperature,
+      stream: true,
+    }),
+    signal: AbortSignal.timeout(LLM_TIMEOUT_MS),
+  });
+
+  if (!response.ok || !response.body) {
+    const data = (await response.json().catch(() => ({}))) as {
+      error?: { message?: string };
+    };
+    throw new Error(
+      data.error?.message ?? `DeepSeek API error (${response.status})`
+    );
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const payload = trimmed.slice(5).trim();
+      if (payload === "[DONE]") return;
+
+      try {
+        const parsed = JSON.parse(payload) as {
+          choices?: { delta?: { content?: string } }[];
+        };
+        const delta = parsed.choices?.[0]?.delta?.content;
+        if (delta) yield delta;
+      } catch {
+        /* ignore partial JSON */
+      }
+    }
+  }
+}
+
+async function* streamGemini(
+  input: string,
+  temperature: number
+): AsyncGenerator<string> {
+  if (!getGeminiApiKey()) {
+    throw new Error("GEMINI_API_KEY is not configured.");
+  }
+
+  const modelName = getGeminiModelCandidates()[0];
+  const genAI = new GoogleGenerativeAI(getGeminiApiKey());
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    generationConfig: { temperature },
+  });
+  const result = await model.generateContentStream(input);
+
+  for await (const chunk of result.stream) {
+    const text = chunk.text();
+    if (text) yield text;
+  }
+}
+
+/** Stream tokens from the first available provider. */
+export async function* streamText(
+  input: string,
+  options?: GenerateOptions
+): AsyncGenerator<string> {
+  const temperature = options?.temperature ?? 0.55;
+
+  if (getDeepSeekApiKey()) {
+    try {
+      yield* streamDeepSeek(input, temperature);
+      return;
+    } catch (error) {
+      if (!isRetryableLlmError(error)) throw error;
+    }
+  }
+
+  if (getGeminiApiKey()) {
+    yield* streamGemini(input, temperature);
+    return;
+  }
+
+  throw new Error(
+    "No AI provider configured. Set DEEPSEEK_API_KEY and/or GEMINI_API_KEY."
+  );
+}
+
 export function parseJsonFromText(text: string): Record<string, string> {
   const cleaned = text
     .replace(/^```(?:json)?\s*/i, "")
@@ -302,14 +413,8 @@ export async function compileProfileWithLlm(
   const custom = sections.filter((s) => !SECTION_KEY_SET.has(s.section_type));
   const sectionsMap = sectionsToMap(known);
 
-  const masterCompiled = (
-    await generateText(buildMasterCompilerPrompt(sectionsMap), {
-      temperature: 0.3,
-    })
-  ).trim();
-
   const formatted = (
-    await generateText(buildFormatPrompt(format, masterCompiled), {
+    await generateText(buildSinglePassCompilePrompt(sectionsMap, format), {
       temperature: 0.3,
     })
   ).trim();

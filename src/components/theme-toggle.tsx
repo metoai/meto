@@ -1,88 +1,84 @@
 "use client";
 
+import { Moon, Sun, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import {
-  applyTheme,
-  cycleThemePreference,
-  loadThemePreference,
-  type ThemePreference,
-} from "@/lib/theme";
 
-function ThemeToggleIcon({ preference }: { preference: ThemePreference }) {
-  if (preference === "light") {
+type ThemeToggleProps = {
+  /** Compact icon-only control for nav bars */
+  compact?: boolean;
+  className?: string;
+};
+
+const OPTIONS = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+] as const;
+
+export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProps) {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
     return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5" />
-        <path
-          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-      </svg>
+      <div
+        className={`${compact ? "h-8 w-8" : "h-9 w-[108px]"} rounded-lg bg-[var(--surface)] ${className}`}
+        aria-hidden
+      />
     );
   }
-  if (preference === "dark") {
+
+  const active = theme ?? "system";
+
+  const cycleTheme = () => {
+    const order = ["light", "dark", "system"] as const;
+    const idx = order.indexOf(active as (typeof order)[number]);
+    setTheme(order[(idx + 1) % order.length]);
+  };
+
+  if (compact) {
+    const Icon = resolvedTheme === "dark" ? Moon : Sun;
     return (
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-        <path
-          d="M21 14.5A7.5 7.5 0 1111.5 5a5.5 5.5 0 008.5 9.5z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <button
+        type="button"
+        onClick={cycleTheme}
+        className={`flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)] ${className}`}
+        aria-label={`Theme: ${active}. Click to change.`}
+        title={`Theme: ${active}`}
+      >
+        <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+      </button>
     );
-  }
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden>
-      <rect
-        x="3"
-        y="4"
-        width="18"
-        height="13"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M8 20h8"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function ThemeToggle() {
-  const [preference, setPreference] = useState<ThemePreference>("system");
-
-  useEffect(() => {
-    setPreference(loadThemePreference());
-  }, []);
-
-  function handleClick() {
-    const next = cycleThemePreference(preference);
-    setPreference(next);
-    applyTheme(next);
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-accent)]"
-      aria-label={`Theme: ${preference}. Click to change.`}
-      title={
-        preference === "system"
-          ? "Theme: System"
-          : preference === "light"
-            ? "Theme: Light"
-            : "Theme: Dark"
-      }
+    <div
+      className={`inline-flex rounded-lg border border-[var(--border)] bg-[var(--surface)] p-0.5 ${className}`}
+      role="group"
+      aria-label="Appearance"
     >
-      <ThemeToggleIcon preference={preference} />
-    </button>
+      {OPTIONS.map(({ value, label, icon: Icon }) => {
+        const isActive = active === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTheme(value)}
+            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-150 ${
+              isActive
+                ? "bg-[var(--card)] text-[var(--text)] shadow-[var(--shadow-sm)]"
+                : "text-[var(--muted)] hover:text-[var(--text-secondary)]"
+            }`}
+            aria-pressed={isActive}
+          >
+            <Icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

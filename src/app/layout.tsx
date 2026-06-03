@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { ThemeProvider } from "@/components/theme-provider";
 import { brandCssVariables } from "@/lib/brand";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
@@ -45,7 +46,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head />
-      <body className="min-h-screen font-sans">{children}</body>
+      <body className="min-h-screen bg-[var(--bg)] font-sans text-[var(--text)]">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

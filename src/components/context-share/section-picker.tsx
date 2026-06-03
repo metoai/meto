@@ -68,15 +68,15 @@ export function SectionPicker({
                 key={section.section_type}
                 className={`flex items-center gap-2 rounded-xl border px-3 py-2 transition-all duration-150 ${
                   active
-                    ? "border-[#C0E0D8] bg-[#F0FAF7]"
-                    : "border-[var(--border)] bg-white"
+                    ? "border-[var(--accent-border)] bg-[var(--primary-light)]"
+                    : "border-[var(--border)] bg-[var(--card)]"
                 } ${empty ? "opacity-60" : ""}`}
               >
                 <button
                   type="button"
                   onClick={() => onToggle(section.section_type)}
                   className={`min-w-0 flex-1 text-left text-[13px] transition-colors ${
-                    active ? "font-medium text-[#0F6E56]" : "text-[#6B6B63]"
+                    active ? "font-medium text-[var(--primary)]" : "text-[var(--text-secondary)]"
                   }`}
                 >
                   {title}
@@ -118,14 +118,14 @@ export function SectionPicker({
                 className={`inline-flex cursor-pointer items-center gap-1 rounded-lg border px-3.5 py-1.5 text-[13px] transition-all duration-150 ease-in-out ${
                   active
                     ? isPublic
-                      ? "border-[#C0E0D8] bg-[var(--primary-light)] text-[var(--primary)]"
-                      : "border-[#E8E8E4] bg-[#FAFAF8] text-[#6B6B63]"
+                      ? "border-[var(--accent-border)] bg-[var(--primary-light)] text-[var(--primary)]"
+                      : "border-[var(--border)] bg-[var(--elevated)] text-[var(--text-secondary)]"
                     : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
                 } ${empty && !active ? "opacity-50" : ""}`}
               >
                 {title}
                 {!isPublic ? (
-                  <span className="text-[10px] text-[#9B9B93]">· private</span>
+                  <span className="text-[10px] text-[var(--muted)]">· private</span>
                 ) : null}
               </button>
             );

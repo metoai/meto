@@ -17,9 +17,9 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <Tag
-      className={`rounded-xl border border-black/[0.08] bg-white p-5 transition-all duration-150 ease-in-out ${
+      className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5 transition-all duration-150 ease-in-out ${
         hover
-          ? "hover:scale-[1.005] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+          ? "hover:scale-[1.005] hover:shadow-[var(--shadow-sm)]"
           : ""
       } ${className}`}
     >
@@ -30,7 +30,7 @@ export function DashboardCard({
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-[#9B9B93]">
+    <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
       {children}
     </p>
   );
@@ -46,12 +46,12 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={`mb-6 ${className}`}>
-      <h1 className="text-2xl font-medium tracking-tight text-[#1A1A18]">
+    <div className={`mb-6 hidden md:block ${className}`}>
+      <h1 className="text-2xl font-medium tracking-tight text-[var(--text)]">
         {title}
       </h1>
       {subtitle ? (
-        <p className="mt-1 text-sm leading-relaxed text-[#6B6B63]">
+        <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
           {subtitle}
         </p>
       ) : null}

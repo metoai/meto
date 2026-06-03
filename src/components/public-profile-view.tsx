@@ -73,7 +73,7 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
                   {legacyContextUrl}
                 </a>
               </p>
-              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-white p-4 text-sm leading-relaxed text-brand-text-muted">
+              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-[var(--card)] p-4 text-sm leading-relaxed text-brand-text-muted">
                 {profile.compiled}
               </pre>
             </section>

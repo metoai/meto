@@ -37,20 +37,20 @@ export function ProfileAddSectionCard({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="group flex h-full min-h-[140px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-[#E8E8E4] bg-white px-[18px] py-4 transition-all duration-150 ease-in-out hover:border-[#0F6E56]"
+        className="group flex h-full min-h-[140px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-[var(--border)] bg-[var(--card)] px-[18px] py-4 transition-all duration-150 ease-in-out hover:border-[var(--primary)]"
       >
-        <span className="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-[#E8E8E4] text-sm text-[#C0C0B8] transition-all duration-150 group-hover:border-[#0F6E56] group-hover:text-[#0F6E56]">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-[var(--border)] text-sm text-[var(--placeholder)] transition-all duration-150 group-hover:border-[var(--primary)] group-hover:text-[var(--primary)]">
           +
         </span>
-        <span className="text-[13px] text-[#C0C0B8] transition-colors duration-150 group-hover:text-[#0F6E56]">
+        <span className="text-[13px] text-[var(--placeholder)] transition-colors duration-150 group-hover:text-[var(--primary)]">
           Add a section
         </span>
       </button>
 
       {open ? (
-        <div className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-lg border border-[#E8E8E4] bg-white py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+        <div className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
           {availableTypes.length === 0 ? (
-            <p className="px-3 py-2 text-[13px] text-[#9B9B93]">
+            <p className="px-3 py-2 text-[13px] text-[var(--muted)]">
               All preset sections added.
             </p>
           ) : (
@@ -62,7 +62,7 @@ export function ProfileAddSectionCard({
                   void onAdd(type, friendlySectionTitle(type));
                   setOpen(false);
                 }}
-                className="block w-full px-3 py-2 text-left text-[13px] text-[#1A1A18] transition-colors hover:bg-[#F7F7F5]"
+                className="block w-full px-3 py-2 text-left text-[13px] text-[var(--text)] transition-colors hover:bg-[var(--surface)]"
               >
                 {friendlySectionTitle(type)}
               </button>
@@ -74,7 +74,7 @@ export function ProfileAddSectionCard({
               onAddCustom();
               setOpen(false);
             }}
-            className="block w-full border-t border-[#E8E8E4] px-3 py-2 text-left text-[13px] text-[#6B6B63] transition-colors hover:bg-[#F7F7F5]"
+            className="block w-full border-t border-[var(--border)] px-3 py-2 text-left text-[13px] text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface)]"
           >
             Custom section…
           </button>

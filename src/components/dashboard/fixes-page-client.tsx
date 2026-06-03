@@ -46,7 +46,7 @@ function FixesProgressStrip({
   const estimatedTarget = Math.min(99, score.score + gapCount * 12);
 
   return (
-    <div className="rounded-xl border border-black/[0.08] bg-white p-4 md:p-5">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4 md:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
         <div className="flex min-w-0 items-center gap-4">
           <div
@@ -61,8 +61,8 @@ function FixesProgressStrip({
             </span>
           </div>
           <div className="min-w-0">
-            <p className="text-sm leading-snug text-[#1A1A18]">{score.headline}</p>
-            <p className="mt-1 text-xs text-[#9B9B93]">
+            <p className="text-sm leading-snug text-[var(--text)]">{score.headline}</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">
               {gapCount} gap{gapCount === 1 ? "" : "s"} left
               {gapCount > 0 ? ` · fixing all → ~${estimatedTarget}%` : ""}
             </p>
@@ -70,11 +70,11 @@ function FixesProgressStrip({
         </div>
 
         <div className="min-w-0 flex-1 lg:px-4">
-          <div className="mb-1.5 flex items-center justify-between text-[11px] text-[#9B9B93]">
+          <div className="mb-1.5 flex items-center justify-between text-[11px] text-[var(--muted)]">
             <span>Context score</span>
             <span className="tabular-nums">{score.score}%</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-[#F7F7F5]">
+          <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface)]">
             <div
               className="h-full rounded-full transition-all duration-300"
               style={{ width: `${score.score}%`, backgroundColor: color }}
@@ -87,7 +87,7 @@ function FixesProgressStrip({
             feature="gap_fix"
             href={buildGapFixAllUpdateUrl()}
             onClick={onFixAllStart}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#0F6E56] px-4 py-2.5 text-sm text-white transition-colors duration-150 hover:bg-[#1D9E75] lg:self-center"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] lg:self-center"
           >
             <Zap className="h-4 w-4" />
             Fix all high-impact ({highCount})
@@ -120,7 +120,7 @@ function GapCard({
       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-[#1A1A18]">{gap.title}</span>
+            <span className="text-sm text-[var(--text)]">{gap.title}</span>
             <span
               className="rounded-full px-2 py-0.5 text-[11px] font-medium"
               style={{ backgroundColor: `${style.color}15`, color: style.color }}
@@ -128,10 +128,10 @@ function GapCard({
               {style.label}
             </span>
           </div>
-          <p className="mt-2 text-sm leading-relaxed text-[#6B6B63]">
+          <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
             {gap.insight}
           </p>
-          <p className="mt-2 text-xs text-[#0F6E56]">
+          <p className="mt-2 text-xs text-[var(--primary)]">
             Fixing this → +{pts} pts
           </p>
         </div>
@@ -140,7 +140,7 @@ function GapCard({
             feature="gap_fix"
             href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
             onClick={onFixStart}
-            className="inline-flex items-center justify-center gap-1 rounded-lg bg-[#0F6E56] px-3 py-1.5 text-xs text-white transition-colors duration-150 hover:bg-[#1D9E75]"
+            className="inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs text-white transition-colors duration-150 hover:bg-[var(--primary-hover)]"
           >
             Fix with AI
             <ArrowRight className="h-3 w-3" />
@@ -148,7 +148,7 @@ function GapCard({
           <Link
             href={buildGapFixProfileUrl(gap.section_type)}
             onClick={onFixStart}
-            className="inline-flex items-center justify-center rounded-lg border border-black/[0.08] px-3 py-1.5 text-xs text-[#6B6B63] transition-colors duration-150 hover:text-[#1A1A18]"
+            className="inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
           >
             Edit manually
           </Link>
@@ -209,11 +209,11 @@ export function FixesPageClient() {
             <div className="space-y-6">
               {celebrating ? (
                 <div
-                  className="flex items-start gap-3 rounded-xl border border-[#C0E0D8] bg-[#E8F5F0] px-4 py-3"
+                  className="flex items-start gap-3 rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3"
                   role="status"
                 >
-                  <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[#0F6E56]" />
-                  <p className="text-sm text-[#0F6E56]">
+                  <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--primary)]" />
+                  <p className="text-sm text-[var(--primary)]">
                     Context score up {scoreDelta} point{scoreDelta === 1 ? "" : "s"} — now {score.score}%
                   </p>
                 </div>
@@ -231,15 +231,15 @@ export function FixesPageClient() {
                 <DashboardCard hover={false}>
                   <div className="flex items-center gap-4">
                     <div
-                      className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#E8F5F0]"
+                      className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[var(--primary-light)]"
                     >
-                      <span className="text-xl font-semibold tabular-nums text-[#0F6E56]">
+                      <span className="text-xl font-semibold tabular-nums text-[var(--primary)]">
                         {score.score}
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm text-[#1A1A18]">All clear — no gaps detected.</p>
-                      <p className="mt-1 text-sm text-[#6B6B63]">
+                      <p className="text-sm text-[var(--text)]">All clear — no gaps detected.</p>
+                      <p className="mt-1 text-sm text-[var(--text-secondary)]">
                         Your profile gives AI a solid picture. Keep sections fresh as things change.
                       </p>
                     </div>
@@ -252,7 +252,7 @@ export function FixesPageClient() {
                     if (!gaps.length) return null;
                     return (
                       <div key={level}>
-                        <p className="mb-2 text-[13px] font-medium uppercase tracking-[0.08em] text-[#9B9B93]">
+                        <p className="mb-2 text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
                           {IMPACT_LABELS[level].label}
                         </p>
                         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">

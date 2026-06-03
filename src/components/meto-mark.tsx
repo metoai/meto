@@ -12,6 +12,7 @@ const BADGE_SIZES = {
   sm: { box: "h-5 w-5", icon: "h-[11px] w-[11px]" },
   md: { box: "h-7 w-7", icon: "h-4 w-4" },
   lg: { box: "h-9 w-9", icon: "h-5 w-5" },
+  auth: { box: "h-10 w-10 sm:h-11 sm:w-11", icon: "h-[18px] w-[18px] sm:h-5 sm:w-5" },
 } as const;
 
 export type MetoMarkSize = keyof typeof MARK_SIZES;
@@ -44,7 +45,7 @@ export function MetoMarkBadge({ size = "md", className = "" }: MetoMarkBadgeProp
   const { box, icon } = BADGE_SIZES[size];
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#0F6E56] ${box} ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[var(--primary)] ${box} ${className}`}
       aria-hidden
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

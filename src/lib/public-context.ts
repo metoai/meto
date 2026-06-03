@@ -11,10 +11,16 @@ const VALID_FORMATS: CompileFormat[] = [
   "gemini",
 ];
 
+export const PUBLIC_CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+} as const;
+
 export const PUBLIC_FETCH_HEADERS = {
   "Content-Type": "text/plain; charset=utf-8",
-  "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
-  "Access-Control-Allow-Origin": "*",
+  "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400",
+  ...PUBLIC_CORS_HEADERS,
   "X-Robots-Tag": "all",
   "X-Meto-Profile-Format": "text",
 } as const;

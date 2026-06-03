@@ -90,18 +90,18 @@ export function UpgradeModal({
       aria-modal="true"
       aria-labelledby="upgrade-modal-title"
     >
-      <div className="w-full max-w-md rounded-2xl border border-black/[0.08] bg-white p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-6 shadow-xl">
         <h2
           id="upgrade-modal-title"
-          className="text-lg font-semibold text-[#1A1A18]"
+          className="text-lg font-semibold text-[var(--text)]"
         >
           {copy?.title ?? "Upgrade to Meto Pro"}
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#6B6B63]">
+        <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
           {copy?.detail ??
             "Your Pro trial ended. Subscribe to keep AI gap fixes, quick updates, smart scoring, and LLM compile."}
         </p>
-        <ul className="mt-4 space-y-2 text-sm text-[#6B6B63]">
+        <ul className="mt-4 space-y-2 text-sm text-[var(--text-secondary)]">
           <li>· AI gap fixes and fix-all flows</li>
           <li>· Quick update chat across sections</li>
           <li>· LLM context score and regenerate compile</li>
@@ -114,7 +114,7 @@ export function UpgradeModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-black/[0.08] px-4 py-2.5 text-sm text-[#6B6B63] hover:text-[#1A1A18]"
+            className="rounded-lg border border-[var(--border-subtle)] px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text)]"
           >
             Not now
           </button>
@@ -122,7 +122,7 @@ export function UpgradeModal({
             type="button"
             onClick={() => void handleUpgrade()}
             disabled={loading}
-            className="rounded-lg bg-[#0F6E56] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#1D9E75] disabled:opacity-60"
+            className="rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
           >
             {loading ? "Redirecting…" : "Upgrade to Pro"}
           </button>

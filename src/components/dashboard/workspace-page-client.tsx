@@ -67,7 +67,7 @@ export function WorkspacePageClient() {
           <>
             <div
               id="workspace"
-              className="scroll-mt-16 rounded-xl border border-black/[0.08] bg-[#FAFAF8] p-3 md:p-4"
+              className="scroll-mt-16 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-3 md:p-4"
             >
               <ContextComposer
                 sections={contextSections}
@@ -80,7 +80,7 @@ export function WorkspacePageClient() {
               />
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-[#9B9B93]">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-[var(--muted)]">
               <span>
                 {publicCount} public section{publicCount === 1 ? "" : "s"} on
                 your profile

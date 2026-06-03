@@ -121,14 +121,14 @@ export function ProfileSectionGridCard({
       id={`section-${sectionType}`}
       data-profile-card={id}
       onClick={handleCardClick}
-      className={`relative flex min-h-[140px] cursor-pointer flex-col rounded-xl border bg-white transition-all duration-150 ease-in-out ${
+      className={`relative flex min-h-[140px] cursor-pointer flex-col rounded-xl border bg-[var(--card)] transition-all duration-150 ease-in-out ${
         tieredLayout ? "overflow-hidden !p-0" : "px-[18px] py-4"
       } ${
         expanded
           ? tieredLayout
-            ? "col-span-1 border-[#0F6E56] shadow-[0_0_0_3px_#E8F5F0] md:col-span-2"
-            : "col-span-1 border-[#0F6E56] shadow-[0_0_0_3px_#E8F5F0] md:col-span-2"
-          : "border-black/[0.08] hover:scale-[1.005] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+            ? "col-span-1 border-[var(--primary)] shadow-[0_0_0_3px_var(--primary-light)] md:col-span-2"
+            : "col-span-1 border-[var(--primary)] shadow-[0_0_0_3px_var(--primary-light)] md:col-span-2"
+          : "border-[var(--border-subtle)] hover:scale-[1.005] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
       }`}
       style={
         tieredLayout && !expanded
@@ -139,7 +139,7 @@ export function ProfileSectionGridCard({
       <div className={tieredLayout ? "flex flex-col px-5 py-4" : ""}>
       <div className="mb-2.5 flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-[#1A1A18]">
+          <span className="text-sm font-medium text-[var(--text)]">
             {displayTitle}
           </span>
           {tieredLayout ? <SectionStatusBadge status={sectionStatus} /> : null}
@@ -170,15 +170,15 @@ export function ProfileSectionGridCard({
             }}
             placeholder={placeholder}
             rows={3}
-            className="profile-section-textarea w-full min-h-[80px] resize-none border-none bg-transparent font-[inherit] text-sm leading-[1.65] text-[#1A1A18] outline-none placeholder:text-[#C0C0B8]"
+            className="profile-section-textarea w-full min-h-[80px] resize-none border-none bg-transparent font-[inherit] text-sm leading-[1.65] text-[var(--text)] outline-none placeholder:text-[var(--placeholder)]"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
           <p
             className={`text-[13px] leading-[1.6] ${
               isEmpty
-                ? "italic text-[#C0C0B8]"
-                : "line-clamp-3 text-[#6B6B63]"
+                ? "italic text-[var(--placeholder)]"
+                : "line-clamp-3 text-[var(--text-secondary)]"
             }`}
           >
             {isEmpty ? placeholder : content}
@@ -187,7 +187,7 @@ export function ProfileSectionGridCard({
       </div>
 
       <div className="mt-auto flex items-center justify-between gap-2 pt-2.5">
-        <p className="text-[11px] text-[#C0C0B8]">{footerLabel}</p>
+        <p className="text-[11px] text-[var(--placeholder)]">{footerLabel}</p>
 
         {expanded ? (
           <div
@@ -197,21 +197,21 @@ export function ProfileSectionGridCard({
           >
             {showSavePrompt ? (
               <div className="flex items-center gap-2">
-                <span className="text-[11px] text-[#9B9B93]">
+                <span className="text-[11px] text-[var(--muted)]">
                   Save changes?
                 </span>
                 <button
                   type="button"
                   onClick={onSave}
                   disabled={isSaving}
-                  className="text-[11px] font-medium text-[#0F6E56]"
+                  className="text-[11px] font-medium text-[var(--primary)]"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={onDiscard}
-                  className="text-[11px] text-[#9B9B93]"
+                  className="text-[11px] text-[var(--muted)]"
                 >
                   Discard
                 </button>
@@ -221,7 +221,7 @@ export function ProfileSectionGridCard({
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="cursor-pointer text-xs text-[#9B9B93] transition-colors hover:text-[#6B6B63]"
+                  className="cursor-pointer text-xs text-[var(--muted)] transition-colors hover:text-[var(--text-secondary)]"
                 >
                   Cancel
                 </button>
@@ -229,7 +229,7 @@ export function ProfileSectionGridCard({
                   type="button"
                   disabled={!isDirty || isSaving}
                   onClick={onSave}
-                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-[7px] border-none bg-[#0F6E56] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1D9E75] disabled:opacity-40"
+                  className="inline-flex cursor-pointer items-center gap-1.5 rounded-[7px] border-none bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-40"
                 >
                   {isSaving ? (
                     <>
@@ -251,14 +251,14 @@ export function ProfileSectionGridCard({
                 e.stopPropagation();
                 setMenuOpen((open) => !open);
               }}
-              className="cursor-pointer px-1 text-base text-[#E8E8E4] transition-colors hover:text-[#9B9B93]"
+              className="cursor-pointer px-1 text-base text-[var(--border)] transition-colors hover:text-[var(--muted)]"
               aria-label="Section menu"
               aria-expanded={menuOpen}
             >
               ···
             </button>
             {menuOpen ? (
-              <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden rounded-lg border border-[#E8E8E4] bg-white py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+              <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -266,7 +266,7 @@ export function ProfileSectionGridCard({
                     setMenuOpen(false);
                     onDelete();
                   }}
-                  className="block w-full px-3 py-2 text-left text-[13px] text-[#F87171] transition-colors hover:bg-[#F7F7F5]"
+                  className="block w-full px-3 py-2 text-left text-[13px] text-[#F87171] transition-colors hover:bg-[var(--surface)]"
                 >
                   Delete
                 </button>

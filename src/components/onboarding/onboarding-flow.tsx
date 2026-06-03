@@ -3,8 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import {
+  isAssistantReplying,
+  LandingTypingDots,
+} from "@/components/landing/landing-chat-ui";
 import { MetoChatAvatar, MetoMarkBadge } from "@/components/meto-mark";
 import { parseUpgradeError } from "@/lib/billing-client";
+import { postChatStream } from "@/lib/chat-stream-client";
+import { streamPlainTextForDisplay } from "@/lib/stream-prompt";
 import { CHAT_OPENING_MESSAGE } from "@/lib/meto-prompts";
 
 type Mode = "choice" | "brain-dump" | "chat";
@@ -51,7 +57,7 @@ function OnboardingHeader({
   showBack?: boolean;
 }) {
   return (
-    <header className="border-b border-[var(--border)] bg-white px-4 sm:px-8">
+    <header className="border-b border-[var(--border)] bg-[var(--card)] px-4 sm:px-8">
       <div className="mx-auto flex max-w-2xl items-center gap-3 py-4">
         {showBack && onBack ? (
           <button
@@ -141,63 +147,126 @@ export function OnboardingFlow() {
 
   const upgradeRequired = error === "UPGRADE_REQUIRED";
 
+  async function finishFromChat(nextMessages: ChatMessage[], reply: string) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: reply || "I think I have enough! Let me build your profile.",
+      },
+    ]);
+
+    const finishRes = await fetch("/api/onboarding/finish-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: nextMessages }),
+    });
+    const finishData = await finishRes.json();
+
+    if (!finishRes.ok) {
+      if (finishRes.status === 402 || parseUpgradeError(finishData)) {
+        throw new Error("UPGRADE_REQUIRED");
+      }
+      throw new Error(finishData.error ?? "Failed to build profile.");
+    }
+
+    await finishOnboarding();
+  }
+
   async function sendChatMessage(content: string) {
     const userMessage: ChatMessage = { role: "user", content };
     const priorMessages = messages;
     const nextMessages = [...messages, userMessage];
-    setMessages(nextMessages);
+    const assistantIndex = nextMessages.length;
+    setMessages([
+      ...nextMessages,
+      { role: "assistant", content: "" },
+    ]);
     setChatInput("");
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/onboarding/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextMessages }),
-      });
-      const data = await res.json();
+      let fullReply = "";
+
+      const { stream, data, res } = await postChatStream(
+        "/api/onboarding/chat",
+        { messages: nextMessages },
+        {
+          onToken: (_, full) => {
+            const visible = streamPlainTextForDisplay(full);
+            fullReply = visible;
+            setMessages((prev) => {
+              const copy = [...prev];
+              copy[assistantIndex] = {
+                role: "assistant",
+                content: visible,
+              };
+              return copy;
+            });
+          },
+          onEvent: (event) => {
+            if (typeof event.reply === "string") {
+              fullReply = event.reply;
+              setMessages((prev) => {
+                const copy = [...prev];
+                copy[assistantIndex] = {
+                  role: "assistant",
+                  content: event.reply as string,
+                };
+                return copy;
+              });
+            }
+          },
+        }
+      );
+
+      if (stream) {
+        if (typeof data?.reply === "string") fullReply = data.reply;
+        const done = Boolean(data?.done || data?.profile_ready);
+
+        if (done) {
+          await finishFromChat(nextMessages, fullReply);
+          return;
+        }
+
+        if (!fullReply.trim()) {
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy[assistantIndex] = {
+              role: "assistant",
+              content: "Tell me more — what are you working on right now?",
+            };
+            return copy;
+          });
+        }
+        return;
+      }
 
       if (!res.ok) {
         if (res.status === 402 || parseUpgradeError(data)) {
           throw new Error("UPGRADE_REQUIRED");
         }
-        throw new Error(data.error ?? "Chat failed.");
+        throw new Error(
+          typeof data?.error === "string" ? data.error : "Chat failed."
+        );
       }
 
-      if (data.done) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content:
-              data.reply ||
-              "I think I have enough! Let me build your profile.",
-          },
-        ]);
+      const json = data as { reply?: string; done?: boolean };
 
-        const finishRes = await fetch("/api/onboarding/finish-chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: nextMessages }),
-        });
-        const finishData = await finishRes.json();
-
-        if (!finishRes.ok) {
-          if (finishRes.status === 402 || parseUpgradeError(finishData)) {
-            throw new Error("UPGRADE_REQUIRED");
-          }
-          throw new Error(finishData.error ?? "Failed to build profile.");
-        }
-
-        await finishOnboarding();
+      if (json.done) {
+        await finishFromChat(nextMessages, json.reply ?? "");
         return;
       }
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.reply },
-      ]);
+      setMessages((prev) => {
+        const copy = [...prev];
+        copy[assistantIndex] = {
+          role: "assistant",
+          content: json.reply ?? "",
+        };
+        return copy;
+      });
     } catch (err) {
       setMessages(priorMessages);
       setChatInput(content);
@@ -223,7 +292,7 @@ export function OnboardingFlow() {
 
   if (mode === "choice") {
     return (
-      <div className="min-h-screen bg-white text-[var(--text)]">
+      <div className="min-h-screen text-[var(--text)]">
         <OnboardingHeader />
 
         <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-lg flex-col justify-center px-4 py-12 sm:px-6">
@@ -243,7 +312,7 @@ export function OnboardingFlow() {
             <button
               type="button"
               onClick={() => setMode("brain-dump")}
-              className="group rounded-2xl border border-[var(--border)] bg-white p-5 text-left transition-[border-color,background] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
+              className="group rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition-[border-color,background] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
               style={{ animationDelay: "0.06s" }}
             >
               <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-[var(--muted)]">
@@ -260,7 +329,7 @@ export function OnboardingFlow() {
             <button
               type="button"
               onClick={() => setMode("chat")}
-              className="group rounded-2xl border border-[var(--border)] bg-white p-5 text-left transition-[border-color,background] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
+              className="group rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition-[border-color,background] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)]"
               style={{ animationDelay: "0.1s" }}
             >
               <p className="text-[11px] font-medium uppercase tracking-[0.07em] text-[var(--muted)]">
@@ -297,7 +366,7 @@ export function OnboardingFlow() {
 
   if (mode === "brain-dump") {
     return (
-      <div className="min-h-screen bg-white text-[var(--text)]">
+      <div className="min-h-screen text-[var(--text)]">
         <OnboardingHeader showBack onBack={() => setMode("choice")} />
 
         <main className="mx-auto max-w-xl px-4 py-10 sm:px-6">
@@ -316,7 +385,7 @@ export function OnboardingFlow() {
 
           <form
             onSubmit={handleBrainDump}
-            className="landing-animate-in overflow-hidden rounded-2xl border border-[var(--border)] bg-white"
+            className="brand-surface landing-animate-in overflow-hidden rounded-2xl border"
             style={{ animationDelay: "0.06s" }}
           >
             <textarea
@@ -358,7 +427,7 @@ export function OnboardingFlow() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-[var(--text)]">
+    <div className="flex min-h-screen flex-col bg-[var(--card)] text-[var(--text)]">
       <OnboardingHeader showBack onBack={() => setMode("choice")} />
 
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 py-8 sm:px-6">
@@ -372,7 +441,7 @@ export function OnboardingFlow() {
         </div>
 
         <div
-          className="landing-animate-in flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-white"
+          className="brand-surface landing-animate-in flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border"
           style={{ animationDelay: "0.06s" }}
         >
           <div className="landing-scrollbar-hidden min-h-[280px] flex-1 overflow-y-auto p-4 sm:min-h-[360px]">
@@ -391,9 +460,14 @@ export function OnboardingFlow() {
                         <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
                           Meto
                         </p>
-                        <p className="whitespace-pre-wrap text-sm leading-normal text-[var(--text)]">
-                          {message.content}
-                        </p>
+                        {message.content ? (
+                          <p className="whitespace-pre-wrap text-sm leading-normal text-[var(--text)]">
+                            {message.content}
+                          </p>
+                        ) : null}
+                        {isAssistantReplying(loading, messages, message) ? (
+                          <LandingTypingDots />
+                        ) : null}
                       </div>
                     </div>
                   ) : (
@@ -403,21 +477,6 @@ export function OnboardingFlow() {
                   )}
                 </div>
               ))}
-              {loading ? (
-                <div className="landing-animate-message flex gap-3 text-left">
-                  <MetoChatAvatar />
-                  <div>
-                    <p className="mb-1 text-[11px] font-medium text-[var(--primary)]">
-                      Meto
-                    </p>
-                    <div className="flex gap-1 py-1">
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
-                      <span className="landing-typing-dot h-1.5 w-1.5 rounded-full bg-[var(--muted)]" />
-                    </div>
-                  </div>
-                </div>
-              ) : null}
               <div ref={messagesEndRef} />
             </div>
           </div>

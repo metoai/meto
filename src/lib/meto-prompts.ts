@@ -569,6 +569,37 @@ export function buildFormatPrompt(format: CompileFormat, compiledProfile: string
   return FORMAT_PROMPTS[format](compiledProfile);
 }
 
+/** Single LLM call: compile sections and apply format in one pass. */
+export function buildSinglePassCompilePrompt(
+  sections: Record<string, string>,
+  format: CompileFormat
+) {
+  const formatRules = FORMAT_PROMPTS[format](
+    "[Use the section content below — do not expect a pre-compiled paragraph.]"
+  )
+    .replace(
+      "Compiled profile: [Use the section content below — do not expect a pre-compiled paragraph.]",
+      ""
+    )
+    .trim();
+
+  return `You are Meto's profile compiler. Compile the user's profile sections into one formatted context block in a single step.
+
+Section content:
+About: ${sections.about || ""}
+Work: ${sections.work || ""}
+Projects: ${sections.projects || ""}
+Skills: ${sections.skills || ""}
+Goals: ${sections.goals || ""}
+Working style: ${sections.working_style || ""}
+Context for AI: ${sections.context_for_ai || ""}
+
+Formatting rules for the "${format}" format:
+${formatRules}
+
+Return ONLY the final formatted context block — no JSON, no markdown code fences, no explanation.`;
+}
+
 export function sectionsToMap(
   rows: { section_type: string; content: string }[]
 ): Record<string, string> {

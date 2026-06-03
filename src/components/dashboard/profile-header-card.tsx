@@ -88,7 +88,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
   }
 
   return (
-    <div className="mb-4 rounded-[10px] border border-[#C0E0D8] bg-[#F0FAF7] px-4 py-3">
+    <div className="mb-4 rounded-[10px] border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3">
       <p className="text-[13px] font-medium text-[var(--primary)]">Your profile is live</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <span className="text-sm text-[var(--text-secondary)]">

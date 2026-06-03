@@ -24,13 +24,13 @@ export function SectionQualityBars({
         {visibleScores.map((item) => (
           <div key={item.sectionType} className="flex items-center gap-3">
             <span
-              className={`shrink-0 truncate text-[#1A1A18] ${
+              className={`shrink-0 truncate text-[var(--text)] ${
                 compact ? "w-[100px] text-xs" : "w-[120px] text-sm"
               }`}
             >
               {item.title}
             </span>
-            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-[#F7F7F5]">
+            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--surface)]">
               <div
                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-300 ease-in-out"
                 style={{
@@ -51,7 +51,7 @@ export function SectionQualityBars({
         ))}
       </div>
       {!compact ? (
-        <p className="mt-4 text-sm leading-relaxed text-[#6B6B63]">{insight}</p>
+        <p className="mt-4 text-sm leading-relaxed text-[var(--text-secondary)]">{insight}</p>
       ) : null}
     </DashboardCard>
   );
