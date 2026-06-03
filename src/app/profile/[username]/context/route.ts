@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import {
-  buildContextText,
-  resolveSelectedSectionTypes,
-} from "@/lib/context-templates";
+import { buildContextText, resolveSelectedSectionTypes } from "@/lib/context-templates";
 import type { CompileFormat } from "@/lib/types";
+import { fetchPublicProfileByUsername } from "@/lib/public-profile";
+import { getPublicContextUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = {
@@ -16,6 +15,8 @@ const VALID_FORMATS: CompileFormat[] = [
   "chatgpt",
   "gemini",
 ];
+
+export const revalidate = 60;
 
 export async function GET(request: Request, { params }: RouteContext) {
   try {
@@ -30,33 +31,21 @@ export async function GET(request: Request, { params }: RouteContext) {
       : "universal";
 
     const supabase = createClient();
+    const publicProfile = await fetchPublicProfileByUsername(supabase, username);
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id, username, display_name")
-      .eq("username", username)
-      .maybeSingle();
-
-    if (!profile) {
+    if (!publicProfile) {
       return new NextResponse("Profile not found.", { status: 404 });
     }
 
-    const { data: sections } = await supabase
-      .from("context_sections")
-      .select("section_type, title, content")
-      .eq("user_id", profile.id)
-      .eq("is_public", true)
-      .order("display_order", { ascending: true });
-
-    const publicSections = sections ?? [];
-
-    if (publicSections.length === 0) {
+    if (!publicProfile.hasPublicContent) {
       return new NextResponse("This profile has no public sections.", {
         status: 404,
       });
     }
 
-    const availableTypes = publicSections.map((section) => section.section_type);
+    const availableTypes = publicProfile.sections.map(
+      (section) => section.section_type
+    );
     const requestedSections = sectionsParam
       ? sectionsParam.split(",").map((section) => section.trim())
       : null;
@@ -66,15 +55,12 @@ export async function GET(request: Request, { params }: RouteContext) {
       preset: presetParam,
     });
 
-    const displayName =
-      profile.display_name?.trim() || profile.username || username;
-
     const text = buildContextText(
-      publicSections,
+      publicProfile.sections,
       selectedTypes,
       format,
-      profile.username ?? username,
-      displayName
+      publicProfile.username,
+      publicProfile.name
     );
 
     if (!text) {
@@ -86,7 +72,8 @@ export async function GET(request: Request, { params }: RouteContext) {
     return new NextResponse(text, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
-        "Cache-Control": "public, max-age=300",
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        Link: `<${getPublicContextUrl(username)}>; rel="canonical"`,
       },
     });
   } catch (error) {

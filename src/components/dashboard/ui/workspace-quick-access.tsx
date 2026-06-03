@@ -132,14 +132,14 @@ export function WorkspaceQuickAccess({
               <Link2 className="h-3.5 w-3.5" strokeWidth={1.75} />
               {copiedLink ? "Copied profile link!" : "Copy profile link"}
             </button>
-            <span className="text-xs text-[#9B9B93]">meto.ai/profile/{username}</span>
+            <span className="text-xs text-[#9B9B93]">metoai.site/profile/{username}</span>
           </div>
         ) : (
           <form
             onSubmit={handleClaim}
             className="mt-2 flex flex-wrap items-center gap-2"
           >
-            <span className="text-xs text-[#9B9B93]">meto.ai/profile/</span>
+            <span className="text-xs text-[#9B9B93]">metoai.site/profile/</span>
             <input
               value={claimValue}
               onChange={(e) => setClaimValue(e.target.value)}

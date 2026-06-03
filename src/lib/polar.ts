@@ -1,4 +1,5 @@
 import { Polar } from "@polar-sh/sdk";
+import { getSiteUrl } from "@/lib/site";
 
 let polarClient: Polar | null = null;
 
@@ -31,8 +32,5 @@ export function getPolarProProductId(): string {
 }
 
 export function getSiteOrigin(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
-    "http://localhost:3000"
-  );
+  return getSiteUrl();
 }

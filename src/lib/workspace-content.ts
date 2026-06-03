@@ -8,7 +8,7 @@ export const WORKSPACE_COPY = {
     { label: "Paste", detail: "Drop into any AI chat" },
   ],
   linkLabel: "Public link",
-  linkSublabel: "Only public sections — same as your meto.ai profile",
+  linkSublabel: "Only public sections — same as your metoai.site profile",
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
   linkHint:

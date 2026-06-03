@@ -165,7 +165,7 @@ export function PortalSettingsPanel() {
               </label>
               <div className="flex overflow-hidden rounded-lg border border-[#E8E8E4] focus-within:border-[#0F6E56]">
                 <span className="shrink-0 select-none whitespace-nowrap border-r border-[#E8E8E4] bg-[#F7F7F5] px-3 py-[9px] text-sm text-[#9B9B93]">
-                  meto.ai/profile/
+                  metoai.site/profile/
                 </span>
                 <input
                   id="settings-username"
@@ -288,7 +288,7 @@ export function PortalSettingsPanel() {
             rel="noopener noreferrer"
             className="font-mono-brand text-xs text-[#0F6E56] hover:text-[#1D9E75]"
           >
-            meto.ai/profile/{profileUsername}
+            metoai.site/profile/{profileUsername}
           </Link>
         ) : (
           <p className="text-xs text-[#9B9B93]">

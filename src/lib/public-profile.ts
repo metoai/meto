@@ -1,6 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { compileLocally } from "@/lib/compile-local";
+import {
+  getAiProfileJsonUrl,
+  getPublicContextUrl,
+  getPublicProfileUrl,
+  getSiteUrl,
+} from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+export { getSiteUrl };
 
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
 
@@ -57,7 +65,10 @@ export type AiProfileDocument = {
   expertise: string[];
   links: PublicProfileLink[];
   profileUrl: string;
+  /** Plain-text context for AI tools. */
   contextUrl: string;
+  /** Structured JSON document. */
+  jsonUrl: string;
 };
 
 function sectionByType(
@@ -174,18 +185,18 @@ export function toPublicProfileApiResponse(
 
 export function toAiProfileDocument(
   profile: PublicProfile,
-  siteUrl: string
+  siteUrl?: string
 ): AiProfileDocument {
-  const base = siteUrl.replace(/\/$/, "");
-
+  void siteUrl;
   return {
     name: profile.name,
     username: profile.username,
     summary: profile.aiSummary,
     expertise: profile.skills,
     links: profile.links,
-    profileUrl: `${base}/profile/${profile.username}`,
-    contextUrl: `${base}/.well-known/ai-profile/${profile.username}.json`,
+    profileUrl: getPublicProfileUrl(profile.username),
+    contextUrl: getPublicContextUrl(profile.username),
+    jsonUrl: getAiProfileJsonUrl(profile.username),
   };
 }
 
@@ -247,8 +258,4 @@ export async function fetchPublicProfileByUsername(
     profile,
     sections ?? []
   );
-}
-
-export function getSiteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 }

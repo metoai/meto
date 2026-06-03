@@ -14,8 +14,8 @@ export function PublicToggle({
   username,
 }: PublicToggleProps) {
   const tooltip = username
-    ? `Public sections appear on your meto.ai/profile/${username} page`
-    : "Public sections appear on your meto.ai/profile page once you claim a username";
+    ? `Public sections appear on your metoai.site/profile/${username} page`
+    : "Public sections appear on your metoai.site/profile page once you claim a username";
 
   return (
     <div className="flex items-center gap-2" title={tooltip}>

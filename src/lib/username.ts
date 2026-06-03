@@ -19,9 +19,8 @@ export function normalizeUsername(username: string) {
   return username.trim().toLowerCase();
 }
 
-export function getPublicProfileUrl(username: string) {
-  if (typeof window !== "undefined") {
-    return `${window.location.origin}/profile/${username}`;
-  }
-  return `/profile/${username}`;
-}
+export {
+  getPublicContextUrl,
+  getPublicProfileUrl,
+  publicProfileLabel,
+} from "@/lib/site";

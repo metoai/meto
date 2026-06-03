@@ -4,8 +4,13 @@ import { PublicProfileView } from "@/components/public-profile-view";
 import {
   buildPersonJsonLd,
   fetchPublicProfileByUsername,
-  getSiteUrl,
 } from "@/lib/public-profile";
+import {
+  getAiProfileJsonUrl,
+  getPublicContextUrl,
+  getPublicProfileUrl,
+  getSiteUrl,
+} from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
@@ -27,10 +32,10 @@ export async function generateMetadata({
     return { title: "Profile not found — Meto" };
   }
 
-  const siteUrl = getSiteUrl();
-  const profileUrl = `${siteUrl}/profile/${publicProfile.username}`;
+  const profileUrl = getPublicProfileUrl(publicProfile.username);
+  const contextUrl = getPublicContextUrl(publicProfile.username);
   const description = publicProfile.hasPublicContent
-    ? publicProfile.aiSummary
+    ? publicProfile.compiled.slice(0, 300) || publicProfile.aiSummary
     : `${publicProfile.name} on Meto — no public profile sections yet.`;
 
   return {
@@ -49,8 +54,10 @@ export async function generateMetadata({
       description,
     },
     alternates: {
+      canonical: profileUrl,
       types: {
-        "application/json": `${siteUrl}/.well-known/ai-profile/${publicProfile.username}.json`,
+        "text/plain": contextUrl,
+        "application/json": getAiProfileJsonUrl(publicProfile.username),
       },
     },
   };

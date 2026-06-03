@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { MetoLogo } from "@/components/meto-logo";
 import type { PublicProfile } from "@/lib/public-profile";
+import { getPublicContextUrl, getPublicProfileUrl } from "@/lib/site";
 
 type PublicProfileViewProps = {
   profile: PublicProfile;
 };
 
 export function PublicProfileView({ profile }: PublicProfileViewProps) {
+  const profileUrl = getPublicProfileUrl(profile.username);
+  const contextUrl = getPublicContextUrl(profile.username);
+
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
       <header className="flex items-center justify-between border-b border-brand-border px-6 py-5 md:px-10">
@@ -39,9 +43,40 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
                 </p>
               </article>
             ))}
+
+            <section
+              id="profile-context"
+              aria-label="Machine-readable profile context"
+              className="rounded-brand-lg border border-brand-border bg-brand-surface p-5"
+            >
+              <h2 className="text-sm font-medium text-brand-text">
+                AI-readable context
+              </h2>
+              <p className="mt-2 text-sm text-brand-text-muted">
+                Share this plain-text link with ChatGPT, Claude, or other AI tools:
+              </p>
+              <a
+                href={contextUrl}
+                className="mt-2 block break-all text-sm font-medium text-brand-primary hover:underline"
+              >
+                {contextUrl}
+              </a>
+              <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-white p-4 text-sm leading-relaxed text-brand-text-muted">
+                {profile.compiled}
+              </pre>
+            </section>
           </div>
         )}
       </main>
+
+      {/* Full compiled text in HTML for crawlers and AI browsers. */}
+      {profile.hasPublicContent ? (
+        <div className="sr-only" aria-hidden="true">
+          <a href={profileUrl}>{profileUrl}</a>
+          <a href={contextUrl}>{contextUrl}</a>
+          <pre>{profile.compiled}</pre>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import {
   fetchPublicProfileByUsername,
-  getSiteUrl,
   toAiProfileDocument,
 } from "@/lib/public-profile";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +30,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
       );
     }
 
-    return NextResponse.json(toAiProfileDocument(publicProfile, getSiteUrl()), {
+    return NextResponse.json(toAiProfileDocument(publicProfile), {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
         "Content-Type": "application/json",

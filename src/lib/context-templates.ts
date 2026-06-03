@@ -1,4 +1,5 @@
 import type { CompileFormat } from "@/lib/types";
+import { getPublicProfileUrl } from "@/lib/site";
 
 export type ContextSectionInput = {
   section_type: string;
@@ -99,7 +100,7 @@ export function buildContextText(
       const body = selected
         .map((section) => `${section.title}\n${section.content.trim()}`)
         .join("\n\n");
-      return `Context about ${displayName} — via Meto\n\n${body}\n\nmeto.ai/profile/${username}`;
+      return `Context about ${displayName} — via Meto\n\n${body}\n\n${getPublicProfileUrl(username)}`;
     }
     case "claude": {
       const body = selected

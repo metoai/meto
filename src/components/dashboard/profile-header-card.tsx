@@ -60,7 +60,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
           Claim your public URL
         </p>
         <form onSubmit={handleClaim} className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-[var(--text-secondary)]">meto.ai/profile/</span>
+          <span className="text-sm text-[var(--text-secondary)]">metoai.site/profile/</span>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -92,7 +92,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
       <p className="text-[13px] font-medium text-[var(--primary)]">Your profile is live</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <span className="text-sm text-[var(--text-secondary)]">
-          meto.ai/profile/{profile?.username}
+          metoai.site/profile/{profile?.username}
         </span>
         <button
           type="button"

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  getPublicContextUrl,
   getPublicProfileUrl,
   normalizeUsername,
   validateUsername,
@@ -17,6 +18,7 @@ export function ProfileLiveBanner({
   onUsernameClaimed,
 }: ProfileLiveBannerProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedAi, setCopiedAi] = useState(false);
   const [claimOpen, setClaimOpen] = useState(false);
   const [claimValue, setClaimValue] = useState("");
   const [claimSaving, setClaimSaving] = useState(false);
@@ -29,6 +31,13 @@ export function ProfileLiveBanner({
     await navigator.clipboard.writeText(getPublicProfileUrl(username));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleCopyForAi() {
+    if (!username) return;
+    await navigator.clipboard.writeText(getPublicContextUrl(username));
+    setCopiedAi(true);
+    setTimeout(() => setCopiedAi(false), 2000);
   }
 
   async function handleClaim(e: React.FormEvent) {
@@ -76,7 +85,7 @@ export function ProfileLiveBanner({
           </div>
           {claimed ? (
             <p className="mt-1 text-xs text-[#9B9B93]">
-              meto.ai/profile/{username}
+              metoai.site/profile/{username}
             </p>
           ) : (
             <p className="mt-1 text-xs text-[#9B9B93]">
@@ -101,6 +110,13 @@ export function ProfileLiveBanner({
             >
               {copied ? "Copied ✓" : "Copy link"}
             </button>
+            <button
+              type="button"
+              onClick={() => void handleCopyForAi()}
+              className="cursor-pointer text-xs font-medium text-[#0F6E56] transition-colors hover:text-[#1D9E75]"
+            >
+              {copiedAi ? "Copied ✓" : "Copy for AI"}
+            </button>
             <a
               href={`/profile/${username}`}
               target="_blank"
@@ -118,7 +134,7 @@ export function ProfileLiveBanner({
           onSubmit={handleClaim}
           className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#E8E8E4] pt-3"
         >
-          <span className="text-xs text-[#9B9B93]">meto.ai/profile/</span>
+          <span className="text-xs text-[#9B9B93]">metoai.site/profile/</span>
           <input
             value={claimValue}
             onChange={(e) => setClaimValue(e.target.value)}
