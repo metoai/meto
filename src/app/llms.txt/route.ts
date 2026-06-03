@@ -7,32 +7,48 @@ export async function GET() {
 
   const body = `# Meto — personal AI identity profiles
 
-> Public profiles are plain text for AI tools. Use the API URL for the most reliable fetch (ChatGPT, Claude, scripts).
+> Public profiles for AI tools. No login required. Use the **www** host (canonical on Vercel).
 
-## Recommended URL for AI agents
+## Recommended URLs for AI agents
+
+JSON (best for tools that expect application/json):
+
+\`\`\`
+${base}/api/public/profile/{username}/context?format=json
+\`\`\`
+
+Example: ${base}/api/public/profile/smone/context?format=json
+
+Or send header: Accept: application/json
+
+Plain text (paste-ready block):
 
 \`\`\`
 ${base}/api/public/profile/{username}/context
 \`\`\`
 
-Example: ${base}/api/public/profile/smone/context
+Structured profile JSON:
+
+\`\`\`
+${base}/.well-known/ai-profile/{username}.json
+\`\`\`
 
 ## Other formats
 
 - HTML: ${base}/profile/{username}
 - Legacy plain text: ${base}/profile/{username}/context
-- JSON: ${base}/.well-known/ai-profile/{username}.json
 
 ## Query parameters
 
+- format=json | universal | claude | chatgpt | gemini (json returns full payload + context field)
 - preset=all | coding | writing | career | basics
-- format=universal | claude | chatgpt | gemini
+- sections=comma-separated section types
 
 ## Notes
 
-- No authentication required
+- Canonical host: www.metoai.site (apex metoai.site redirects — follow redirects or use www directly)
 - CORS: Access-Control-Allow-Origin: *
-- Content-Type: text/plain; charset=utf-8
+- No cookies or authentication
 `;
 
   return new Response(body, {

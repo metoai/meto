@@ -1,6 +1,10 @@
 import {
   buildPublicContextBody,
+  buildPublicContextJsonPayload,
+  PUBLIC_CORS_HEADERS,
+  publicContextJsonResponse,
   publicContextResponse,
+  requestWantsJson,
 } from "@/lib/public-context";
 
 export const revalidate = 300;
@@ -14,7 +18,20 @@ export async function GET(request: Request, { params }: RouteContext) {
     const result = await buildPublicContextBody(params.username, searchParams);
 
     if ("error" in result) {
-      return new Response(result.error, { status: result.status });
+      const status = result.status;
+      if (requestWantsJson(request, searchParams)) {
+        return Response.json(
+          { error: result.error, username: params.username.toLowerCase() },
+          { status, headers: PUBLIC_CORS_HEADERS }
+        );
+      }
+      return new Response(result.error, { status });
+    }
+
+    if (requestWantsJson(request, searchParams)) {
+      return publicContextJsonResponse(
+        buildPublicContextJsonPayload(params.username, result)
+      );
     }
 
     return publicContextResponse(params.username, result.text);

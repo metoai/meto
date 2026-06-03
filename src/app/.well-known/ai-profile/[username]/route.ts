@@ -32,8 +32,11 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
     return NextResponse.json(toAiProfileDocument(publicProfile), {
       headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400",
         "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "X-Robots-Tag": "all",
       },
     });
   } catch (error) {

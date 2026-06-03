@@ -1,6 +1,10 @@
 import { buildContextText, resolveSelectedSectionTypes } from "@/lib/context-templates";
 import type { CompileFormat } from "@/lib/types";
-import { fetchPublicProfileByUsername } from "@/lib/public-profile";
+import {
+  fetchPublicProfileByUsername,
+  toAiProfileDocument,
+  type PublicProfile,
+} from "@/lib/public-profile";
 import { getPublicContextUrl, getSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,10 +29,25 @@ export const PUBLIC_FETCH_HEADERS = {
   "X-Meto-Profile-Format": "text",
 } as const;
 
+export type PublicContextSuccess = {
+  text: string;
+  profile: PublicProfile;
+  format: CompileFormat;
+};
+
+export function requestWantsJson(
+  request: Request,
+  searchParams: URLSearchParams
+): boolean {
+  if (searchParams.get("format") === "json") return true;
+  const accept = request.headers.get("accept")?.toLowerCase() ?? "";
+  return accept.includes("application/json");
+}
+
 export async function buildPublicContextBody(
   username: string,
   searchParams: URLSearchParams
-): Promise<{ text: string } | { error: string; status: number }> {
+): Promise<PublicContextSuccess | { error: string; status: number }> {
   const normalized = username.toLowerCase();
   const formatParam = searchParams.get("format") ?? "universal";
   const format = VALID_FORMATS.includes(formatParam as CompileFormat)
@@ -72,7 +91,60 @@ export async function buildPublicContextBody(
     };
   }
 
-  return { text };
+  return { text, profile: publicProfile, format };
+}
+
+export type PublicContextJsonPayload = {
+  username: string;
+  name: string;
+  format: CompileFormat;
+  /** Full plain-text block for pasting into AI tools. */
+  context: string;
+  summary: string;
+  expertise: string[];
+  profileUrl: string;
+  contextUrl: string;
+  legacyContextUrl: string;
+  jsonUrl: string;
+};
+
+export function publicContextJsonResponse(
+  payload: PublicContextJsonPayload,
+  extraHeaders?: Record<string, string>
+) {
+  const apiUrl = `${getSiteUrl()}/api/public/profile/${payload.username}/context`;
+
+  return Response.json(payload, {
+    status: 200,
+    headers: {
+      "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400",
+      ...PUBLIC_CORS_HEADERS,
+      "X-Robots-Tag": "all",
+      "X-Meto-Profile-Format": "json",
+      Link: `<${payload.legacyContextUrl}>; rel="canonical", <${apiUrl}>; rel="alternate"; type="application/json"`,
+      "X-Meto-Context-Url": apiUrl,
+      ...extraHeaders,
+    },
+  });
+}
+
+export function buildPublicContextJsonPayload(
+  username: string,
+  result: PublicContextSuccess
+): PublicContextJsonPayload {
+  const doc = toAiProfileDocument(result.profile);
+  return {
+    username: doc.username,
+    name: doc.name,
+    format: result.format,
+    context: result.text,
+    summary: doc.summary,
+    expertise: doc.expertise,
+    profileUrl: doc.profileUrl,
+    contextUrl: doc.contextUrl,
+    legacyContextUrl: doc.legacyContextUrl,
+    jsonUrl: doc.jsonUrl,
+  };
 }
 
 export function publicContextResponse(
