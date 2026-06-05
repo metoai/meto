@@ -44,8 +44,16 @@ export type PlatformOption = {
 export const PLATFORM_OPTIONS: PlatformOption[] = [
   { id: "universal", label: "Any AI", hint: "Plain text, works everywhere" },
   { id: "claude", label: "Claude", hint: "XML-tagged blocks" },
-  { id: "chatgpt", label: "ChatGPT", hint: "Markdown with headers" },
-  { id: "gemini", label: "Gemini", hint: "Short labeled lines" },
+  {
+    id: "chatgpt",
+    label: "ChatGPT",
+    hint: "Copy the full prompt — ChatGPT needs “open this URL” wording",
+  },
+  {
+    id: "gemini",
+    label: "Gemini",
+    hint: "Uses your HTML profile page — best once Google has indexed it",
+  },
 ];
 
 export const SECTION_EMOJI: Record<string, string> = {

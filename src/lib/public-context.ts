@@ -43,6 +43,40 @@ export function requestWantsJson(
   return accept.includes("application/json");
 }
 
+function acceptQuality(accept: string, mime: string): number {
+  const escaped = mime.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = accept.match(new RegExp(`${escaped}(?:;q=([0-9.]+))?`));
+  if (!match) return -1;
+  return match[1] ? Number.parseFloat(match[1]) : 1;
+}
+
+/** True when the client is a browser-style fetcher that should get an HTML page. */
+export function requestWantsHtml(
+  request: Request,
+  searchParams: URLSearchParams
+): boolean {
+  if (searchParams.get("format") === "json") return false;
+  if (searchParams.get("view") === "html") return true;
+
+  const ua = request.headers.get("user-agent")?.toLowerCase() ?? "";
+  if (
+    ua.includes("chatgpt-user") ||
+    ua.includes("gptbot") ||
+    ua.includes("googlebot") ||
+    ua.includes("google-extended") ||
+    ua.includes("gemini")
+  ) {
+    return true;
+  }
+
+  const accept = request.headers.get("accept")?.toLowerCase() ?? "";
+  if (!accept.includes("text/html")) return false;
+
+  const htmlQ = acceptQuality(accept, "text/html");
+  const plainQ = acceptQuality(accept, "text/plain");
+  return htmlQ >= plainQ;
+}
+
 export async function buildPublicContextBody(
   username: string,
   searchParams: URLSearchParams
@@ -159,6 +193,53 @@ export function publicContextResponse(
       ...PUBLIC_FETCH_HEADERS,
       Link: `<${canonical}>; rel="canonical", <${apiUrl}>; rel="alternate"`,
       "X-Meto-Context-Url": apiUrl,
+      ...extraHeaders,
+    },
+  });
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function publicContextHtmlResponse(
+  username: string,
+  name: string,
+  text: string,
+  extraHeaders?: Record<string, string>
+) {
+  const profileUrl = `${getSiteUrl()}/profile/${username}`;
+  const contextUrl = getPublicContextUrl(username);
+  const description = text.trim().slice(0, 200);
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Context about ${escapeHtml(name)} — Meto</title>
+  <meta name="description" content="${escapeHtml(description)}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="${contextUrl}" />
+</head>
+<body>
+  <h1>Context about ${escapeHtml(name)}</h1>
+  <p>Machine-readable profile context from <a href="${profileUrl}">Meto</a>.</p>
+  <pre>${escapeHtml(text)}</pre>
+</body>
+</html>`;
+
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": PUBLIC_FETCH_HEADERS["Cache-Control"],
+      ...PUBLIC_CORS_HEADERS,
+      "X-Robots-Tag": "all",
+      "X-Meto-Profile-Format": "html",
+      Link: `<${contextUrl}>; rel="canonical"`,
       ...extraHeaders,
     },
   });

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MetoLogo } from "@/components/meto-logo";
 import type { PublicProfile } from "@/lib/public-profile";
+import { buildPlatformShareGuide } from "@/lib/platform-share";
 import {
-  getPublicContextApiUrl,
   getPublicContextUrl,
   getPublicProfileUrl,
 } from "@/lib/site";
@@ -13,8 +13,17 @@ type PublicProfileViewProps = {
 
 export function PublicProfileView({ profile }: PublicProfileViewProps) {
   const profileUrl = getPublicProfileUrl(profile.username);
-  const contextUrl = getPublicContextApiUrl(profile.username);
-  const legacyContextUrl = getPublicContextUrl(profile.username);
+  const contextUrl = getPublicContextUrl(profile.username);
+  const chatgptShare = buildPlatformShareGuide(
+    "chatgpt",
+    profile.username,
+    contextUrl
+  );
+  const geminiShare = buildPlatformShareGuide(
+    "gemini",
+    profile.username,
+    contextUrl
+  );
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
@@ -58,11 +67,8 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
                 AI-readable context
               </h2>
               <p className="mt-2 text-sm text-brand-text-muted">
-                Paste this into ChatGPT, Claude, or any AI tool — and tell it to{" "}
-                <span className="font-medium text-brand-text">
-                  open the link and read it
-                </span>{" "}
-                (plain text, no login):
+                Works in Claude, DeepSeek, Grok, Kimi, and most AIs — paste
+                this link:
               </p>
               <a
                 href={contextUrl}
@@ -70,20 +76,30 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
               >
                 {contextUrl}
               </a>
-              <p className="mt-3 rounded-brand-md border border-brand-border bg-[var(--card)] p-3 text-xs leading-relaxed text-brand-text-muted">
-                Tip: AI chat tools sometimes answer from memory instead of
-                fetching. Prompt them like this so they read the live page:
-                <span className="mt-1 block font-medium text-brand-text">
-                  &ldquo;Open this URL and use it as context about me:{" "}
-                  {contextUrl}&rdquo;
-                </span>
-              </p>
-              <p className="mt-2 text-xs text-brand-text-muted">
-                Alternate:{" "}
-                <a href={legacyContextUrl} className="underline">
-                  {legacyContextUrl}
-                </a>
-              </p>
+
+              <div className="mt-4 space-y-3">
+                <div className="rounded-brand-md border border-brand-border bg-[var(--card)] p-3">
+                  <p className="text-xs font-medium text-brand-text">
+                    ChatGPT
+                  </p>
+                  <p className="mt-1 text-xs text-brand-text-muted">
+                    {chatgptShare.hint}
+                  </p>
+                  <pre className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-brand-text">
+                    {chatgptShare.prompt}
+                  </pre>
+                </div>
+                <div className="rounded-brand-md border border-brand-border bg-[var(--card)] p-3">
+                  <p className="text-xs font-medium text-brand-text">Gemini</p>
+                  <p className="mt-1 text-xs text-brand-text-muted">
+                    {geminiShare.hint}
+                  </p>
+                  <pre className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-brand-text">
+                    {geminiShare.prompt}
+                  </pre>
+                </div>
+              </div>
+
               <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-[var(--card)] p-4 text-sm leading-relaxed text-brand-text-muted">
                 {profile.compiled}
               </pre>

@@ -10,6 +10,7 @@ import {
   type ContextPresetId,
   type ContextSectionInput,
 } from "@/lib/context-templates";
+import { buildPlatformShareGuide } from "@/lib/platform-share";
 import type { CompileFormat } from "@/lib/types";
 
 type UseContextShareOptions = {
@@ -112,6 +113,11 @@ export function useContextShare({
     selectedFormat,
   ]);
 
+  const platformShare = useMemo(() => {
+    if (!shareUrl || !username) return null;
+    return buildPlatformShareGuide(selectedFormat, username, shareUrl);
+  }, [shareUrl, username, selectedFormat]);
+
   const selectionCount = selectedItems.length;
   const wordCount = useMemo(() => {
     if (!contextText) return 0;
@@ -156,8 +162,8 @@ export function useContextShare({
   }
 
   async function copyLink() {
-    if (!shareUrl) return;
-    await navigator.clipboard.writeText(shareUrl);
+    if (!platformShare) return;
+    await navigator.clipboard.writeText(platformShare.clipboardText);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   }
@@ -170,6 +176,7 @@ export function useContextShare({
     selectedItems,
     contextText,
     shareUrl,
+    platformShare,
     selectionCount,
     linkSelectionCount,
     privateInSelectionCount,

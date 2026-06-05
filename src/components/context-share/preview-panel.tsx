@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { CompileFormat } from "@/lib/types";
+import type { PlatformShareGuide } from "@/lib/platform-share";
 import { WORKSPACE_COPY } from "@/lib/workspace-content";
 import { AiPlatformIcon } from "@/components/ui/ai-platform-icon";
 import { PLATFORM_OPTIONS } from "@/lib/context-share/config";
@@ -16,6 +17,7 @@ type PreviewPanelProps = {
   copiedContext: boolean;
   onCopyContext: () => void;
   shareUrl: string | null;
+  platformShare: PlatformShareGuide | null;
   copiedLink: boolean;
   onCopyLink: () => void;
   username: string;
@@ -32,6 +34,7 @@ export function PreviewPanel({
   copiedContext,
   onCopyContext,
   shareUrl,
+  platformShare,
   copiedLink,
   onCopyLink,
   username,
@@ -56,7 +59,7 @@ export function PreviewPanel({
   }
 
   if (workspaceLayout) {
-    const linkReady = Boolean(shareUrl);
+    const linkReady = Boolean(platformShare);
     const hasUsername = Boolean(username);
 
     return (
@@ -83,10 +86,18 @@ export function PreviewPanel({
               </div>
             ) : (
               <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--elevated)] px-3 py-2.5">
-                {linkReady ? (
-                  <p className="break-all font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
-                    {shareUrl}
-                  </p>
+                {linkReady && platformShare ? (
+                  <div className="space-y-2">
+                    <p className="break-all font-mono-brand text-xs leading-relaxed text-[var(--text-secondary)]">
+                      {platformShare.url}
+                    </p>
+                    {(selectedFormat === "chatgpt" ||
+                      selectedFormat === "gemini") && (
+                      <p className="whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] p-2.5 text-[11px] leading-relaxed text-[var(--text-secondary)]">
+                        {platformShare.prompt}
+                      </p>
+                    )}
+                  </div>
                 ) : (
                   <p className="text-xs leading-relaxed text-[var(--muted)]">
                     {WORKSPACE_COPY.noPublicInSelection}
@@ -114,7 +125,11 @@ export function PreviewPanel({
               copiedLink ? "bg-[#1D9E75]" : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
             }`}
           >
-            {copiedLink ? WORKSPACE_COPY.copiedLink : WORKSPACE_COPY.copyLink}
+            {copiedLink
+              ? WORKSPACE_COPY.copiedLink
+              : selectedFormat === "chatgpt" || selectedFormat === "gemini"
+                ? "Copy prompt"
+                : WORKSPACE_COPY.copyLink}
           </button>
 
           <div className="flex items-center justify-center gap-3 pt-0.5">
@@ -124,9 +139,9 @@ export function PreviewPanel({
             <span className="text-[10px] text-[var(--muted)]">works in any AI</span>
           </div>
 
-          {linkReady ? (
+          {linkReady && platformShare ? (
             <p className="text-center text-[11px] leading-relaxed text-[var(--muted)]">
-              {WORKSPACE_COPY.linkHint}
+              {platformShare.hint}
             </p>
           ) : null}
         </div>

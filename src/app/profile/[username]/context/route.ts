@@ -2,8 +2,10 @@ import {
   buildPublicContextBody,
   buildPublicContextJsonPayload,
   PUBLIC_CORS_HEADERS,
+  publicContextHtmlResponse,
   publicContextJsonResponse,
   publicContextResponse,
+  requestWantsHtml,
   requestWantsJson,
 } from "@/lib/public-context";
 
@@ -31,6 +33,14 @@ export async function GET(request: Request, { params }: RouteContext) {
     if (requestWantsJson(request, searchParams)) {
       return publicContextJsonResponse(
         buildPublicContextJsonPayload(params.username, result)
+      );
+    }
+
+    if (requestWantsHtml(request, searchParams)) {
+      return publicContextHtmlResponse(
+        params.username,
+        result.profile.name,
+        result.text
       );
     }
 
