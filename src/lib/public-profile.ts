@@ -231,6 +231,28 @@ export function buildPersonJsonLd(profile: PublicProfile, siteUrl: string) {
   return jsonLd;
 }
 
+/**
+ * Usernames of profiles with public content, for the sitemap.
+ * RLS restricts the anon client to profiles that have at least one public section,
+ * so this returns exactly the publicly indexable set.
+ */
+export async function fetchPublicProfileUsernames(): Promise<string[]> {
+  const supabase = createPublicClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("username")
+    .not("username", "is", null);
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data
+    .map((row) => row.username?.trim().toLowerCase())
+    .filter((username): username is string => Boolean(username));
+}
+
 export async function fetchPublicProfileByUsername(
   username: string
 ): Promise<PublicProfile | null> {

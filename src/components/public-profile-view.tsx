@@ -58,8 +58,11 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
                 AI-readable context
               </h2>
               <p className="mt-2 text-sm text-brand-text-muted">
-                Share this link with ChatGPT, Claude, or other AI tools (plain
-                text, no login):
+                Paste this into ChatGPT, Claude, or any AI tool — and tell it to{" "}
+                <span className="font-medium text-brand-text">
+                  open the link and read it
+                </span>{" "}
+                (plain text, no login):
               </p>
               <a
                 href={contextUrl}
@@ -67,6 +70,14 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
               >
                 {contextUrl}
               </a>
+              <p className="mt-3 rounded-brand-md border border-brand-border bg-[var(--card)] p-3 text-xs leading-relaxed text-brand-text-muted">
+                Tip: AI chat tools sometimes answer from memory instead of
+                fetching. Prompt them like this so they read the live page:
+                <span className="mt-1 block font-medium text-brand-text">
+                  &ldquo;Open this URL and use it as context about me:{" "}
+                  {contextUrl}&rdquo;
+                </span>
+              </p>
               <p className="mt-2 text-xs text-brand-text-muted">
                 Alternate:{" "}
                 <a href={legacyContextUrl} className="underline">

@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     description:
       "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.",
   },
+  other: {
+    "msvalidate.01": "955F87C2C946B8129E485C03A43CBFD6",
+  },
 };
 
 export default function RootLayout({
