@@ -12,7 +12,6 @@ import {
   getPublicProfileUrl,
   getSiteUrl,
 } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 type PageProps = {
   params: { username: string };
@@ -23,11 +22,7 @@ export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const supabase = createClient();
-  const publicProfile = await fetchPublicProfileByUsername(
-    supabase,
-    params.username
-  );
+  const publicProfile = await fetchPublicProfileByUsername(params.username);
 
   if (!publicProfile) {
     return { title: "Profile not found — Meto" };
@@ -71,11 +66,7 @@ export async function generateMetadata({
 }
 
 export default async function PublicProfilePage({ params }: PageProps) {
-  const supabase = createClient();
-  const publicProfile = await fetchPublicProfileByUsername(
-    supabase,
-    params.username
-  );
+  const publicProfile = await fetchPublicProfileByUsername(params.username);
 
   if (!publicProfile) {
     notFound();

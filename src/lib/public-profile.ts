@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { compileLocally } from "@/lib/compile-local";
 import {
   getAiProfileJsonUrl,
@@ -7,7 +6,7 @@ import {
   getPublicProfileUrl,
   getSiteUrl,
 } from "@/lib/site";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export { getSiteUrl };
 
@@ -233,10 +232,9 @@ export function buildPersonJsonLd(profile: PublicProfile, siteUrl: string) {
 }
 
 export async function fetchPublicProfileByUsername(
-  _supabase: SupabaseClient,
   username: string
 ): Promise<PublicProfile | null> {
-  const supabase = createAdminClient();
+  const supabase = createPublicClient();
   const normalized = username.toLowerCase();
 
   const { data: profile } = await supabase

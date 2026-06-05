@@ -6,7 +6,6 @@ import {
   type PublicProfile,
 } from "@/lib/public-profile";
 import { getPublicContextUrl, getSiteUrl } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 const VALID_FORMATS: CompileFormat[] = [
   "universal",
@@ -54,8 +53,7 @@ export async function buildPublicContextBody(
     ? (formatParam as CompileFormat)
     : "universal";
 
-  const supabase = createClient();
-  const publicProfile = await fetchPublicProfileByUsername(supabase, normalized);
+  const publicProfile = await fetchPublicProfileByUsername(normalized);
 
   if (!publicProfile) {
     return { error: "Profile not found.", status: 404 };

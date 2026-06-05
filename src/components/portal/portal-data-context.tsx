@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { ContextScoreResult } from "@/lib/context-score";
 import type { Entitlements } from "@/lib/entitlements";
+import type { PortalBootstrapData } from "@/lib/portal-bootstrap";
 import { getProfileCompletion } from "@/lib/profile-utils";
 import type { ContextSection, UserProfile } from "@/lib/types";
 
@@ -36,34 +37,76 @@ type PortalDataContextValue = {
 
 const PortalDataContext = createContext<PortalDataContextValue | null>(null);
 
-export function PortalDataProvider({ children }: { children: React.ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [email, setEmail] = useState("");
-  const [sections, setSections] = useState<ContextSection[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [dataVersion, setDataVersion] = useState(0);
-  const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
-  const [entitlementsLoaded, setEntitlementsLoaded] = useState(false);
-  const [issueCount, setIssueCount] = useState(0);
-  const [contextScore, setContextScore] = useState<ContextScoreResult | null>(
-    null
+function applyBootstrapState(
+  data: PortalBootstrapData,
+  setters: {
+    setProfile: (profile: UserProfile | null) => void;
+    setEmail: (email: string) => void;
+    setSections: (sections: ContextSection[]) => void;
+    setEntitlements: (entitlements: Entitlements | null) => void;
+    setIssueCount: (count: number) => void;
+    setContextScore: (score: ContextScoreResult | null) => void;
+    setContextScoreStale: (stale: boolean) => void;
+  }
+) {
+  setters.setProfile(data.profile ?? null);
+  setters.setEmail(data.email ?? "");
+  setters.setSections(data.sections ?? []);
+  setters.setEntitlements(data.entitlements ?? null);
+  setters.setIssueCount(data.issueCount ?? 0);
+  setters.setContextScore(data.contextScore ?? null);
+  setters.setContextScoreStale(Boolean(data.contextScoreStale));
+}
+
+export function PortalDataProvider({
+  children,
+  initialData,
+}: {
+  children: React.ReactNode;
+  initialData?: PortalBootstrapData;
+}) {
+  const [profile, setProfile] = useState<UserProfile | null>(
+    initialData?.profile ?? null
   );
-  const [contextScoreStale, setContextScoreStale] = useState(false);
+  const [email, setEmail] = useState(initialData?.email ?? "");
+  const [sections, setSections] = useState<ContextSection[]>(
+    initialData?.sections ?? []
+  );
+  const [loaded, setLoaded] = useState(Boolean(initialData));
+  const [loading, setLoading] = useState(!initialData);
+  const [dataVersion, setDataVersion] = useState(0);
+  const [entitlements, setEntitlements] = useState<Entitlements | null>(
+    initialData?.entitlements ?? null
+  );
+  const [entitlementsLoaded, setEntitlementsLoaded] = useState(
+    Boolean(initialData)
+  );
+  const [issueCount, setIssueCount] = useState(initialData?.issueCount ?? 0);
+  const [contextScore, setContextScore] = useState<ContextScoreResult | null>(
+    initialData?.contextScore ?? null
+  );
+  const [contextScoreStale, setContextScoreStale] = useState(
+    Boolean(initialData?.contextScoreStale)
+  );
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetch("/api/profile/bootstrap");
-      const data = await res.json();
+      const data = (await res.json()) as PortalBootstrapData & {
+        error?: string;
+      };
 
       if (res.ok) {
-        setProfile(data.profile ?? null);
-        setEmail(data.email ?? "");
-        setSections(data.sections ?? []);
-        setEntitlements(data.entitlements ?? null);
-        setIssueCount(data.issueCount ?? 0);
-        setContextScore(data.contextScore ?? null);
-        setContextScoreStale(Boolean(data.contextScoreStale));
+        applyBootstrapState(data, {
+          setProfile,
+          setEmail,
+          setSections,
+          setEntitlements,
+          setIssueCount,
+          setContextScore,
+          setContextScoreStale,
+        });
       }
 
       setEntitlementsLoaded(true);
@@ -77,8 +120,9 @@ export function PortalDataProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   useEffect(() => {
+    if (initialData) return;
     void refresh();
-  }, [refresh]);
+  }, [initialData, refresh]);
 
   const displayName =
     profile?.display_name?.trim() || profile?.username || "there";

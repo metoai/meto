@@ -18,10 +18,18 @@ import {
 import type { CompileFormat } from "@/lib/types";
 
 export function DashboardPageClient() {
-  const { loaded, profile, sections, displayName, dataVersion, setProfile } =
-    usePortalData();
-  const { score, loading, celebrating, scoreDelta } =
+  const {
+    loaded,
+    profile,
+    sections,
+    displayName,
+    dataVersion,
+    setProfile,
+    contextScore,
+  } = usePortalData();
+  const { score: fetchedScore, celebrating, scoreDelta } =
     useContextScore(dataVersion);
+  const score = fetchedScore ?? contextScore;
 
   const contextSections = useMemo(
     () =>
@@ -79,7 +87,7 @@ export function DashboardPageClient() {
             subtitle="How well AI understands you — and what to improve next."
           />
 
-          {loaded && !loading && score ? (
+          {loaded && score ? (
             <div className="space-y-4">
               <SignalHero
                 score={score}

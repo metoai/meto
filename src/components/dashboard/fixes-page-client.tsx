@@ -160,9 +160,10 @@ function GapCard({
 
 export function FixesPageClient() {
   const router = useRouter();
-  const { loaded, dataVersion } = usePortalData();
-  const { score, loading, celebrating, scoreDelta } =
+  const { loaded, dataVersion, contextScore } = usePortalData();
+  const { score: fetchedScore, celebrating, scoreDelta } =
     useContextScore(dataVersion);
+  const score = fetchedScore ?? contextScore;
 
   useEffect(() => {
     if (!window.location.search.includes("celebrate=1")) return;
@@ -205,7 +206,7 @@ export function FixesPageClient() {
             subtitle="Close the gaps AI still gets wrong — ordered by impact on your context score."
           />
 
-          {loaded && !loading && score ? (
+          {loaded && score ? (
             <div className="space-y-6">
               {celebrating ? (
                 <div

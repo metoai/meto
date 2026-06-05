@@ -102,6 +102,30 @@ export function useContextScore(
     if (loadInFlightRef.current) return;
 
     const forceCelebrate = readCelebratePending();
+    const portalScore = portal?.contextScore ?? null;
+
+    if (
+      portalScore &&
+      !forceCelebrate &&
+      !autoAnalyze &&
+      lastLoadedVersionRef.current !== dataVersion
+    ) {
+      setScore(portalScore);
+      syncIssueCount(portalScore);
+      lastLoadedVersionRef.current = dataVersion;
+      setLoading(false);
+      return;
+    }
+
+    if (
+      portalScore &&
+      !forceCelebrate &&
+      !autoAnalyze &&
+      lastLoadedVersionRef.current === dataVersion
+    ) {
+      setLoading(false);
+      return;
+    }
 
     loadInFlightRef.current = true;
     setError(null);
@@ -148,7 +172,7 @@ export function useContextScore(
       setLoading(false);
       setAnalyzing(false);
     }
-  }, [autoAnalyze, dataVersion, runAnalyze, syncIssueCount]);
+  }, [autoAnalyze, dataVersion, portal?.contextScore, runAnalyze, syncIssueCount]);
 
   useEffect(() => {
     void loadScore();

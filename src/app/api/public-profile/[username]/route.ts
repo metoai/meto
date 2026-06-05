@@ -3,7 +3,6 @@ import {
   fetchPublicProfileByUsername,
   toPublicProfileApiResponse,
 } from "@/lib/public-profile";
-import { createClient } from "@/lib/supabase/server";
 
 type RouteContext = {
   params: { username: string };
@@ -13,11 +12,7 @@ export const revalidate = 60;
 
 export async function GET(_request: Request, { params }: RouteContext) {
   try {
-    const supabase = createClient();
-    const publicProfile = await fetchPublicProfileByUsername(
-      supabase,
-      params.username
-    );
+    const publicProfile = await fetchPublicProfileByUsername(params.username);
 
     if (!publicProfile) {
       return NextResponse.json({ error: "Profile not found." }, { status: 404 });

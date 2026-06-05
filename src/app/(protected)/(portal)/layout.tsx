@@ -1,16 +1,27 @@
-"use client";
+import { redirect } from "next/navigation";
+import { PortalGroupLayoutClient } from "@/components/portal/portal-group-layout-client";
+import { loadPortalBootstrap } from "@/lib/portal-bootstrap";
+import { createClient } from "@/lib/supabase/server";
 
-import { PortalDataProvider } from "@/components/portal/portal-data-context";
-import { PortalShell } from "@/components/portal/portal-layout";
-
-export default function PortalGroupLayout({
+export default async function PortalGroupLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const initialData = await loadPortalBootstrap(user.id, user.email ?? "");
+
   return (
-    <PortalDataProvider>
-      <PortalShell>{children}</PortalShell>
-    </PortalDataProvider>
+    <PortalGroupLayoutClient initialData={initialData}>
+      {children}
+    </PortalGroupLayoutClient>
   );
 }
