@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { buildProfileShareClipboard } from "@/lib/profile-share";
 import {
-  getPublicContextApiUrl,
   getPublicProfileUrl,
   normalizeUsername,
   validateUsername,
@@ -18,7 +18,6 @@ export function ProfileLiveBanner({
   onUsernameClaimed,
 }: ProfileLiveBannerProps) {
   const [copied, setCopied] = useState(false);
-  const [copiedAi, setCopiedAi] = useState(false);
   const [claimOpen, setClaimOpen] = useState(false);
   const [claimValue, setClaimValue] = useState("");
   const [claimSaving, setClaimSaving] = useState(false);
@@ -28,16 +27,11 @@ export function ProfileLiveBanner({
 
   async function handleCopy() {
     if (!username) return;
-    await navigator.clipboard.writeText(getPublicProfileUrl(username));
+    await navigator.clipboard.writeText(
+      buildProfileShareClipboard(getPublicProfileUrl(username))
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handleCopyForAi() {
-    if (!username) return;
-    await navigator.clipboard.writeText(getPublicContextApiUrl(username));
-    setCopiedAi(true);
-    setTimeout(() => setCopiedAi(false), 2000);
   }
 
   async function handleClaim(e: React.FormEvent) {
@@ -106,16 +100,9 @@ export function ProfileLiveBanner({
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="cursor-pointer text-xs text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
-            >
-              {copied ? "Copied ✓" : "Copy link"}
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleCopyForAi()}
               className="cursor-pointer text-xs font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
             >
-              {copiedAi ? "Copied ✓" : "Copy for AI"}
+              {copied ? "Copied ✓" : "Copy link"}
             </button>
             <a
               href={`/profile/${username}`}

@@ -1,11 +1,9 @@
 "use client";
 
-import { Link2 } from "lucide-react";
 import { useState } from "react";
-import { DashboardCard } from "@/components/dashboard/ui/dashboard-card";
+import { buildProfileShareClipboard } from "@/lib/profile-share";
 import type { ContextSection } from "@/lib/types";
 import {
-  getPublicContextApiUrl,
   getPublicProfileUrl,
   normalizeUsername,
   validateUsername,
@@ -25,7 +23,6 @@ export function ProfilePageHero({
   onUsernameClaimed,
 }: ProfilePageHeroProps) {
   const [copied, setCopied] = useState(false);
-  const [copiedAi, setCopiedAi] = useState(false);
   const [claimValue, setClaimValue] = useState("");
   const [claimSaving, setClaimSaving] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
@@ -39,16 +36,11 @@ export function ProfilePageHero({
 
   async function handleCopy() {
     if (!username) return;
-    await navigator.clipboard.writeText(getPublicProfileUrl(username));
+    await navigator.clipboard.writeText(
+      buildProfileShareClipboard(getPublicProfileUrl(username))
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handleCopyForAi() {
-    if (!username) return;
-    await navigator.clipboard.writeText(getPublicContextApiUrl(username));
-    setCopiedAi(true);
-    setTimeout(() => setCopiedAi(false), 2000);
   }
 
   async function handleClaim(e: React.FormEvent) {
@@ -81,65 +73,54 @@ export function ProfilePageHero({
   }
 
   return (
-    <DashboardCard hover={false} className="mb-5 !p-4 md:!p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mb-5 rounded-lg border border-[var(--border)] px-4 py-3.5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span
-              className={`h-2 w-2 shrink-0 rounded-full ${
-                claimed
-                  ? "bg-[var(--primary)] shadow-[0_0_0_3px_var(--primary-light)]"
-                  : "bg-[#D4D4D0]"
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                claimed ? "bg-[var(--primary)]" : "bg-[var(--border)]"
               }`}
               aria-hidden
             />
-            <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--muted)]">
               {claimed ? "Profile live" : "Go live"}
             </p>
           </div>
 
           {claimed ? (
             <>
-              <p className="mt-2 text-sm font-medium text-[var(--text)]">
+              <p className="mt-1.5 text-[13px] font-medium text-[var(--text)]">
                 metoai.site/profile/{username}
               </p>
-              <p className="mt-1 text-xs text-[var(--muted)]">
+              <p className="mt-1 text-[11px] text-[var(--muted)]">
                 {publicCount} public · {privateCount} private · {completion}%
                 complete
               </p>
             </>
           ) : (
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+            <p className="mt-1.5 text-[13px] text-[var(--text-secondary)]">
               Claim a username to share your public profile.
             </p>
           )}
         </div>
 
         {claimed ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <div className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={() => void handleCopy()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-colors hover:border-[var(--border-hover)] hover:text-[var(--text)]"
+              className="rounded-lg bg-[var(--primary)] px-3.5 py-2 text-[12px] font-medium text-white transition-colors hover:bg-[var(--primary-hover)]"
             >
-              <Link2 className="h-3.5 w-3.5" strokeWidth={1.75} />
-              {copied ? "Copied!" : "Copy link"}
-            </button>
-            <button
-              type="button"
-              onClick={() => void handleCopyForAi()}
-              title="Plain-text URL that ChatGPT and Claude can read"
-              className="rounded-lg border border-[var(--accent-border)] bg-[var(--primary-light)] px-3 py-2 text-xs font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary-light)]"
-            >
-              {copiedAi ? "Copied!" : "Copy for AI"}
+              {copied ? "Copied ✓" : "Copy link"}
             </button>
             <a
               href={`/profile/${username}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg bg-[var(--primary-light)] px-3 py-2 text-xs font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary-light)]"
+              className="text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
             >
-              View profile →
+              View →
             </a>
           </div>
         ) : null}
@@ -150,27 +131,27 @@ export function ProfilePageHero({
           onSubmit={handleClaim}
           className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-3"
         >
-          <span className="text-xs text-[var(--muted)]">metoai.site/profile/</span>
+          <span className="text-[11px] text-[var(--muted)]">metoai.site/profile/</span>
           <input
             value={claimValue}
             onChange={(e) => setClaimValue(e.target.value)}
             placeholder="yourname"
-            className="min-w-[120px] flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text)] outline-none focus:border-[var(--border-hover)]"
+            className="min-w-[120px] flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[13px] text-[var(--text)] outline-none focus:border-[var(--border-hover)]"
           />
           <button
             type="submit"
             disabled={claimSaving}
-            className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
           >
             {claimSaving ? "Claiming…" : "Claim"}
           </button>
           {claimError ? (
-            <p className="w-full text-xs text-[#F87171]" role="alert">
+            <p className="w-full text-[11px] text-[#F87171]" role="alert">
               {claimError}
             </p>
           ) : null}
         </form>
       ) : null}
-    </DashboardCard>
+    </div>
   );
 }

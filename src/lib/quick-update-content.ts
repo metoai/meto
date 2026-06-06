@@ -24,8 +24,8 @@ export const QUICK_UPDATE_COPY = {
   navLabel: "Update",
   pageTitle: "Update profile",
   greetingSubtitle: "Tell Meto what changed — it updates your whole profile.",
-  placeholderEmpty: "What's new with you?",
-  placeholderActive: "Add a detail, or clarify anything…",
+  placeholderEmpty: "What's new with you? Or attach a resume, CV, or notes.",
+  placeholderActive: "Add a detail, clarify, or attach another file…",
   saveReadyTitle: "Ready to save?",
   saveReadyHint:
     "Meto reviewed all your sections — including goals and what you're building.",

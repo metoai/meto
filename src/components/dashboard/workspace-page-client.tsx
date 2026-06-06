@@ -60,27 +60,28 @@ export function WorkspacePageClient() {
   return (
     <>
       <SuccessToast />
-      <PortalPageShell>
-        <WorkspaceBanner />
+      <PortalPageShell flush>
+        <div className="flex min-h-0 flex-1 flex-col gap-4">
+          <WorkspaceBanner />
 
-        {loaded ? (
-          <>
-            <div
-              id="workspace"
-              className="scroll-mt-16 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-3 md:p-4"
-            >
-              <ContextComposer
-                sections={contextSections}
-                username={profile?.username ?? ""}
-                displayName={displayName}
-                siteUrl={siteUrl}
-                onToggleSectionPublic={(id) => void handleTogglePublic(id)}
-                embedded
-                workspaceLayout
-              />
-            </div>
+          {loaded ? (
+            <>
+              <div
+                id="workspace"
+                className="flex min-h-0 flex-1 flex-col scroll-mt-16"
+              >
+                <ContextComposer
+                  sections={contextSections}
+                  username={profile?.username ?? ""}
+                  displayName={displayName}
+                  siteUrl={siteUrl}
+                  onToggleSectionPublic={(id) => void handleTogglePublic(id)}
+                  embedded
+                  workspaceLayout
+                />
+              </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-[var(--muted)]">
+              <div className="shrink-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center text-xs text-[var(--muted)]">
               <span>
                 {publicCount} public section{publicCount === 1 ? "" : "s"} on
                 your profile
@@ -93,11 +94,12 @@ export function WorkspacePageClient() {
                   ? ` — last ${formatLastCopied(copyStats.lastCopiedAt)}`
                   : ""}
               </span>
-            </div>
-          </>
-        ) : (
-          <div className="skeleton h-64 rounded-xl" />
-        )}
+              </div>
+            </>
+          ) : (
+            <div className="skeleton min-h-[50vh] flex-1 rounded-xl" />
+          )}
+        </div>
       </PortalPageShell>
     </>
   );

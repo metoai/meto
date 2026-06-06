@@ -8,16 +8,11 @@ import {
 import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { upgradeRequiredResponse } from "@/lib/billing-errors";
 import { getEntitlementsForUser } from "@/lib/billing-profile";
-import type { CompileFormat } from "@/lib/types";
+import { COMPILE_FORMATS, type CompileFormat } from "@/lib/types";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
-const VALID_FORMATS: CompileFormat[] = [
-  "universal",
-  "claude",
-  "chatgpt",
-  "gemini",
-];
+const VALID_FORMATS = COMPILE_FORMATS;
 
 async function saveCompiled(
   userId: string,

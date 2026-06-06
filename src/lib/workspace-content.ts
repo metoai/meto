@@ -12,7 +12,7 @@ export const WORKSPACE_COPY = {
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
   linkHint:
-    "Paste into ChatGPT, Claude, Gemini, or any AI. It fetches your public sections only.",
+    "Paste your Meto link into ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen, or any AI.",
   copyTextInstead: "Copy full text instead",
   copiedContext: "Copied ✓",
   copyContext: "Copy context",
@@ -24,7 +24,7 @@ export const WORKSPACE_COPY = {
   noUsername: "Claim a username in Settings to get your personal link.",
   noPublicInSelection:
     "No public sections selected. Toggle sections public in Profile, or copy as text below.",
-  sectionPickerLabel: "Sections to include",
+  sectionPickerLabel: "Sections",
   sectionPickerHint:
     "Tap a section to include it · toggle public/private here or in Profile",
 } as const;

@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { MetoLogo } from "@/components/meto-logo";
 import type { PublicProfile } from "@/lib/public-profile";
-import { buildPlatformShareGuide } from "@/lib/platform-share";
-import {
-  getPublicContextUrl,
-  getPublicProfileUrl,
-} from "@/lib/site";
+import { AiPartnerLogos } from "@/components/ui/ai-partner-logos";
+import { buildProfileShareClipboard } from "@/lib/profile-share";
+import { getPublicContextUrl, getPublicProfileUrl } from "@/lib/site";
 
 type PublicProfileViewProps = {
   profile: PublicProfile;
@@ -14,16 +12,7 @@ type PublicProfileViewProps = {
 export function PublicProfileView({ profile }: PublicProfileViewProps) {
   const profileUrl = getPublicProfileUrl(profile.username);
   const contextUrl = getPublicContextUrl(profile.username);
-  const chatgptShare = buildPlatformShareGuide(
-    "chatgpt",
-    profile.username,
-    contextUrl
-  );
-  const geminiShare = buildPlatformShareGuide(
-    "gemini",
-    profile.username,
-    contextUrl
-  );
+  const shareClipboard = buildProfileShareClipboard(profileUrl);
 
   return (
     <div className="min-h-screen bg-brand-background text-brand-text">
@@ -64,42 +53,21 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
               className="rounded-brand-lg border border-brand-border bg-brand-surface p-5"
             >
               <h2 className="text-sm font-medium text-brand-text">
-                AI-readable context
+                Your Meto link
               </h2>
               <p className="mt-2 text-sm text-brand-text-muted">
-                Works in Claude, DeepSeek, Grok, Kimi, and most AIs — paste
-                this link:
+                Paste this into any AI chat:
               </p>
-              <a
-                href={contextUrl}
-                className="mt-2 block break-all text-sm font-medium text-brand-primary hover:underline"
-              >
-                {contextUrl}
-              </a>
-
-              <div className="mt-4 space-y-3">
-                <div className="rounded-brand-md border border-brand-border bg-[var(--card)] p-3">
-                  <p className="text-xs font-medium text-brand-text">
-                    ChatGPT
-                  </p>
-                  <p className="mt-1 text-xs text-brand-text-muted">
-                    {chatgptShare.hint}
-                  </p>
-                  <pre className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-brand-text">
-                    {chatgptShare.prompt}
-                  </pre>
-                </div>
-                <div className="rounded-brand-md border border-brand-border bg-[var(--card)] p-3">
-                  <p className="text-xs font-medium text-brand-text">Gemini</p>
-                  <p className="mt-1 text-xs text-brand-text-muted">
-                    {geminiShare.hint}
-                  </p>
-                  <pre className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-brand-text">
-                    {geminiShare.prompt}
-                  </pre>
-                </div>
+              <pre className="mt-3 whitespace-pre-wrap rounded-brand-md border border-brand-border bg-[var(--card)] p-4 text-sm leading-relaxed text-brand-text">
+                {shareClipboard}
+              </pre>
+              <div className="mt-4">
+                <AiPartnerLogos
+                  size={18}
+                  align="start"
+                  iconClassName=""
+                />
               </div>
-
               <pre className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap rounded-brand-md border border-brand-border bg-[var(--card)] p-4 text-sm leading-relaxed text-brand-text-muted">
                 {profile.compiled}
               </pre>
@@ -108,7 +76,6 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
         )}
       </main>
 
-      {/* Full compiled text in HTML for crawlers and AI browsers. */}
       {profile.hasPublicContent ? (
         <div className="sr-only" aria-hidden="true">
           <a href={profileUrl}>{profileUrl}</a>

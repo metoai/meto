@@ -11,7 +11,26 @@ export type UserProfile = {
   onboarding_ai_used?: OnboardingAiUsed;
 };
 
-export type CompileFormat = "universal" | "claude" | "chatgpt" | "gemini";
+export type CompileFormat =
+  | "universal"
+  | "claude"
+  | "chatgpt"
+  | "gemini"
+  | "deepseek"
+  | "grok"
+  | "kimi"
+  | "qwen";
+
+export const COMPILE_FORMATS: CompileFormat[] = [
+  "universal",
+  "claude",
+  "chatgpt",
+  "gemini",
+  "deepseek",
+  "grok",
+  "kimi",
+  "qwen",
+];
 
 export type ContextSection = {
   id: string;

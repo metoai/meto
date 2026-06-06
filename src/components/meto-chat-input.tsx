@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUp } from "lucide-react";
-import { FormEvent, KeyboardEvent, Ref } from "react";
+import { FormEvent, KeyboardEvent, type ReactNode, Ref } from "react";
 
 type MetoChatInputProps = {
   input: string;
@@ -14,6 +14,8 @@ type MetoChatInputProps = {
   large?: boolean;
   footerHint?: string;
   showFooter?: boolean;
+  canSend?: boolean;
+  attachmentsSlot?: ReactNode;
 };
 
 export function MetoChatInput({
@@ -27,8 +29,11 @@ export function MetoChatInput({
   large = false,
   footerHint = "Meto updates every section that needs it",
   showFooter = true,
+  canSend: canSendOverride,
+  attachmentsSlot,
 }: MetoChatInputProps) {
-  const canSend = Boolean(input.trim()) && !disabled;
+  const canSend =
+    (canSendOverride ?? Boolean(input.trim())) && !disabled;
 
   return (
     <form
@@ -61,6 +66,11 @@ export function MetoChatInput({
           <ArrowUp className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
+      {attachmentsSlot ? (
+        <div className="border-t border-black/[0.04] bg-[var(--bg)] px-4 py-2.5">
+          {attachmentsSlot}
+        </div>
+      ) : null}
       {showFooter ? (
         <div className="flex items-center justify-between border-t border-black/[0.04] bg-[var(--bg)] px-4 py-2">
           <span className="text-[11px] text-[var(--muted)]">{footerHint}</span>

@@ -26,6 +26,7 @@ export function compileLocally(
       ].join("\n");
 
     case "gemini":
+    case "qwen":
       return [
         "A bit about me before we dive in:",
         "",
@@ -33,6 +34,31 @@ export function compileLocally(
         "",
         "Keep this in mind as we work together.",
       ].join("\n");
+
+    case "deepseek":
+      return [
+        "Here's context about the person you're helping.",
+        "",
+        ...sections.map((s) => `**${s.title}**\n${s.content}`),
+        "",
+        "Read this before responding.",
+      ].join("\n\n");
+
+    case "grok":
+      return [
+        "Context about me:",
+        "",
+        ...sections.map((s) => `- **${s.title}**: ${s.content}`),
+      ].join("\n");
+
+    case "kimi":
+      return [
+        "## Context about me",
+        "",
+        ...sections.map((s) => `**${s.title}:** ${s.content}`),
+        "",
+        "Please use this context to personalize your responses.",
+      ].join("\n\n");
 
     case "universal":
     default:

@@ -1,3 +1,7 @@
+import {
+  customSectionTitleFromKey,
+  isCustomSectionUpdateKey,
+} from "@/lib/document-import";
 import { PROFILE_SECTIONS, SECTION_KEYS } from "@/lib/meto-prompts";
 
 /** Friendly display titles (sentence case) */
@@ -25,6 +29,9 @@ export const SECTION_PLACEHOLDERS: Record<string, string> = {
 };
 
 export function friendlySectionTitle(sectionType: string, fallbackTitle?: string) {
+  if (isCustomSectionUpdateKey(sectionType)) {
+    return customSectionTitleFromKey(sectionType);
+  }
   return (
     SECTION_FRIENDLY_TITLES[sectionType] ??
     fallbackTitle ??

@@ -6,8 +6,6 @@ import { IntentGrid } from "@/components/context-share/intent-grid";
 import { PlatformTabs } from "@/components/context-share/platform-tabs";
 import { PreviewPanel } from "@/components/context-share/preview-panel";
 import { SectionPicker } from "@/components/context-share/section-picker";
-import { WORKSPACE_COPY } from "@/lib/workspace-content";
-
 export type ContextComposerProps = {
   sections: ContextSectionInput[];
   username: string;
@@ -56,7 +54,15 @@ export function ContextComposer({
   const showHeader = !embedded;
 
   return (
-    <div className={embedded ? "w-full" : "rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6"}>
+    <div
+      className={
+        embedded
+          ? workspaceLayout
+            ? "flex min-h-0 w-full flex-1 flex-col"
+            : "w-full"
+          : "rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6"
+      }
+    >
       {showHeader ? (
         <header className="mb-6">
           <h2 className="page-title">Share with AI</h2>
@@ -68,13 +74,13 @@ export function ContextComposer({
       ) : null}
 
       <div
-        className={`grid gap-5 md:gap-6 ${
+        className={`${
           workspaceLayout
-            ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
-            : "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
+            ? "grid min-h-0 flex-1 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
+            : "grid gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
         }`}
       >
-        <div className="space-y-5">
+        <div className={workspaceLayout ? "min-w-0 space-y-4" : "space-y-5"}>
           {sections.length === 0 ? (
             <p className="rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
               Add sections in Your profile first — or head to Update and tell
@@ -97,15 +103,12 @@ export function ContextComposer({
                 onTogglePublic={onToggleSectionPublic}
                 username={username}
                 workspaceLayout={workspaceLayout}
-                label={
-                  workspaceLayout
-                    ? WORKSPACE_COPY.sectionPickerLabel
-                    : undefined
-                }
+                label={workspaceLayout ? "Sections" : undefined}
               />
               <PlatformTabs
                 selectedFormat={share.selectedFormat}
                 onSelect={share.setSelectedFormat}
+                workspaceLayout={workspaceLayout}
               />
             </>
           )}
@@ -114,7 +117,7 @@ export function ContextComposer({
         <div
           className={`${
             workspaceLayout
-              ? "md:sticky md:top-0 md:self-start"
+              ? "flex min-h-0 flex-col md:min-h-[min(100%,100%)]"
               : "lg:sticky lg:top-4 lg:self-start"
           }`}
         >
@@ -128,7 +131,7 @@ export function ContextComposer({
             copiedContext={share.copiedContext}
             onCopyContext={share.copyContext}
             shareUrl={share.shareUrl}
-            platformShare={share.platformShare}
+            shareClipboardText={share.shareClipboardText}
             copiedLink={share.copiedLink}
             onCopyLink={share.copyLink}
             username={username}

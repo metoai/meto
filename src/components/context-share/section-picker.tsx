@@ -1,9 +1,9 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { PublicToggle } from "@/components/dashboard/public-toggle";
 import type { ContextSectionInput } from "@/lib/context-templates";
 import { friendlySectionTitle } from "@/lib/section-display";
-import { WORKSPACE_COPY } from "@/lib/workspace-content";
 
 type SectionPickerProps = {
   sections: ContextSectionInput[];
@@ -35,28 +35,28 @@ export function SectionPicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <div>
-          <p className="text-xs font-medium text-[var(--muted)]">{label}</p>
-          {workspaceLayout ? (
-            <p className="mt-0.5 text-[10px] leading-relaxed text-[var(--muted)]">
-              {WORKSPACE_COPY.sectionPickerHint}
-            </p>
-          ) : null}
-        </div>
+        <p
+          className={
+            workspaceLayout
+              ? "text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]"
+              : "text-xs font-medium text-[var(--muted)]"
+          }
+        >
+          {label}
+        </p>
         <button
           type="button"
           onClick={allSelected ? onClearAll : onSelectAll}
           className="text-[11px] text-[var(--muted)] transition-colors duration-150 hover:text-[var(--text)]"
         >
-          {allSelected ? "Clear all" : "Select all"}
+          {allSelected ? "Clear" : "All"}
         </button>
       </div>
 
       {workspaceLayout && onTogglePublic ? (
-        <div className="space-y-1.5">
+        <div className="divide-y divide-[var(--border-subtle)] rounded-lg border border-[var(--border)]">
           {sections.map((section) => {
             const active = selectedSections.includes(section.section_type);
-            const isPublic = isSectionPublic(section.section_type);
             const title = friendlySectionTitle(
               section.section_type,
               section.title
@@ -66,27 +66,46 @@ export function SectionPicker({
             return (
               <div
                 key={section.section_type}
-                className={`flex items-center gap-2 rounded-xl border px-3 py-2 transition-all duration-150 ${
-                  active
-                    ? "border-[var(--accent-border)] bg-[var(--primary-light)]"
-                    : "border-[var(--border)] bg-[var(--card)]"
-                } ${empty ? "opacity-60" : ""}`}
+                className={`flex items-center gap-2 px-2.5 py-1.5 ${
+                  empty ? "opacity-50" : ""
+                }`}
               >
                 <button
                   type="button"
                   onClick={() => onToggle(section.section_type)}
-                  className={`min-w-0 flex-1 text-left text-[13px] transition-colors ${
-                    active ? "font-medium text-[var(--primary)]" : "text-[var(--text-secondary)]"
+                  className={`flex min-w-0 flex-1 items-start gap-2 text-left text-[13px] transition-colors ${
+                    active
+                      ? "text-[var(--text)]"
+                      : "text-[var(--text-secondary)]"
                   }`}
                 >
-                  {title}
+                  <span
+                    className={`mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-colors ${
+                      active
+                        ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                        : "border-[var(--border)] bg-transparent"
+                    }`}
+                    aria-hidden
+                  >
+                    {active ? (
+                      <Check className="h-2 w-2" strokeWidth={3} />
+                    ) : null}
+                  </span>
+                  <span className="min-w-0 flex-1 whitespace-normal leading-snug">
+                    {title}
+                  </span>
                 </button>
                 {section.id ? (
+                  <div className="shrink-0">
                   <PublicToggle
-                    isPublic={section.is_public ?? isPublic}
+                    variant="compact"
+                    isPublic={
+                      section.is_public ?? isSectionPublic(section.section_type)
+                    }
                     username={username}
                     onChange={() => onTogglePublic(section.id!)}
                   />
+                  </div>
                 ) : null}
               </div>
             );

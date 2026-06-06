@@ -1,5 +1,6 @@
 import { Sparkles } from "lucide-react";
 import type { CompileFormat } from "@/lib/types";
+import { AI_BRAND_ICON_CLASS } from "@/lib/ai-brand-icon";
 import { aiPlatformIconUrl, aiPlatformLabel } from "@/lib/ai-platform-icons";
 
 type AiPlatformIconProps = {
@@ -34,7 +35,7 @@ export function AiPlatformIcon({
       alt={label}
       width={size}
       height={size}
-      className={`shrink-0 object-contain ${className}`}
+      className={`${AI_BRAND_ICON_CLASS} shrink-0 object-contain ${className}`}
       loading="lazy"
       decoding="async"
     />

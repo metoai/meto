@@ -14,6 +14,8 @@ import {
 } from "@/components/landing/landing-chat-ui";
 import { MetoChatAvatar, MetoMark } from "@/components/meto-mark";
 import { MetoChatInput } from "@/components/meto-chat-input";
+import { UpdateChatAttachments } from "@/components/update-chat-attachments";
+import type { QuickUpdateMessage } from "@/hooks/use-quick-update-chat";
 import { friendlySectionTitle } from "@/lib/section-display";
 import {
   QUICK_UPDATE_COPY,
@@ -44,6 +46,32 @@ function getGreeting() {
   return "Good evening";
 }
 
+function formatAttachmentSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function UserMessageContent({ message }: { message: QuickUpdateMessage }) {
+  return (
+    <div className="max-w-[85%] rounded-2xl bg-[var(--surface)] px-4 py-3 text-[15px] leading-[1.65] text-[var(--text)]">
+      {message.attachments?.length ? (
+        <ul className="mb-2 space-y-1">
+          {message.attachments.map((file) => (
+            <li
+              key={file.name}
+              className="text-xs text-[var(--text-secondary)]"
+            >
+              📎 {file.name} · {formatAttachmentSize(file.size)}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p className="whitespace-pre-wrap">{message.content}</p>
+    </div>
+  );
+}
+
 export function QuickUpdateChat({
   variant = "card",
   displayName,
@@ -71,6 +99,21 @@ export function QuickUpdateChat({
   const inputPlaceholder = chat.chatStarted
     ? copy.placeholderActive
     : copy.placeholderEmpty;
+
+  const inputBusy = chat.typing || chat.applying || chat.ingesting;
+  const canSend = Boolean(chat.input.trim() || chat.attachments.length);
+
+  const attachmentsPanel = (
+    <UpdateChatAttachments
+      attachments={chat.attachments}
+      onAdd={chat.addAttachments}
+      onRemove={chat.removeAttachment}
+      importMode={chat.importMode}
+      onImportModeChange={chat.setImportMode}
+      disabled={inputBusy}
+      compact={isCompact}
+    />
+  );
 
   if (isFull) {
     return (
@@ -139,9 +182,16 @@ export function QuickUpdateChat({
                     onKeyDown={handleKeyDown}
                     onSubmit={handleSubmit}
                     textareaRef={chat.textareaRef}
-                    disabled={chat.typing || chat.applying}
+                    disabled={inputBusy}
+                    canSend={canSend}
                     placeholder="What's changed? e.g. 'Started a new job at Stripe'"
                     large
+                    attachmentsSlot={attachmentsPanel}
+                    footerHint={
+                      chat.ingesting
+                        ? "Reading your files…"
+                        : "Meto updates every section that needs it"
+                    }
                   />
 
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -239,9 +289,7 @@ export function QuickUpdateChat({
                         </div>
                       </>
                     ) : (
-                      <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl bg-[var(--surface)] px-4 py-3 text-[15px] leading-[1.65] text-[var(--text)]">
-                        {message.content}
-                      </div>
+                      <UserMessageContent message={message} />
                     )}
                   </div>
                 ))}
@@ -330,8 +378,15 @@ export function QuickUpdateChat({
                 onKeyDown={handleKeyDown}
                 onSubmit={handleSubmit}
                 textareaRef={chat.textareaRef}
-                disabled={chat.typing || chat.applying || chat.gapFixBootstrapping}
+                disabled={inputBusy || chat.gapFixBootstrapping}
+                canSend={canSend}
                 placeholder={inputPlaceholder}
+                attachmentsSlot={attachmentsPanel}
+                footerHint={
+                  chat.ingesting
+                    ? "Reading your files…"
+                    : "Meto updates every section that needs it"
+                }
               />
 
               <button
@@ -393,9 +448,21 @@ export function QuickUpdateChat({
                   </p>
                 ) : null}
                 {message.role === "user" ? (
-                  <p className="inline-block max-w-[90%] whitespace-pre-wrap rounded-2xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm leading-relaxed text-[var(--text)]">
-                    {message.content}
-                  </p>
+                  <div className="inline-block max-w-[90%] rounded-2xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm leading-relaxed text-[var(--text)]">
+                    {message.attachments?.length ? (
+                      <ul className="mb-1.5 space-y-0.5">
+                        {message.attachments.map((file) => (
+                          <li
+                            key={file.name}
+                            className="text-[11px] text-[var(--text-secondary)]"
+                          >
+                            📎 {file.name}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  </div>
                 ) : (
                   <>
                     {message.content ? (
@@ -444,9 +511,10 @@ export function QuickUpdateChat({
           onKeyDown={handleKeyDown}
           rows={2}
           placeholder={copy.placeholderEmpty}
-          disabled={chat.typing || chat.applying}
+          disabled={inputBusy}
           className="w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-relaxed text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--border-hover)]"
         />
+        <div className="mt-2">{attachmentsPanel}</div>
         <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
           {chat.pendingUpdates ? (
             <button
@@ -460,7 +528,7 @@ export function QuickUpdateChat({
           ) : null}
           <button
             type="submit"
-            disabled={!chat.input.trim() || chat.typing || chat.applying}
+            disabled={!canSend || inputBusy}
             className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)] text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-40"
             aria-label="Send"
           >

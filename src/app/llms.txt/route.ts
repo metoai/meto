@@ -9,28 +9,19 @@ export async function GET() {
 
 > Public profiles for AI tools. No login required. Use the **www** host (canonical on Vercel).
 
-## Best URL by AI tool
-
-ChatGPT (paste the full prompt — it often refuses bare /api/ links):
-
-\`\`\`
-Open this URL with your browsing tool, read the full page, and use it as context about me. Do not guess from memory or training data.
-${base}/profile/{username}/context?format=chatgpt
-\`\`\`
-
-Gemini (use the HTML profile page — indexed by Google):
+## Share link (works in ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen, and more)
 
 \`\`\`
 ${base}/profile/{username}
 \`\`\`
 
-Claude, DeepSeek, Grok, Kimi (plain text context URL):
+## Other formats
+
+Plain text context:
 
 \`\`\`
 ${base}/profile/{username}/context
 \`\`\`
-
-## Machine-readable formats
 
 JSON:
 
@@ -46,14 +37,13 @@ ${base}/.well-known/ai-profile/{username}.json
 
 ## Query parameters
 
-- format=json | universal | claude | chatgpt | gemini
+- format=json | universal | claude | chatgpt | gemini | deepseek | grok | kimi | qwen
 - view=html (force HTML page for browser-style fetchers)
 - preset=all | coding | writing | career | basics
 - sections=comma-separated section types
 
 ## Notes
 
-- Prefer /profile/ URLs over /api/public/ for ChatGPT and Gemini
 - Canonical host: www.metoai.site (apex metoai.site redirects)
 - CORS: Access-Control-Allow-Origin: *
 - No cookies or authentication

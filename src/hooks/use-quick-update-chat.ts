@@ -24,11 +24,19 @@ import {
   recordUpdate,
   type UpdateHistoryEntry,
 } from "@/lib/update-history";
+import type { DocumentImportMode } from "@/lib/document-import";
+import {
+  DOCUMENT_IMPORT,
+  isAllowedDocumentFilename,
+  type IngestedDocument,
+} from "@/lib/document-import";
+import type { PendingAttachment } from "@/components/update-chat-attachments";
 
 export type QuickUpdateMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
+  attachments?: { name: string; size: number }[];
 };
 
 export { QUICK_UPDATE_SUGGESTIONS } from "@/lib/quick-update-content";
@@ -84,7 +92,11 @@ export function useQuickUpdateChat(
     preview: Record<string, string>;
   } | null>(null);
   const [updateHistory, setUpdateHistory] = useState<UpdateHistoryEntry[]>([]);
+  const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
+  const [importMode, setImportMode] = useState<DocumentImportMode>("supplement");
+  const [ingesting, setIngesting] = useState(false);
   const lastUserMessageRef = useRef("");
+  const lastDocumentsRef = useRef<IngestedDocument[] | null>(null);
 
   useEffect(() => {
     setUpdateHistory(readUpdateHistory());
@@ -216,14 +228,91 @@ export function useQuickUpdateChat(
     void initGapFixChat(gapFix);
   }, [gapFix, gapFixPaused, initGapFixChat]);
 
+  function addAttachments(files: FileList | File[]) {
+    const incoming = Array.from(files);
+    setError(null);
+
+    const valid = incoming.filter((file) => {
+      if (!isAllowedDocumentFilename(file.name)) {
+        setError(
+          `${file.name}: unsupported type. Use PDF, DOCX, TXT, MD, CSV, or RTF.`
+        );
+        return false;
+      }
+      if (file.size > DOCUMENT_IMPORT.MAX_FILE_BYTES) {
+        setError(
+          `${file.name} is too large (max ${DOCUMENT_IMPORT.MAX_FILE_BYTES / (1024 * 1024)} MB).`
+        );
+        return false;
+      }
+      return true;
+    });
+
+    if (!valid.length) return;
+
+    setAttachments((prev) => {
+      const remaining = DOCUMENT_IMPORT.MAX_FILES - prev.length;
+      if (remaining <= 0) {
+        setError(`You can attach up to ${DOCUMENT_IMPORT.MAX_FILES} files.`);
+        return prev;
+      }
+      const next = valid.slice(0, remaining).map((file) => ({
+        id: createId(),
+        file,
+      }));
+      if (valid.length > remaining) {
+        setError(`Only ${DOCUMENT_IMPORT.MAX_FILES} files can be attached at once.`);
+      }
+      return [...prev, ...next];
+    });
+  }
+
+  function removeAttachment(id: string) {
+    setAttachments((prev) => prev.filter((item) => item.id !== id));
+  }
+
+  async function ingestAttachments(
+    pending: PendingAttachment[]
+  ): Promise<IngestedDocument[]> {
+    const formData = new FormData();
+    for (const item of pending) {
+      formData.append("files", item.file);
+    }
+
+    const res = await fetch("/api/profile/update-chat/ingest", {
+      method: "POST",
+      body: formData,
+    });
+    const data = (await res.json()) as {
+      error?: string;
+      documents?: IngestedDocument[];
+    };
+
+    if (!res.ok) {
+      throw new Error(data.error ?? "Failed to read attached files.");
+    }
+
+    return data.documents ?? [];
+  }
+
   async function sendMessage(content: string) {
     const trimmed = content.trim();
-    if (!trimmed || typing) return;
+    const hasAttachments = attachments.length > 0;
+    if ((!trimmed && !hasAttachments) || typing || ingesting) return;
+
+    const pendingFiles = [...attachments];
+    const displayContent =
+      trimmed ||
+      `Review my attached file${pendingFiles.length === 1 ? "" : "s"} and update my profile.`;
 
     const userMessage: QuickUpdateMessage = {
       id: createId(),
       role: "user",
-      content: trimmed,
+      content: displayContent,
+      attachments: pendingFiles.map((item) => ({
+        name: item.file.name,
+        size: item.file.size,
+      })),
     };
     const nextMessages = [...messages, userMessage];
     const assistantId = createId();
@@ -236,9 +325,20 @@ export function useQuickUpdateChat(
     setError(null);
     setPendingUpdates(null);
     setApplied(false);
-    lastUserMessageRef.current = trimmed;
+    lastUserMessageRef.current = displayContent;
+    setAttachments([]);
 
     try {
+      let documents: IngestedDocument[] | undefined;
+      if (pendingFiles.length) {
+        setIngesting(true);
+        documents = await ingestAttachments(pendingFiles);
+        lastDocumentsRef.current = documents;
+        setIngesting(false);
+      } else {
+        lastDocumentsRef.current = null;
+      }
+
       const { data } = await postChatStream(
         "/api/profile/update-chat",
         {
@@ -246,6 +346,16 @@ export function useQuickUpdateChat(
             role,
             content: text,
           })),
+          ...(documents?.length
+            ? {
+                documents: documents.map((doc) => ({
+                  filename: doc.filename,
+                  facts: doc.facts,
+                  truncated: doc.truncated,
+                })),
+                importMode,
+              }
+            : {}),
           ...(gapFix ? { gapFix: gapFixPayload(gapFix) } : {}),
         },
         {
@@ -282,8 +392,10 @@ export function useQuickUpdateChat(
       }
     } catch (err) {
       setMessages(nextMessages);
+      setAttachments(pendingFiles);
       setError(handleStreamError(err, "Something went wrong."));
     } finally {
+      setIngesting(false);
       setTyping(false);
     }
   }
@@ -427,6 +539,9 @@ export function useQuickUpdateChat(
   function resetChat() {
     setMessages([]);
     setInput("");
+    setAttachments([]);
+    setImportMode("supplement");
+    lastDocumentsRef.current = null;
     setError(null);
     setPendingUpdates(null);
     setApplied(false);
@@ -445,7 +560,13 @@ export function useQuickUpdateChat(
     input,
     setInput,
     typing,
+    ingesting,
     applying,
+    attachments,
+    importMode,
+    setImportMode,
+    addAttachments,
+    removeAttachment,
     error,
     pendingUpdates,
     applied,

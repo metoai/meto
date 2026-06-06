@@ -1,8 +1,33 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  customSectionTitleFromKey,
+  isCustomSectionUpdateKey,
+} from "@/lib/document-import";
+import {
   findSectionRowForUpdate,
   PROFILE_SECTIONS,
+  SECTION_KEYS,
 } from "@/lib/meto-prompts";
+import { getEntitlementsForUser } from "@/lib/billing-profile";
+
+function isDbCustomSection(sectionType: string) {
+  return (
+    sectionType === "custom" ||
+    !SECTION_KEYS.includes(sectionType as (typeof SECTION_KEYS)[number])
+  );
+}
+
+function findCustomSectionByTitle(
+  title: string,
+  rows: { id: string; section_type: string; title: string }[]
+) {
+  const normalized = title.trim().toLowerCase();
+  return rows.find(
+    (row) =>
+      isDbCustomSection(row.section_type) &&
+      row.title?.trim().toLowerCase() === normalized
+  );
+}
 
 export async function mergeProfileSectionUpdates(
   supabase: SupabaseClient,
@@ -25,8 +50,58 @@ export async function mergeProfileSectionUpdates(
   let nextOrder =
     rows.reduce((max, row) => Math.max(max, row.display_order ?? 0), -1) + 1;
 
+  const entitlements = await getEntitlementsForUser(userId);
+  let customCount = rows.filter((row) => isDbCustomSection(row.section_type))
+    .length;
+
   for (const [sectionType, content] of entries) {
     const trimmed = content.trim();
+
+    if (isCustomSectionUpdateKey(sectionType)) {
+      const title = customSectionTitleFromKey(sectionType);
+      if (!title) continue;
+
+      const row = findCustomSectionByTitle(title, rows);
+
+      if (row) {
+        const { error } = await supabase
+          .from("context_sections")
+          .update({
+            content: trimmed,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", row.id)
+          .eq("user_id", userId);
+
+        if (error) throw error;
+      } else {
+        if (customCount >= entitlements.maxCustomSections) {
+          throw new Error(
+            `Custom section limit reached — could not create "${title}". Upgrade or remove a custom section.`
+          );
+        }
+
+        const { data: inserted, error } = await supabase
+          .from("context_sections")
+          .insert({
+            user_id: userId,
+            section_type: "custom",
+            title,
+            content: trimmed,
+            display_order: nextOrder++,
+          })
+          .select("id, section_type, title, display_order")
+          .single();
+
+        if (error) throw error;
+        if (inserted) {
+          rows.push(inserted);
+          customCount += 1;
+        }
+      }
+      continue;
+    }
+
     const row = findSectionRowForUpdate(sectionType, rows);
 
     if (row) {
@@ -44,15 +119,20 @@ export async function mergeProfileSectionUpdates(
       const meta = PROFILE_SECTIONS.find((s) => s.type === sectionType);
       if (!meta) continue;
 
-      const { error } = await supabase.from("context_sections").insert({
-        user_id: userId,
-        section_type: sectionType,
-        title: meta.title,
-        content: trimmed,
-        display_order: nextOrder++,
-      });
+      const { data: inserted, error } = await supabase
+        .from("context_sections")
+        .insert({
+          user_id: userId,
+          section_type: sectionType,
+          title: meta.title,
+          content: trimmed,
+          display_order: nextOrder++,
+        })
+        .select("id, section_type, title, display_order")
+        .single();
 
       if (error) throw error;
+      if (inserted) rows.push(inserted);
     }
   }
 }

@@ -14,10 +14,44 @@ export function IntentGrid({
   onSelect,
   workspaceLayout = false,
 }: IntentGridProps) {
+  if (workspaceLayout) {
+    return (
+      <div className="space-y-2">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+          Scenario
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {INTENT_PRESETS.map((preset) => {
+            const active = selectedPreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => onSelect(preset.id)}
+                className={`shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors duration-150 ${
+                  active
+                    ? "border-[var(--primary)] text-[var(--text)]"
+                    : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text)]"
+                }`}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+          {selectedPreset === "custom" ? (
+            <span className="shrink-0 rounded-lg border border-dashed border-[var(--primary)] px-3 py-1.5 text-[12px] font-medium text-[var(--primary)]">
+              Custom
+            </span>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={workspaceLayout ? "space-y-2" : "space-y-2"}>
+    <div className="space-y-2">
       <p className="text-xs font-medium text-[var(--muted)]">
-        {workspaceLayout ? "Start with a scenario" : "Start from a scenario"}
+        Start from a scenario
       </p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
         {INTENT_PRESETS.map((preset) => {

@@ -7,6 +7,9 @@ import {
 import { createSseStream, sseResponse } from "@/lib/sse";
 import { appendStreamFormat, splitStreamOutput } from "@/lib/stream-prompt";
 import { streamPlainTextToSse } from "@/lib/stream-chat-server";
+import type { DocumentImportMode } from "@/lib/document-import";
+import { isCustomSectionUpdateKey } from "@/lib/document-import";
+import { SECTION_KEYS } from "@/lib/meto-prompts";
 import {
   buildCurrentSectionsMap,
   buildGapFixAllUpdatePrompt,
@@ -16,6 +19,7 @@ import {
   buildUpdateApplyReviewPrompt,
   buildUpdateContextPrompt,
   getMissingRippleSections,
+  type DocumentUpdateContext,
 } from "@/lib/meto-prompts";
 import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
@@ -36,10 +40,18 @@ type SectionRow = {
   content: string;
 };
 
+const PRESET_SECTION_KEYS = new Set<string>(SECTION_KEYS);
+
+function isAllowedUpdateKey(key: string): boolean {
+  if (PRESET_SECTION_KEYS.has(key)) return true;
+  return isCustomSectionUpdateKey(key) && key.length > "custom:".length;
+}
+
 function normalizeUpdates(raw: unknown): Record<string, string> {
   if (!raw || typeof raw !== "object") return {};
   const updates: Record<string, string> = {};
   for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!isAllowedUpdateKey(key)) continue;
     if (typeof value === "string" && value.trim()) {
       updates[key] = value.trim();
     }
@@ -190,6 +202,8 @@ export async function POST(request: Request) {
         focusIndex?: number;
       };
       gapFixInit?: boolean;
+      documents?: DocumentUpdateContext[];
+      importMode?: DocumentImportMode;
     };
 
     const useStream = Boolean(body.stream) && !body.apply;
@@ -377,7 +391,11 @@ export async function POST(request: Request) {
         : buildUpdateContextPrompt(
             currentSections,
             conversation,
-            customSections
+            customSections,
+            {
+              documents: body.documents,
+              importMode: body.importMode ?? "supplement",
+            }
           );
 
     const temperature = useGapFixPrompt || useGapFixAll ? 0.25 : 0.5;

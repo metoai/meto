@@ -235,6 +235,47 @@ body {
     box-shadow: var(--landing-chat-focus-shadow) !important;
   }
 
+  /** Third-party AI marks — readable in light and dark themes */
+  .ai-brand-icon {
+    opacity: 0.58;
+    transition: opacity 150ms ease-in-out, filter 150ms ease-in-out;
+  }
+
+  .ai-brand-icon:hover {
+    opacity: 0.82;
+  }
+
+  .dark .ai-brand-icon {
+    opacity: 0.82;
+    filter: brightness(0) invert(1);
+  }
+
+  .dark .ai-brand-icon:hover {
+    opacity: 0.95;
+  }
+
+  .dark [aria-selected="true"] .ai-brand-icon {
+    opacity: 0.95;
+  }
+
+  .ai-brand-icon--landing {
+    filter: grayscale(1);
+    opacity: 0.42;
+  }
+
+  .ai-brand-icon--landing:hover {
+    opacity: 0.68;
+  }
+
+  .dark .ai-brand-icon--landing {
+    opacity: 0.55;
+    filter: grayscale(1) brightness(0) invert(1);
+  }
+
+  .dark .ai-brand-icon--landing:hover {
+    opacity: 0.78;
+  }
+
   .scrollbar-hidden {
     scrollbar-width: none;
     -ms-overflow-style: none;

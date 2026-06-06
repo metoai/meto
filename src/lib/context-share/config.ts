@@ -39,21 +39,19 @@ export type PlatformOption = {
   id: CompileFormat;
   label: string;
   hint: string;
+  /** Hide label under icon — use when the logo is wordmark-only or cramped. */
+  iconOnly?: boolean;
 };
 
 export const PLATFORM_OPTIONS: PlatformOption[] = [
-  { id: "universal", label: "Any AI", hint: "Plain text, works everywhere" },
+  { id: "universal", label: "Any AI", hint: "Plain text — works everywhere" },
+  { id: "chatgpt", label: "ChatGPT", hint: "Markdown with headers" },
+  { id: "gemini", label: "Gemini", hint: "Short labeled lines" },
   { id: "claude", label: "Claude", hint: "XML-tagged blocks" },
-  {
-    id: "chatgpt",
-    label: "ChatGPT",
-    hint: "Copy the full prompt — ChatGPT needs “open this URL” wording",
-  },
-  {
-    id: "gemini",
-    label: "Gemini",
-    hint: "Uses your HTML profile page — best once Google has indexed it",
-  },
+  { id: "deepseek", label: "DeepSeek", hint: "Structured markdown" },
+  { id: "grok", label: "Grok", hint: "Bullet-point summary" },
+  { id: "kimi", label: "Moonshot", hint: "Clean section blocks" },
+  { id: "qwen", label: "Qwen", hint: "Labeled key-value lines" },
 ];
 
 export const SECTION_EMOJI: Record<string, string> = {

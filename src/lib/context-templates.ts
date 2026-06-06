@@ -111,7 +111,8 @@ export function buildContextText(
         .join("\n");
       return `<context profile="${username}" source="meto">\n${body}\n</context>`;
     }
-    case "chatgpt": {
+    case "chatgpt":
+    case "deepseek": {
       const body = selected
         .map((section) => `**${section.title}**\n${section.content.trim()}`)
         .join("\n\n");
@@ -123,9 +124,22 @@ export function buildContextText(
       ].join("\n");
     }
     case "gemini":
+    case "qwen":
       return selected
         .map((section) => `${section.title}: ${section.content.trim()}`)
         .join("\n\n");
+    case "grok": {
+      const body = selected
+        .map((section) => `- **${section.title}**: ${section.content.trim()}`)
+        .join("\n");
+      return ["Context about me:", "", body].join("\n");
+    }
+    case "kimi": {
+      const body = selected
+        .map((section) => `${section.title}\n${section.content.trim()}`)
+        .join("\n\n");
+      return `Context about ${displayName} — via Meto\n\n${body}`;
+    }
     default:
       return "";
   }
@@ -209,4 +223,8 @@ export const FORMAT_USER_LABELS: Record<CompileFormat, string> = {
   claude: "Claude",
   chatgpt: "ChatGPT",
   gemini: "Gemini",
+  deepseek: "DeepSeek",
+  grok: "Grok",
+  kimi: "Moonshot",
+  qwen: "Qwen",
 };

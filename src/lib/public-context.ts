@@ -1,5 +1,5 @@
 import { buildContextText, resolveSelectedSectionTypes } from "@/lib/context-templates";
-import type { CompileFormat } from "@/lib/types";
+import { COMPILE_FORMATS, type CompileFormat } from "@/lib/types";
 import {
   fetchPublicProfileByUsername,
   toAiProfileDocument,
@@ -7,12 +7,7 @@ import {
 } from "@/lib/public-profile";
 import { getPublicContextUrl, getSiteUrl } from "@/lib/site";
 
-const VALID_FORMATS: CompileFormat[] = [
-  "universal",
-  "claude",
-  "chatgpt",
-  "gemini",
-];
+const VALID_FORMATS = COMPILE_FORMATS;
 
 export const PUBLIC_CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
