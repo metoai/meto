@@ -652,6 +652,19 @@ Rules:
 
 Compiled profile: ${compiled}`,
 
+  perplexity: (compiled) => `Take this compiled profile and format it as a context block optimized for Perplexity.
+
+Perplexity reads fetched pages and cited sources. Use clear markdown headings and factual statements.
+
+Rules:
+- Open with: "# Background context"
+- Use ## headings per section
+- Write in first person, factual tone — easy to quote as a source
+- End with: "Use this as persistent background context for follow-up answers in this thread."
+- Total length: 180–260 words
+
+Compiled profile: ${compiled}`,
+
   deepseek: (compiled) => `Take this compiled profile and format it as a context block optimized for DeepSeek.
 
 Rules:

@@ -196,7 +196,9 @@ export function PreviewPanel({
           >
             {copiedLink
               ? "Copied ✓"
-              : selectedFormat === "chatgpt" || selectedFormat === "gemini"
+              : selectedFormat === "chatgpt" ||
+                  selectedFormat === "gemini" ||
+                  selectedFormat === "perplexity"
                 ? "Copy prompt instead"
                 : "Copy link instead"}
           </button>

@@ -9,7 +9,7 @@ export async function GET() {
 
 > Public profiles for AI tools. No login required. Use the **www** host (canonical on Vercel).
 
-## Share link (works in ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen, and more)
+## Share link (works in ChatGPT, Gemini, Perplexity, Claude, DeepSeek, Grok, Kimi, Qwen, and more)
 
 \`\`\`
 ${base}/profile/{username}
@@ -37,7 +37,7 @@ ${base}/.well-known/ai-profile/{username}.json
 
 ## Query parameters
 
-- format=json | universal | claude | chatgpt | gemini | deepseek | grok | kimi | qwen
+- format=json | universal | claude | chatgpt | gemini | perplexity | deepseek | grok | kimi | qwen
 - view=html (force HTML page for browser-style fetchers)
 - preset=all | coding | writing | career | basics
 - sections=comma-separated section types

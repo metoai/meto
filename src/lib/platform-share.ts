@@ -1,5 +1,5 @@
 import type { CompileFormat } from "@/lib/types";
-import { getPublicProfileUrl } from "@/lib/site";
+import { getPublicProfileUrl, getSiteUrl } from "@/lib/site";
 
 export type PlatformShareGuide = {
   url: string;
@@ -8,6 +8,17 @@ export type PlatformShareGuide = {
   /** What gets copied when the user hits "Copy link". */
   clipboardText: string;
 };
+
+function withShareParams(
+  contextShareUrl: string,
+  params: Record<string, string>
+): string {
+  const url = new URL(contextShareUrl, getSiteUrl());
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+  return url.toString();
+}
 
 export function buildPlatformShareGuide(
   format: CompileFormat,
@@ -18,9 +29,7 @@ export function buildPlatformShareGuide(
 
   switch (format) {
     case "chatgpt": {
-      const url = contextShareUrl.includes("format=")
-        ? contextShareUrl
-        : `${contextShareUrl}${contextShareUrl.includes("?") ? "&" : "?"}format=chatgpt`;
+      const url = withShareParams(contextShareUrl, { format: "chatgpt" });
       const prompt = [
         "Open this URL with your browsing tool, read the full page, and use it as context about me.",
         "Do not guess from memory or training data.",
@@ -43,6 +52,23 @@ export function buildPlatformShareGuide(
         url: profileUrl,
         prompt,
         hint: "Gemini works best with the HTML profile page (indexed by Google), not API URLs.",
+        clipboardText: prompt,
+      };
+    }
+    case "perplexity": {
+      const url = withShareParams(contextShareUrl, {
+        format: "universal",
+        view: "html",
+      });
+      const prompt = [
+        "Read the full page at this URL and use it as background context about me for this entire conversation.",
+        "Fetch the page directly — do not answer from web search, snippets, or memory alone.",
+        url,
+      ].join("\n");
+      return {
+        url,
+        prompt,
+        hint: "Perplexity needs the full prompt plus the context URL — not your profile page alone.",
         clipboardText: prompt,
       };
     }

@@ -59,7 +59,10 @@ export function requestWantsHtml(
     ua.includes("gptbot") ||
     ua.includes("googlebot") ||
     ua.includes("google-extended") ||
-    ua.includes("gemini")
+    ua.includes("gemini") ||
+    ua.includes("perplexity-user") ||
+    ua.includes("perplexitybot") ||
+    ua.includes("perplexity")
   ) {
     return true;
   }

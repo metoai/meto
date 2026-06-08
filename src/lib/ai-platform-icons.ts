@@ -22,6 +22,10 @@ export const AI_PLATFORM_ICONS: Record<CompileFormat, AiPlatformIconConfig> = {
     url: `${ICONIFY}/simple-icons/googlegemini.svg`,
     label: "Gemini",
   },
+  perplexity: {
+    url: `${ICONIFY}/simple-icons/perplexity.svg`,
+    label: "Perplexity",
+  },
   deepseek: {
     url: `${ICONIFY}/simple-icons/deepseek.svg`,
     label: "DeepSeek",
@@ -43,6 +47,7 @@ export const AI_PLATFORM_ICONS: Record<CompileFormat, AiPlatformIconConfig> = {
 export type AiPartnerId =
   | "chatgpt"
   | "gemini"
+  | "perplexity"
   | "claude"
   | "deepseek"
   | "grok"
@@ -68,6 +73,11 @@ export const SUPPORTED_AI_PARTNERS: AiPartner[] = [
     id: "gemini",
     label: "Gemini",
     url: AI_PLATFORM_ICONS.gemini.url,
+  },
+  {
+    id: "perplexity",
+    label: "Perplexity",
+    url: AI_PLATFORM_ICONS.perplexity.url,
   },
   {
     id: "claude",
