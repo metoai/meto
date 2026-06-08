@@ -311,15 +311,9 @@ export function finalizeContextScore(
 
 
 export function applyResolvedSections(
-
   result: ContextScoreResult,
-
   resolvedSections: string[],
-
-  sections: SectionInput[],
-
-  previousScore?: number | null
-
+  sections: SectionInput[]
 ): { result: ContextScoreResult; resolvedSections: string[] } {
 
   const byType = new Map(sections.map((s) => [s.section_type, s]));
@@ -755,27 +749,14 @@ export async function analyzeContextScore(
 
 
 export function finalizeScoreAfterFixes(
-
   result: ContextScoreResult,
-
   resolvedSections: string[],
-
-  sections: SectionInput[],
-
-  previousScore?: number | null
-
+  sections: SectionInput[]
 ): ContextScoreResult {
-
   const applied = applyResolvedSections(
-
     result,
-
     resolvedSections,
-
-    sections,
-
-    previousScore
-
+    sections
   );
 
   return applied.result;

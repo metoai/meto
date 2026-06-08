@@ -91,8 +91,7 @@ export async function loadPortalBootstrap(
         section_type: section.section_type,
         title: section.title,
         content: section.content,
-      })),
-      scoreResult.data.score
+      }))
     );
 
     contextScore = applied.result;

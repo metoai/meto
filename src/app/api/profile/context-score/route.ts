@@ -80,8 +80,7 @@ function formatSavedScore(
       analyzed_at: scoreRow.analyzed_at,
     },
     resolved_sections,
-    sections,
-    scoreRow.score
+    sections
   );
   return applied.result;
 }
@@ -183,7 +182,6 @@ export async function POST(request: Request) {
 
     const saved = await getSavedScore(user.id);
     let resolvedSections = saved?.resolved_sections ?? [];
-    const previousScore = saved?.score ?? null;
 
     if (fixedSections.length) {
       resolvedSections = Array.from(
@@ -206,8 +204,7 @@ export async function POST(request: Request) {
     const applied = applyResolvedSections(
       result,
       resolvedSections,
-      sections,
-      fixedSections.length ? previousScore : previousScore
+      sections
     );
 
     await saveScore(user.id, applied.result, applied.resolvedSections);
