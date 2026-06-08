@@ -47,7 +47,6 @@ export const PLATFORM_OPTIONS: PlatformOption[] = [
   { id: "universal", label: "Any AI", hint: "Plain text — works everywhere" },
   { id: "chatgpt", label: "ChatGPT", hint: "Markdown with headers" },
   { id: "gemini", label: "Gemini", hint: "Short labeled lines" },
-  { id: "perplexity", label: "Perplexity", hint: "Plain-text API URL + prompt" },
   { id: "claude", label: "Claude", hint: "XML-tagged blocks" },
   { id: "deepseek", label: "DeepSeek", hint: "Structured markdown" },
   { id: "grok", label: "Grok", hint: "Bullet-point summary" },
@@ -78,7 +77,7 @@ export function platformLabel(format: CompileFormat) {
 }
 
 export function platformUsesSharePrompt(format: CompileFormat) {
-  return format === "chatgpt" || format === "gemini" || format === "perplexity";
+  return format === "chatgpt" || format === "gemini";
 }
 
 export function truncateContent(content: string, max = 72) {

@@ -63,8 +63,8 @@ export function PreviewPanel({
     const platformName = platformLabel(selectedFormat);
 
     return (
-      <div className="landing-panel flex min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-4">
-        <div className="flex shrink-0 flex-col gap-2.5">
+      <div className="landing-panel space-y-3 p-3 md:p-4">
+        <div className="space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
               {usesPrompt ? "Copy prompt" : "Copy link"}
@@ -129,8 +129,8 @@ export function PreviewPanel({
           ) : null}
         </div>
 
-        <div className="mt-3 flex min-h-[10rem] flex-1 flex-col overflow-hidden border-t border-[var(--border-subtle)] pt-3">
-          <div className="mb-2 flex shrink-0 items-center justify-between gap-2">
+        <div className="space-y-2 border-t border-[var(--border-subtle)] pt-3">
+          <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
               Preview
             </p>
@@ -146,7 +146,7 @@ export function PreviewPanel({
                 : WORKSPACE_COPY.copyTextInstead}
             </button>
           </div>
-          <pre className="min-h-0 flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          <pre className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {contextText}
           </pre>
         </div>
@@ -189,9 +189,7 @@ export function PreviewPanel({
           >
             {copiedLink
               ? "Copied ✓"
-              : selectedFormat === "chatgpt" ||
-                  selectedFormat === "gemini" ||
-                  selectedFormat === "perplexity"
+              : selectedFormat === "chatgpt" || selectedFormat === "gemini"
                 ? "Copy prompt instead"
                 : "Copy link instead"}
           </button>

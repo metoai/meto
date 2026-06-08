@@ -128,18 +128,6 @@ export function buildContextText(
       return selected
         .map((section) => `${section.title}: ${section.content.trim()}`)
         .join("\n\n");
-    case "perplexity": {
-      const body = selected
-        .map((section) => `## ${section.title}\n${section.content.trim()}`)
-        .join("\n\n");
-      return [
-        `# Background context: ${displayName}`,
-        "",
-        body,
-        "",
-        `Source: ${getPublicProfileUrl(username)}`,
-      ].join("\n");
-    }
     case "grok": {
       const body = selected
         .map((section) => `- **${section.title}**: ${section.content.trim()}`)
@@ -235,7 +223,6 @@ export const FORMAT_USER_LABELS: Record<CompileFormat, string> = {
   claude: "Claude",
   chatgpt: "ChatGPT",
   gemini: "Gemini",
-  perplexity: "Perplexity",
   deepseek: "DeepSeek",
   grok: "Grok",
   kimi: "Moonshot",

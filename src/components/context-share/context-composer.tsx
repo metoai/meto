@@ -53,12 +53,39 @@ export function ContextComposer({
 
   const showHeader = !embedded;
 
+  const previewBlock = (
+    <PreviewPanel
+      contextText={share.contextText}
+      selectedFormat={share.selectedFormat}
+      selectionCount={share.selectionCount}
+      linkSelectionCount={share.linkSelectionCount}
+      privateInSelectionCount={share.privateInSelectionCount}
+      wordCount={share.wordCount}
+      copiedContext={share.copiedContext}
+      onCopyContext={share.copyContext}
+      shareUrl={share.shareUrl}
+      platformShare={share.platformShare}
+      copiedLink={share.copiedLink}
+      onCopyLink={share.copyLink}
+      username={username}
+      showShareLink={showShareLink}
+      workspaceLayout={workspaceLayout}
+    />
+  );
+
+  const emptySectionsMessage = (
+    <p className="rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
+      Add sections in Your profile first — or head to Update and tell Meto about
+      yourself in a quick chat.
+    </p>
+  );
+
   return (
     <div
       className={
         embedded
           ? workspaceLayout
-            ? "flex min-h-0 w-full flex-1 flex-col"
+            ? "flex min-h-0 w-full flex-1 flex-col overflow-hidden"
             : "w-full"
           : "landing-panel p-5 sm:p-6"
       }
@@ -73,90 +100,79 @@ export function ContextComposer({
         </header>
       ) : null}
 
-      <div
-        className={`${
-          workspaceLayout
-            ? "grid min-h-0 flex-1 gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
-            : "grid gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
-        }`}
-      >
-        <div
-          className={
-            workspaceLayout
-              ? "min-h-0 min-w-0 space-y-4 overflow-y-auto overscroll-contain pr-0.5 md:max-h-full"
-              : "space-y-5"
-          }
-        >
-          {sections.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
-              Add sections in Your profile first — or head to Update and tell
-              Meto about yourself in a quick chat.
-            </p>
-          ) : (
-            <>
-              <IntentGrid
-                selectedPreset={share.selectedPreset}
-                onSelect={share.applyPreset}
-                workspaceLayout={workspaceLayout}
-              />
-              <SectionPicker
-                sections={sections}
-                selectedSections={share.selectedSections}
-                onToggle={share.toggleSection}
-                onSelectAll={share.selectAllSections}
-                onClearAll={share.clearAllSections}
-                isSectionPublic={share.isSectionPublic}
-                onTogglePublic={onToggleSectionPublic}
-                username={username}
-                workspaceLayout={workspaceLayout}
-                label={workspaceLayout ? "Sections" : undefined}
-              />
-              {!workspaceLayout ? (
+      {workspaceLayout ? (
+        <div className="grid min-h-0 flex-1 gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+          <div className="min-h-0 min-w-0 space-y-4 overflow-y-auto overscroll-contain pr-0.5">
+            {sections.length === 0 ? (
+              emptySectionsMessage
+            ) : (
+              <>
                 <PlatformTabs
                   selectedFormat={share.selectedFormat}
                   onSelect={share.setSelectedFormat}
-                  workspaceLayout={workspaceLayout}
+                  workspaceLayout
                 />
-              ) : null}
-            </>
-          )}
-        </div>
+                <SectionPicker
+                  sections={sections}
+                  selectedSections={share.selectedSections}
+                  onToggle={share.toggleSection}
+                  onSelectAll={share.selectAllSections}
+                  onClearAll={share.clearAllSections}
+                  isSectionPublic={share.isSectionPublic}
+                  onTogglePublic={onToggleSectionPublic}
+                  username={username}
+                  workspaceLayout
+                  label="Sections"
+                />
+              </>
+            )}
+          </div>
 
-        <div
-          className={`${
-            workspaceLayout
-              ? "flex min-h-0 flex-col overflow-hidden md:max-h-full"
-              : "lg:sticky lg:top-4 lg:self-start"
-          }`}
-        >
-          {workspaceLayout ? (
-            <div className="mb-3 shrink-0">
-              <PlatformTabs
-                selectedFormat={share.selectedFormat}
-                onSelect={share.setSelectedFormat}
+          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto overscroll-contain">
+            {previewBlock}
+            {sections.length > 0 ? (
+              <IntentGrid
+                selectedPreset={share.selectedPreset}
+                onSelect={share.applyPreset}
                 workspaceLayout
               />
-            </div>
-          ) : null}
-          <PreviewPanel
-            contextText={share.contextText}
-            selectedFormat={share.selectedFormat}
-            selectionCount={share.selectionCount}
-            linkSelectionCount={share.linkSelectionCount}
-            privateInSelectionCount={share.privateInSelectionCount}
-            wordCount={share.wordCount}
-            copiedContext={share.copiedContext}
-            onCopyContext={share.copyContext}
-            shareUrl={share.shareUrl}
-            platformShare={share.platformShare}
-            copiedLink={share.copiedLink}
-            onCopyLink={share.copyLink}
-            username={username}
-            showShareLink={showShareLink}
-            workspaceLayout={workspaceLayout}
-          />
+            ) : null}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="grid gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+          <div className="space-y-5">
+            {sections.length === 0 ? (
+              emptySectionsMessage
+            ) : (
+              <>
+                <IntentGrid
+                  selectedPreset={share.selectedPreset}
+                  onSelect={share.applyPreset}
+                  workspaceLayout={false}
+                />
+                <SectionPicker
+                  sections={sections}
+                  selectedSections={share.selectedSections}
+                  onToggle={share.toggleSection}
+                  onSelectAll={share.selectAllSections}
+                  onClearAll={share.clearAllSections}
+                  isSectionPublic={share.isSectionPublic}
+                  onTogglePublic={onToggleSectionPublic}
+                  username={username}
+                  workspaceLayout={false}
+                />
+                <PlatformTabs
+                  selectedFormat={share.selectedFormat}
+                  onSelect={share.setSelectedFormat}
+                  workspaceLayout={false}
+                />
+              </>
+            )}
+          </div>
+          <div className="lg:sticky lg:top-4 lg:self-start">{previewBlock}</div>
+        </div>
+      )}
     </div>
   );
 }

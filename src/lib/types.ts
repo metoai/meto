@@ -16,7 +16,6 @@ export type CompileFormat =
   | "claude"
   | "chatgpt"
   | "gemini"
-  | "perplexity"
   | "deepseek"
   | "grok"
   | "kimi"
@@ -27,7 +26,6 @@ export const COMPILE_FORMATS: CompileFormat[] = [
   "claude",
   "chatgpt",
   "gemini",
-  "perplexity",
   "deepseek",
   "grok",
   "kimi",

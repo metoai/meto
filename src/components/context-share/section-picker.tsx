@@ -54,7 +54,7 @@ export function SectionPicker({
       </div>
 
       {workspaceLayout && onTogglePublic ? (
-        <div className="landing-panel divide-y divide-[var(--landing-panel-border)] overflow-hidden">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {sections.map((section) => {
             const active = selectedSections.includes(section.section_type);
             const title = friendlySectionTitle(
@@ -66,9 +66,9 @@ export function SectionPicker({
             return (
               <div
                 key={section.section_type}
-                className={`flex items-center gap-2 px-2.5 py-1.5 ${
+                className={`landing-panel flex flex-col gap-2 p-3 ${
                   empty ? "opacity-50" : ""
-                }`}
+                } ${active ? "ring-1 ring-[var(--accent-border)]" : ""}`}
               >
                 <button
                   type="button"
@@ -96,15 +96,15 @@ export function SectionPicker({
                   </span>
                 </button>
                 {section.id ? (
-                  <div className="shrink-0">
-                  <PublicToggle
-                    variant="compact"
-                    isPublic={
-                      section.is_public ?? isSectionPublic(section.section_type)
-                    }
-                    username={username}
-                    onChange={() => onTogglePublic(section.id!)}
-                  />
+                  <div className="flex justify-end border-t border-[var(--border-subtle)] pt-2">
+                    <PublicToggle
+                      variant="compact"
+                      isPublic={
+                        section.is_public ?? isSectionPublic(section.section_type)
+                      }
+                      username={username}
+                      onChange={() => onTogglePublic(section.id!)}
+                    />
                   </div>
                 ) : null}
               </div>

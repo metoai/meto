@@ -35,15 +35,6 @@ export function compileLocally(
         "Keep this in mind as we work together.",
       ].join("\n");
 
-    case "perplexity":
-      return [
-        `# Background context`,
-        "",
-        ...sections.map((s) => `## ${s.title}\n${s.content}`),
-        "",
-        "Use this as persistent background for follow-up answers.",
-      ].join("\n\n");
-
     case "deepseek":
       return [
         "Here's context about the person you're helping.",

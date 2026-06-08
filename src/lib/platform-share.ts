@@ -55,20 +55,6 @@ export function buildPlatformShareGuide(
         clipboardText: prompt,
       };
     }
-    case "perplexity": {
-      const url = withShareParams(contextShareUrl, { format: "universal" });
-      const prompt = [
-        "Fetch this URL and read the full plain-text response. Use it as background context about me for this entire conversation.",
-        "Do not answer from web search, snippets, or memory alone.",
-        url,
-      ].join("\n");
-      return {
-        url,
-        prompt,
-        hint: "Paste the full prompt below — Perplexity needs the API URL (plain text), not your profile page.",
-        clipboardText: prompt,
-      };
-    }
     default:
       return {
         url: contextShareUrl,

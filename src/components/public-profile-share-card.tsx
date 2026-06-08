@@ -59,7 +59,7 @@ export function PublicProfileShareCard({
         Paste into any AI chat
       </h2>
       <p className="mt-2 text-[14px] leading-relaxed text-[var(--text-secondary)]">
-        One link — ChatGPT, Claude, Gemini, Perplexity, and every other AI can
+        One link — ChatGPT, Claude, Gemini, and every other AI can
         fetch this as your background context.
       </p>
 
