@@ -24,7 +24,7 @@ export default function CookiesPage() {
         {
           title: "Third parties",
           paragraphs: [
-            "Some cookies may be set by providers that help us run authentication, payments, or analytics.",
+            "Some cookies may be set by providers that help us run authentication, payments, or analytics (including PostHog for product analytics).",
             "Those providers process data according to their own policies.",
           ],
         },

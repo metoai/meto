@@ -17,6 +17,7 @@ import {
 import { TrialBanner } from "@/components/billing/trial-banner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
+import { resetPostHogUser } from "@/lib/posthog";
 
 type PortalLayoutProps = {
   children: React.ReactNode;
@@ -324,6 +325,7 @@ function PortalSidebarNav({
   const activeId = navIdFromPathname(pathname);
 
   async function handleLogout() {
+    resetPostHogUser();
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
