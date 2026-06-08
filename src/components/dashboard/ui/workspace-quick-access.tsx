@@ -113,7 +113,7 @@ export function WorkspaceQuickAccess({
       ) : null}
 
       <div
-        className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--elevated)] ${
+        className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] ${
           compact ? "mt-2.5 p-2.5" : "mt-4 p-3"
         }`}
       >
@@ -127,7 +127,7 @@ export function WorkspaceQuickAccess({
             <button
               type="button"
               onClick={() => void handleCopyProfileLink()}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)]"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--accent-border)] hover:text-[var(--text)]"
             >
               <Link2 className="h-3.5 w-3.5" strokeWidth={1.75} />
               {copiedLink ? "Copied profile link!" : "Copy profile link"}
@@ -144,7 +144,7 @@ export function WorkspaceQuickAccess({
               value={claimValue}
               onChange={(e) => setClaimValue(e.target.value)}
               placeholder="yourname"
-              className="min-w-[140px] flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text)] outline-none transition-colors focus:border-[var(--border-hover)]"
+              className="min-w-[140px] flex-1 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--text)] outline-none transition-colors focus:border-[var(--accent-border)]"
             />
             <button
               type="submit"
@@ -174,7 +174,7 @@ export function WorkspaceQuickAccess({
                 type="button"
                 onClick={() => void handleCopy(id)}
                 disabled={!contextPreview.trim()}
-                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)] disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--accent-border)] hover:text-[var(--text)] disabled:opacity-40"
               >
                 <AiPlatformIcon format={id} size={14} />
                 {copiedFormat === id ? "Copied!" : label}
@@ -184,7 +184,7 @@ export function WorkspaceQuickAccess({
               type="button"
               onClick={() => void handleCopy("universal")}
               disabled={!contextPreview.trim()}
-              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)] hover:text-[var(--text)] disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--accent-border)] hover:text-[var(--text)] disabled:opacity-40"
             >
               <AiPlatformIcon format="universal" size={14} />
               {copiedFormat === "universal" ? "Copied!" : "Any AI"}

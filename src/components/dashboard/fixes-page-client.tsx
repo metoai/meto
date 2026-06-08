@@ -1,162 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { UpgradeLockedLink } from "@/components/billing/upgrade-locked-link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
-import { ArrowRight, TrendingUp, Zap } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 import { SuccessToast } from "@/components/dashboard-shell";
 import { DashboardCard, PageHeader } from "@/components/dashboard/ui/dashboard-card";
+import {
+  FixesProgressStrip,
+  GapCard,
+  IMPACT_LABELS,
+} from "@/components/dashboard/ui/fixes-gap-ui";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { useContextScore } from "@/hooks/use-context-score";
+import type { ContextScoreGap } from "@/lib/context-score";
+import { gapImpactLevel, type GapImpact } from "@/lib/section-quality";
 import {
-  estimateGapImpact,
-  gapImpactLevel,
-  type GapImpact,
-} from "@/lib/section-quality";
-import {
-  buildGapFixAllUpdateUrl,
-  buildGapFixProfileUrl,
-  buildGapFixUpdateUrl,
   gapsToQueue,
   storeGapFixSession,
   storeScoreBeforeFix,
 } from "@/lib/context-score-actions";
-import type { ContextScoreGap, ContextScoreResult } from "@/lib/context-score";
 import { PortalPageShell } from "@/components/portal/portal-page-shell";
-import { scoreColor } from "@/hooks/use-context-score";
-
-const IMPACT_LABELS: Record<GapImpact, { label: string; color: string }> = {
-  high: { label: "High impact", color: "#DC2626" },
-  medium: { label: "Medium impact", color: "#B45309" },
-  low: { label: "Low impact", color: "#9B9B93" },
-};
-
-function FixesProgressStrip({
-  score,
-  highCount,
-  onFixAllStart,
-}: {
-  score: ContextScoreResult;
-  highCount: number;
-  onFixAllStart: () => void;
-}) {
-  const color = scoreColor(score.score);
-  const gapCount = score.gaps.length;
-  const estimatedTarget = Math.min(99, score.score + gapCount * 12);
-
-  return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4 md:p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-        <div className="flex min-w-0 items-center gap-4">
-          <div
-            className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${color}12` }}
-          >
-            <span
-              className="text-xl font-semibold tabular-nums leading-none"
-              style={{ color }}
-            >
-              {score.score}
-            </span>
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm leading-snug text-[var(--text)]">{score.headline}</p>
-            <p className="mt-1 text-xs text-[var(--muted)]">
-              {gapCount} gap{gapCount === 1 ? "" : "s"} left
-              {gapCount > 0 ? ` · fixing all → ~${estimatedTarget}%` : ""}
-            </p>
-          </div>
-        </div>
-
-        <div className="min-w-0 flex-1 lg:px-4">
-          <div className="mb-1.5 flex items-center justify-between text-[11px] text-[var(--muted)]">
-            <span>Context score</span>
-            <span className="tabular-nums">{score.score}%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface)]">
-            <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{ width: `${score.score}%`, backgroundColor: color }}
-            />
-          </div>
-        </div>
-
-        {highCount > 0 ? (
-          <UpgradeLockedLink
-            feature="gap_fix"
-            href={buildGapFixAllUpdateUrl()}
-            onClick={onFixAllStart}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] lg:self-center"
-          >
-            <Zap className="h-4 w-4" />
-            Fix all high-impact ({highCount})
-          </UpgradeLockedLink>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function GapCard({
-  gap,
-  index,
-  currentScore,
-  totalGaps,
-  onFixStart,
-}: {
-  gap: ContextScoreGap;
-  index: number;
-  currentScore: number;
-  totalGaps: number;
-  onFixStart: () => void;
-}) {
-  const impact = gapImpactLevel(index);
-  const pts = estimateGapImpact(index, totalGaps, currentScore);
-  const style = IMPACT_LABELS[impact];
-
-  return (
-    <DashboardCard as="article" className="!p-4">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-[var(--text)]">{gap.title}</span>
-            <span
-              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-              style={{ backgroundColor: `${style.color}15`, color: style.color }}
-            >
-              {style.label}
-            </span>
-          </div>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">
-            {gap.insight}
-          </p>
-          <p className="mt-2 text-xs text-[var(--primary)]">
-            Fixing this → +{pts} pts
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-wrap gap-2 xl:flex-col xl:items-stretch">
-          <UpgradeLockedLink
-            feature="gap_fix"
-            href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
-            onClick={onFixStart}
-            className="inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs text-white transition-colors duration-150 hover:bg-[var(--primary-hover)]"
-          >
-            Fix with AI
-            <ArrowRight className="h-3 w-3" />
-          </UpgradeLockedLink>
-          <Link
-            href={buildGapFixProfileUrl(gap.section_type)}
-            onClick={onFixStart}
-            className="inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
-          >
-            Edit manually
-          </Link>
-        </div>
-      </div>
-    </DashboardCard>
-  );
-}
 
 export function FixesPageClient() {
   const router = useRouter();

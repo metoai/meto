@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MetoMark } from "@/components/meto-mark";
+import { MetoMarkBadge } from "@/components/meto-mark";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sidebar-context";
 import {
@@ -97,14 +97,13 @@ function SidebarContent({
           onClick={onNavigate}
           title="Meto home"
         >
-          <MetoMark className="h-6 w-6 shrink-0" />
+          <MetoMarkBadge size="sm" />
           {!collapsed ? (
             <span className="text-[16px] font-semibold tracking-[-0.03em] text-[var(--text)]">
               meto
             </span>
           ) : null}
         </Link>
-        {!onClose ? <ThemeToggle compact className="shrink-0" /> : null}
         {onToggleCollapsed && !onClose ? (
           <button
             type="button"
@@ -250,7 +249,7 @@ function SidebarContent({
               </Link>
             </div>
           ) : (
-            <div className="mb-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-2.5">
+            <div className="landing-panel mb-2 p-2.5">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-xs font-semibold text-[var(--primary)]">
                   {initial}
@@ -279,18 +278,27 @@ function SidebarContent({
             </div>
           )
         ) : null}
-        <button
-          type="button"
-          onClick={() => {
-            onNavigate?.();
-            onLogout();
-          }}
-          className={navItemClass(false, collapsed, true)}
-          title={collapsed ? "Log out" : undefined}
+        <div
+          className={`flex items-center ${collapsed ? "justify-center gap-1" : "gap-2"}`}
         >
-          <LogOut className="h-[17px] w-[17px] shrink-0" strokeWidth={1.75} />
-          {!collapsed ? <span>Log out</span> : null}
-        </button>
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate?.();
+              onLogout();
+            }}
+            className={
+              collapsed
+                ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] transition-colors hover:bg-[var(--card)]/70 hover:text-[var(--text-secondary)]"
+                : `${navItemClass(false, false, true)} min-w-0 flex-1`
+            }
+            title={collapsed ? "Log out" : undefined}
+          >
+            <LogOut className="h-[17px] w-[17px] shrink-0" strokeWidth={1.75} />
+            {!collapsed ? <span>Log out</span> : null}
+          </button>
+          <ThemeToggle compact className="shrink-0" />
+        </div>
       </div>
     </div>
   );
@@ -455,7 +463,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
               className="flex h-9 w-9 shrink-0 items-center justify-center"
               aria-label="Meto home"
             >
-              <MetoMark className="h-[22px] w-[22px]" />
+              <MetoMarkBadge size="sm" />
             </Link>
           </div>
         </header>

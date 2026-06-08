@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import {
   AuthDivider,
   AuthField,
-  AuthGoogleButton,
   AuthPage,
   AuthPrimaryButton,
+  AuthSocialRow,
 } from "@/components/auth/auth-card";
 import { openProCheckout } from "@/lib/billing-client";
 import {
@@ -124,12 +124,8 @@ export function SignupForm() {
 
   return (
     <AuthPage
-      title="Create your profile"
-      subtitle={
-        planChoice === "pro"
-          ? "Account first, then checkout."
-          : "Free to start — no credit card."
-      }
+      title="Create an account"
+      subtitle="Access your profile anytime — and keep every AI conversation in sync."
       footer={
         <>
           Already have an account?{" "}
@@ -146,53 +142,49 @@ export function SignupForm() {
         </>
       }
     >
-      <div className="flex flex-col">
-        <AuthGoogleButton onClick={() => void handleGoogleSignup()} disabled={loading} />
+      <form onSubmit={handleSignup} className="space-y-4">
+        <AuthField
+          id="fullName"
+          label="Your name"
+          value={fullName}
+          onChange={setFullName}
+          placeholder="Your name"
+          autoComplete="name"
+        />
+        <AuthField
+          id="email"
+          label="Your email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="you@company.com"
+          autoComplete="email"
+        />
+        <AuthField
+          id="password"
+          label="Create password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          placeholder="6+ characters"
+          autoComplete="new-password"
+          minLength={6}
+        />
 
-        <AuthDivider />
+        {error ? (
+          <p className="text-[12px] leading-snug text-red-500" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-        <form onSubmit={handleSignup} className="space-y-2">
-          <div className="grid grid-cols-1 gap-2 min-[400px]:grid-cols-2">
-            <AuthField
-              id="fullName"
-              label="Name"
-              value={fullName}
-              onChange={setFullName}
-              placeholder="Your name"
-              autoComplete="name"
-            />
-            <AuthField
-              id="email"
-              label="Email"
-              type="email"
-              value={email}
-              onChange={setEmail}
-              placeholder="you@company.com"
-              autoComplete="email"
-            />
-          </div>
-          <AuthField
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="6+ characters"
-            autoComplete="new-password"
-            minLength={6}
-          />
+        <AuthPrimaryButton disabled={loading}>
+          {loading ? "Creating account…" : "Create account"}
+        </AuthPrimaryButton>
+      </form>
 
-          {error ? (
-            <p className="text-[12px] leading-snug text-red-500" role="alert">
-              {error}
-            </p>
-          ) : null}
+      <AuthDivider />
 
-          <AuthPrimaryButton disabled={loading}>
-            {loading ? "Creating account…" : "Create account"}
-          </AuthPrimaryButton>
-        </form>
-      </div>
+      <AuthSocialRow onGoogle={() => void handleGoogleSignup()} disabled={loading} />
     </AuthPage>
   );
 }

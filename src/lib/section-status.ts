@@ -23,7 +23,7 @@ export function getSectionStatus(section: ContextSection): SectionStatus {
 export function statusBorderColor(status: SectionStatus): string {
   switch (status) {
     case "fresh":
-      return "#0F6E56";
+      return "var(--primary)";
     case "stale":
       return "#B45309";
     case "empty":

@@ -32,6 +32,7 @@ type SectionTieredListProps = {
   currentScore?: number;
   showFixCallouts?: boolean;
   editHref?: (sectionType: string) => string;
+  preview?: boolean;
 };
 
 export function SectionTieredList({
@@ -40,6 +41,7 @@ export function SectionTieredList({
   currentScore = 0,
   showFixCallouts = true,
   editHref = (type) => `/dashboard/profile?section=${type}`,
+  preview: previewMode = false,
 }: SectionTieredListProps) {
   const gapByType = new Map(gaps.map((g) => [g.section_type, g]));
 
@@ -62,12 +64,13 @@ export function SectionTieredList({
         const status = getSectionStatus(section);
         const gap = gapByType.get(section.section_type);
         const title = friendlySectionTitle(section.section_type, section.title);
-        const preview = truncateContent(section.content);
+        const contentPreview = truncateContent(section.content);
 
         return (
           <DashboardCard
             key={section.id}
             as="article"
+            hover={!previewMode}
             className="!p-0 overflow-hidden"
           >
             <div
@@ -82,7 +85,7 @@ export function SectionTieredList({
                 </div>
 
                 <p className="mt-1.5 text-sm leading-relaxed text-[var(--text-secondary)]">
-                  {preview || (
+                  {contentPreview || (
                     <span className="text-[var(--placeholder)]">No content yet</span>
                   )}
                 </p>
@@ -96,26 +99,41 @@ export function SectionTieredList({
                     <span className="text-xs leading-relaxed text-[#92400E]">
                       ⚠ {gap.insight}
                     </span>
-                    <UpgradeLockedLink
-                      feature="gap_fix"
-                      href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
-                      onClick={() => handleFixClick()}
-                      className="shrink-0 text-xs text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
-                    >
-                      Fix with AI →
-                    </UpgradeLockedLink>
+                    {previewMode ? (
+                      <span className="shrink-0 text-xs text-[var(--primary)]">
+                        Fix with AI →
+                      </span>
+                    ) : (
+                      <UpgradeLockedLink
+                        feature="gap_fix"
+                        href={buildGapFixUpdateUrl(gap.section_type, gap.insight)}
+                        onClick={() => handleFixClick()}
+                        className="shrink-0 text-xs text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
+                      >
+                        Fix with AI →
+                      </UpgradeLockedLink>
+                    )}
                   </div>
                 ) : null}
               </div>
 
               <div className="flex shrink-0 items-center px-4">
-                <Link
-                  href={editHref(section.section_type)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted)] transition-all duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
-                  aria-label={`Edit ${title}`}
-                >
-                  <Pencil className="h-4 w-4" strokeWidth={1.75} />
-                </Link>
+                {previewMode ? (
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted)]"
+                    aria-hidden
+                  >
+                    <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                  </span>
+                ) : (
+                  <Link
+                    href={editHref(section.section_type)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted)] transition-all duration-150 hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                    aria-label={`Edit ${title}`}
+                  >
+                    <Pencil className="h-4 w-4" strokeWidth={1.75} />
+                  </Link>
+                )}
               </div>
             </div>
           </DashboardCard>

@@ -121,14 +121,14 @@ export function ProfileSectionGridCard({
       id={`section-${sectionType}`}
       data-profile-card={id}
       onClick={handleCardClick}
-      className={`relative flex min-h-[140px] cursor-pointer flex-col rounded-xl border bg-[var(--card)] transition-all duration-150 ease-in-out ${
+      className={`landing-panel relative flex min-h-[140px] cursor-pointer flex-col transition-[border-color,box-shadow] duration-150 ease-in-out ${
         tieredLayout ? "overflow-hidden !p-0" : "px-[18px] py-4"
       } ${
         expanded
           ? tieredLayout
             ? "col-span-1 border-[var(--primary)] shadow-[0_0_0_3px_var(--primary-light)] md:col-span-2"
             : "col-span-1 border-[var(--primary)] shadow-[0_0_0_3px_var(--primary-light)] md:col-span-2"
-          : "border-[var(--border-subtle)] hover:scale-[1.005] hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+          : "hover:border-[var(--accent-border)]"
       }`}
       style={
         tieredLayout && !expanded
@@ -258,7 +258,7 @@ export function ProfileSectionGridCard({
               ···
             </button>
             {menuOpen ? (
-              <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+              <div className="landing-panel absolute bottom-full right-0 z-20 mb-1 min-w-[120px] overflow-hidden py-1">
                 <button
                   type="button"
                   onClick={(e) => {

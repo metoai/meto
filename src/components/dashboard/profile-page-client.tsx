@@ -41,7 +41,7 @@ export function ProfilePageClient() {
         />
 
         {fromContextScore ? (
-          <div className="mb-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--primary-light)] px-4 py-3">
+          <div className="landing-panel mb-4 border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3">
             <p className="text-sm text-[var(--text)]">Edit this section manually</p>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
               Save your changes and we&apos;ll recalculate your context score.

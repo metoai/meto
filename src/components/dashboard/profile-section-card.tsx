@@ -65,7 +65,7 @@ export function ProfileSectionCard({
   }, [menuOpen]);
 
   return (
-    <article className="mb-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] px-5 py-4 transition-[border-color] duration-150 ease-in-out hover:border-[var(--border-hover)]">
+    <article className="landing-panel mb-2.5 px-5 py-4 transition-[border-color] duration-150 ease-in-out hover:border-[var(--accent-border)]">
       <div className="mb-3 flex items-start justify-between gap-3">
         <h3 className="card-title">{displayTitle}</h3>
         <PublicToggle

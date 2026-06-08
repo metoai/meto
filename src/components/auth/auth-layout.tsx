@@ -1,18 +1,5 @@
 import Link from "next/link";
-
-function BackIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden>
-      <path
-        d="M15 18l-6-6 6-6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
+import { MetoMarkBadge } from "@/components/meto-mark";
 
 type AuthLayoutProps = {
   children: React.ReactNode;
@@ -20,28 +7,37 @@ type AuthLayoutProps = {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="relative z-[1] flex h-full min-h-0 flex-col overflow-hidden text-[var(--text)]">
-      <header className="shrink-0 px-4 pb-1 pt-4 sm:pt-5">
+    <div className="grid min-h-dvh lg:grid-cols-2">
+      <aside className="auth-hero-panel relative hidden min-h-dvh flex-col justify-between overflow-hidden p-8 lg:flex lg:p-12 xl:p-14">
         <Link
           href="/"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] text-[var(--text-secondary)] transition-[border-color,background,color] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)] hover:text-[var(--text)]"
-          aria-label="Back to home"
+          className="relative z-10 inline-flex items-center gap-2.5 transition-opacity duration-150 hover:opacity-80"
         >
-          <BackIcon />
+          <MetoMarkBadge size="md" />
+          <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">
+            meto
+          </span>
         </Link>
-      </header>
 
-      <main className="flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto px-4 py-3">
-        <div className="my-auto flex w-full max-w-[400px] justify-center">
-          {children}
+        <div className="relative z-10 max-w-[360px]">
+          <p className="text-[14px] text-[var(--text-secondary)]">Tell Meto once</p>
+          <h2 className="mt-3 text-balance text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-[var(--text)] xl:text-[2.25rem]">
+            Your AI profile, ready for every conversation.
+          </h2>
         </div>
-      </main>
+      </aside>
 
-      <footer className="shrink-0 px-4 pb-4 text-center sm:pb-5">
-        <p className="text-[10px] leading-snug text-[var(--placeholder)]">
-          Encrypted in transit · Your profile stays yours
-        </p>
-      </footer>
+      <main className="flex min-h-dvh flex-col overflow-y-auto bg-[var(--bg)] px-6 py-10 sm:px-12 sm:py-12 lg:px-16 lg:py-14 xl:px-20">
+        <div className="mb-8 flex items-center gap-2.5 lg:hidden">
+          <Link href="/" className="inline-flex items-center gap-2 transition-opacity hover:opacity-80">
+            <MetoMarkBadge size="sm" />
+            <span className="text-[14px] font-semibold tracking-tight text-[var(--text)]">
+              meto
+            </span>
+          </Link>
+        </div>
+        <div className="flex flex-1 flex-col justify-center">{children}</div>
+      </main>
     </div>
   );
 }

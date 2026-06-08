@@ -7,8 +7,7 @@ import {
   DOCUMENT_IMPORT,
   type IngestedDocument,
 } from "@/lib/document-import";
-import { friendlyGeminiError, generateWithGemini } from "@/lib/gemini";
-import { buildDocumentFactsPrompt } from "@/lib/meto-prompts";
+import { friendlyGeminiError } from "@/lib/gemini";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
@@ -56,36 +55,35 @@ export async function POST(request: Request) {
       );
     }
 
-    const documents: IngestedDocument[] = [];
+    const extractedDocs = await Promise.all(
+      files.map(async (file) => {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const extracted = await extractDocumentText(
+          file.name,
+          file.type,
+          buffer
+        );
 
-    for (const file of files) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const extracted = await extractDocumentText(
-        file.name,
-        file.type,
-        buffer
-      );
+        return {
+          filename: extracted.filename,
+          mimeType: extracted.mimeType,
+          sizeBytes: extracted.sizeBytes,
+          extractedChars: extracted.extractedChars,
+          truncated: extracted.truncated,
+          facts: extracted.facts.trim(),
+          usedLlm: extracted.usedLlm,
+        };
+      })
+    );
 
-      const facts = await generateWithGemini(
-        buildDocumentFactsPrompt(
-          extracted.filename,
-          extracted.rawText,
-          extracted.truncated
-        ),
-        { temperature: 0.2 }
-      );
-
-      documents.push({
-        filename: extracted.filename,
-        mimeType: extracted.mimeType,
-        sizeBytes: extracted.sizeBytes,
-        extractedChars: extracted.extractedChars,
-        truncated: extracted.truncated,
-        facts: facts.trim(),
-      });
+    if (extractedDocs.some((doc) => doc.usedLlm)) {
+      await recordAiUsage(user.id, 1, aiAccess.row);
     }
 
-    await recordAiUsage(user.id, 1, aiAccess.row);
+    const documents: IngestedDocument[] = extractedDocs.map(({ usedLlm, ...doc }) => {
+      void usedLlm;
+      return doc;
+    });
 
     return NextResponse.json({
       documents,

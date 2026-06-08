@@ -182,7 +182,7 @@ export function gapsFromThinSections(sections: SectionLike[]): ContextScoreGap[]
 }
 
 export function qualityBarColor(score: number): string {
-  if (score >= 70) return "#0F6E56";
+  if (score >= 70) return "var(--primary)";
   if (score >= 40) return "#B45309";
   return "#DC2626";
 }

@@ -73,7 +73,7 @@ export function ProfilePageHero({
   }
 
   return (
-    <div className="mb-5 rounded-lg border border-[var(--border)] px-4 py-3.5">
+    <div className="landing-panel mb-5 px-4 py-3.5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -83,7 +83,7 @@ export function ProfilePageHero({
               }`}
               aria-hidden
             />
-            <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--muted)]">
+            <p className="landing-panel-label">
               {claimed ? "Profile live" : "Go live"}
             </p>
           </div>

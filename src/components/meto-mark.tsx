@@ -25,12 +25,19 @@ type MetoMarkProps = {
 
 export function MetoMark({ size = "md", className = "" }: MetoMarkProps) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={brandAssets.logoIcon}
-      alt=""
+    <span
       aria-hidden
-      className={`${MARK_SIZES[size]} block shrink-0 object-contain object-center ${className}`}
+      className={`${MARK_SIZES[size]} block shrink-0 bg-[var(--primary)] ${className}`}
+      style={{
+        WebkitMaskImage: `url(${brandAssets.logoIcon})`,
+        maskImage: `url(${brandAssets.logoIcon})`,
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }}
     />
   );
 }
@@ -40,7 +47,7 @@ type MetoMarkBadgeProps = {
   className?: string;
 };
 
-/** Brand mark on Meto green — used in nav, chat avatars, and landing */
+/** Brand mark on primary accent — used in nav, chat avatars, and landing */
 export function MetoMarkBadge({ size = "md", className = "" }: MetoMarkBadgeProps) {
   const { box, icon } = BADGE_SIZES[size];
   return (

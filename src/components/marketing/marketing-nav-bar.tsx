@@ -6,8 +6,9 @@ import { MetoMarkBadge } from "@/components/meto-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MARKETING_NAV_LINKS } from "@/lib/marketing-nav";
 
-/** Aligns with landing hero / chat column (`max-w-[580px]`). */
-export const MARKETING_CONTENT_MAX_CLASS = "max-w-[580px]";
+/** Aligns with landing hero column. */
+export const MARKETING_CONTENT_MAX_CLASS = "max-w-[540px]";
+export const LANDING_NAV_MAX_CLASS = "max-w-[1200px]";
 
 /** Total vertical space used by the floating nav (padding + pill). */
 export const MARKETING_NAV_OFFSET_PX = 72;
@@ -15,19 +16,23 @@ export const MARKETING_NAV_OFFSET_PX = 72;
 type MarketingNavBarProps = {
   isLoggedIn?: boolean;
   className?: string;
+  variant?: "default" | "wide";
 };
 
 export function MarketingNavBar({
   isLoggedIn = false,
   className = "",
+  variant = "default",
 }: MarketingNavBarProps) {
+  const maxWidthClass =
+    variant === "wide" ? LANDING_NAV_MAX_CLASS : MARKETING_CONTENT_MAX_CLASS;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header
       className={`landing-animate-in relative z-50 flex justify-center px-5 pb-2 pt-4 ${className}`}
     >
-      <div className={`w-full ${MARKETING_CONTENT_MAX_CLASS}`}>
+      <div className={`w-full ${maxWidthClass}`}>
         <div className="flex h-11 items-center justify-between gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--card)]/75 px-2.5 shadow-[var(--shadow-md)] backdrop-blur-xl backdrop-saturate-150 sm:gap-3 sm:px-3">
           <Link
             href="/"

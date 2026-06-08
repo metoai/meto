@@ -55,7 +55,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
 
   if (!claimed) {
     return (
-      <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+      <div className="landing-panel mb-4 p-4">
         <p className="text-sm font-medium text-[var(--text)]">
           Claim your public URL
         </p>

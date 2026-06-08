@@ -31,6 +31,11 @@ import {
   type IngestedDocument,
 } from "@/lib/document-import";
 import type { PendingAttachment } from "@/components/update-chat-attachments";
+import {
+  labelsForStatusPhase,
+  quickUpdateStatusPhase,
+  type MetoStatusPhase,
+} from "@/lib/meto-status-labels";
 
 export type QuickUpdateMessage = {
   id: string;
@@ -95,8 +100,15 @@ export function useQuickUpdateChat(
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
   const [importMode, setImportMode] = useState<DocumentImportMode>("supplement");
   const [ingesting, setIngesting] = useState(false);
+  const [attachmentReadState, setAttachmentReadState] = useState<
+    Record<string, "reading" | "ready" | "error">
+  >({});
   const lastUserMessageRef = useRef("");
   const lastDocumentsRef = useRef<IngestedDocument[] | null>(null);
+  const ingestCacheRef = useRef<Map<string, IngestedDocument>>(new Map());
+  const ingestInflightIdsRef = useRef<Set<string>>(new Set());
+  const ingestFlightRef = useRef<Promise<void> | null>(null);
+  const ingestFileCountRef = useRef(0);
 
   useEffect(() => {
     setUpdateHistory(readUpdateHistory());
@@ -268,6 +280,13 @@ export function useQuickUpdateChat(
   }
 
   function removeAttachment(id: string) {
+    ingestCacheRef.current.delete(id);
+    ingestInflightIdsRef.current.delete(id);
+    setAttachmentReadState((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
     setAttachments((prev) => prev.filter((item) => item.id !== id));
   }
 
@@ -293,6 +312,106 @@ export function useQuickUpdateChat(
     }
 
     return data.documents ?? [];
+  }
+
+  const prefetchAttachments = useCallback(async (pending: PendingAttachment[]) => {
+    if (!pending.length) return;
+    ingestFileCountRef.current = Math.max(
+      ingestFileCountRef.current,
+      pending.length
+    );
+
+    setAttachmentReadState((prev) => {
+      const next = { ...prev };
+      for (const item of pending) {
+        next[item.id] = "reading";
+      }
+      return next;
+    });
+
+    try {
+      const documents = await ingestAttachments(pending);
+      pending.forEach((item, index) => {
+        const doc = documents[index];
+        if (doc) {
+          ingestCacheRef.current.set(item.id, doc);
+          setAttachmentReadState((prev) => ({
+            ...prev,
+            [item.id]: "ready",
+          }));
+        } else {
+          setAttachmentReadState((prev) => ({
+            ...prev,
+            [item.id]: "error",
+          }));
+        }
+      });
+    } catch {
+      for (const item of pending) {
+        setAttachmentReadState((prev) => ({
+          ...prev,
+          [item.id]: "error",
+        }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const pending = attachments.filter(
+      (item) =>
+        !ingestCacheRef.current.has(item.id) &&
+        !ingestInflightIdsRef.current.has(item.id)
+    );
+    if (!pending.length) return;
+
+    for (const item of pending) {
+      ingestInflightIdsRef.current.add(item.id);
+    }
+
+    const flight = prefetchAttachments(pending).finally(() => {
+      for (const item of pending) {
+        ingestInflightIdsRef.current.delete(item.id);
+      }
+      if (ingestFlightRef.current === flight) {
+        ingestFlightRef.current = null;
+      }
+    });
+    ingestFlightRef.current = flight;
+  }, [attachments, prefetchAttachments]);
+
+  async function resolveIngestedDocuments(
+    pending: PendingAttachment[]
+  ): Promise<IngestedDocument[]> {
+    ingestFileCountRef.current = pending.length;
+
+    if (ingestFlightRef.current) {
+      setIngesting(true);
+      try {
+        await ingestFlightRef.current;
+      } finally {
+        setIngesting(false);
+      }
+    }
+
+    const cached = pending
+      .map((item) => ingestCacheRef.current.get(item.id))
+      .filter((doc): doc is IngestedDocument => Boolean(doc));
+
+    if (cached.length === pending.length) {
+      return cached;
+    }
+
+    setIngesting(true);
+    try {
+      const documents = await ingestAttachments(pending);
+      pending.forEach((item, index) => {
+        const doc = documents[index];
+        if (doc) ingestCacheRef.current.set(item.id, doc);
+      });
+      return documents;
+    } finally {
+      setIngesting(false);
+    }
   }
 
   async function sendMessage(content: string) {
@@ -331,10 +450,8 @@ export function useQuickUpdateChat(
     try {
       let documents: IngestedDocument[] | undefined;
       if (pendingFiles.length) {
-        setIngesting(true);
-        documents = await ingestAttachments(pendingFiles);
+        documents = await resolveIngestedDocuments(pendingFiles);
         lastDocumentsRef.current = documents;
-        setIngesting(false);
       } else {
         lastDocumentsRef.current = null;
       }
@@ -541,6 +658,9 @@ export function useQuickUpdateChat(
     setInput("");
     setAttachments([]);
     setImportMode("supplement");
+    ingestCacheRef.current.clear();
+    ingestInflightIdsRef.current.clear();
+    setAttachmentReadState({});
     lastDocumentsRef.current = null;
     setError(null);
     setPendingUpdates(null);
@@ -555,6 +675,20 @@ export function useQuickUpdateChat(
     }
   }
 
+  const prefetchingAttachments = Object.values(attachmentReadState).some(
+    (state) => state === "reading"
+  );
+  const statusPhase: MetoStatusPhase = quickUpdateStatusPhase({
+    applying,
+    ingesting: ingesting || prefetchingAttachments,
+    typing,
+    gapFixBootstrapping,
+  });
+  const statusLabels = labelsForStatusPhase(
+    statusPhase,
+    ingestFileCountRef.current > 1 || attachments.length > 1
+  );
+
   return {
     messages,
     input,
@@ -562,7 +696,10 @@ export function useQuickUpdateChat(
     typing,
     ingesting,
     applying,
+    statusPhase,
+    statusLabels,
     attachments,
+    attachmentReadState,
     importMode,
     setImportMode,
     addAttachments,

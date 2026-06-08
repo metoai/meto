@@ -17,10 +17,8 @@ export function DashboardCard({
 }: DashboardCardProps) {
   return (
     <Tag
-      className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5 transition-all duration-150 ease-in-out ${
-        hover
-          ? "hover:scale-[1.005] hover:shadow-[var(--shadow-sm)]"
-          : ""
+      className={`landing-panel p-5 transition-[border-color,box-shadow] duration-150 ease-in-out ${
+        hover ? "hover:border-[var(--accent-border)]" : ""
       } ${className}`}
     >
       {children}
@@ -29,11 +27,7 @@ export function DashboardCard({
 }
 
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
-      {children}
-    </p>
-  );
+  return <p className="landing-panel-label">{children}</p>;
 }
 
 export function PageHeader({

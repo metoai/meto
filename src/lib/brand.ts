@@ -4,62 +4,50 @@
  * CSS variables (layout), Tailwind (tailwind.config.ts), and components.
  */
 export const brandLight = {
-  primary: "#0F6E56",
-  primaryHover: "#1D9E75",
-  primaryLight: "#E8F5F0",
+  primary: "#FF4D00",
+  primaryHover: "#FF6B2C",
+  primaryLight: "#FFF0E8",
   background: "#FFFFFF",
-  surface: "#F7F7F5",
+  surface: "#F5F5F5",
   card: "#FFFFFF",
-  text: "#1A1A18",
-  textMuted: "#6B6B63",
-  textSubtle: "#9B9B93",
-  border: "#E8E8E4",
-  codeText: "#6B6B63",
-  codeBackground: "#F7F7F5",
+  text: "#0A0A0A",
+  textMuted: "#737373",
+  textSubtle: "#A3A3A3",
+  border: "#E5E5E5",
+  codeText: "#525252",
+  codeBackground: "#F5F5F5",
 } as const;
 
 /**
  * Dark palette — keep in sync with `.dark` tokens in globals.css.
- * Featured UI: `.brand-surface` (teal edge). Hero spots only: `.brand-spot` (grid + glow).
  */
 export const brandDark = {
-  primary: "#2EB88A",
-  primaryHover: "#3DD19E",
-  primaryLight: "#0F2E24",
-  background: "#080C0B",
-  surface: "#0F1514",
-  card: "#151C1A",
-  text: "#EDECE8",
-  textMuted: "#A8A89E",
-  textSubtle: "#72726A",
-  border: "#2E2E2A",
-  codeText: "#A8A89E",
-  codeBackground: "#1A1A18",
+  primary: "#FF4D00",
+  primaryHover: "#FF6B2C",
+  primaryLight: "#2A1508",
+  background: "#0B0B0B",
+  surface: "#141414",
+  card: "#1A1A1A",
+  text: "#FFFFFF",
+  textMuted: "#A0A0A0",
+  textSubtle: "#737373",
+  border: "#2A2A2A",
+  codeText: "#A0A0A0",
+  codeBackground: "#141414",
 } as const;
 
 export const brand = {
   colors: {
-    /** Primary — logo, CTAs, links */
     primary: brandLight.primary,
-    /** Hover states, accents */
     primaryHover: brandLight.primaryHover,
-    /** Light backgrounds, badges, highlights */
     primaryLight: brandLight.primaryLight,
-    /** Page background */
     background: brandLight.background,
-    /** Slightly elevated surfaces (sidebar, preview) */
     surface: brandLight.surface,
-    /** Card / panel background */
     card: brandLight.card,
-    /** Primary text */
     text: brandLight.text,
-    /** Secondary / muted text */
     textMuted: brandLight.textMuted,
-    /** Tertiary / labels */
     textSubtle: brandLight.textSubtle,
-    /** Borders */
     border: brandLight.border,
-    /** Code / copy blocks */
     codeText: brandLight.codeText,
     codeBackground: brandLight.codeBackground,
   },
@@ -91,6 +79,8 @@ export type Brand = typeof brand;
 /** Static brand assets — served from /public/brand */
 export const brandAssets = {
   logoIcon: "/brand/logo-icon.svg",
+  favicon: "/brand/favicon.svg",
+  appleIcon: "/brand/apple-icon.svg",
   logoHorizontalWhite: "/brand/logo-horizontal-white.svg",
   logoHorizontalGreen: "/brand/logo-horizontal-green.svg",
 } as const;

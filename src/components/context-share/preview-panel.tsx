@@ -41,7 +41,7 @@ export function PreviewPanel({
 }: PreviewPanelProps) {
   if (selectionCount === 0) {
     return (
-      <div className="flex min-h-[180px] flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] px-4 py-8 text-center">
+      <div className="flex min-h-[180px] flex-col items-center justify-center rounded-xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-8 text-center">
         <p className="text-sm text-[var(--text-secondary)]">
           {workspaceLayout
             ? WORKSPACE_COPY.emptySelectionTitle
@@ -56,10 +56,10 @@ export function PreviewPanel({
     const hasUsername = Boolean(username);
 
     return (
-      <div className="flex h-full min-h-0 flex-col rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 md:p-4">
+      <div className="landing-panel flex h-full min-h-0 flex-col p-3 md:p-4">
         <div className="shrink-0 space-y-2.5">
           {!hasUsername ? (
-            <div className="rounded-lg border border-[var(--border)] px-3 py-3">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-3">
               <p className="text-[13px] text-[var(--text-secondary)]">
                 Claim a username to get your link
               </p>
@@ -71,7 +71,7 @@ export function PreviewPanel({
               </Link>
             </div>
           ) : linkReady && shareClipboardText ? (
-            <pre className="scrollbar-hidden max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+            <pre className="scrollbar-hidden max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
               {shareClipboardText}
             </pre>
           ) : (
@@ -86,7 +86,7 @@ export function PreviewPanel({
             disabled={!linkReady}
             className={`w-full rounded-lg px-3 py-2.5 text-sm font-medium text-white transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${
               copiedLink
-                ? "bg-[#1D9E75]"
+                ? "bg-[var(--primary-hover)]"
                 : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
             }`}
           >
@@ -120,7 +120,7 @@ export function PreviewPanel({
                 : WORKSPACE_COPY.copyTextInstead}
             </button>
           </div>
-          <pre className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          <pre className="scrollbar-hidden min-h-0 flex-1 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {contextText}
           </pre>
         </div>
@@ -131,7 +131,7 @@ export function PreviewPanel({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="relative min-h-0 flex-1">
-        <pre className="scrollbar-hidden max-h-[280px] min-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-[10px] border border-[var(--border)] bg-[var(--surface)] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
+        <pre className="scrollbar-hidden max-h-[280px] min-h-[200px] overflow-y-auto whitespace-pre-wrap rounded-[10px] border border-[var(--border-subtle)] bg-[var(--surface)] p-3.5 font-mono-brand text-xs leading-[1.7] text-[var(--text-secondary)]">
           {contextText}
         </pre>
       </div>
@@ -158,7 +158,7 @@ export function PreviewPanel({
             className={`w-full rounded-[10px] border px-3 py-2.5 text-sm font-medium transition-[border-color,background,color] duration-150 ease-in-out ${
               copiedLink
                 ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]"
-                : "border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text)]"
+                : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:border-[var(--accent-border)] hover:text-[var(--text)]"
             }`}
           >
             {copiedLink ? "Link copied ✓" : "Copy link instead"}

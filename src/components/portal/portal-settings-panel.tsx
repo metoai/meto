@@ -243,7 +243,7 @@ export function PortalSettingsPanel() {
 
         {showDeleteModal ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
-            <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+            <div className="landing-panel w-full max-w-md p-6">
               <h3 className="text-lg font-semibold text-[var(--text)]">
                 Delete account?
               </h3>
@@ -283,7 +283,7 @@ export function PortalSettingsPanel() {
       <aside className="w-full shrink-0 space-y-4 lg:w-[280px]">
         <PlanUsageCard compact />
 
-        <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+        <div className="landing-panel p-5">
         <p className="mb-1.5 text-[13px] font-medium text-[var(--text)]">
           Your public profile
         </p>

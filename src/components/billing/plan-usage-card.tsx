@@ -30,9 +30,7 @@ export function PlanUsageCard({
 
   if (!loaded || !entitlements) {
     return (
-      <div
-        className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] ${compact ? "p-3" : "p-5"}`}
-      >
+      <div className={`landing-panel ${compact ? "p-3" : "p-5"}`}>
         <div className="skeleton h-3.5 w-28 rounded" />
         <div className="skeleton mt-2 h-1.5 w-full rounded-full" />
       </div>
@@ -48,14 +46,10 @@ export function PlanUsageCard({
   const showUpgrade = plan === "free" || plan === "trial";
 
   return (
-    <div
-      className={`rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] ${compact ? "p-3" : "p-5"}`}
-    >
+    <div className={`landing-panel ${compact ? "p-3" : "p-5"}`}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
-            Plan & AI usage
-          </p>
+          <p className="landing-panel-label">Plan & AI usage</p>
           <p className="mt-0.5 truncate text-sm font-medium text-[var(--text)]">
             {planLabel(plan)}
             {plan === "trial" ? (

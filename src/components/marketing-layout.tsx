@@ -7,6 +7,7 @@ import {
   MarketingNavBar,
 } from "@/components/marketing/marketing-nav-bar";
 import { MARKETING_NAV_LINKS } from "@/lib/marketing-nav";
+import { LEGAL_LINKS } from "@/lib/legal-links";
 import { createClient } from "@/lib/supabase/client";
 
 type MarketingLayoutProps = {
@@ -53,6 +54,15 @@ export function MarketingLayout({
               {MARKETING_NAV_LINKS.map((link) => (
                 <Link
                   key={link.label}
+                  href={link.href}
+                  className="transition-colors duration-150 hover:text-[var(--text)]"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {LEGAL_LINKS.map((link) => (
+                <Link
+                  key={link.href}
                   href={link.href}
                   className="transition-colors duration-150 hover:text-[var(--text)]"
                 >

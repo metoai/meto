@@ -14,8 +14,10 @@ export const config = {
     "/onboarding/:path*",
     "/settings/:path*",
     "/billing/:path*",
+    "/admin/:path*",
     "/api/profile/:path*",
     "/api/onboarding/:path*",
     "/api/billing/:path*",
+    "/api/admin/:path*",
   ],
 };

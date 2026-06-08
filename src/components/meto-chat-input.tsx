@@ -12,7 +12,7 @@ type MetoChatInputProps = {
   disabled?: boolean;
   placeholder: string;
   large?: boolean;
-  footerHint?: string;
+  footerHint?: ReactNode;
   showFooter?: boolean;
   canSend?: boolean;
   attachmentsSlot?: ReactNode;
@@ -38,7 +38,7 @@ export function MetoChatInput({
   return (
     <form
       onSubmit={onSubmit}
-      className="brand-surface landing-chat-shell overflow-hidden rounded-2xl border transition-all duration-200 focus-within:border-[var(--primary)]/25"
+      className="landing-panel overflow-hidden rounded-2xl transition-[border-color,box-shadow] duration-200 focus-within:border-[var(--accent-border)]"
     >
       <div className="flex items-end gap-3 px-4 py-3.5">
         <textarea
@@ -67,12 +67,12 @@ export function MetoChatInput({
         </button>
       </div>
       {attachmentsSlot ? (
-        <div className="border-t border-black/[0.04] bg-[var(--bg)] px-4 py-2.5">
+        <div className="border-t border-[var(--border-subtle)] px-4 py-2.5">
           {attachmentsSlot}
         </div>
       ) : null}
       {showFooter ? (
-        <div className="flex items-center justify-between border-t border-black/[0.04] bg-[var(--bg)] px-4 py-2">
+        <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-4 py-2">
           <span className="text-[11px] text-[var(--muted)]">{footerHint}</span>
           <span className="text-[11px] text-[var(--placeholder)]">Enter ↵</span>
         </div>

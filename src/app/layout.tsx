@@ -14,8 +14,8 @@ export const metadata: Metadata = {
   description:
     "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.",
   icons: {
-    icon: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/brand/logo-icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand/apple-icon.svg", type: "image/svg+xml" }],
   },
   openGraph: {
     title: "Meto — Your AI Identity",
@@ -49,7 +49,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head />
-      <body className="min-h-screen bg-[var(--bg)] font-sans text-[var(--text)]">
+      <body className="min-h-screen font-sans text-[var(--text)]">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

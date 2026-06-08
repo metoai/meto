@@ -75,7 +75,7 @@ export function PlatformTabs({
               className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border px-2 py-2.5 transition-all duration-150 ease-in-out ${
                 active
                   ? "border-[var(--accent-border)] bg-[var(--primary-light)] text-[var(--primary)] shadow-[var(--shadow-sm)]"
-                  : "border-[var(--border)] bg-[var(--card)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+                  : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:border-[var(--accent-border)]"
               }`}
             >
               <AiPlatformIcon

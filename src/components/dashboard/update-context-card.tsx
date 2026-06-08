@@ -23,8 +23,7 @@ export function UpdateContextCard({
   return (
     <section
       id="workspace"
-      className="scroll-mt-16 w-full rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 sm:p-5"
-      style={{ boxShadow: "var(--color-card-shadow)" }}
+      className="landing-panel scroll-mt-16 w-full p-4 sm:p-5"
     >
       <QuickUpdateChat variant="card" onApplied={onApplied} />
     </section>

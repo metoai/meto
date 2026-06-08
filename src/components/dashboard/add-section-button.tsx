@@ -40,7 +40,7 @@ export function AddSectionButton({
       </button>
 
       {open ? (
-        <div className="absolute bottom-full left-0 right-0 z-10 mb-2 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] py-1">
+        <div className="absolute bottom-full left-0 right-0 z-10 mb-2 overflow-hidden landing-panel py-1">
           {availableTypes.length === 0 ? (
             <p className="px-4 py-3 text-xs text-[var(--muted)]">
               All preset sections added.

@@ -17,9 +17,7 @@ export function IntentGrid({
   if (workspaceLayout) {
     return (
       <div className="space-y-2">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
-          Scenario
-        </p>
+        <p className="landing-panel-label">Scenario</p>
         <div className="flex flex-wrap gap-1.5">
           {INTENT_PRESETS.map((preset) => {
             const active = selectedPreset === preset.id;
@@ -30,8 +28,8 @@ export function IntentGrid({
                 onClick={() => onSelect(preset.id)}
                 className={`shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors duration-150 ${
                   active
-                    ? "border-[var(--primary)] text-[var(--text)]"
-                    : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)] hover:text-[var(--text)]"
+                    ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--text)]"
+                    : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:border-[var(--accent-border)] hover:text-[var(--text)]"
                 }`}
               >
                 {preset.label}
@@ -50,9 +48,7 @@ export function IntentGrid({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium text-[var(--muted)]">
-        Start from a scenario
-      </p>
+      <p className="landing-panel-label">Start from a scenario</p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
         {INTENT_PRESETS.map((preset) => {
           const active = selectedPreset === preset.id;
@@ -65,7 +61,7 @@ export function IntentGrid({
               className={`cursor-pointer rounded-[10px] border px-3.5 py-2.5 text-left transition-[border-color,background-color] duration-150 ease-in-out ${
                 active
                   ? "border-[var(--primary)] bg-[var(--primary-light)]"
-                  : "border-[var(--border)] bg-[var(--card)] hover:border-[var(--border-hover)]"
+                  : "border-[var(--border-subtle)] bg-[var(--surface)] hover:border-[var(--accent-border)]"
               }`}
             >
               <span className="block text-[13px] font-medium text-[var(--text)]">

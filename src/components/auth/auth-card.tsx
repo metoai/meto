@@ -2,18 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 
-export function AuthBrandMark() {
-  return (
-    <Link
-      href="/"
-      className="mx-auto mb-3 inline-flex transition-opacity duration-150 hover:opacity-80 sm:mb-3.5"
-      aria-label="Back to home"
-    >
-      <MetoMarkBadge size="auth" />
-    </Link>
-  );
-}
-
 type AuthPageProps = {
   title: string;
   subtitle: string;
@@ -23,29 +11,37 @@ type AuthPageProps = {
 
 export function AuthPage({ title, subtitle, children, footer }: AuthPageProps) {
   return (
-    <div className="landing-animate-in mx-auto w-full max-w-[400px]">
-      <div className="brand-surface w-full rounded-2xl border px-4 py-4 backdrop-blur-sm sm:px-5 sm:py-5">
-        <div className="mb-3 shrink-0 text-center sm:mb-4">
-          <AuthBrandMark />
-          <h1 className="text-[22px] font-semibold tracking-tight text-[var(--text)] sm:text-[24px]">
-            {title}
-          </h1>
-          <p className="mt-1 text-[13px] leading-snug text-[var(--text-secondary)]">{subtitle}</p>
-        </div>
-        <div className="min-h-0 flex-1">{children}</div>
-        <div className="mt-3 shrink-0 text-center text-[12px] text-[var(--muted)] sm:mt-4">
-          {footer}
-        </div>
+    <div className="landing-animate-in mx-auto w-full max-w-[420px]">
+      <div className="mb-8">
+        <MetoMarkBadge size="sm" className="mb-5" />
+        <h1 className="text-[1.75rem] font-semibold tracking-[-0.03em] text-[var(--text)] sm:text-[2rem]">
+          {title}
+        </h1>
+        <p className="mt-2 max-w-[360px] text-[14px] leading-[1.6] text-[var(--text-secondary)]">
+          {subtitle}
+        </p>
       </div>
+
+      <div>{children}</div>
+
+      <p className="mt-8 text-center text-[13px] text-[var(--text-secondary)]">{footer}</p>
     </div>
   );
 }
 
-/** @deprecated Use AuthPage — kept for import compatibility */
+/** @deprecated Use AuthPage */
 export const AuthCard = AuthPage;
 
+export function AuthBrandMark() {
+  return (
+    <Link href="/" className="inline-flex transition-opacity hover:opacity-80" aria-label="Back to home">
+      <MetoMarkBadge size="auth" />
+    </Link>
+  );
+}
+
 const inputClass =
-  "w-full rounded-lg border border-[#E4E4E0] bg-[var(--card)] px-3 py-2 text-[14px] text-[var(--text)] outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-[#C8C8C2] focus:border-[#B8DDD4] focus:shadow-[0_0_0_3px_rgba(15,110,86,0.08)]";
+  "w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text)] outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-[var(--placeholder)] focus:border-[var(--accent-border)] focus:shadow-[0_0_0_3px_rgba(255,77,0,0.08)]";
 
 export function AuthField({
   id,
@@ -70,10 +66,7 @@ export function AuthField({
 }) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="mb-1 block text-[12px] font-medium text-[var(--text-secondary)]"
-      >
+      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-[var(--text)]">
         {label}
       </label>
       <input
@@ -107,7 +100,7 @@ export function AuthPrimaryButton({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className="flex w-full items-center justify-center rounded-lg border-none bg-[var(--primary)] px-3 py-2.5 text-center text-[14px] font-medium text-white transition-[background] duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
+      className="flex w-full items-center justify-center rounded-xl border-none bg-[var(--text)] px-4 py-3 text-[14px] font-medium text-[var(--bg)] shadow-[var(--shadow-sm)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.99] disabled:opacity-50"
     >
       {children}
     </button>
@@ -116,7 +109,7 @@ export function AuthPrimaryButton({
 
 function GoogleLogo() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden>
+    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0" aria-hidden>
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
         fill="#4285F4"
@@ -140,16 +133,32 @@ function GoogleLogo() {
 export function AuthGoogleButton({
   onClick,
   disabled,
+  compact = false,
 }: {
   onClick: () => void;
   disabled?: boolean;
+  compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label="Continue with Google"
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] transition-[border-color,background-color] duration-150 hover:border-[var(--border-hover)] disabled:opacity-50"
+      >
+        <GoogleLogo />
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#E4E4E0] bg-[var(--card)] px-3 py-2.5 text-[14px] font-medium text-[var(--text)] transition-[border-color,background] duration-150 hover:border-[#D4D4D0] hover:bg-[var(--bg)] disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-[14px] font-medium text-[var(--text)] transition-[border-color,background-color] duration-150 hover:border-[var(--border-hover)] hover:bg-[var(--surface)] disabled:opacity-50"
     >
       <GoogleLogo />
       Continue with Google
@@ -159,10 +168,24 @@ export function AuthGoogleButton({
 
 export function AuthDivider() {
   return (
-    <div className="flex items-center gap-2.5 py-2.5">
+    <div className="flex items-center gap-3 py-6">
       <div className="h-px flex-1 bg-[var(--border)]" />
-      <span className="text-[11px] font-medium text-[var(--placeholder)]">or</span>
+      <span className="text-[12px] text-[var(--muted)]">or continue with</span>
       <div className="h-px flex-1 bg-[var(--border)]" />
+    </div>
+  );
+}
+
+export function AuthSocialRow({
+  onGoogle,
+  disabled,
+}: {
+  onGoogle: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex justify-center gap-3">
+      <AuthGoogleButton onClick={onGoogle} disabled={disabled} compact />
     </div>
   );
 }

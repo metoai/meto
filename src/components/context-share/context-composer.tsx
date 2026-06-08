@@ -60,7 +60,7 @@ export function ContextComposer({
           ? workspaceLayout
             ? "flex min-h-0 w-full flex-1 flex-col"
             : "w-full"
-          : "rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6"
+          : "landing-panel p-5 sm:p-6"
       }
     >
       {showHeader ? (
@@ -82,7 +82,7 @@ export function ContextComposer({
       >
         <div className={workspaceLayout ? "min-w-0 space-y-4" : "space-y-5"}>
           {sections.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
+            <p className="rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
               Add sections in Your profile first — or head to Update and tell
               Meto about yourself in a quick chat.
             </p>

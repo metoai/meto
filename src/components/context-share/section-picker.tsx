@@ -38,7 +38,7 @@ export function SectionPicker({
         <p
           className={
             workspaceLayout
-              ? "text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]"
+              ? "landing-panel-label"
               : "text-xs font-medium text-[var(--muted)]"
           }
         >
@@ -54,7 +54,7 @@ export function SectionPicker({
       </div>
 
       {workspaceLayout && onTogglePublic ? (
-        <div className="divide-y divide-[var(--border-subtle)] rounded-lg border border-[var(--border)]">
+        <div className="landing-panel divide-y divide-[var(--landing-panel-border)] overflow-hidden">
           {sections.map((section) => {
             const active = selectedSections.includes(section.section_type);
             const title = friendlySectionTitle(

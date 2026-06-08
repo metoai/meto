@@ -37,7 +37,7 @@ export function ProfileAddSectionCard({
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="group flex h-full min-h-[140px] w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-[var(--border)] bg-[var(--card)] px-[18px] py-4 transition-all duration-150 ease-in-out hover:border-[var(--primary)]"
+        className="group landing-panel flex h-full min-h-[140px] w-full cursor-pointer flex-col items-center justify-center gap-2 border-dashed px-[18px] py-4 transition-[border-color] duration-150 ease-in-out hover:border-[var(--primary)]"
       >
         <span className="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-[var(--border)] text-sm text-[var(--placeholder)] transition-all duration-150 group-hover:border-[var(--primary)] group-hover:text-[var(--primary)]">
           +
@@ -48,7 +48,7 @@ export function ProfileAddSectionCard({
       </button>
 
       {open ? (
-        <div className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1 shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
+        <div className="landing-panel absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden py-1">
           {availableTypes.length === 0 ? (
             <p className="px-3 py-2 text-[13px] text-[var(--muted)]">
               All preset sections added.

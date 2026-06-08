@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import {
   AuthDivider,
   AuthField,
-  AuthGoogleButton,
   AuthPage,
   AuthPrimaryButton,
+  AuthSocialRow,
 } from "@/components/auth/auth-card";
 import { createClient } from "@/lib/supabase/client";
 
@@ -75,7 +75,7 @@ export function LoginForm() {
   return (
     <AuthPage
       title="Welcome back"
-      subtitle="Sign in to your AI profile."
+      subtitle="Sign in to your profile — pick up where you left off with every AI."
       footer={
         <>
           No account?{" "}
@@ -83,47 +83,45 @@ export function LoginForm() {
             href="/auth/signup"
             className="font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)]"
           >
-            Sign up free
+            Create account
           </Link>
         </>
       }
     >
-      <div className="flex flex-col">
-        <AuthGoogleButton onClick={() => void handleGoogleLogin()} disabled={loading} />
+      <form onSubmit={handleLogin} className="space-y-4">
+        <AuthField
+          id="email"
+          label="Your email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="you@example.com"
+          autoComplete="email"
+        />
+        <AuthField
+          id="password"
+          label="Password"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          placeholder="••••••••"
+          autoComplete="current-password"
+        />
 
-        <AuthDivider />
+        {displayError ? (
+          <p className="text-[12px] leading-snug text-red-500" role="alert">
+            {displayError}
+          </p>
+        ) : null}
 
-        <form onSubmit={handleLogin} className="space-y-2.5">
-          <AuthField
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="you@example.com"
-            autoComplete="email"
-          />
-          <AuthField
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="••••••••"
-            autoComplete="current-password"
-          />
+        <AuthPrimaryButton disabled={loading}>
+          {loading ? "Signing in…" : "Sign in"}
+        </AuthPrimaryButton>
+      </form>
 
-          {displayError ? (
-            <p className="text-[12px] leading-snug text-red-500" role="alert">
-              {displayError}
-            </p>
-          ) : null}
+      <AuthDivider />
 
-          <AuthPrimaryButton disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
-          </AuthPrimaryButton>
-        </form>
-      </div>
+      <AuthSocialRow onGoogle={() => void handleGoogleLogin()} disabled={loading} />
     </AuthPage>
   );
 }

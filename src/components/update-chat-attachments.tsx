@@ -1,8 +1,10 @@
 "use client";
 
 import { FileText, Paperclip, X } from "lucide-react";
+import { MetoStatusIndicator } from "@/components/meto-status-indicator";
 import type { DocumentImportMode } from "@/lib/document-import";
 import { DOCUMENT_ACCEPT, DOCUMENT_IMPORT } from "@/lib/document-import";
+import { METO_STATUS_LABELS } from "@/lib/meto-status-labels";
 
 export type PendingAttachment = {
   id: string;
@@ -15,8 +17,11 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+type AttachmentReadState = "reading" | "ready" | "error";
+
 type UpdateChatAttachmentsProps = {
   attachments: PendingAttachment[];
+  attachmentReadState?: Record<string, AttachmentReadState>;
   onAdd: (files: FileList | File[]) => void;
   onRemove: (id: string) => void;
   importMode: DocumentImportMode;
@@ -27,6 +32,7 @@ type UpdateChatAttachmentsProps = {
 
 export function UpdateChatAttachments({
   attachments,
+  attachmentReadState = {},
   onAdd,
   onRemove,
   importMode,
@@ -94,16 +100,28 @@ export function UpdateChatAttachments({
 
       {attachments.length > 0 ? (
         <ul className="flex flex-wrap gap-2">
-          {attachments.map((item) => (
+          {attachments.map((item) => {
+            const readState = attachmentReadState[item.id];
+            return (
             <li
               key={item.id}
               className="inline-flex max-w-full items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-2.5 py-1.5 text-xs text-[var(--text)]"
             >
               <FileText className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]" />
               <span className="truncate">{item.file.name}</span>
-              <span className="shrink-0 text-[var(--muted)]">
-                {formatFileSize(item.file.size)}
-              </span>
+              {readState === "reading" ? (
+                <MetoStatusIndicator
+                  labels={[...METO_STATUS_LABELS.attachment]}
+                  size="sm"
+                  className="shrink-0"
+                />
+              ) : readState === "error" ? (
+                <span className="shrink-0 text-red-500">Read failed</span>
+              ) : (
+                <span className="shrink-0 text-[var(--muted)]">
+                  {formatFileSize(item.file.size)}
+                </span>
+              )}
               <button
                 type="button"
                 disabled={disabled}
@@ -114,7 +132,8 @@ export function UpdateChatAttachments({
                 <X className="h-3.5 w-3.5" />
               </button>
             </li>
-          ))}
+          );
+          })}
         </ul>
       ) : null}
 

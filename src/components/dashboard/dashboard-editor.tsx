@@ -638,7 +638,7 @@ export function DashboardEditor({
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4">
-          <div className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
+          <div className="landing-panel w-full max-w-md p-6">
             <h3 className="text-lg font-semibold text-[var(--color-text)]">
               Add custom section
             </h3>

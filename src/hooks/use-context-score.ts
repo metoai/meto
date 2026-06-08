@@ -12,7 +12,7 @@ import {
 import { recordScore } from "@/lib/score-history";
 
 export function scoreColor(score: number) {
-  if (score >= 60) return "#0F6E56";
+  if (score >= 60) return "var(--primary)";
   if (score >= 30) return "#B45309";
   return "#DC2626";
 }

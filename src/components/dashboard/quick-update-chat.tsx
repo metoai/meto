@@ -8,10 +8,8 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import {
-  isAssistantReplying,
-  LandingTypingDots,
-} from "@/components/landing/landing-chat-ui";
+import { isAssistantReplying } from "@/components/landing/landing-chat-ui";
+import { MetoStatusIndicator } from "@/components/meto-status-indicator";
 import { MetoChatAvatar, MetoMark } from "@/components/meto-mark";
 import { MetoChatInput } from "@/components/meto-chat-input";
 import { UpdateChatAttachments } from "@/components/update-chat-attachments";
@@ -102,10 +100,13 @@ export function QuickUpdateChat({
 
   const inputBusy = chat.typing || chat.applying || chat.ingesting;
   const canSend = Boolean(chat.input.trim() || chat.attachments.length);
+  const showBusyStatus = chat.statusPhase !== "idle";
+  const busyStatusLabels = chat.statusLabels;
 
   const attachmentsPanel = (
     <UpdateChatAttachments
       attachments={chat.attachments}
+      attachmentReadState={chat.attachmentReadState}
       onAdd={chat.addAttachments}
       onRemove={chat.removeAttachment}
       importMode={chat.importMode}
@@ -188,9 +189,14 @@ export function QuickUpdateChat({
                     large
                     attachmentsSlot={attachmentsPanel}
                     footerHint={
-                      chat.ingesting
-                        ? "Reading your files…"
-                        : "Meto updates every section that needs it"
+                      showBusyStatus ? (
+                        <MetoStatusIndicator
+                          labels={busyStatusLabels}
+                          size="sm"
+                        />
+                      ) : (
+                        "Meto updates every section that needs it"
+                      )
                     }
                   />
 
@@ -202,7 +208,7 @@ export function QuickUpdateChat({
                           key={suggestion.label}
                           type="button"
                           onClick={() => void chat.sendMessage(suggestion.message)}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--card)] px-4 py-2 text-[13px] text-[var(--text-secondary)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-150 hover:border-black/[0.14] hover:text-[var(--text)]"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2 text-[13px] text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--accent-border)] hover:text-[var(--text)]"
                         >
                           <Icon className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]" />
                           {suggestion.label}
@@ -221,7 +227,7 @@ export function QuickUpdateChat({
                       {chat.updateHistory.slice(0, 3).map((entry) => (
                         <div
                           key={entry.id}
-                          className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] px-4 py-3"
+                          className="landing-panel px-4 py-3"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <p className="text-sm text-[var(--text)]">{entry.message}</p>
@@ -278,13 +284,14 @@ export function QuickUpdateChat({
                             <p className="whitespace-pre-wrap text-[15px] leading-[1.65] text-[var(--text)]">
                               {message.content}
                             </p>
-                          ) : null}
-                          {isAssistantReplying(
-                            chat.typing || chat.gapFixBootstrapping,
-                            chat.messages,
-                            message
-                          ) ? (
-                            <LandingTypingDots />
+                          ) : isAssistantReplying(
+                              chat.typing ||
+                                chat.gapFixBootstrapping ||
+                                chat.ingesting,
+                              chat.messages,
+                              message
+                            ) && showBusyStatus ? (
+                            <MetoStatusIndicator labels={busyStatusLabels} />
                           ) : null}
                         </div>
                       </>
@@ -383,9 +390,14 @@ export function QuickUpdateChat({
                 placeholder={inputPlaceholder}
                 attachmentsSlot={attachmentsPanel}
                 footerHint={
-                  chat.ingesting
-                    ? "Reading your files…"
-                    : "Meto updates every section that needs it"
+                  showBusyStatus ? (
+                    <MetoStatusIndicator
+                      labels={busyStatusLabels}
+                      size="sm"
+                    />
+                  ) : (
+                    "Meto updates every section that needs it"
+                  )
                 }
               />
 
@@ -407,7 +419,7 @@ export function QuickUpdateChat({
   const maxMessageHeight = isCompact ? "max-h-36" : "max-h-48";
 
   return (
-    <div>
+    <div className="landing-panel p-4">
       {!isCompact ? (
         <div className="mb-3">
           <h3 className="text-sm font-semibold text-[var(--text)]">
@@ -434,7 +446,7 @@ export function QuickUpdateChat({
 
       {chat.chatStarted ? (
         <div
-          className={`landing-scrollbar-hidden mb-3 ${maxMessageHeight} overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3`}
+          className={`landing-scrollbar-hidden mb-3 ${maxMessageHeight} overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-3`}
         >
           <div className="space-y-3">
             {chat.messages.map((message) => (
@@ -448,7 +460,7 @@ export function QuickUpdateChat({
                   </p>
                 ) : null}
                 {message.role === "user" ? (
-                  <div className="inline-block max-w-[90%] rounded-2xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm leading-relaxed text-[var(--text)]">
+                  <div className="inline-block max-w-[90%] rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2 text-sm leading-relaxed text-[var(--text)]">
                     {message.attachments?.length ? (
                       <ul className="mb-1.5 space-y-0.5">
                         {message.attachments.map((file) => (
@@ -469,9 +481,12 @@ export function QuickUpdateChat({
                       <p className="inline-block max-w-[90%] whitespace-pre-wrap text-sm leading-relaxed text-[var(--text)]">
                         {message.content}
                       </p>
-                    ) : null}
-                    {isAssistantReplying(chat.typing, chat.messages, message) ? (
-                      <LandingTypingDots />
+                    ) : isAssistantReplying(
+                        chat.typing || chat.ingesting,
+                        chat.messages,
+                        message
+                      ) && showBusyStatus ? (
+                      <MetoStatusIndicator labels={busyStatusLabels} />
                     ) : null}
                   </>
                 )}
@@ -495,7 +510,7 @@ export function QuickUpdateChat({
               key={suggestion.label}
               type="button"
               onClick={() => chat.setInput(suggestion.message)}
-              className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-sm text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--border-hover)]"
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3.5 py-2 text-sm text-[var(--text-secondary)] transition-all duration-150 hover:border-[var(--accent-border)] hover:text-[var(--text)]"
             >
               {suggestion.label}
             </button>
@@ -512,9 +527,14 @@ export function QuickUpdateChat({
           rows={2}
           placeholder={copy.placeholderEmpty}
           disabled={inputBusy}
-          className="w-full resize-none rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-relaxed text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--border-hover)]"
+          className="w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-3 text-sm leading-relaxed text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] focus:border-[var(--accent-border)]"
         />
         <div className="mt-2">{attachmentsPanel}</div>
+        {showBusyStatus ? (
+          <div className="mt-2 px-1">
+            <MetoStatusIndicator labels={busyStatusLabels} size="sm" />
+          </div>
+        ) : null}
         <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
           {chat.pendingUpdates ? (
             <button

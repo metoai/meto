@@ -7,7 +7,7 @@ export function ProgressBar({
 }) {
   const clamped = Math.max(0, Math.min(100, value));
   const color =
-    clamped >= 60 ? "#0F6E56" : clamped >= 30 ? "#B45309" : "#DC2626";
+    clamped >= 60 ? "var(--primary)" : clamped >= 30 ? "#B45309" : "#DC2626";
 
   return (
     <div>

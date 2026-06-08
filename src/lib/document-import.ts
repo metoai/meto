@@ -4,9 +4,21 @@ export const DOCUMENT_IMPORT = {
   MAX_FILE_BYTES: 5 * 1024 * 1024,
   MAX_FILES: 3,
   MAX_EXTRACTED_CHARS: 50_000,
+  /** Cap passed to update-chat — keeps ingest fast without a separate LLM pass. */
+  MAX_FACT_CHARS: 18_000,
   RATE_LIMIT: 10,
   RATE_WINDOW_MS: 60 * 60 * 1000,
 } as const;
+
+/** Local path: pass truncated text as facts (update-chat prompt already treats docs as untrusted). */
+export function formatLocalDocumentFacts(
+  filename: string,
+  rawText: string,
+  truncated: boolean
+): string {
+  const header = `Document: ${filename}${truncated ? " (truncated)" : ""}`;
+  return `${header}\n\n${rawText}`;
+}
 
 export type DocumentImportMode = "supplement" | "refresh";
 
