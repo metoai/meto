@@ -66,7 +66,10 @@ export function useContextScore(
 
   const syncIssueCount = useCallback(
     (next: ContextScoreResult | null) => {
-      if (next) portal?.setContextScore(next);
+      if (next) {
+        portal?.setContextScore(next);
+        portal?.setContextScoreStale(false);
+      }
     },
     [portal]
   );
@@ -147,7 +150,10 @@ export function useContextScore(
 
         const shouldAnalyze =
           forceCelebrate ||
-          (autoAnalyze && (!getData.cached || Boolean(getData.stale)));
+          (autoAnalyze &&
+            (!getData.cached ||
+              Boolean(getData.stale) ||
+              Boolean(portal?.contextScoreStale)));
 
         if (!shouldAnalyze) {
           return;
@@ -171,7 +177,7 @@ export function useContextScore(
       setLoading(false);
       setAnalyzing(false);
     }
-  }, [autoAnalyze, dataVersion, portal?.contextScore, runAnalyze, syncIssueCount]);
+  }, [autoAnalyze, dataVersion, portal?.contextScore, portal?.contextScoreStale, runAnalyze, syncIssueCount]);
 
   useEffect(() => {
     void loadScore();

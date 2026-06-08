@@ -32,6 +32,7 @@ type PortalDataContextValue = {
   setProfile: (profile: UserProfile | null) => void;
   setSections: (sections: ContextSection[]) => void;
   setContextScore: (score: ContextScoreResult | null) => void;
+  setContextScoreStale: (stale: boolean) => void;
 };
 
 const PortalDataContext = createContext<PortalDataContextValue | null>(null);
@@ -143,6 +144,7 @@ export function PortalDataProvider({
       setProfile,
       setSections,
       setContextScore,
+      setContextScoreStale,
     }),
     [
       profile,
