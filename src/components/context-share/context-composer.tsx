@@ -131,7 +131,7 @@ export function ContextComposer({
             copiedContext={share.copiedContext}
             onCopyContext={share.copyContext}
             shareUrl={share.shareUrl}
-            shareClipboardText={share.shareClipboardText}
+            platformShare={share.platformShare}
             copiedLink={share.copiedLink}
             onCopyLink={share.copyLink}
             username={username}

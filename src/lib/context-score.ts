@@ -338,19 +338,7 @@ export function applyResolvedSections(
     stillResolved
   );
 
-  let score = finalized.score;
-
-  if (
-    stillResolved.length > 0 &&
-    previousScore != null &&
-    previousScore > 0
-  ) {
-    score = Math.max(
-      score,
-      Math.min(previousScore + stillResolved.length * 3, 100)
-    );
-    score = Math.min(score, computeOverallProfileScore(sections, finalized.gaps) + 5);
-  }
+  const score = finalized.score;
 
   const copy = headlineForScore(score, finalized.gaps.length);
 
@@ -498,7 +486,9 @@ Rules:
 
 - return 0–3 gaps max, ordered by impact; prefer fewer gaps when profile is decent (score > 65)
 
-- if most core sections have substantive content, score should be 70+ and gaps should be 0–1
+- calibrate honestly — do not inflate scores to encourage the user; do not be harsh or dismissive
+
+- headline and summary must match the score band; no cheerleading when sections are thin
 
 - goals stale only if updated_at is old AND content references outdated plans
 

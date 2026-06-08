@@ -3,14 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { recordCopy } from "@/lib/copy-stats";
 import {
+  buildContextShareUrl,
   buildContextText,
   getSelectedSections,
   sectionTypesForPreset,
   type ContextPresetId,
   type ContextSectionInput,
 } from "@/lib/context-templates";
-import { buildProfileShareClipboard } from "@/lib/profile-share";
-import { getPublicProfilePath } from "@/lib/site";
+import { buildPlatformShareGuide } from "@/lib/platform-share";
 import type { CompileFormat } from "@/lib/types";
 
 type UseContextShareOptions = {
@@ -98,14 +98,25 @@ export function useContextShare({
 
   const shareUrl = useMemo(() => {
     if (!username || shareSelection.length === 0) return null;
-    const base = siteUrl.replace(/\/$/, "");
-    return `${base}${getPublicProfilePath(username)}`;
-  }, [username, shareSelection.length, siteUrl]);
+    return buildContextShareUrl(
+      siteUrl,
+      username,
+      selectedPreset === "custom" ? "custom" : selectedPreset,
+      shareSelection,
+      selectedFormat
+    );
+  }, [
+    username,
+    shareSelection,
+    siteUrl,
+    selectedPreset,
+    selectedFormat,
+  ]);
 
-  const shareClipboardText = useMemo(() => {
-    if (!shareUrl) return null;
-    return buildProfileShareClipboard(shareUrl);
-  }, [shareUrl]);
+  const platformShare = useMemo(() => {
+    if (!shareUrl || !username) return null;
+    return buildPlatformShareGuide(selectedFormat, username, shareUrl);
+  }, [shareUrl, username, selectedFormat]);
 
   const selectionCount = selectedItems.length;
   const wordCount = useMemo(() => {
@@ -151,8 +162,8 @@ export function useContextShare({
   }
 
   async function copyLink() {
-    if (!shareClipboardText) return;
-    await navigator.clipboard.writeText(shareClipboardText);
+    if (!platformShare) return;
+    await navigator.clipboard.writeText(platformShare.clipboardText);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   }
@@ -165,7 +176,7 @@ export function useContextShare({
     selectedItems,
     contextText,
     shareUrl,
-    shareClipboardText,
+    platformShare,
     selectionCount,
     linkSelectionCount,
     privateInSelectionCount,

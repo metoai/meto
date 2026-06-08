@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { CompileFormat } from "@/lib/types";
+import type { PlatformShareGuide } from "@/lib/platform-share";
 import { WORKSPACE_COPY } from "@/lib/workspace-content";
 import { AiPlatformIcon } from "@/components/ui/ai-platform-icon";
 
@@ -15,7 +16,7 @@ type PreviewPanelProps = {
   copiedContext: boolean;
   onCopyContext: () => void;
   shareUrl: string | null;
-  shareClipboardText: string | null;
+  platformShare: PlatformShareGuide | null;
   copiedLink: boolean;
   onCopyLink: () => void;
   username: string;
@@ -32,7 +33,7 @@ export function PreviewPanel({
   copiedContext,
   onCopyContext,
   shareUrl,
-  shareClipboardText,
+  platformShare,
   copiedLink,
   onCopyLink,
   username,
@@ -52,8 +53,10 @@ export function PreviewPanel({
   }
 
   if (workspaceLayout) {
-    const linkReady = Boolean(shareUrl);
+    const linkReady = Boolean(platformShare);
     const hasUsername = Boolean(username);
+    const usesPrompt =
+      selectedFormat === "chatgpt" || selectedFormat === "gemini";
 
     return (
       <div className="landing-panel flex h-full min-h-0 flex-col p-3 md:p-4">
@@ -70,9 +73,9 @@ export function PreviewPanel({
                 Claim username →
               </Link>
             </div>
-          ) : linkReady && shareClipboardText ? (
+          ) : linkReady && platformShare ? (
             <pre className="scrollbar-hidden max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
-              {shareClipboardText}
+              {platformShare.clipboardText}
             </pre>
           ) : (
             <p className="text-xs text-[var(--muted)]">
@@ -90,16 +93,25 @@ export function PreviewPanel({
                 : "bg-[var(--primary)] hover:bg-[var(--primary-hover)]"
             }`}
           >
-            {copiedLink ? WORKSPACE_COPY.copiedLink : WORKSPACE_COPY.copyLink}
+            {copiedLink
+              ? WORKSPACE_COPY.copiedLink
+              : usesPrompt
+                ? "Copy prompt"
+                : WORKSPACE_COPY.copyLink}
           </button>
 
-          {hasUsername && linkReady ? (
-            <p className="text-[10px] text-[var(--muted)]">
-              {linkSelectionCount} public
-              {privateInSelectionCount > 0
-                ? ` · ${privateInSelectionCount} private in text only`
-                : ""}
-            </p>
+          {hasUsername && linkReady && platformShare ? (
+            <>
+              <p className="text-[10px] text-[var(--muted)]">
+                {linkSelectionCount} public
+                {privateInSelectionCount > 0
+                  ? ` · ${privateInSelectionCount} private in text only`
+                  : ""}
+              </p>
+              <p className="text-[10px] leading-relaxed text-[var(--muted)]">
+                {platformShare.hint}
+              </p>
+            </>
           ) : null}
         </div>
 
@@ -151,7 +163,7 @@ export function PreviewPanel({
           {copiedContext ? "Copied ✓" : "Copy context"}
         </button>
 
-        {showShareLink && shareUrl ? (
+        {showShareLink && shareUrl && platformShare ? (
           <button
             type="button"
             onClick={() => void onCopyLink()}
@@ -161,7 +173,11 @@ export function PreviewPanel({
                 : "border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text-secondary)] hover:border-[var(--accent-border)] hover:text-[var(--text)]"
             }`}
           >
-            {copiedLink ? "Link copied ✓" : "Copy link instead"}
+            {copiedLink
+              ? "Copied ✓"
+              : selectedFormat === "chatgpt" || selectedFormat === "gemini"
+                ? "Copy prompt instead"
+                : "Copy link instead"}
           </button>
         ) : null}
       </div>

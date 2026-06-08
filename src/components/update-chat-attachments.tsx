@@ -1,10 +1,8 @@
 "use client";
 
 import { FileText, Paperclip, X } from "lucide-react";
-import { MetoStatusIndicator } from "@/components/meto-status-indicator";
 import type { DocumentImportMode } from "@/lib/document-import";
 import { DOCUMENT_ACCEPT, DOCUMENT_IMPORT } from "@/lib/document-import";
-import { METO_STATUS_LABELS } from "@/lib/meto-status-labels";
 
 export type PendingAttachment = {
   id: string;
@@ -110,10 +108,9 @@ export function UpdateChatAttachments({
               <FileText className="h-3.5 w-3.5 shrink-0 text-[var(--muted)]" />
               <span className="truncate">{item.file.name}</span>
               {readState === "reading" ? (
-                <MetoStatusIndicator
-                  labels={[...METO_STATUS_LABELS.attachment]}
-                  size="sm"
-                  className="shrink-0"
+                <span
+                  className="inline-block h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[var(--primary)]"
+                  aria-hidden
                 />
               ) : readState === "error" ? (
                 <span className="shrink-0 text-red-500">Read failed</span>

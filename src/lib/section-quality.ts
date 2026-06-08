@@ -130,27 +130,31 @@ export function headlineForScore(
 ): { headline: string; summary: string } {
   if (score >= 90 && gapCount === 0) {
     return {
-      headline: "AI knows you well — profile is in great shape",
-      summary: `Your profile is ${score}% understood by AI. You're in great shape.`,
+      headline: "Strong coverage — profile reads clearly to AI",
+      summary: `${score}% — your core sections are detailed enough for most AI tools.`,
     };
   }
   if (score >= 75) {
     return {
-      headline: "AI knows you fairly well — a few gaps remain",
-      summary: `Your profile is ${score}% understood by AI.${
-        gapCount ? " Strengthen the sections below to improve further." : ""
+      headline: gapCount
+        ? "Solid base — a few sections still thin"
+        : "Solid coverage for most conversations",
+      summary: `${score}% understood by AI.${
+        gapCount
+          ? ` ${gapCount} section${gapCount === 1 ? "" : "s"} still need more detail.`
+          : ""
       }`,
     };
   }
   if (score >= 50) {
     return {
-      headline: "AI is missing some of what matters most",
-      summary: `Your profile is ${score}% understood by AI. Focus on the weakest sections first.`,
+      headline: "Partial coverage — weak sections will limit AI",
+      summary: `${score}% understood. Strengthen the thinnest sections before sharing your link.`,
     };
   }
   return {
-    headline: "AI is missing the things that matter most",
-    summary: `Your profile is ${score}% understood by AI. Add detail to your core sections.`,
+    headline: "Thin profile — AI won't know you well yet",
+    summary: `${score}% understood. Add concrete detail to About, Work, and Goals first.`,
   };
 }
 

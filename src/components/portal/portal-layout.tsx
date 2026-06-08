@@ -177,7 +177,10 @@ function SidebarContent({
             <div className="my-2 border-t border-[var(--border-subtle)]" aria-hidden />
           )}
           <ul className="space-y-1">
-            {SECONDARY_NAV.map(({ id, label, href, icon: Icon }) => {
+            {(issueCount > 0
+              ? SECONDARY_NAV
+              : SECONDARY_NAV.filter((item) => item.id !== "fixes")
+            ).map(({ id, label, href, icon: Icon }) => {
               const isFixes = id === "fixes";
               const badge = isFixes && issueCount > 0 ? issueCount : 0;
 
@@ -452,10 +455,16 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
             </button>
 
             <Link
-              href={FIXES_NAV.href}
-              className="rounded-full bg-[var(--surface)] px-3 py-1.5 text-[12px] text-[var(--text-secondary)]"
+              href={issueCount > 0 ? FIXES_NAV.href : DASHBOARD_HOME}
+              className={`rounded-full px-3 py-1.5 text-[12px] ${
+                issueCount > 0
+                  ? "bg-[var(--surface)] text-[var(--text-secondary)]"
+                  : "pointer-events-none invisible"
+              }`}
+              aria-hidden={issueCount === 0}
+              tabIndex={issueCount === 0 ? -1 : undefined}
             >
-              {issueCount > 0 ? `${issueCount} fixes` : "Fixes"}
+              {issueCount} fix{issueCount === 1 ? "" : "es"}
             </Link>
 
             <Link

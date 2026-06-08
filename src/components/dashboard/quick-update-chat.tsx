@@ -8,8 +8,7 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import { isAssistantReplying } from "@/components/landing/landing-chat-ui";
-import { MetoStatusIndicator } from "@/components/meto-status-indicator";
+import { MetoTypingDots, isAssistantReplying } from "@/components/landing/landing-chat-ui";
 import { MetoChatAvatar, MetoMark } from "@/components/meto-mark";
 import { MetoChatInput } from "@/components/meto-chat-input";
 import { UpdateChatAttachments } from "@/components/update-chat-attachments";
@@ -101,7 +100,6 @@ export function QuickUpdateChat({
   const inputBusy = chat.typing || chat.applying || chat.ingesting;
   const canSend = Boolean(chat.input.trim() || chat.attachments.length);
   const showBusyStatus = chat.statusPhase !== "idle";
-  const busyStatusLabels = chat.statusLabels;
 
   const attachmentsPanel = (
     <UpdateChatAttachments
@@ -188,16 +186,7 @@ export function QuickUpdateChat({
                     placeholder="What's changed? e.g. 'Started a new job at Stripe'"
                     large
                     attachmentsSlot={attachmentsPanel}
-                    footerHint={
-                      showBusyStatus ? (
-                        <MetoStatusIndicator
-                          labels={busyStatusLabels}
-                          size="sm"
-                        />
-                      ) : (
-                        "Meto updates every section that needs it"
-                      )
-                    }
+                    footerHint="Meto updates every section that needs it"
                   />
 
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -291,7 +280,7 @@ export function QuickUpdateChat({
                               chat.messages,
                               message
                             ) && showBusyStatus ? (
-                            <MetoStatusIndicator labels={busyStatusLabels} />
+                            <MetoTypingDots />
                           ) : null}
                         </div>
                       </>
@@ -389,16 +378,7 @@ export function QuickUpdateChat({
                 canSend={canSend}
                 placeholder={inputPlaceholder}
                 attachmentsSlot={attachmentsPanel}
-                footerHint={
-                  showBusyStatus ? (
-                    <MetoStatusIndicator
-                      labels={busyStatusLabels}
-                      size="sm"
-                    />
-                  ) : (
-                    "Meto updates every section that needs it"
-                  )
-                }
+                footerHint="Meto updates every section that needs it"
               />
 
               <button
@@ -486,7 +466,7 @@ export function QuickUpdateChat({
                         chat.messages,
                         message
                       ) && showBusyStatus ? (
-                      <MetoStatusIndicator labels={busyStatusLabels} />
+                      <MetoTypingDots />
                     ) : null}
                   </>
                 )}
@@ -532,7 +512,7 @@ export function QuickUpdateChat({
         <div className="mt-2">{attachmentsPanel}</div>
         {showBusyStatus ? (
           <div className="mt-2 px-1">
-            <MetoStatusIndicator labels={busyStatusLabels} size="sm" />
+            <MetoTypingDots size="sm" />
           </div>
         ) : null}
         <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
