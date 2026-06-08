@@ -105,11 +105,13 @@ export function ContextComposer({
                 workspaceLayout={workspaceLayout}
                 label={workspaceLayout ? "Sections" : undefined}
               />
-              <PlatformTabs
-                selectedFormat={share.selectedFormat}
-                onSelect={share.setSelectedFormat}
-                workspaceLayout={workspaceLayout}
-              />
+              {!workspaceLayout ? (
+                <PlatformTabs
+                  selectedFormat={share.selectedFormat}
+                  onSelect={share.setSelectedFormat}
+                  workspaceLayout={workspaceLayout}
+                />
+              ) : null}
             </>
           )}
         </div>
@@ -121,6 +123,15 @@ export function ContextComposer({
               : "lg:sticky lg:top-4 lg:self-start"
           }`}
         >
+          {workspaceLayout ? (
+            <div className="mb-3 shrink-0">
+              <PlatformTabs
+                selectedFormat={share.selectedFormat}
+                onSelect={share.setSelectedFormat}
+                workspaceLayout
+              />
+            </div>
+          ) : null}
           <PreviewPanel
             contextText={share.contextText}
             selectedFormat={share.selectedFormat}

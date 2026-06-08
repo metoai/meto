@@ -60,6 +60,11 @@ export function useContextShare({
     });
   }, [sections]);
 
+  useEffect(() => {
+    setCopiedLink(false);
+    setCopiedContext(false);
+  }, [selectedFormat]);
+
   const selectedItems = useMemo(
     () => getSelectedSections(sections, selectedSections),
     [sections, selectedSections]

@@ -18,9 +18,14 @@ export function PlatformTabs({
   if (workspaceLayout) {
     return (
       <div className="space-y-2">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
-          Text format
-        </p>
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+            Paste into
+          </p>
+          <p className="mt-0.5 text-[10px] text-[var(--muted)]">
+            Updates the link and text preview below
+          </p>
+        </div>
         <div
           className="flex flex-wrap gap-1.5"
           role="tablist"

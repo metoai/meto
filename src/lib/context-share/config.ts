@@ -69,6 +69,17 @@ export function sectionEmoji(sectionType: string) {
   return SECTION_EMOJI[sectionType] ?? SECTION_EMOJI.custom;
 }
 
+export function platformLabel(format: CompileFormat) {
+  return (
+    PLATFORM_OPTIONS.find((platform) => platform.id === format)?.label ??
+    "Any AI"
+  );
+}
+
+export function platformUsesSharePrompt(format: CompileFormat) {
+  return format === "chatgpt" || format === "gemini";
+}
+
 export function truncateContent(content: string, max = 72) {
   const trimmed = content.trim().replace(/\s+/g, " ");
   if (trimmed.length <= max) return trimmed;

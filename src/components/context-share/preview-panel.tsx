@@ -5,6 +5,10 @@ import type { CompileFormat } from "@/lib/types";
 import type { PlatformShareGuide } from "@/lib/platform-share";
 import { WORKSPACE_COPY } from "@/lib/workspace-content";
 import { AiPlatformIcon } from "@/components/ui/ai-platform-icon";
+import {
+  platformLabel,
+  platformUsesSharePrompt,
+} from "@/lib/context-share/config";
 
 type PreviewPanelProps = {
   contextText: string;
@@ -55,12 +59,22 @@ export function PreviewPanel({
   if (workspaceLayout) {
     const linkReady = Boolean(platformShare);
     const hasUsername = Boolean(username);
-    const usesPrompt =
-      selectedFormat === "chatgpt" || selectedFormat === "gemini";
+    const usesPrompt = platformUsesSharePrompt(selectedFormat);
+    const platformName = platformLabel(selectedFormat);
 
     return (
       <div className="landing-panel flex h-full min-h-0 flex-col p-3 md:p-4">
         <div className="shrink-0 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+              {usesPrompt ? "Copy prompt" : "Copy link"}
+            </p>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-medium text-[var(--text-secondary)]">
+              <AiPlatformIcon format={selectedFormat} size={12} />
+              {platformName}
+            </span>
+          </div>
+
           {!hasUsername ? (
             <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-3">
               <p className="text-[13px] text-[var(--text-secondary)]">
@@ -74,9 +88,16 @@ export function PreviewPanel({
               </Link>
             </div>
           ) : linkReady && platformShare ? (
-            <pre className="scrollbar-hidden max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
-              {platformShare.clipboardText}
-            </pre>
+            <div key={selectedFormat} className="space-y-2">
+              <pre className="scrollbar-hidden max-h-36 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+                {platformShare.clipboardText}
+              </pre>
+              {usesPrompt ? (
+                <p className="break-all font-mono-brand text-[10px] text-[var(--muted)]">
+                  {platformShare.url}
+                </p>
+              ) : null}
+            </div>
           ) : (
             <p className="text-xs text-[var(--muted)]">
               {WORKSPACE_COPY.noPublicInSelection}
@@ -96,7 +117,7 @@ export function PreviewPanel({
             {copiedLink
               ? WORKSPACE_COPY.copiedLink
               : usesPrompt
-                ? "Copy prompt"
+                ? `Copy ${platformName} prompt`
                 : WORKSPACE_COPY.copyLink}
           </button>
 
