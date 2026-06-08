@@ -1,8 +1,8 @@
 /** Universal paste block — works across ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen, and more. */
-export function buildProfileShareClipboard(profileUrl: string): string {
+export function buildProfileShareClipboard(contextUrl: string): string {
   return [
-    "Read everything at this URL and use it as context about me.",
-    "Fetch the page — do not rely on search snippets alone.",
-    profileUrl,
+    "Fetch this URL and read the full response. Use it as context about me.",
+    "Do not rely on web search, snippets, or memory alone.",
+    contextUrl,
   ].join("\n");
 }

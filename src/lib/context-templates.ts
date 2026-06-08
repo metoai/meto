@@ -164,7 +164,7 @@ export function buildContextShareUrl(
   selectedSectionTypes: string[],
   format: CompileFormat
 ): string {
-  const base = `${siteUrl.replace(/\/$/, "")}/profile/${username}/context`;
+  const base = `${siteUrl.replace(/\/$/, "")}/api/public/profile/${username.trim().toLowerCase()}/context`;
   const params = new URLSearchParams();
 
   if (preset !== "custom") {

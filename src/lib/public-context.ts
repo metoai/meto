@@ -45,6 +45,24 @@ function acceptQuality(accept: string, mime: string): number {
   return match[1] ? Number.parseFloat(match[1]) : 1;
 }
 
+/** User agents used by AI fetch / browse tools (not normal browsers). */
+export function isAiFetcherUserAgent(userAgent: string | null): boolean {
+  const ua = userAgent?.toLowerCase() ?? "";
+  return (
+    ua.includes("chatgpt-user") ||
+    ua.includes("gptbot") ||
+    ua.includes("googlebot") ||
+    ua.includes("google-extended") ||
+    ua.includes("gemini") ||
+    ua.includes("perplexity-user") ||
+    ua.includes("perplexitybot") ||
+    ua.includes("perplexity") ||
+    ua.includes("claude-web") ||
+    ua.includes("anthropic-ai") ||
+    ua.includes("claudebot")
+  );
+}
+
 /** True when the client is a browser-style fetcher that should get an HTML page. */
 export function requestWantsHtml(
   request: Request,
@@ -54,15 +72,13 @@ export function requestWantsHtml(
   if (searchParams.get("view") === "html") return true;
 
   const ua = request.headers.get("user-agent")?.toLowerCase() ?? "";
+  // Perplexity fetch tools work best with plain text — only HTML when view=html.
   if (
     ua.includes("chatgpt-user") ||
     ua.includes("gptbot") ||
     ua.includes("googlebot") ||
     ua.includes("google-extended") ||
-    ua.includes("gemini") ||
-    ua.includes("perplexity-user") ||
-    ua.includes("perplexitybot") ||
-    ua.includes("perplexity")
+    ua.includes("gemini")
   ) {
     return true;
   }

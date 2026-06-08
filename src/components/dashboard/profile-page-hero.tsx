@@ -4,7 +4,7 @@ import { useState } from "react";
 import { buildProfileShareClipboard } from "@/lib/profile-share";
 import type { ContextSection } from "@/lib/types";
 import {
-  getPublicProfileUrl,
+  getPublicContextApiUrl,
   normalizeUsername,
   validateUsername,
 } from "@/lib/username";
@@ -37,7 +37,7 @@ export function ProfilePageHero({
   async function handleCopy() {
     if (!username) return;
     await navigator.clipboard.writeText(
-      buildProfileShareClipboard(getPublicProfileUrl(username))
+      buildProfileShareClipboard(getPublicContextApiUrl(username))
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

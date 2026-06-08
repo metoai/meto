@@ -56,19 +56,16 @@ export function buildPlatformShareGuide(
       };
     }
     case "perplexity": {
-      const url = withShareParams(contextShareUrl, {
-        format: "universal",
-        view: "html",
-      });
+      const url = withShareParams(contextShareUrl, { format: "universal" });
       const prompt = [
-        "Read the full page at this URL and use it as background context about me for this entire conversation.",
-        "Fetch the page directly — do not answer from web search, snippets, or memory alone.",
+        "Fetch this URL and read the full plain-text response. Use it as background context about me for this entire conversation.",
+        "Do not answer from web search, snippets, or memory alone.",
         url,
       ].join("\n");
       return {
         url,
         prompt,
-        hint: "Perplexity needs the full prompt plus the context URL — not your profile page alone.",
+        hint: "Paste the full prompt below — Perplexity needs the API URL (plain text), not your profile page.",
         clipboardText: prompt,
       };
     }

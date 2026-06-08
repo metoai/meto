@@ -14,6 +14,14 @@ const nextConfig = {
         ],
       },
       {
+        source: "/profile/:username/context",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET, OPTIONS" },
+          { key: "Access-Control-Allow-Headers", value: "Content-Type" },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
@@ -51,6 +59,10 @@ const nextConfig = {
       {
         source: "/.well-known/ai-profile/:username.json",
         destination: "/.well-known/ai-profile/:username",
+      },
+      {
+        source: "/profile/:username/context",
+        destination: "/api/public/profile/:username/context",
       },
     ];
   },
