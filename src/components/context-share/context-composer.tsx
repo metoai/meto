@@ -76,11 +76,17 @@ export function ContextComposer({
       <div
         className={`${
           workspaceLayout
-            ? "grid min-h-0 flex-1 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
+            ? "grid min-h-0 flex-1 gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
             : "grid gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]"
         }`}
       >
-        <div className={workspaceLayout ? "min-w-0 space-y-4" : "space-y-5"}>
+        <div
+          className={
+            workspaceLayout
+              ? "min-h-0 min-w-0 space-y-4 overflow-y-auto overscroll-contain pr-0.5 md:max-h-full"
+              : "space-y-5"
+          }
+        >
           {sections.length === 0 ? (
             <p className="rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-6 text-center text-sm text-[var(--text-secondary)]">
               Add sections in Your profile first — or head to Update and tell
@@ -119,7 +125,7 @@ export function ContextComposer({
         <div
           className={`${
             workspaceLayout
-              ? "flex min-h-0 flex-col md:min-h-[min(100%,100%)]"
+              ? "flex min-h-0 flex-col overflow-hidden md:max-h-full"
               : "lg:sticky lg:top-4 lg:self-start"
           }`}
         >

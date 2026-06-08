@@ -62,13 +62,15 @@ export function WorkspacePageClient() {
       <SuccessToast />
       <PortalPageShell flush>
         <div className="flex min-h-0 flex-1 flex-col gap-4">
-          <WorkspaceBanner />
+          <div className="shrink-0">
+            <WorkspaceBanner />
+          </div>
 
           {loaded ? (
             <>
               <div
                 id="workspace"
-                className="flex min-h-0 flex-1 flex-col scroll-mt-16"
+                className="flex min-h-0 flex-1 flex-col scroll-mt-16 overflow-hidden"
               >
                 <ContextComposer
                   sections={contextSections}
