@@ -31,7 +31,6 @@ type PortalDataContextValue = {
   refresh: () => Promise<void>;
   setProfile: (profile: UserProfile | null) => void;
   setSections: (sections: ContextSection[]) => void;
-  setIssueCount: (count: number) => void;
   setContextScore: (score: ContextScoreResult | null) => void;
 };
 
@@ -44,7 +43,6 @@ function applyBootstrapState(
     setEmail: (email: string) => void;
     setSections: (sections: ContextSection[]) => void;
     setEntitlements: (entitlements: Entitlements | null) => void;
-    setIssueCount: (count: number) => void;
     setContextScore: (score: ContextScoreResult | null) => void;
     setContextScoreStale: (stale: boolean) => void;
   }
@@ -53,7 +51,6 @@ function applyBootstrapState(
   setters.setEmail(data.email ?? "");
   setters.setSections(data.sections ?? []);
   setters.setEntitlements(data.entitlements ?? null);
-  setters.setIssueCount(data.issueCount ?? 0);
   setters.setContextScore(data.contextScore ?? null);
   setters.setContextScoreStale(Boolean(data.contextScoreStale));
 }
@@ -81,7 +78,6 @@ export function PortalDataProvider({
   const [entitlementsLoaded, setEntitlementsLoaded] = useState(
     Boolean(initialData)
   );
-  const [issueCount, setIssueCount] = useState(initialData?.issueCount ?? 0);
   const [contextScore, setContextScore] = useState<ContextScoreResult | null>(
     initialData?.contextScore ?? null
   );
@@ -103,7 +99,6 @@ export function PortalDataProvider({
           setEmail,
           setSections,
           setEntitlements,
-          setIssueCount,
           setContextScore,
           setContextScoreStale,
         });
@@ -127,6 +122,7 @@ export function PortalDataProvider({
   const displayName =
     profile?.display_name?.trim() || profile?.username || "there";
   const completion = getProfileCompletion(sections);
+  const issueCount = contextScore?.gaps.length ?? 0;
 
   const value = useMemo(
     () => ({
@@ -146,7 +142,6 @@ export function PortalDataProvider({
       refresh,
       setProfile,
       setSections,
-      setIssueCount,
       setContextScore,
     }),
     [

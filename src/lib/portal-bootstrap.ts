@@ -66,7 +66,6 @@ export async function loadPortalBootstrap(
 
   const sections = (sectionsResult.data ?? []) as ContextSection[];
   const gaps = scoreResult.data?.gaps;
-  const issueCount = Array.isArray(gaps) ? gaps.length : 0;
   const latestUpdate = latestSectionUpdate(sections);
 
   let contextScore: ContextScoreResult | null = null;
@@ -107,7 +106,7 @@ export async function loadPortalBootstrap(
     email,
     sections,
     entitlements,
-    issueCount,
+    issueCount: contextScore?.gaps.length ?? 0,
     contextScore,
     contextScoreCached,
     contextScoreStale,

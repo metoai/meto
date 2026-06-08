@@ -66,7 +66,6 @@ export function useContextScore(
 
   const syncIssueCount = useCallback(
     (next: ContextScoreResult | null) => {
-      portal?.setIssueCount(next?.gaps?.length ?? 0);
       if (next) portal?.setContextScore(next);
     },
     [portal]
