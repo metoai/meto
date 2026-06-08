@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Meto
 
-## Getting Started
+**Every AI should already know you.** Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, Gemini, and every other AI.
 
-First, run the development server:
+**Production:** [https://www.metoai.site](https://www.metoai.site)  
+**Repo:** [github.com/metoai/meto](https://github.com/metoai/meto)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## What Meto is
+
+Meto is a **personal AI identity layer**. You describe yourself once in structured profile sections. Meto:
+
+- **Scores** how well AI would understand you (context score + gaps)
+- **Fixes** thin or missing sections with short AI-guided interviews
+- **Compiles** copy-paste context tuned for ChatGPT, Claude, Gemini, DeepSeek, Grok, Kimi, Qwen, and more
+- **Shares** a public profile link or plain-text API URL that AI fetch tools can read
+
+Meto is not a chatbot. It maintains the context you paste *into* other AI tools.
+
+---
+
+## Core loop
+
+```
+Sections (source of truth)
+  → Context score + gaps (auto on login & after edits)
+  → Fixes / Updates (fill gaps or reflect life changes)
+  → Workspace (copy link or formatted text per AI platform)
+  → Paste into any AI chat
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 14 · React 18 · TypeScript · Tailwind · Supabase · DeepSeek / Gemini · Polar billing · Vercel
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Local development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+cp .env.example .env.local   # fill Supabase + LLM keys
+npm run dev                  # http://localhost:3000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Set `NEXT_PUBLIC_SITE_URL=http://localhost:3000` locally. Production should use `https://www.metoai.site`.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Doc | Purpose |
+|-----|---------|
+| [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md) | Full product + architecture (upload to any AI assistant) |
+| [`docs/system-overview.md`](docs/system-overview.md) | Journeys, data model, security |
+| [`docs/AI_SYSTEM.md`](docs/AI_SYSTEM.md) | Every AI flow, prompts, caching |
+| [`docs/v1-internal.md`](docs/v1-internal.md) | Routes, API table, env vars, file map |
+| [`/llms.txt`](https://www.metoai.site/llms.txt) | Machine-readable public profile discovery |
+
+---
+
+## Deploy
+
+Push to `main` → Vercel auto-deploys. Run migrations in Supabase; set Auth redirect URLs for production domain.

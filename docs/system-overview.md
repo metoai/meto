@@ -12,7 +12,7 @@ Every time you open ChatGPT, Claude, Gemini, or another AI tool, you start from 
 
 Meto is a **personal AI identity layer**. You describe yourself once. Meto structures that into a persistent profile, compiles it into ready-to-paste context blocks tuned for different AI tools, scores how well AI would understand you, and helps you close gaps — optionally publishing selected parts on a public page.
 
-**Tagline:** Stop introducing yourself to AI.
+**Tagline:** Every AI should already know you.
 
 ---
 
@@ -22,11 +22,12 @@ Meto is a **personal AI identity layer**. You describe yourself once. Meto struc
 |---------|---------|
 | **Profile sections** | Structured facts about you (about, work, projects, skills, goals, working style, context for AI). Stored in Postgres, editable anytime. |
 | **Compiled context** | A single block of text optimized for pasting into an AI chat or custom instructions field. |
-| **Format** | How the compiled text is written — Universal (generic), Claude (prose), ChatGPT (bullets), Gemini (conversational). |
-| **Context score** | 0–100 rating of how well an AI would understand you from your profile, plus actionable **gaps** (weak sections). |
+| **Format** | How compiled text is written — Universal, Claude, ChatGPT, Gemini, DeepSeek, Grok, Kimi, Qwen. |
+| **Context score** | 0–100 rating + actionable **gaps**. Re-analyzed automatically on login and after profile edits. |
 | **Gap fix** | Short AI micro-interview targeting one known gap — faster than full onboarding. |
-| **Quick update** | Free-form chat on the dashboard to reflect life/work changes across sections. |
-| **Public profile** | A username URL where visitors see sections you marked `is_public`. |
+| **Quick update** | Free-form chat on Updates to reflect life/work changes across sections. |
+| **Workspace** | Two-column UI: platform tabs + section grid (left); copy prompt, preview, scenario (right). |
+| **Public profile** | Branded page at `/profile/{username}`; AI tools fetch plain text from `/api/public/profile/{username}/context`. |
 
 Meto is **not** a general chat product. It does not replace ChatGPT or Claude. It produces and maintains the context you bring *into* those tools.
 
@@ -64,12 +65,12 @@ If the user has no sections, `/dashboard` redirects to `/onboarding`.
 Login → Dashboard (context score + section quality) → Profile / Workspace / Updates / Fixes
 ```
 
-- **Profile** — edit all sections with tiered layout and completion progress
-- **Workspace** — pick sections + format, copy to clipboard (no LLM)
+- **Profile** — edit all sections with tiered layout and public toggles
+- **Workspace** — pick platform, sections, and scenario; copy prompt or formatted text
 - **Updates** — describe changes in plain language; AI proposes section updates
-- **Fixes** — view context score gaps; fix one or fix all with targeted AI questions
+- **Fixes** — always in sidebar; badge shows open gaps; fix one or fix all with targeted AI questions
 
-Compiled output is **cached**. Refreshing does not call the LLM unless sections changed or the user clicks regenerate.
+Context score **re-analyzes on login** and whenever profile data refreshes after edits (`PortalContextScoreSync`).
 
 ### Close a gap (fix with AI)
 
@@ -82,10 +83,16 @@ Context score identifies weak sections. **Fix single** runs a 1–3 question int
 ### Public sharing
 
 ```
-Settings: claim username → Profile: toggle section public → /profile/username
+Settings: claim username → Profile/Workspace: toggle section public → /profile/username
 ```
 
-Visitors see public sections and a locally compiled universal preview. No login required.
+Visitors see a branded public page. AI fetch tools should use:
+
+```
+/api/public/profile/{username}/context?preset=all&format=universal
+```
+
+Bot user-agents hitting `/profile/{username}` are rewritten to plain-text context. No login required.
 
 ---
 
@@ -146,7 +153,7 @@ auth.users
 |------|---------|--------|
 | Landing chat | `/` conversation | 4 partial sections → save on signup |
 | Onboarding extract | Brain dump or chat finish | 7 sections in DB |
-| Context score | Dashboard / Fixes load | Score + gaps in `context_scores` |
+| Context score | Portal load + after profile refresh | Score + gaps in `context_scores` |
 | Quick update | `/dashboard/update` | Proposed section merges → user saves |
 | Gap fix | Fix button on gap | 1–3 targeted questions → one section update |
 | Compile | Regenerate or stale cache | Formatted block in `compiled_profiles` |
@@ -226,11 +233,11 @@ If the LLM fails, **`compile-local.ts`** builds a deterministic template from se
 |-------|---------|
 | `/dashboard` | Context score signal, section quality bars, workspace shortcuts |
 | `/dashboard/profile` | Full section editor with tiered layout |
-| `/dashboard/workspace` | Copy builder (sections + format presets) |
+| `/dashboard/workspace` | Two-column copy builder: platform tabs, 3-col section grid, preview + scenario |
 | `/dashboard/update` | Quick update chat + gap-fix mode |
-| `/dashboard/fixes` | Gap list, fix-all CTA, score progress |
+| `/dashboard/fixes` | Gap list (always in nav); fix-all CTA; dynamic badge |
 
-Navigation: fixed sidebar (desktop) + bottom tab bar (mobile).
+Navigation: collapsible sidebar (desktop) + slide-out menu (mobile).
 
 ---
 

@@ -14,10 +14,10 @@ v1 is a **working product foundation** with a redesigned dashboard portal. It pr
 2. Build a structured AI identity (onboarding or landing save)
 3. See context score and section quality on dashboard
 4. Edit sections, quick-update via chat, or fix gaps with AI
-5. Compile into copy-paste context blocks (Universal, Claude, ChatGPT)
-6. Optionally share public sections at `/profile/[username]`
+5. Compile into copy-paste context blocks (8 platform formats)
+6. Share via platform-specific prompts or public API URL at `/profile/[username]`
 
-Billing and several prompt features are still deferred.
+Billing (Polar): trial → Free → Pro with entitlements on LLM routes.
 
 ---
 
@@ -32,25 +32,25 @@ Billing and several prompt features are still deferred.
 | **Onboarding** | Brain dump, chat interview, skip to manual fill |
 | **Profile sections** | 7 core types + custom sections; CRUD from profile page |
 | **Context score** | LLM analysis + local fallback; cached in `context_scores` |
-| **Fixes** | Gap list by impact; fix single / fix all via gap-fix chat |
+| **Fixes** | Gap list by impact; fix single / fix all via gap-fix chat; **always in sidebar**; dynamic badge |
 | **Quick update** | Free-form dashboard chat; apply with ripple review |
 | **Compile** | Two-step LLM compile (master → format); cache in DB; local fallback |
-| **Formats (UI)** | Universal, Claude, ChatGPT |
-| **Public profile** | `/profile/[username]`, `/.well-known/ai-profile/[username]` |
-| **Settings** | Display name, username, password change, delete account |
-| **Dashboard UX** | Fixed sidebar, mobile tabs, signal hero, section quality bars, Recharts sparkline |
-| **SEO** | Metadata, `robots.ts`, `sitemap.ts` |
+| **Formats (UI)** | Universal, ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen |
+| **Platform share** | ChatGPT/Gemini full prompts; API context URL for others (`platform-share.ts`) |
+| **Public profile** | Branded `/profile/[username]`; API context at `/api/public/profile/[username]/context` |
+| **Context score sync** | Auto re-analyze on login + after profile edits (`portal-context-score-sync.tsx`) |
+| **Settings** | Display name, username, password change, theme, delete account |
+| **Dashboard UX** | Collapsible sidebar, signal hero, section quality bars, Recharts sparkline |
+| **Billing** | Polar checkout + webhook; trial/free/pro entitlements |
+| **SEO** | Metadata, `robots.ts`, `sitemap.ts`, `/llms.txt` |
 
 ### Not in v1 (known gaps)
 
 | Item | Notes |
 |------|-------|
-| **Gemini format in UI** | Prompt exists; dashboard/workspace only shows 3 format tabs |
-| **Compact format** | Mentioned in prompts; not implemented |
 | **Section regenerator (prompt 1D)** | Not wired to UI |
-| **Billing / Pro** | Trial → Free → Pro; Polar Checkout + webhook; entitlements on LLM routes |
-| **Public page AI compile** | Public profile uses `compileLocally`, not LLM |
 | **Onboarding re-run** | Reset profile clears data; no dedicated “redo onboarding” flow |
+| **Perplexity share tab** | Removed — use universal API URL instead |
 
 ---
 
@@ -65,13 +65,15 @@ Billing and several prompt features are still deferred.
 | `/onboarding` | Protected | First-time profile creation |
 | `/dashboard` | Protected | Signal, section quality, workspace shortcuts |
 | `/dashboard/profile` | Protected | Full section editor (tiered layout) |
-| `/dashboard/workspace` | Protected | Copy builder (sections + format) |
+| `/dashboard/workspace` | Protected | Two-column copy builder (platform + sections / preview + scenario) |
 | `/dashboard/update` | Protected | Quick update + gap-fix chat |
 | `/dashboard/fixes` | Protected | Context score gaps + fix-all |
 | `/settings` | Protected | Account & profile settings |
 | `/profile/[username]` | Public | Public profile page |
-| `/profile/[username]/context` | Public | Plain-text context export |
+| `/profile/[username]/context` | Public | Plain-text context (rewrites to API) |
+| `/api/public/profile/[username]/context` | Public | Plain-text / JSON for AI fetch tools (CORS) |
 | `/.well-known/ai-profile/[username]` | Public | Agent-readable profile JSON |
+| `/llms.txt` | Public | LLM discovery |
 
 Protected portal routes live under `src/app/(protected)/(portal)/`. Onboarding under `src/app/(protected)/onboarding/`.
 
@@ -96,6 +98,8 @@ Protected portal routes live under `src/app/(protected)/(portal)/`. Onboarding u
 | GET/PATCH | `/api/profile/me` | Profile + email; update name, username, password |
 | DELETE | `/api/profile/account` | `delete_own_account()` RPC |
 | POST | `/api/profile/reset` | Delete sections, compiled profiles, onboarding chats |
+| GET | `/api/profile/bootstrap` | Portal bundle: profile, sections, score, entitlements |
+| GET | `/api/public/profile/[username]/context` | Public context (plain text / JSON) |
 | GET | `/api/public-profile/[username]` | Public profile JSON |
 
 ---
@@ -197,6 +201,9 @@ Copy `.env.example` → `.env.local` for local dev.
 | Quick update UI | `src/components/dashboard/quick-update-chat.tsx` |
 | Profile editor | `src/components/dashboard/dashboard-editor.tsx` |
 | Portal nav/layout | `src/components/portal/portal-nav.ts`, `portal-layout.tsx` |
+| Context score auto-sync | `src/components/portal/portal-context-score-sync.tsx` |
+| Workspace / share UI | `src/components/context-share/`, `src/lib/platform-share.ts` |
+| Public profile | `src/components/public-profile-view.tsx`, `src/lib/public-context.ts` |
 | Onboarding UI | `src/components/onboarding/onboarding-flow.tsx` |
 | Auth cookie fix | `src/app/auth/callback/route.ts` |
 
@@ -223,12 +230,10 @@ npm run dev                  # http://localhost:3000
 
 ## v2 ideas (not committed)
 
-- Gemini format tab in dashboard/workspace
 - Wire section regenerator (1D) per section
-- Compact format for Kimi/DeepSeek-style tools
-- Better public profile (optional LLM compile, OG images)
+- OG images for public profiles
 - Onboarding redo without full account reset
-- Analytics, waitlist, or billing
+- Analytics dashboard
 
 ---
 
@@ -236,11 +241,11 @@ npm run dev                  # http://localhost:3000
 
 1. Landing chat → sign up → save → dashboard loads with partial profile
 2. Or: sign up → brain dump or chat onboarding → dashboard
-3. Context score appears on dashboard; gaps listed on `/dashboard/fixes`
-4. Fix one gap → save → score re-analyzes
-5. Quick update: describe a job change → save → sections update
-6. Workspace: copy Universal block → paste into Claude/ChatGPT
-7. Settings: username + public toggle → visit `/profile/username`
+3. Context score appears on dashboard; Fixes always in sidebar (badge when gaps exist)
+4. Edit a section → score re-analyzes automatically
+5. Fix one gap → save → badge count drops
+6. Workspace: pick ChatGPT → copy prompt → paste into ChatGPT
+7. Settings: username + public toggle → visit `/profile/username`; verify API URL fetches plain text
 8. Google OAuth works in production (Supabase redirect URLs set)
 
 ---

@@ -1,7 +1,7 @@
 # Meto — AI system reference
 
 > **Audience:** builders who need to understand, debug, or extend Meto’s AI behavior.  
-> **Last updated:** reflects dashboard redesign, context score, gap fixes, landing chat, and quick update flows.
+> **Last updated:** June 2026 — workspace layout, 8 platform formats, public API context, auto score sync, Fixes always visible.
 
 This document explains **every place AI is invoked**, **what each prompt is trying to accomplish**, **how the client and server coordinate**, and **what happens when models fail**.
 
@@ -264,9 +264,10 @@ When LLM unavailable or no content:
 
 ### Frontend
 
-- `src/hooks/use-context-score.ts` — fetch + celebrate on score increase
+- `src/components/portal/portal-context-score-sync.tsx` — auto re-analyze on login and after `refresh()` (profile edits)
+- `src/hooks/use-context-score.ts` — fetch + celebrate on score increase; syncs `contextScore` to portal context
 - Dashboard: `SignalHero`, `SectionQualityBars` (derived heuristics, not LLM)
-- Fixes: `src/components/dashboard/fixes-page-client.tsx`
+- Fixes: `src/components/dashboard/fixes-page-client.tsx` — sidebar badge = `contextScore.gaps.length`
 
 ---
 
@@ -544,9 +545,12 @@ Used when user clicks **Regenerate** or cache is stale. Falls back to `compileLo
 ### B) Workspace copy (client template, no LLM)
 
 ```
-buildContextText() in src/lib/context-templates.ts
-  → Used by /dashboard/workspace and dashboard quick-copy widgets
-  → User picks sections + format preset → instant string for clipboard
+buildContextShareUrl() + buildPlatformShareGuide() in src/lib/platform-share.ts
+  → Used by /dashboard/workspace
+  → Left column: platform tabs + 3-column section grid with public toggles
+  → Right column: copy prompt + text preview, then scenario presets
+  → ChatGPT/Gemini: full fetch prompt in clipboard; others: API context URL
+  → buildContextText() for instant formatted string
 ```
 
 ### C) After quick update apply
@@ -555,15 +559,20 @@ Always **`compileLocally("universal")`** — fast, no API cost.
 
 ---
 
-## Public profile (no AI)
+## Public profile & AI fetch (no LLM on page render)
 
 | Route | AI? | Mechanism |
 |-------|-----|-----------|
-| `/profile/[username]` | No | `compileLocally("universal")` for preview |
-| `/profile/[username]/context` | No | `buildContextText()` |
+| `/profile/[username]` | No (SSR) | Branded UI; `compileLocally` in hidden block for crawlers |
+| `/api/public/profile/[username]/context` | No | Plain text / JSON; **preferred for AI fetch tools** |
+| `/profile/[username]/context` | No | Rewrites internally to API route |
 | `/.well-known/ai-profile/[username]` | No | Structured JSON document for agents |
 
-Public pages never call `generateWithGemini`.
+**Bot rewrite:** Middleware detects AI fetch user-agents on `/profile/{username}` and serves plain-text context from the API route.
+
+**Share prompts:** `src/lib/platform-share.ts` — ChatGPT gets browse prompt + context URL; Gemini gets profile HTML URL + fetch prompt; universal format returns API link.
+
+Public pages never call `generateWithGemini` for visitors.
 
 ---
 

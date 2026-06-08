@@ -2,7 +2,7 @@
 
 > **Purpose of this document:** Upload this file to any AI assistant (ChatGPT, Claude, Gemini, Cursor, etc.) to give full context about the Meto codebase, product, and architecture.  
 > **Product:** Meto — personal AI identity layer  
-> **Production URL:** https://metoai.site  
+> **Production URL:** https://www.metoai.site (canonical; apex redirects to www)  
 > **Repository:** https://github.com/metoai/meto  
 > **Stack:** Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS · Supabase · DeepSeek/Gemini · Vercel · Polar (billing)
 
@@ -16,7 +16,7 @@ Users describe who they are once. Meto structures that into a persistent **profi
 
 Meto is **not** a chatbot product. It does not replace ChatGPT or Claude. It produces and maintains the context users paste *into* those tools.
 
-**Tagline:** Stop repeating yourself to every AI.
+**Tagline:** Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, ChatGPT, or Gemini.
 
 ---
 
@@ -38,14 +38,14 @@ Meto centralizes that identity as structured data, keeps it up to date, and expo
 | **Full section set (onboarding)** | Seven types: above plus `working_style`, `context_for_ai`. |
 | **Custom sections** | User-created sections with arbitrary `section_type` / title. Appended when compiling. |
 | **Compiled context** | Derived text block optimized for pasting into an AI. Cached per user per **format**. |
-| **Format** | `universal`, `claude`, `chatgpt`, `gemini` — how compiled text is styled. UI often shows three tabs; Gemini prompt exists. |
-| **Context score** | 0–100 rating + headline + summary + **gaps** (weak/missing sections). Cached in `context_scores`. |
-| **Gap** | Actionable weakness detected by scoring (e.g. thin `projects`, missing `goals`). |
+| **Format** | `universal`, `claude`, `chatgpt`, `gemini`, `deepseek`, `grok`, `kimi`, `qwen` — workspace platform tabs + compile templates. |
+| **Context score** | 0–100 rating + headline + summary + **gaps** (weak/missing sections). Cached in `context_scores`. Re-analyzed on login and after profile edits. |
+| **Gap** | Actionable weakness detected by scoring (e.g. thin `projects`, missing `goals`). Badge count = live `contextScore.gaps.length` (resolved sections filtered out). |
 | **Gap fix** | Short AI interview (1–3 questions) targeting one gap or a queued “fix all” flow. |
 | **Quick update** | Free-form chat on dashboard; AI proposes merges across sections; user confirms save. |
 | **Landing chat** | Pre-auth try flow on `/`; collects partial profile (`about`, `work`, `projects`, `goals`) before signup. |
-| **Workspace** | Copy builder: pick sections + scenario preset + format, copy text or public link. No LLM on copy. |
-| **Public profile** | `https://metoai.site/profile/[username]` — only sections with `is_public = true`. |
+| **Workspace** | Two-column copy builder: **left** — platform tabs (Paste into) + section grid (3 columns) with public toggles; **right** — copy prompt + text preview, then scenario presets. Platform-specific share prompts for ChatGPT/Gemini. |
+| **Public profile** | `https://www.metoai.site/profile/[username]` — branded page; only `is_public` sections. AI fetchers get plain text via `/api/public/profile/[username]/context`. |
 | **Bootstrap API** | `GET /api/profile/bootstrap` — single request loads portal data (profile, sections, score, entitlements). |
 
 ---
@@ -155,14 +155,17 @@ Route: `/onboarding` (redirect from `/dashboard` if no sections).
 | `/dashboard/profile` | Full section editor (tiered layout, public toggles) |
 | `/dashboard/workspace` | Scenario presets, section picker, copy formatted text or profile link |
 | `/dashboard/update` | Quick update chat; also hosts **gap-fix** mode via query params |
-| `/dashboard/fixes` | Gap list sorted by impact; fix one or fix all with AI |
+| `/dashboard/fixes` | Gap list sorted by impact; fix one or fix all with AI. **Always visible** in sidebar; badge shows open gap count (0 = no badge). |
 | `/settings` | Email (read-only), display name, username, password, appearance (theme), delete account |
 
 ### 7.4 Public sharing
 
-1. Claim `username` in settings → `metoai.site/profile/{username}`.
-2. Toggle `is_public` per section on profile editor.
-3. Public page compiles preview locally (no LLM for visitors).
+1. Claim `username` in settings → `www.metoai.site/profile/{username}`.
+2. Toggle `is_public` per section in Profile or Workspace section grid.
+3. **Workspace → Paste into** — pick AI platform; copy platform-specific prompt (ChatGPT/Gemini) or API link (others).
+4. Public page shows branded profile UI + machine-readable context for crawlers.
+5. **Best URL for AI fetch tools:** `/api/public/profile/{username}/context?preset=all&format=universal` (plain text, CORS).
+6. Middleware rewrites AI bot requests on `/profile/{username}` to the API context endpoint.
 
 ### 7.5 Close a gap
 
@@ -187,10 +190,11 @@ Dashboard or Fixes → “Fix with AI” → quick-update chat in gap mode → u
 | `/dashboard/fixes` | Protected | Score gaps |
 | `/settings` | Protected | Account settings |
 | `/billing/success` | Protected | Post-checkout |
-| `/profile/[username]` | Public | Public profile page |
-| `/profile/[username]/context` | Public | Plain-text context export |
+| `/profile/[username]` | Public | Branded public profile page |
+| `/profile/[username]/context` | Public | Plain-text context (rewrites to API) |
+| `/api/public/profile/[username]/context` | Public | Plain-text / JSON context for AI fetch tools |
 | `/.well-known/ai-profile/[username]` | Public | Machine-readable profile JSON |
-| `/llms.txt` | Public | LLM discovery hint |
+| `/llms.txt` | Public | LLM discovery hints |
 
 Protected routes live under `src/app/(protected)/`. Portal UI uses `PortalLayout` (sidebar + mobile header).
 
@@ -235,8 +239,8 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 
 | Method | Route | Description |
 |--------|-------|-------------|
+| GET | `/api/public/profile/[username]/context` | Public plain-text / JSON context (CORS, AI-optimized) |
 | GET | `/api/public-profile/[username]` | Public profile JSON |
-| GET | `/api/public/profile/[username]/context` | Public context text |
 | GET | `/api/profile/entitlements` | Plan limits (trial/free/pro) |
 | POST | `/api/billing/checkout` | Polar checkout session |
 | POST | `/api/billing/sync` | Sync subscription after payment |
@@ -293,7 +297,7 @@ Migrations live in `supabase/migrations/`.
 | Landing chat | `/` conversation | Partial sections + `profile_ready` |
 | Brain dump | Onboarding paste | 7 sections JSON → DB |
 | Onboarding chat | Interview | Extract on finish → DB |
-| Context score | Dashboard load | Score + gaps → `context_scores` |
+| Context score | Portal load + after profile changes (`PortalContextScoreSync`) | Score + gaps → `context_scores` |
 | Quick update | `/dashboard/update` | Proposed section updates → user saves |
 | Gap fix | Fix buttons | Targeted questions → one section at a time |
 | Compile | Workspace / regenerate | Master compile → format-specific text → cache |
@@ -342,8 +346,8 @@ Migrations live in `supabase/migrations/`.
 
 | Class | Use |
 |-------|-----|
-| `.brand-spot` | **Localized** grid + soft green glow inside a hero component only (landing chat, score chart, workspace banner). Not full-page. |
-| `.brand-surface` | Featured components: subtle teal border + lift in dark mode (chat shells, auth card). |
+| `.brand-spot` | **Localized** grid + soft orange glow inside a hero component only (landing chat, workspace banner). Not full-page. |
+| `.brand-surface` | Featured components: subtle border + lift in dark mode (chat shells, auth card). |
 | Regular cards | Standard `--card` / `--border` without pattern. |
 
 ### Theme
@@ -415,7 +419,9 @@ npm start
 | Section types | `src/lib/meto-prompts.ts` (`PROFILE_SECTIONS`) |
 | Rate limits | `src/lib/rate-limit.ts` |
 | Billing logic | `src/lib/billing-client.ts`, `src/app/api/billing/*` |
-| Public profile | `src/components/public-profile-view.tsx`, `src/app/profile/[username]/` |
+| Public profile | `src/components/public-profile-view.tsx`, `src/app/profile/[username]/`, `src/lib/public-context.ts` |
+| AI share / workspace | `src/lib/platform-share.ts`, `src/components/context-share/` |
+| Context score sync | `src/components/portal/portal-context-score-sync.tsx`, `src/hooks/use-context-score.ts` |
 
 ---
 
@@ -457,4 +463,4 @@ When helping with Meto:
 
 ---
 
-*Last updated: June 2026 — reflects dark mode, localized brand accents, SSE streaming chat, Polar billing, Supabase RLS hardening, and dashboard portal redesign.*
+*Last updated: June 2026 — orange brand, workspace two-column layout, 8 AI platform formats, public API context URLs, auto gap analysis on login/edits, Fixes nav always visible, Perplexity removed from share UI.*
