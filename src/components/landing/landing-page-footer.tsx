@@ -5,12 +5,18 @@ import { LANDING_PAGE_NAV_LINKS } from "@/lib/marketing-nav";
 
 type LandingPageFooterProps = {
   isLoggedIn?: boolean;
+  loggedInHref?: string;
+  loggedInLabel?: string;
 };
 
 const linkClassName =
   "text-[13px] text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]";
 
-export function LandingPageFooter({ isLoggedIn = false }: LandingPageFooterProps) {
+export function LandingPageFooter({
+  isLoggedIn = false,
+  loggedInHref = "/dashboard",
+  loggedInLabel = "Dashboard",
+}: LandingPageFooterProps) {
   const year = new Date().getFullYear();
 
   return (
@@ -37,8 +43,8 @@ export function LandingPageFooter({ isLoggedIn = false }: LandingPageFooterProps
               </Link>
             ))}
             {isLoggedIn ? (
-              <Link href="/dashboard" className={`${linkClassName} text-[var(--primary)] hover:text-[var(--primary-hover)]`}>
-                Dashboard
+              <Link href={loggedInHref} className={`${linkClassName} text-[var(--primary)] hover:text-[var(--primary-hover)]`}>
+                {loggedInLabel}
               </Link>
             ) : null}
             {LEGAL_LINKS.map((link) => (

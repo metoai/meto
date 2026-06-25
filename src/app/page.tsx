@@ -35,6 +35,7 @@ import {
   type CollectedProfile,
 } from "@/lib/landing-chat";
 import { streamPlainTextForDisplay } from "@/lib/stream-prompt";
+import { fetchPostAuthRedirect } from "@/lib/post-auth-redirect-client";
 import { createClient } from "@/lib/supabase/client";
 
 const STORAGE_KEY = "meto_landing_session";
@@ -115,6 +116,8 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInHref, setLoggedInHref] = useState("/dashboard");
+  const [loggedInLabel, setLoggedInLabel] = useState("Dashboard");
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -256,7 +259,8 @@ export default function Home() {
       setSaveError(null);
       await persistProfile();
       setAuthModalOpen(false);
-      router.push("/dashboard");
+      const path = await fetchPostAuthRedirect("/dashboard");
+      router.push(path);
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -274,6 +278,14 @@ export default function Home() {
         data: { user },
       } = await supabase.auth.getUser();
       setIsLoggedIn(Boolean(user));
+      if (user) {
+        const path = await fetchPostAuthRedirect();
+        setLoggedInHref(path);
+        setLoggedInLabel(path.startsWith("/admin") ? "Admin" : "Dashboard");
+      } else {
+        setLoggedInHref("/dashboard");
+        setLoggedInLabel("Dashboard");
+      }
       const pendingSave = localStorage.getItem(PENDING_SAVE_KEY) === "true";
       if (
         user &&
@@ -284,7 +296,8 @@ export default function Home() {
         try {
           setSaving(true);
           await persistProfile();
-          router.push("/dashboard");
+          const path = await fetchPostAuthRedirect("/dashboard");
+          router.push(path);
           router.refresh();
         } catch (error) {
           console.error(error);
@@ -469,7 +482,12 @@ export default function Home() {
   return (
     <div className="relative min-h-screen text-[var(--text)]">
       <main className="relative z-10">
-        <LandingHeroSection chatStarted={chatStarted} isLoggedIn={isLoggedIn}>
+        <LandingHeroSection
+          chatStarted={chatStarted}
+          isLoggedIn={isLoggedIn}
+          loggedInHref={loggedInHref}
+          loggedInLabel={loggedInLabel}
+        >
           <div
             id="chat"
             ref={chatContainerRef}
@@ -619,7 +637,11 @@ export default function Home() {
             <LandingShareSection />
             <LandingPricingSection />
             <LandingFinalCtaSection onStartChat={scrollToChat} />
-            <LandingPageFooter isLoggedIn={isLoggedIn} />
+            <LandingPageFooter
+              isLoggedIn={isLoggedIn}
+              loggedInHref={loggedInHref}
+              loggedInLabel={loggedInLabel}
+            />
           </>
         ) : null}
       </main>

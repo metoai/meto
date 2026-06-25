@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, LogOut, PanelLeft, PanelLeftClose, Shield, X } from "lucide-react";
+import { LogOut, PanelLeft, PanelLeftClose, Shield, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -165,18 +165,6 @@ function AdminSidebar({
         <div
           className={`flex items-center ${collapsed ? "flex-col gap-1" : "gap-2"}`}
         >
-          <Link
-            href="/dashboard"
-            className={
-              collapsed
-                ? "flex h-9 w-9 items-center justify-center rounded-lg text-[var(--muted)] transition-colors hover:bg-[var(--card)]/70 hover:text-[var(--text-secondary)]"
-                : `${navItemClass(false, false)} min-w-0 flex-1`
-            }
-            title={collapsed ? "Back to app" : undefined}
-          >
-            <ArrowLeft className="h-[17px] w-[17px] shrink-0" strokeWidth={1.75} />
-            {!collapsed ? <span>Back to app</span> : null}
-          </Link>
           <button
             type="button"
             onClick={() => {

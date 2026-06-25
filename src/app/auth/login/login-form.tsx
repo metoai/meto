@@ -11,6 +11,7 @@ import {
   AuthSocialRow,
 } from "@/components/auth/auth-card";
 import { createClient } from "@/lib/supabase/client";
+import { fetchPostAuthRedirect } from "@/lib/post-auth-redirect-client";
 
 export function LoginForm() {
   const router = useRouter();
@@ -45,7 +46,8 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/dashboard");
+    const path = await fetchPostAuthRedirect("/dashboard");
+    router.push(path);
     router.refresh();
   }
 

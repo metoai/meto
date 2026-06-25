@@ -8,9 +8,15 @@ import { LANDING_PAGE_NAV_LINKS } from "@/lib/marketing-nav";
 
 type LandingHeroNavProps = {
   isLoggedIn?: boolean;
+  loggedInHref?: string;
+  loggedInLabel?: string;
 };
 
-export function LandingHeroNav({ isLoggedIn = false }: LandingHeroNavProps) {
+export function LandingHeroNav({
+  isLoggedIn = false,
+  loggedInHref = "/dashboard",
+  loggedInLabel = "Dashboard",
+}: LandingHeroNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -68,10 +74,10 @@ export function LandingHeroNav({ isLoggedIn = false }: LandingHeroNavProps) {
 
           {isLoggedIn ? (
             <Link
-              href="/dashboard"
+              href={loggedInHref}
               className="landing-hover-link rounded-md border border-[var(--border)] bg-[var(--card)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--text)] transition-[border-color] duration-150 hover:border-[var(--accent-border)] sm:px-4"
             >
-              Dashboard
+              {loggedInLabel}
             </Link>
           ) : (
             <>

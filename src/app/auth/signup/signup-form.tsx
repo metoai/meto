@@ -17,6 +17,7 @@ import {
   setPricingPlanChoice,
 } from "@/lib/pricing-intent";
 import { createClient } from "@/lib/supabase/client";
+import { fetchPostAuthRedirect } from "@/lib/post-auth-redirect-client";
 
 export function SignupForm() {
   const router = useRouter();
@@ -56,7 +57,8 @@ export function SignupForm() {
     if (pendingSave) {
       router.push("/");
     } else {
-      router.push("/dashboard");
+      const path = await fetchPostAuthRedirect("/dashboard");
+      router.push(path);
     }
     clearPricingPlanChoice();
     router.refresh();

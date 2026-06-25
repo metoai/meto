@@ -6,12 +6,16 @@ import { LandingHeroPartners } from "@/components/landing/landing-hero-partners"
 type LandingHeroSectionProps = {
   chatStarted: boolean;
   isLoggedIn?: boolean;
+  loggedInHref?: string;
+  loggedInLabel?: string;
   children: React.ReactNode;
 };
 
 export function LandingHeroSection({
   chatStarted,
   isLoggedIn = false,
+  loggedInHref,
+  loggedInLabel,
   children,
 }: LandingHeroSectionProps) {
   return (
@@ -23,7 +27,11 @@ export function LandingHeroSection({
       <LandingHeroBackground />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1100px] flex-1 flex-col px-4 sm:px-6">
-        <LandingHeroNav isLoggedIn={isLoggedIn} />
+        <LandingHeroNav
+          isLoggedIn={isLoggedIn}
+          loggedInHref={loggedInHref}
+          loggedInLabel={loggedInLabel}
+        />
 
         <div
           className={`flex flex-1 flex-col items-center ${

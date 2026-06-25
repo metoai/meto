@@ -15,6 +15,7 @@ const SESSION_PATHS = [
   "/api/onboarding/",
   "/api/billing/",
   "/api/admin/",
+  "/api/auth/",
 ];
 
 function needsSessionRefresh(pathname: string): boolean {
@@ -63,5 +64,6 @@ export const config = {
     "/api/onboarding/:path*",
     "/api/billing/:path*",
     "/api/admin/:path*",
+    "/api/auth/:path*",
   ],
 };
