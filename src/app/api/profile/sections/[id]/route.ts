@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { SECTION_SELECT } from "@/lib/section-fields";
 import { createClient } from "@/lib/supabase/server";
 
-type RouteContext = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const supabase = createClient();
     const {
       data: { user },
@@ -28,7 +29,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     const { data, error } = await supabase
       .from("context_sections")
       .update(updates)
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select(SECTION_SELECT)
       .single();
@@ -47,6 +48,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
 export async function DELETE(_request: Request, { params }: RouteContext) {
   try {
+    const { id } = await params;
     const supabase = createClient();
     const {
       data: { user },
@@ -59,7 +61,7 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const { error } = await supabase
       .from("context_sections")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (error) throw error;

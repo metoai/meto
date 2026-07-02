@@ -5,14 +5,15 @@ import {
 } from "@/lib/public-profile";
 
 type RouteContext = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 };
 
 export const revalidate = 60;
 
 export async function GET(_request: Request, { params }: RouteContext) {
   try {
-    const publicProfile = await fetchPublicProfileByUsername(params.username);
+    const { username } = await params;
+    const publicProfile = await fetchPublicProfileByUsername(username);
 
     if (!publicProfile) {
       return NextResponse.json({ error: "Profile not found." }, { status: 404 });

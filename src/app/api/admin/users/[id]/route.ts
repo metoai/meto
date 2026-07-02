@@ -8,7 +8,7 @@ import { adminApiGuard } from "@/lib/admin-auth";
 import { fetchAdminUserDetail } from "@/lib/admin-queries";
 import type { OnboardingAiUsed, Plan } from "@/lib/entitlements";
 
-type RouteContext = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 const PLANS: Plan[] = ["trial", "free", "pro"];
 const ONBOARDING: OnboardingAiUsed[] = [null, "brain_dump", "chat"];
@@ -34,7 +34,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
-  const { id } = context.params;
+  const { id } = await context.params;
 
   try {
     const user = await fetchAdminUserDetail(id);
@@ -52,7 +52,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
-  const { id } = context.params;
+  const { id } = await context.params;
 
   let body: UpdateAdminUserParams;
   try {
@@ -81,7 +81,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
-  const { id } = context.params;
+  const { id } = await context.params;
 
   if (id === guard.session.userId) {
     return NextResponse.json(

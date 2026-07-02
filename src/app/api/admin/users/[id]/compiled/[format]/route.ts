@@ -5,13 +5,14 @@ import {
 } from "@/lib/admin-crud";
 import { adminApiGuard } from "@/lib/admin-auth";
 
-type RouteContext = { params: { id: string; format: string } };
+type RouteContext = { params: Promise<{ id: string; format: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
-  const format = decodeURIComponent(context.params.format);
+  const { id, format: rawFormat } = await context.params;
+  const format = decodeURIComponent(rawFormat);
   let body: { full_context?: string };
   try {
     body = (await request.json()) as { full_context?: string };
@@ -25,7 +26,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   try {
     const compiled = await updateAdminCompiledProfile(
-      context.params.id,
+      id,
       format,
       body.full_context,
     );
@@ -40,10 +41,11 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
-  const format = decodeURIComponent(context.params.format);
+  const { id, format: rawFormat } = await context.params;
+  const format = decodeURIComponent(rawFormat);
 
   try {
-    await deleteAdminCompiledProfile(context.params.id, format);
+    await deleteAdminCompiledProfile(id, format);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin compiled delete error:", error);

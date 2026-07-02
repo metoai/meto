@@ -6,14 +6,15 @@ import {
 } from "@/lib/admin-crud";
 import { adminApiGuard } from "@/lib/admin-auth";
 
-type RouteContext = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
   try {
-    const usage = await getAdminAiUsage(context.params.id);
+    const { id } = await context.params;
+    const usage = await getAdminAiUsage(id);
     return NextResponse.json({ usage });
   } catch (error) {
     console.error("Admin AI usage get error:", error);
@@ -24,6 +25,7 @@ export async function GET(_request: Request, context: RouteContext) {
 export async function PATCH(request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
+  const { id } = await context.params;
 
   let body: { ai_calls_used?: number; ai_usage_period_start?: string | null };
   try {
@@ -43,8 +45,8 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
-    await updateAdminUserProfile(context.params.id, body);
-    const usage = await getAdminAiUsage(context.params.id);
+    await updateAdminUserProfile(id, body);
+    const usage = await getAdminAiUsage(id);
     return NextResponse.json({ usage });
   } catch (error) {
     console.error("Admin AI usage update error:", error);
@@ -57,7 +59,8 @@ export async function POST(_request: Request, context: RouteContext) {
   if ("response" in guard) return guard.response;
 
   try {
-    const usage = await resetAdminAiUsage(context.params.id);
+    const { id } = await context.params;
+    const usage = await resetAdminAiUsage(id);
     return NextResponse.json({ usage });
   } catch (error) {
     console.error("Admin AI usage reset error:", error);

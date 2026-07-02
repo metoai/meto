@@ -6,11 +6,12 @@ import {
 } from "@/lib/admin-crud";
 import { adminApiGuard } from "@/lib/admin-auth";
 
-type RouteContext = { params: { id: string; sectionId: string } };
+type RouteContext = { params: Promise<{ id: string; sectionId: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
+  const { id, sectionId } = await context.params;
 
   let body: UpdateSectionParams;
   try {
@@ -20,11 +21,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   try {
-    const section = await updateAdminSection(
-      context.params.id,
-      context.params.sectionId,
-      body,
-    );
+    const section = await updateAdminSection(id, sectionId, body);
     return NextResponse.json({ section });
   } catch (error) {
     console.error("Admin section update error:", error);
@@ -37,7 +34,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
   if ("response" in guard) return guard.response;
 
   try {
-    await deleteAdminSection(context.params.id, context.params.sectionId);
+    const { id, sectionId } = await context.params;
+    await deleteAdminSection(id, sectionId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin section delete error:", error);

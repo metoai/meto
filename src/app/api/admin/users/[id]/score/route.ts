@@ -7,14 +7,15 @@ import {
 } from "@/lib/admin-crud";
 import { adminApiGuard } from "@/lib/admin-auth";
 
-type RouteContext = { params: { id: string } };
+type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(_request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
 
   try {
-    const score = await getAdminContextScore(context.params.id);
+    const { id } = await context.params;
+    const score = await getAdminContextScore(id);
     return NextResponse.json({ score });
   } catch (error) {
     console.error("Admin score get error:", error);
@@ -25,6 +26,7 @@ export async function GET(_request: Request, context: RouteContext) {
 export async function PUT(request: Request, context: RouteContext) {
   const guard = await adminApiGuard();
   if ("response" in guard) return guard.response;
+  const { id } = await context.params;
 
   let body: UpsertScoreParams;
   try {
@@ -42,7 +44,7 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 
   try {
-    const score = await upsertAdminContextScore(context.params.id, body);
+    const score = await upsertAdminContextScore(id, body);
     return NextResponse.json({ score });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to save score.";
@@ -55,7 +57,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
   if ("response" in guard) return guard.response;
 
   try {
-    await deleteAdminContextScore(context.params.id);
+    const { id } = await context.params;
+    await deleteAdminContextScore(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Admin score delete error:", error);

@@ -19,7 +19,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 
 type RouteContext = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 };
 
 type ProfileAuthRow = {
@@ -418,7 +418,8 @@ async function handleMcpRequest(
   { params }: RouteContext
 ) {
   try {
-    const auth = await authenticateMcpRequest(request, params.username);
+    const { username } = await params;
+    const auth = await authenticateMcpRequest(request, username);
     if (!auth) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }

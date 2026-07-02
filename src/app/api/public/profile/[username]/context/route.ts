@@ -12,19 +12,20 @@ import {
 export const revalidate = 300;
 export const runtime = "nodejs";
 
-type RouteContext = { params: { username: string } };
+type RouteContext = { params: Promise<{ username: string }> };
 
 /** Machine-readable public profile — optimized for AI crawlers and fetch tools. */
 export async function GET(request: Request, { params }: RouteContext) {
   try {
+    const { username } = await params;
     const { searchParams } = new URL(request.url);
-    const result = await buildPublicContextBody(params.username, searchParams);
+    const result = await buildPublicContextBody(username, searchParams);
 
     if ("error" in result) {
       const status = result.status;
       if (requestWantsJson(request, searchParams)) {
         return Response.json(
-          { error: result.error, username: params.username.toLowerCase() },
+          { error: result.error, username: username.toLowerCase() },
           {
             status,
             headers: {
@@ -46,19 +47,19 @@ export async function GET(request: Request, { params }: RouteContext) {
 
     if (requestWantsJson(request, searchParams)) {
       return publicContextJsonResponse(
-        buildPublicContextJsonPayload(params.username, result)
+        buildPublicContextJsonPayload(username, result)
       );
     }
 
     if (requestWantsHtml(request, searchParams)) {
       return publicContextHtmlResponse(
-        params.username,
+        username,
         result.profile.name,
         result.text
       );
     }
 
-    return publicContextResponse(params.username, result.text);
+    return publicContextResponse(username, result.text);
   } catch (error) {
     console.error("GET public context API error:", error);
     return new Response("Failed to load profile context.", {
