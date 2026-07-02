@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PlanUsageCard } from "@/components/billing/plan-usage-card";
+import { McpQuickConnectCard } from "@/components/context-share/mcp-quick-connect-card";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
@@ -132,6 +133,16 @@ export function PortalSettingsPanel() {
             Choose light, dark, or match your system setting.
           </p>
           <ThemeToggle />
+        </section>
+
+        <section className="mb-8">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
+            Agent interoperability
+          </p>
+          <McpQuickConnectCard
+            title="MCP handoff"
+            description="Connect external AI clients directly so your latest profile context is fetched automatically."
+          />
         </section>
 
         <form onSubmit={handleSave}>

@@ -1,19 +1,19 @@
 export const WORKSPACE_COPY = {
-  bannerTitle: "One link. Every AI.",
+  bannerTitle: "Connect once. Sync everywhere.",
   bannerBody:
-    "Public sections become a link any AI can read. Private sections stay yours — paste them as text when you need to.",
+    "Use MCP for live context handoffs to Claude and Cursor. Keep copy-paste as a fallback for tools without direct integration.",
   steps: [
     { label: "Choose", detail: "Pick sections & scenario" },
-    { label: "Copy", detail: "Link or formatted text" },
-    { label: "Paste", detail: "Drop into any AI chat" },
+    { label: "Connect", detail: "MCP endpoint + token" },
+    { label: "Fallback", detail: "Copy link or formatted text" },
   ],
   linkLabel: "Public link",
   linkSublabel: "Only public sections — same as your metoai.site profile",
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
   linkHint:
-    "Paste your Meto link into ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi, Qwen, or any AI.",
-  copyTextInstead: "Copy full text instead",
+    "Use MCP when available. For non-integrated tools, paste your Meto link or text context.",
+  copyTextInstead: "Copy full text (fallback)",
   copiedContext: "Copied ✓",
   copyContext: "Copy context",
   previewLabel: "Text preview",

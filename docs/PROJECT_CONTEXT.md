@@ -12,7 +12,7 @@
 
 **Meto helps people stop re-introducing themselves to every AI.**
 
-Users describe who they are once. Meto structures that into a persistent **profile** made of editable **sections**, compiles it into **copy-paste context blocks** tuned for ChatGPT, Claude, Gemini, or a universal format, scores how well an AI would understand them (**context score**), and suggests **gaps** to fix with short AI-guided interviews. Optional **public profile** pages let others (or other AIs) read selected public sections.
+Users describe who they are once. Meto structures that into a persistent **profile** made of editable **sections**, compiles it into portable context, scores how well an AI would understand them (**context score**), and suggests **gaps** to fix with short AI-guided interviews. Optional **public profile** pages let others (or other AIs) read selected public sections. Meto now supports **remote MCP handoff** so compatible clients (e.g., Cursor / Claude setup via `mcp-remote`) can fetch context directly instead of manual copy/paste.
 
 Meto is **not** a chatbot product. It does not replace ChatGPT or Claude. It produces and maintains the context users paste *into* those tools.
 
@@ -162,10 +162,11 @@ Route: `/onboarding` (redirect from `/dashboard` if no sections).
 
 1. Claim `username` in settings → `www.metoai.site/profile/{username}`.
 2. Toggle `is_public` per section in Profile or Workspace section grid.
-3. **Workspace → Paste into** — pick AI platform; copy platform-specific prompt (ChatGPT/Gemini) or API link (others).
-4. Public page shows branded profile UI + machine-readable context for crawlers.
-5. **Best URL for AI fetch tools:** `/api/public/profile/{username}/context?preset=all&format=universal` (plain text, CORS).
-6. Middleware rewrites AI bot requests on `/profile/{username}` to the API context endpoint.
+3. **Workspace → MCP handoff (recommended)** — generate token + endpoint, then copy ready client configs.
+4. **Workspace fallback target** — for tools without MCP, copy platform-specific prompt (ChatGPT/Gemini) or API link (others).
+5. Public page shows branded profile UI + machine-readable context for crawlers.
+6. **Best URL for AI fetch tools:** `/api/public/profile/{username}/context?preset=all&format=universal` (plain text, CORS).
+7. Middleware rewrites AI bot requests on `/profile/{username}` to the API context endpoint.
 
 ### 7.5 Close a gap
 
@@ -224,6 +225,7 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 | PATCH/DELETE | `/api/profile/sections/[id]` | Update (incl. `is_public`) / delete |
 | GET | `/api/profile/me` | Profile + email |
 | PATCH | `/api/profile/me` | Update display name, username, password |
+| GET/POST/DELETE | `/api/profile/mcp-access` | Read/generate/revoke MCP token + client config snippets |
 | DELETE | `/api/profile/account` | Delete account (RPC) |
 | POST | `/api/profile/reset` | Wipe sections & caches → onboarding |
 
@@ -240,6 +242,7 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 | Method | Route | Description |
 |--------|-------|-------------|
 | GET | `/api/public/profile/[username]/context` | Public plain-text / JSON context (CORS, AI-optimized) |
+| GET/POST/DELETE | `/api/mcp/[username]` | Remote MCP endpoint (Streamable HTTP/SSE, Bearer auth) |
 | GET | `/api/public-profile/[username]` | Public profile JSON |
 | GET | `/api/profile/entitlements` | Plan limits (trial/free/pro) |
 | POST | `/api/billing/checkout` | Polar checkout session |
@@ -255,7 +258,7 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 
 | Table | Role |
 |-------|------|
-| `profiles` | 1:1 with `auth.users` — `username`, `display_name`, `plan`, `trial_ends_at`, Polar IDs |
+| `profiles` | 1:1 with `auth.users` — `username`, `display_name`, `plan`, `trial_ends_at`, Polar IDs, `mcp_access_token` |
 | `context_sections` | Profile content — `section_type`, `title`, `content`, `is_public`, `updated_at` |
 | `compiled_profiles` | Cached compile output — unique `(user_id, format)` |
 | `context_scores` | Latest `score`, `headline`, `summary`, `gaps` (jsonb), `analyzed_at` |
@@ -431,9 +434,10 @@ npm start
 - Does not run conversations inside ChatGPT/Claude/Gemini.
 - Does not store third-party AI chat history.
 - Public profile does not use LLM for visitors (local compile only).
-- Does not automatically sync to external AI products (user copies/pastes).
+- Does not run chats *inside* third-party products; it supplies profile context and update tools over MCP/public URLs.
 
-**Handoff artifact:** the compiled context block — paste at session start or save in each tool’s custom instructions.
+**Primary handoff path:** MCP endpoint (`/api/mcp/{username}`) with token auth.  
+**Fallback handoff artifact:** compiled context block for manual paste/custom instructions.
 
 ---
 

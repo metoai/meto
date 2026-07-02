@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SuccessToast } from "@/components/dashboard-shell";
 import { ContextComposer } from "@/components/context-share/context-composer";
+import { McpQuickConnectCard } from "@/components/context-share/mcp-quick-connect-card";
 import { WorkspaceBanner } from "@/components/context-share/workspace-banner";
 import { PortalPageShell } from "@/components/portal/portal-page-shell";
 import { usePortalData } from "@/components/portal/portal-data-context";
@@ -65,6 +66,12 @@ export function WorkspacePageClient() {
           <div className="shrink-0">
             <WorkspaceBanner />
           </div>
+
+          {loaded ? (
+            <div className="shrink-0">
+              <McpQuickConnectCard compact />
+            </div>
+          ) : null}
 
           {loaded ? (
             <>

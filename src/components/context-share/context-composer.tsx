@@ -94,8 +94,8 @@ export function ContextComposer({
         <header className="mb-6">
           <h2 className="page-title">Share with AI</h2>
           <p className="mt-2 body-text">
-            Build a context block, copy it into Claude, ChatGPT, or Gemini — or
-            share a link for AI to read.
+            Prefer MCP handoff for live sync. Use this panel for link/text fallback
+            in tools that do not support direct MCP connections.
           </p>
         </header>
       ) : null}

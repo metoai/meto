@@ -20,10 +20,10 @@ export function PlatformTabs({
       <div className="space-y-2">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Paste into
+            Fallback target
           </p>
           <p className="mt-0.5 text-[10px] text-[var(--muted)]">
-            Updates the link and text preview below
+            Use when MCP handoff is not available
           </p>
         </div>
         <div
@@ -60,7 +60,7 @@ export function PlatformTabs({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium text-[var(--muted)]">Paste into</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Fallback target</p>
       <div
         className="grid grid-cols-4 gap-2"
         role="tablist"
