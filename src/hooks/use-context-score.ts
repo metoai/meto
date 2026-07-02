@@ -101,6 +101,11 @@ export function useContextScore(
   );
 
   const loadScore = useCallback(async () => {
+    if (!portal) {
+      setLoading(false);
+      return;
+    }
+
     if (loadInFlightRef.current) return;
 
     const forceCelebrate = readCelebratePending();
@@ -177,7 +182,7 @@ export function useContextScore(
       setLoading(false);
       setAnalyzing(false);
     }
-  }, [autoAnalyze, dataVersion, portal?.contextScore, portal?.contextScoreStale, runAnalyze, syncIssueCount]);
+  }, [autoAnalyze, dataVersion, portal, portal?.contextScore, portal?.contextScoreStale, runAnalyze, syncIssueCount]);
 
   useEffect(() => {
     void loadScore();

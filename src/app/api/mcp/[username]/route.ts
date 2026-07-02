@@ -124,6 +124,13 @@ async function authenticateMcpRequest(
     return null;
   }
 
+  // Best-effort heartbeat for interoperability health in the dashboard.
+  // This powers "last sync" visibility without blocking successful MCP calls.
+  await admin
+    .from("profiles")
+    .update({ mcp_last_used_at: new Date().toISOString() })
+    .eq("id", data.id);
+
   return {
     userId: data.id,
     username: data.username?.toLowerCase() ?? normalizedUsername,

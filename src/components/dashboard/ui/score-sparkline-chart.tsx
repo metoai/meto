@@ -61,13 +61,17 @@ export function ScoreSparklineChart({
   currentScore,
   variant,
 }: ScoreSparklineChartProps) {
+  if (!data.length) {
+    return <div className="h-full w-full" />;
+  }
+
   const color = scoreColor(currentScore);
   const fillId = `sparkFill-${currentScore}-${variant}`;
   const isHero = variant === "hero";
   const domain = useMemo(() => chartDomain(data), [data]);
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
       <AreaChart
         data={data}
         margin={

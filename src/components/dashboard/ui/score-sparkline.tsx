@@ -48,7 +48,7 @@ export function ScoreSparkline({
   return (
     <div
       className={className}
-      style={{ width: typeof width === "number" ? width : undefined, height }}
+      style={{ width, height, minWidth: 0 }}
     >
       <ScoreSparklineChart
         data={data}

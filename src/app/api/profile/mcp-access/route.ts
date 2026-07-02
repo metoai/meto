@@ -6,6 +6,7 @@ type ProfileMcpRow = {
   id: string;
   username: string | null;
   mcp_access_token: string | null;
+  mcp_last_used_at: string | null;
   updated_at: string;
 };
 
@@ -74,6 +75,7 @@ function buildPayload(profile: ProfileMcpRow) {
       hasToken && endpointUrl
         ? buildClaudeDesktopConfig(endpointUrl, token)
         : null,
+    lastUsedAt: profile.mcp_last_used_at,
     updatedAt: profile.updated_at,
   };
 }
@@ -90,7 +92,7 @@ async function loadOwnProfile() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, mcp_access_token, updated_at")
+    .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
     .eq("id", user.id)
     .single<ProfileMcpRow>();
 
@@ -135,10 +137,11 @@ export async function POST() {
       .from("profiles")
       .update({
         mcp_access_token: token,
+        mcp_last_used_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)
-      .select("id, username, mcp_access_token, updated_at")
+      .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
       .single<ProfileMcpRow>();
 
     if (error) throw error;
@@ -164,10 +167,11 @@ export async function DELETE() {
       .from("profiles")
       .update({
         mcp_access_token: null,
+        mcp_last_used_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)
-      .select("id, username, mcp_access_token, updated_at")
+      .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
       .single<ProfileMcpRow>();
 
     if (error) throw error;

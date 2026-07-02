@@ -1,8 +1,8 @@
 "use client";
 
 import { Moon, Sun, Monitor } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { useTheme } from "@/components/theme-provider";
 
 type ThemeToggleProps = {
   /** Compact icon-only control for nav bars */

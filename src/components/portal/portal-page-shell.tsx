@@ -16,7 +16,7 @@ export function PortalPageShell({
     <div
       className={`min-h-0 w-full flex-1 ${
         flush
-          ? "flex flex-col overflow-y-auto md:overflow-hidden"
+          ? "flex flex-col overflow-y-auto"
           : "overflow-y-auto"
       } ${className}`}
     >
