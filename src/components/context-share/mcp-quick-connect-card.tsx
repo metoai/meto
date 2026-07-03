@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type McpAccessPayload = {
@@ -182,12 +183,30 @@ export function McpQuickConnectCard({
       ) : null}
 
       {!data?.username ? (
-        <p className="mt-3 text-xs text-[var(--muted)]">
-          Set a username in Settings first, then generate your MCP token.
-        </p>
+        <div className="mt-3 rounded-lg border border-[var(--accent-border)] bg-[var(--primary-light)] px-3.5 py-3">
+          <p className="text-sm font-medium text-[var(--text)]">
+            Step 1: Claim a username
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+            MCP needs a username to build your endpoint (
+            <span className="font-mono-brand">/api/mcp/yourname</span>). Set one
+            in Settings, then come back to generate your token.
+          </p>
+          <Link
+            href="/settings"
+            className="mt-3 inline-flex rounded-md bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--primary-hover)]"
+          >
+            Go to Settings
+          </Link>
+        </div>
       ) : null}
 
-      <div className={`mt-3 space-y-3 ${compact ? "" : "md:space-y-3.5"}`}>
+      <div
+        className={`mt-3 space-y-3 ${compact ? "" : "md:space-y-3.5"} ${
+          !data?.username ? "pointer-events-none opacity-40" : ""
+        }`}
+        aria-hidden={!data?.username}
+      >
         <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5">
           <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
             Handoff wizard

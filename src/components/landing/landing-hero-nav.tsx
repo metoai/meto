@@ -91,7 +91,7 @@ export function LandingHeroNav({
                 href="/auth/signup"
                 className="rounded-md bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-white transition-[background-color] duration-150 hover:bg-[var(--primary-hover)] sm:px-4"
               >
-                Get started
+                Get started free
               </Link>
             </>
           )}

@@ -40,7 +40,7 @@ export function LandingHeroFooter({ isLoggedIn = false }: LandingHeroFooterProps
               href="/auth/signup"
               className="px-2 py-1 text-[13px] font-medium text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
             >
-              Get started
+              Get started free
             </Link>
           </>
         )}

@@ -593,8 +593,14 @@ export default function Home() {
                 ) : null}
 
                 <form onSubmit={handleSubmit} className="shrink-0 bg-transparent">
-                  <div className="flex items-start gap-3 px-4 py-4 sm:px-5 sm:py-5">
-                    <div className="mt-0.5 shrink-0">
+                  <div
+                    className={`flex gap-2.5 sm:gap-3 ${
+                      chatStarted
+                        ? "items-start px-4 py-4 sm:px-5 sm:py-5"
+                        : "items-center px-3.5 py-2.5 sm:px-4 sm:py-3"
+                    }`}
+                  >
+                    <div className={`shrink-0 ${chatStarted ? "mt-0.5" : ""}`}>
                       <MetoMarkBadge size="sm" />
                     </div>
                     <textarea
@@ -602,7 +608,7 @@ export default function Home() {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      rows={chatStarted ? 1 : 2}
+                      rows={1}
                       autoFocus
                       placeholder={
                         chatStarted
@@ -610,15 +616,25 @@ export default function Home() {
                           : "I'm a designer working on a new product…"
                       }
                       disabled={typing}
-                      className="min-h-[44px] w-full resize-none border-none bg-transparent font-[inherit] text-[15px] leading-[1.6] text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] sm:min-h-[52px] sm:text-[16px]"
+                      className={`w-full resize-none border-none bg-transparent font-[inherit] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] ${
+                        chatStarted
+                          ? "min-h-[44px] text-[15px] sm:min-h-[52px] sm:text-[16px]"
+                          : "min-h-[24px] text-[15px] sm:text-[16px]"
+                      }`}
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-3 border-t border-[var(--landing-panel-border)] px-3 py-2.5 sm:px-4">
+                  <div
+                    className={`flex items-center justify-between gap-3 border-t border-[var(--landing-panel-border)] ${
+                      chatStarted ? "px-3 py-2.5 sm:px-4" : "px-3 py-2 sm:px-3.5"
+                    }`}
+                  >
                     <LandingHeroToolbar chatStarted={chatStarted} />
                     <button
                       type="submit"
                       disabled={!input.trim() || typing}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-none bg-[var(--primary)] text-white transition-[background,transform] duration-150 hover:bg-[var(--primary-hover)] active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                      className={`flex shrink-0 items-center justify-center rounded-xl border-none bg-[var(--primary)] text-white transition-[background,transform] duration-150 hover:bg-[var(--primary-hover)] active:scale-95 disabled:pointer-events-none disabled:opacity-40 ${
+                        chatStarted ? "h-10 w-10" : "h-9 w-9"
+                      }`}
                       aria-label={chatStarted ? "Send message" : "Start chat"}
                     >
                       <SendArrowIcon />

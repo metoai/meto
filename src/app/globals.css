@@ -360,6 +360,7 @@ body {
 
   .landing-chat-shell:not(.is-active) {
     box-shadow: none;
+    border-radius: 0.875rem;
   }
 
   .landing-hero-card:focus-within {

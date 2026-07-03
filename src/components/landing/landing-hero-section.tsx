@@ -2,6 +2,7 @@ import { LandingHeroBackground } from "@/components/landing/landing-hero-backgro
 import { LandingHeroCopy } from "@/components/landing/landing-hero-copy";
 import { LandingHeroNav } from "@/components/landing/landing-hero-nav";
 import { LandingHeroPartners } from "@/components/landing/landing-hero-partners";
+import { LandingHeroProof } from "@/components/landing/landing-hero-proof";
 
 type LandingHeroSectionProps = {
   chatStarted: boolean;
@@ -35,25 +36,33 @@ export function LandingHeroSection({
 
         <div
           className={`flex flex-1 flex-col items-center ${
-            chatStarted ? "py-4 lg:py-6" : "justify-center py-10 pb-8 lg:py-12 lg:pb-10"
+            chatStarted ? "py-4 lg:py-6" : "justify-start py-8 pb-6 lg:py-10 lg:pb-8"
           }`}
         >
           <div
-            className={`flex w-full max-w-[720px] flex-col ${
-              chatStarted ? "min-h-0 flex-1 items-stretch" : "flex-1 items-center"
+            className={`flex w-full flex-col ${
+              chatStarted ? "min-h-0 flex-1 items-stretch" : "max-w-[960px] items-center"
             }`}
           >
             {!chatStarted ? (
-              <div className="mb-10 w-full sm:mb-12">
-                <LandingHeroCopy chatStarted={false} />
+              <div className="mb-6 w-full sm:mb-7">
+                <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 xl:gap-12">
+                  <LandingHeroCopy chatStarted={false} />
+                  <div className="hidden lg:block">
+                    <LandingHeroProof />
+                  </div>
+                </div>
+                <div className="mt-6 lg:hidden">
+                  <LandingHeroProof />
+                </div>
               </div>
             ) : null}
 
             <div
               className={`w-full ${
                 chatStarted
-                  ? "flex min-h-0 flex-1 flex-col"
-                  : "landing-animate-in"
+                  ? "mx-auto flex min-h-0 max-w-[720px] flex-1 flex-col"
+                  : "landing-animate-in w-full"
               }`}
               style={chatStarted ? undefined : { animationDelay: "0.1s" }}
             >

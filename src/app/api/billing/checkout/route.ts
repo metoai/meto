@@ -4,19 +4,41 @@ import { syncBillingState, setPlanFromPolar } from "@/lib/billing-profile";
 import { getPolar, getPolarProProductId, getSiteOrigin } from "@/lib/polar";
 import { createClient } from "@/lib/supabase/server";
 
+export const runtime = "nodejs";
+
+function polarErrorBody(error: unknown): string {
+  if (!error || typeof error !== "object") return "";
+  const record = error as Record<string, unknown>;
+  const body = record.body;
+  if (typeof body === "string") return body;
+  if (body && typeof body === "object") {
+    try {
+      return JSON.stringify(body);
+    } catch {
+      return "";
+    }
+  }
+  return "";
+}
+
 function checkoutErrorDetails(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
+  const body = polarErrorBody(error);
+  const combined = `${message} ${body}`;
 
-  if (message.includes("POLAR_ACCESS_TOKEN")) {
-    return "POLAR_ACCESS_TOKEN is missing or invalid for this environment.";
+  if (
+    combined.includes("POLAR_ACCESS_TOKEN") ||
+    combined.includes("invalid_token")
+  ) {
+    return "Polar access token is invalid or expired. Create a new token at polar.sh → Organization → Settings → Access Tokens, then update POLAR_ACCESS_TOKEN in Vercel and .env.local.";
   }
-  if (message.includes("POLAR_PRO_PRODUCT_ID")) {
+  if (combined.includes("POLAR_PRO_PRODUCT_ID")) {
     return "POLAR_PRO_PRODUCT_ID is missing for this environment.";
   }
-  if (message.includes("401")) {
-    return "Polar authentication failed. Check token/server (sandbox vs production).";
+  if (combined.includes("401") || combined.includes("authentication")) {
+    return "Polar authentication failed. Ensure POLAR_ACCESS_TOKEN matches POLAR_SERVER (sandbox token for sandbox, production token for production).";
   }
-  if (message.includes("404")) {
+  if (combined.includes("404")) {
     return "Polar product was not found. Check POLAR_PRO_PRODUCT_ID and server mode.";
   }
 

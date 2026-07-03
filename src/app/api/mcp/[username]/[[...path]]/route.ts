@@ -19,7 +19,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 
 type RouteContext = {
-  params: Promise<{ username: string }>;
+  params: Promise<{ username: string; path?: string[] }>;
 };
 
 type ProfileAuthRow = {
@@ -263,6 +263,15 @@ async function mergeFactIntoProfileWithLlm(
   return Object.keys(updates);
 }
 
+function mcpTransportPaths(username: string) {
+  const root = `/api/mcp/${username}`;
+  return {
+    streamableHttpEndpoint: root,
+    sseEndpoint: `${root}/sse`,
+    sseMessageEndpoint: `${root}/message`,
+  };
+}
+
 /**
  * Build a per-user MCP handler after auth succeeds.
  * We create it per request so all tools/resources are safely scoped to the
@@ -395,11 +404,9 @@ function createUserScopedMcpHandler(
       },
     },
     {
-      // Important: this must match where this route lives in your app.
-      // Since this file is at /api/mcp/[username], the base path is /api/mcp/${username}.
-      basePath: `/api/mcp/${username}`,
-      // Streamable HTTP is enabled by default; SSE is also available in mcp-handler.
-      // Add REDIS_URL if you want resumable SSE behavior across instances.
+      // Cursor streamable_http posts to the root endpoint URL we expose in config.
+      // Do not use basePath here — mcp-handler would append /mcp and cause 404s.
+      ...mcpTransportPaths(username),
       redisUrl: process.env.REDIS_URL,
       maxDuration: 60,
       verboseLogs: true,
