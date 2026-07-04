@@ -65,7 +65,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       title: role === "business" ? "Business context" : "Coding rules",
       content: answer,
       type: role === "rules" ? "rule" : "project",
-      source: "user",
+      source: "manual",
       projectSlug: project.slug,
     });
 

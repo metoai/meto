@@ -76,7 +76,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       title,
       content,
       type: memoryType,
-      source: "user",
+      source: "manual",
       projectSlug: project.slug,
     });
 
