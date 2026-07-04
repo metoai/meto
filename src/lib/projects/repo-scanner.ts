@@ -288,7 +288,7 @@ export function scanResultToMemories(scan: RepoScanResult): ScanMemoryDraft[] {
   if (scan.detected.styling?.includes("Tailwind")) {
     inferredRules.push("Use Tailwind CSS — never write inline styles.");
   }
-  if (scan.detected.frameworks.includes("Next.js")) {
+  if (scan.stack.frameworks.includes("Next.js")) {
     inferredRules.push("Prefer Server Actions for mutations.");
     inferredRules.push("Avoid unnecessary useEffect for server-fetched data.");
   }
