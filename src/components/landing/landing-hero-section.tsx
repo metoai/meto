@@ -45,16 +45,8 @@ export function LandingHeroSection({
             }`}
           >
             {!chatStarted ? (
-              <div className="mb-6 w-full sm:mb-7">
-                <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 xl:gap-12">
-                  <LandingHeroCopy chatStarted={false} />
-                  <div className="hidden lg:block">
-                    <LandingHeroProof />
-                  </div>
-                </div>
-                <div className="mt-6 lg:hidden">
-                  <LandingHeroProof />
-                </div>
+              <div className="mb-8 w-full sm:mb-10 flex justify-center">
+                <LandingHeroCopy chatStarted={false} />
               </div>
             ) : null}
 
