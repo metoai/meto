@@ -44,11 +44,20 @@ export async function generateMetadata({
       url: profileUrl,
       type: "profile",
       siteName: "Meto",
+      images: [
+        {
+          url: `${getSiteUrl()}/api/og/card?username=${encodeURIComponent(publicProfile.username)}`,
+          width: 1200,
+          height: 630,
+          alt: `${publicProfile.name}'s AI identity profile`,
+        },
+      ],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${publicProfile.name} — Meto`,
       description,
+      images: [`${getSiteUrl()}/api/og/card?username=${encodeURIComponent(publicProfile.username)}`],
     },
     robots: { index: true, follow: true },
     alternates: {

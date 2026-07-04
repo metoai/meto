@@ -51,7 +51,7 @@ export async function POST(request: Request, { params }: RouteContext) {
       title: "Decision: " + title,
       content,
       type: "decision",
-      source: "user",
+      source: "manual",
       projectSlug: project.slug,
     });
 
