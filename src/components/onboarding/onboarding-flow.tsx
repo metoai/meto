@@ -12,8 +12,10 @@ import { parseUpgradeError } from "@/lib/billing-client";
 import { postChatStream } from "@/lib/chat-stream-client";
 import { streamPlainTextForDisplay } from "@/lib/stream-prompt";
 import { CHAT_OPENING_MESSAGE } from "@/lib/meto-prompts";
+import { WorkspaceModePicker } from "@/components/onboarding/workspace-mode-picker";
+import type { WorkspaceMode } from "@/lib/workspace-mode";
 
-type Mode = "choice" | "brain-dump" | "chat";
+type Mode = "workspace" | "choice" | "brain-dump" | "chat";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const FIRST_MESSAGE: ChatMessage = {
@@ -92,7 +94,9 @@ function UpgradeNotice({ manualHint }: { manualHint?: string }) {
 
 export function OnboardingFlow() {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("choice");
+  const [mode, setMode] = useState<Mode>("workspace");
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode | null>(null);
+  const [savingWorkspaceMode, setSavingWorkspaceMode] = useState(false);
   const [rawText, setRawText] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([FIRST_MESSAGE]);
   const [chatInput, setChatInput] = useState("");
@@ -114,8 +118,32 @@ export function OnboardingFlow() {
   }, [rawText, mode]);
 
   async function finishOnboarding() {
-    router.push("/dashboard?ready=1");
+    const destination =
+      workspaceMode === "developer" ? "/dashboard/projects?ready=1" : "/dashboard?ready=1";
+    router.push(destination);
     router.refresh();
+  }
+
+  async function handleWorkspaceModeSelect(selected: WorkspaceMode) {
+    setSavingWorkspaceMode(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/profile/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workspace_mode: selected }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Failed to save workspace mode.");
+      }
+      setWorkspaceMode(selected);
+      setMode("choice");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save.");
+    } finally {
+      setSavingWorkspaceMode(false);
+    }
   }
 
   async function handleBrainDump(e: FormEvent) {
@@ -288,6 +316,23 @@ export function OnboardingFlow() {
       if (!chatInput.trim() || loading) return;
       void sendChatMessage(chatInput.trim());
     }
+  }
+
+  if (mode === "workspace") {
+    return (
+      <div className="min-h-screen text-[var(--text)]">
+        <OnboardingHeader />
+        <WorkspaceModePicker
+          onSelect={handleWorkspaceModeSelect}
+          saving={savingWorkspaceMode}
+        />
+        {error ? (
+          <p className="pb-8 text-center text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   if (mode === "choice") {

@@ -27,6 +27,7 @@ export function DashboardEditor({
   inline = false,
   tieredLayout = false,
   hideLiveBanner = false,
+  sectionTypesFilter = null,
   initialSectionType = null,
   onSectionSaved,
 }: {
@@ -36,6 +37,7 @@ export function DashboardEditor({
   inline?: boolean;
   tieredLayout?: boolean;
   hideLiveBanner?: boolean;
+  sectionTypesFilter?: ReadonlySet<string> | null;
   initialSectionType?: string | null;
   onSectionSaved?: () => void;
 }) {
@@ -474,6 +476,7 @@ export function DashboardEditor({
               username={username}
               tieredLayout={tieredLayout}
               hideLiveBanner={hideLiveBanner}
+              sectionTypesFilter={sectionTypesFilter ?? undefined}
               initialSectionType={initialSectionType}
               savingId={savingId}
               onUsernameClaimed={(claimedUsername) => {

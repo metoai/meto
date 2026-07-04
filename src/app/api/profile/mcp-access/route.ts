@@ -1,4 +1,10 @@
 import { NextResponse } from "next/server";
+import {
+  buildClaudeDesktopMcpJson,
+  buildCursorInstallLinks,
+  buildCursorMcpJson,
+  buildMcpEndpointUrl,
+} from "@/lib/mcp-install";
 import { getSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,54 +21,15 @@ function generateMcpAccessToken(): string {
   return `meto_mcp_${random}`;
 }
 
-function buildEndpointUrl(username: string): string {
-  return `${getSiteUrl()}/api/mcp/${username}`;
-}
-
-function buildCursorConfig(endpointUrl: string, token: string): string {
-  return JSON.stringify(
-    {
-      mcpServers: {
-        meto: {
-          transport: "streamable_http",
-          url: endpointUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      },
-    },
-    null,
-    2
-  );
-}
-
-function buildClaudeDesktopConfig(endpointUrl: string, token: string): string {
-  return JSON.stringify(
-    {
-      mcpServers: {
-        meto: {
-          command: "npx",
-          args: [
-            "-y",
-            "mcp-remote",
-            endpointUrl,
-            "--header",
-            `Authorization: Bearer ${token}`,
-          ],
-        },
-      },
-    },
-    null,
-    2
-  );
-}
-
 function buildPayload(profile: ProfileMcpRow) {
   const username = profile.username?.trim().toLowerCase() ?? "";
   const token = profile.mcp_access_token?.trim() ?? "";
   const hasToken = Boolean(token);
-  const endpointUrl = username ? buildEndpointUrl(username) : "";
+  const endpointUrl = username ? buildMcpEndpointUrl(getSiteUrl(), username) : "";
+  const install =
+    hasToken && endpointUrl
+      ? buildCursorInstallLinks(endpointUrl, token)
+      : null;
 
   return {
     username,
@@ -70,10 +37,12 @@ function buildPayload(profile: ProfileMcpRow) {
     token: hasToken ? token : null,
     endpointUrl: endpointUrl || null,
     cursorConfig:
-      hasToken && endpointUrl ? buildCursorConfig(endpointUrl, token) : null,
+      hasToken && endpointUrl ? buildCursorMcpJson(endpointUrl, token) : null,
+    cursorInstallUrl: install?.webInstall ?? null,
+    cursorDeeplink: install?.deeplink ?? null,
     claudeDesktopConfig:
       hasToken && endpointUrl
-        ? buildClaudeDesktopConfig(endpointUrl, token)
+        ? buildClaudeDesktopMcpJson(endpointUrl, token)
         : null,
     lastUsedAt: profile.mcp_last_used_at,
     updatedAt: profile.updated_at,

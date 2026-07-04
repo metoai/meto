@@ -137,12 +137,60 @@ export function PortalSettingsPanel() {
 
         <section className="mb-8">
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
+            Workspace mode
+          </p>
+          <p className="mb-3 text-[13px] text-[var(--text-secondary)]">
+            Personal keeps the classic profile flow. Developer adds a project-centric home.
+          </p>
+          <div className="flex gap-2">
+            {(["personal", "developer"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={async () => {
+                  setError(null);
+                  const res = await fetch("/api/profile/me", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ workspace_mode: mode }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) {
+                    setError(data.error ?? "Failed to update workspace mode.");
+                    return;
+                  }
+                  setProfile(data.profile);
+                  void refresh();
+                }}
+                className={`rounded-lg border px-3 py-2 text-sm capitalize transition-colors ${
+                  profile?.workspace_mode === mode ||
+                  (!profile?.workspace_mode && mode === "personal")
+                    ? "border-[var(--primary)] bg-[var(--primary-light)] text-[var(--primary)]"
+                    : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]"
+                }`}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
             Agent interoperability
           </p>
-          <McpQuickConnectCard
-            title="MCP handoff"
-            description="Connect external AI clients directly so your latest profile context is fetched automatically."
-          />
+          {profile?.workspace_mode === "developer" ? (
+            <McpQuickConnectCard
+              title="MCP handoff"
+              description="Connect external AI clients directly so your latest profile context is fetched automatically."
+            />
+          ) : (
+            <p className="text-sm text-[var(--text-secondary)]">
+              MCP is available under{" "}
+              <span className="font-medium text-[var(--text)]">Workspace → Advanced</span>
+              , or switch to Developer mode above for a project + MCP-first setup.
+            </p>
+          )}
         </section>
 
         <form onSubmit={handleSave}>

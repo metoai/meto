@@ -15,17 +15,28 @@ export function readUpdateHistory(): UpdateHistoryEntry[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as UpdateHistoryEntry[];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map(({ preview: _preview, message, ...entry }) => ({
+      ...entry,
+      message: truncateHistoryMessage(message),
+    }));
   } catch {
     return [];
   }
 }
 
+function truncateHistoryMessage(message: string, max = 160): string {
+  const trimmed = message.trim();
+  if (trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max).trimEnd()}…`;
+}
+
 export function recordUpdate(entry: Omit<UpdateHistoryEntry, "id" | "timestamp">) {
   if (typeof window === "undefined") return;
+  const { preview: _preview, ...lean } = entry;
   const history = readUpdateHistory();
   history.unshift({
-    ...entry,
+    ...lean,
     id: crypto.randomUUID(),
     timestamp: new Date().toISOString(),
   });

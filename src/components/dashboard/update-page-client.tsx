@@ -8,6 +8,10 @@ import { QuickUpdateChat } from "@/components/dashboard/quick-update-chat";
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { useQuickUpdateSidebarOptional } from "@/components/portal/quick-update-sidebar-context";
 import {
+  getWorkspaceMode,
+  isDeveloperWorkspace,
+} from "@/lib/workspace-mode";
+import {
   buildGapFixIntentFromSession,
   readAllGapFixItems,
   readGapFixSession,
@@ -18,8 +22,10 @@ import { friendlySectionTitle } from "@/lib/section-display";
 export function UpdatePageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { displayName, refresh } = usePortalData();
+  const { displayName, refresh, profile } = usePortalData();
   const sidebar = useQuickUpdateSidebarOptional();
+  const isDev = isDeveloperWorkspace(profile);
+  const workspaceMode = getWorkspaceMode(profile);
 
   const fromContextScore = searchParams.get("from") === "context-score";
   const mode = searchParams.get("mode") === "all" ? "all" : "single";
@@ -27,7 +33,7 @@ export function UpdatePageClient() {
   const fixInsight = searchParams.get("insight") ?? "";
 
   const gapFix = useMemo((): GapFixIntent | null => {
-    if (!fromContextScore) return null;
+    if (isDev || !fromContextScore) return null;
 
     const session = readGapFixSession();
     if (mode === "all" && session?.queue.length) {
@@ -65,7 +71,7 @@ export function UpdatePageClient() {
     }
 
     return null;
-  }, [fixInsight, fixSection, fromContextScore, mode]);
+  }, [fixInsight, fixSection, fromContextScore, isDev, mode]);
 
   useEffect(() => {
     sidebar?.registerOnProfileUpdated(() => {
@@ -80,13 +86,15 @@ export function UpdatePageClient() {
       <UpdateUpgradeWall>
         <div className="flex min-h-0 flex-1 flex-col">
           <QuickUpdateChat
+            key={workspaceMode}
             variant="full"
             displayName={displayName}
+            workspaceMode={workspaceMode}
             gapFix={gapFix}
             onApplied={({ finishedAll }) => {
               void refresh();
               if (finishedAll) {
-                router.push("/dashboard/fixes");
+                router.push(isDev ? "/dashboard/projects" : "/dashboard/fixes");
               }
             }}
           />

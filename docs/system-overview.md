@@ -15,13 +15,14 @@ Meto is a **personal AI identity layer**. You describe yourself once. Meto struc
 
 **Tagline:** Every AI should already know you.
 
-**Landing hero copy** (keep aligned with `src/lib/landing-copy.ts`):
+**Landing hero copy** (live in `src/components/landing/landing-hero-copy.tsx`; `src/lib/landing-copy.ts` is unused):
 
-- Eyebrow: *Your AI profile*
-- Headline: *Stop repeating yourself to every AI.*
-- Subhead: *Create a personal AI profile once and use it everywhere.*
+- Eyebrow: *Structured context for every AI*
+- Headline: *Never explain yourself twice.*
+- Subhead: *Paste your bio or let Meto learn as you work. Give every AI instant memory via link or MCP.*
+- Outcome: *One conversation → Universal AI memory*
 
-Meto is **not** a general chat product. It does not replace ChatGPT or Claude. It produces and maintains the context you bring *into* those tools.
+Meto is **not** a general chat product. It does not replace ChatGPT or Claude. It produces and maintains the context you bring *into* those tools — now including **remote MCP** for Cursor and Claude Desktop.
 
 ---
 
@@ -39,6 +40,7 @@ Meto is **not** a general chat product. It does not replace ChatGPT or Claude. I
 | **Public profile** | Branded page at `/profile/{username}`; AI tools fetch plain text from `/api/public/profile/{username}/context`. |
 | **Entitlements** | Plan-aware feature flags and AI quotas — trial, Free, or Pro (`src/lib/entitlements.ts`). |
 | **Bootstrap** | `GET /api/profile/bootstrap` — single portal load for profile, sections, score, and entitlements. |
+| **MCP handoff** | Remote server at `/api/mcp/{username}` — Bearer token auth, `profile://` resources, `update_meto_profile` tool. Workspace Quick Connect card generates Cursor/Claude configs. |
 
 ---
 
@@ -95,7 +97,7 @@ Login → Dashboard (context score + section quality) → Profile / Workspace / 
 ```
 
 - **Profile** — edit all sections with tiered layout and public toggles
-- **Workspace** — pick platform, sections, and scenario; copy prompt or formatted text
+- **Workspace** — MCP Quick Connect (token, Cursor/Claude config) + pick platform, sections, scenario; copy prompt or formatted text
 - **Updates** — describe changes in plain language; attach documents (PDF, DOCX, TXT, MD, CSV, RTF); AI proposes section updates
 - **Fixes** — always in sidebar; badge shows open gaps; fix one or fix all with targeted AI questions
 - **Settings** — display name, username, password, theme, plan usage, delete account
@@ -140,6 +142,17 @@ Also available:
 
 Bot user-agents hitting `/profile/{username}` are rewritten to plain-text context. No login required.
 
+### MCP connection (Cursor / Claude)
+
+```
+Settings: claim username → Workspace: Generate MCP token → Copy Cursor or Claude config → Restart client
+```
+
+- Endpoint: `{SITE_URL}/api/mcp/{username}` (Streamable HTTP; Bearer `meto_mcp_*` token)
+- Resources: `profile://handoff`, `profile://{section}`
+- Tool: `update_meto_profile({ new_fact })`
+- Health: `profiles.mcp_last_used_at` shown in Workspace interop panel
+
 ### Upgrade to Pro
 
 ```
@@ -170,7 +183,7 @@ Trial ends or hit quota → Upgrade modal /pricing → Polar checkout → /billi
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 14 App Router, React 18, Tailwind CSS, Geist fonts, Lucide icons, Recharts |
+| Frontend | Next.js 16 App Router, React 18, Tailwind CSS, Geist fonts, Lucide icons, Recharts |
 | Theming | `next-themes` (light / dark / system) |
 | Backend | Next.js Route Handlers (API routes), Server Components |
 | Auth & DB | Supabase (Postgres + Auth + RLS); service role for webhooks and admin |

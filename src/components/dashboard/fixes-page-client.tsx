@@ -11,6 +11,7 @@ import {
   IMPACT_LABELS,
 } from "@/components/dashboard/ui/fixes-gap-ui";
 import { usePortalData } from "@/components/portal/portal-data-context";
+import { isDeveloperWorkspace } from "@/lib/workspace-mode";
 import { useContextScore } from "@/hooks/use-context-score";
 import type { ContextScoreGap } from "@/lib/context-score";
 import { gapImpactLevel, type GapImpact } from "@/lib/section-quality";
@@ -23,10 +24,17 @@ import { PortalPageShell } from "@/components/portal/portal-page-shell";
 
 export function FixesPageClient() {
   const router = useRouter();
-  const { loaded, dataVersion, contextScore } = usePortalData();
+  const { loaded, profile, dataVersion, contextScore } = usePortalData();
   const { score: fetchedScore, celebrating, scoreDelta } =
     useContextScore(dataVersion);
   const score = fetchedScore ?? contextScore;
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (isDeveloperWorkspace(profile)) {
+      router.replace("/dashboard/projects");
+    }
+  }, [loaded, profile, router]);
 
   useEffect(() => {
     if (!window.location.search.includes("celebrate=1")) return;

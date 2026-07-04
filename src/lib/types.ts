@@ -1,4 +1,5 @@
 import type { OnboardingAiUsed, Plan } from "@/lib/entitlements";
+import type { WorkspaceMode } from "@/lib/projects/types";
 
 export type UserProfile = {
   id: string;
@@ -6,6 +7,7 @@ export type UserProfile = {
   display_name: string | null;
   created_at: string;
   updated_at: string;
+  workspace_mode?: WorkspaceMode;
   plan?: Plan;
   trial_ends_at?: string | null;
   onboarding_ai_used?: OnboardingAiUsed;

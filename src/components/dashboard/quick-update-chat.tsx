@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent } from "react";
+import { FormEvent, KeyboardEvent, useEffect } from "react";
 import {
   ArrowUp,
   Briefcase,
@@ -15,6 +15,11 @@ import { UpdateChatAttachments } from "@/components/update-chat-attachments";
 import type { QuickUpdateMessage } from "@/hooks/use-quick-update-chat";
 import { friendlySectionTitle } from "@/lib/section-display";
 import {
+  DEV_UPDATE_SUGGESTIONS,
+  type WorkspaceMode,
+} from "@/lib/workspace-mode";
+import {
+  DEV_QUICK_UPDATE_COPY,
   QUICK_UPDATE_COPY,
   QUICK_UPDATE_SUGGESTIONS,
 } from "@/lib/quick-update-content";
@@ -25,6 +30,7 @@ import { formatUpdateTime } from "@/lib/update-history";
 type QuickUpdateChatProps = {
   variant?: "full" | "compact" | "card";
   displayName?: string;
+  workspaceMode?: WorkspaceMode;
   onApplied?: (result: {
     mode: "single" | "all";
     finishedAll: boolean;
@@ -72,14 +78,25 @@ function UserMessageContent({ message }: { message: QuickUpdateMessage }) {
 export function QuickUpdateChat({
   variant = "card",
   displayName,
+  workspaceMode = "personal",
   onApplied,
   gapFix = null,
 }: QuickUpdateChatProps) {
   const chat = useQuickUpdateChat(onApplied, gapFix);
   const isFull = variant === "full";
   const isCompact = variant === "compact";
+  const isDev = workspaceMode === "developer";
   const firstName = displayName?.split(" ")[0] || "there";
-  const copy = QUICK_UPDATE_COPY;
+  const copy = isDev ? DEV_QUICK_UPDATE_COPY : QUICK_UPDATE_COPY;
+  const suggestions = isDev ? DEV_UPDATE_SUGGESTIONS : QUICK_UPDATE_SUGGESTIONS;
+
+  useEffect(() => {
+    if (isFull) {
+      chat.resetChat();
+    }
+    // Fresh chat each time the full-page Updates view mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -183,14 +200,14 @@ export function QuickUpdateChat({
                     textareaRef={chat.textareaRef}
                     disabled={inputBusy}
                     canSend={canSend}
-                    placeholder="What's changed? e.g. 'Started a new job at Stripe'"
+                    placeholder={copy.idlePlaceholder}
                     large
                     attachmentsSlot={attachmentsPanel}
-                    footerHint="Meto updates every section that needs it"
+                    footerHint={copy.footerHint}
                   />
 
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
-                    {QUICK_UPDATE_SUGGESTIONS.map((suggestion, index) => {
+                    {suggestions.map((suggestion, index) => {
                       const Icon = SUGGESTION_ICONS[index] ?? Sparkles;
                       return (
                         <button
@@ -316,21 +333,6 @@ export function QuickUpdateChat({
                           .map((key) => friendlySectionTitle(key))
                           .join(" · ")}
                       </p>
-                      <div className="mt-2 space-y-2">
-                        {Object.entries(chat.pendingUpdates).map(([key, value]) => (
-                          <div key={key} className="rounded-lg bg-[var(--card)]/60 px-3 py-2">
-                            <p className="text-[11px] uppercase tracking-[0.06em] text-[var(--muted)]">
-                              {friendlySectionTitle(key)}
-                            </p>
-                            <p className="mt-1 text-xs leading-relaxed text-[var(--text)]">
-                              <span className="rounded bg-[#DCFCE7] px-1 py-0.5">
-                                {value.slice(0, 200)}
-                                {value.length > 200 ? "…" : ""}
-                              </span>
-                            </p>
-                          </div>
-                        ))}
-                      </div>
                       <p className="mt-2 text-[11px] text-[var(--muted)]">
                         {copy.saveReadyHint}
                       </p>
@@ -354,17 +356,6 @@ export function QuickUpdateChat({
                       .map((s) => friendlySectionTitle(s))
                       .join(", ")}
                   </p>
-                  <div className="mt-2 space-y-1.5">
-                    {Object.entries(chat.lastApplied.preview).map(([key, value]) => (
-                      <div key={key} className="text-xs">
-                        <span className="text-[var(--muted)]">{friendlySectionTitle(key)}: </span>
-                        <span className="rounded bg-[#DCFCE7] px-1 text-[var(--text)]">
-                          {value.slice(0, 120)}
-                          {value.length > 120 ? "…" : ""}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               ) : null}
 
@@ -378,7 +369,7 @@ export function QuickUpdateChat({
                 canSend={canSend}
                 placeholder={inputPlaceholder}
                 attachmentsSlot={attachmentsPanel}
-                footerHint="Meto updates every section that needs it"
+                footerHint={copy.footerHint}
               />
 
               <button
@@ -485,7 +476,7 @@ export function QuickUpdateChat({
 
       {!chat.chatStarted ? (
         <div className="mb-3 flex flex-wrap gap-2">
-          {QUICK_UPDATE_SUGGESTIONS.map((suggestion) => (
+          {suggestions.map((suggestion) => (
             <button
               key={suggestion.label}
               type="button"

@@ -13,6 +13,8 @@ import {
   getLatestSectionUpdate,
   isAnalysisCacheValid,
 } from "@/lib/profile-cache";
+import { blendWithSectionScore } from "@/lib/context-score-v2";
+import { isContextScoreV2Enabled } from "@/lib/knowledge/v2-mode";
 import { createClient } from "@/lib/supabase/server";
 
 async function getSavedScore(userId: string) {
@@ -207,9 +209,35 @@ export async function POST(request: Request) {
       sections
     );
 
-    await saveScore(user.id, applied.result, applied.resolvedSections);
+    let finalResult = applied.result;
 
-    return NextResponse.json({ score: applied.result, cached: false });
+    if (isContextScoreV2Enabled()) {
+      const [memoriesResult, linksResult] = await Promise.all([
+        supabase
+          .from("knowledge_objects")
+          .select(
+            "id, type, title, content, importance, status, updated_at, last_verified_at"
+          )
+          .eq("user_id", user.id)
+          .eq("status", "active"),
+        supabase
+          .from("knowledge_links")
+          .select("from_memory_id, to_memory_id, relation_type")
+          .eq("user_id", user.id),
+      ]);
+
+      if (!memoriesResult.error && !linksResult.error) {
+        finalResult = blendWithSectionScore(
+          applied.result,
+          (memoriesResult.data ?? []) as never,
+          linksResult.data ?? []
+        );
+      }
+    }
+
+    await saveScore(user.id, finalResult, applied.resolvedSections);
+
+    return NextResponse.json({ score: finalResult, cached: false });
   } catch (error) {
     console.error("POST context-score error:", error);
     return NextResponse.json(

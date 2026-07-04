@@ -9,9 +9,14 @@ import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sidebar-context";
 import {
   DASHBOARD_HOME,
+  DEV_MOBILE_TAB_NAV,
   FIXES_NAV,
   navIdFromPathname,
-  PRIMARY_NAV,
+  PERSONAL_MOBILE_TAB_NAV,
+  PERSONAL_PRIMARY_NAV,
+  PERSONAL_SECONDARY_NAV,
+  DEV_PRIMARY_NAV,
+  DEV_SECONDARY_NAV,
   SECONDARY_NAV,
 } from "@/components/portal/portal-nav";
 import { TrialBanner } from "@/components/billing/trial-banner";
@@ -65,6 +70,10 @@ function SidebarContent({
   onLogout,
 }: SidebarContentProps) {
   const portal = usePortalDataOptional();
+  const isDevWorkspace =
+    portal?.profile?.workspace_mode === "developer";
+  const primaryNav = isDevWorkspace ? DEV_PRIMARY_NAV : PERSONAL_PRIMARY_NAV;
+  const secondaryNav = isDevWorkspace ? DEV_SECONDARY_NAV : PERSONAL_SECONDARY_NAV;
   const [authFullName, setAuthFullName] = useState("");
 
   useEffect(() => {
@@ -78,6 +87,7 @@ function SidebarContent({
   }, []);
 
   const profileDisplayName = portal?.profile?.display_name?.trim();
+  const homeHref = isDevWorkspace ? "/dashboard/projects" : DASHBOARD_HOME;
   const sidebarDisplayName =
     profileDisplayName || authFullName || portal?.email?.trim() || "";
   const username = portal?.profile?.username?.trim();
@@ -91,7 +101,7 @@ function SidebarContent({
         }`}
       >
         <Link
-          href={DASHBOARD_HOME}
+          href={homeHref}
           className={`flex min-w-0 items-center transition-opacity hover:opacity-80 ${
             collapsed ? "justify-center" : "gap-2.5"
           }`}
@@ -140,7 +150,7 @@ function SidebarContent({
             </p>
           ) : null}
           <ul className="space-y-1">
-            {PRIMARY_NAV.map(({ id, label, href, icon: Icon }) => (
+            {primaryNav.map(({ id, label, href, icon: Icon }) => (
               <li key={id}>
                 <Link
                   href={href}
@@ -178,7 +188,7 @@ function SidebarContent({
             <div className="my-2 border-t border-[var(--border-subtle)]" aria-hidden />
           )}
           <ul className="space-y-1">
-            {SECONDARY_NAV.map(({ id, label, href, icon: Icon }) => {
+            {secondaryNav.map(({ id, label, href, icon: Icon }) => {
               const isFixes = id === "fixes";
               const badge = isFixes && issueCount > 0 ? issueCount : 0;
 
@@ -322,7 +332,14 @@ function PortalSidebarNav({
 }: PortalSidebarNavProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const activeId = navIdFromPathname(pathname);
+  const portal = usePortalDataOptional();
+  const isDevWorkspace =
+    portal?.profile?.workspace_mode === "developer";
+  const baseActiveId = navIdFromPathname(pathname);
+  const activeId =
+    isDevWorkspace && pathname.startsWith("/dashboard/workspace")
+      ? "mcp"
+      : baseActiveId;
 
   async function handleLogout() {
     resetPostHogUser();
@@ -372,9 +389,55 @@ function PortalSidebarNav({
   );
 }
 
+function PortalMobileTabBar() {
+  const pathname = usePathname();
+  const portal = usePortalDataOptional();
+  const isDevWorkspace =
+    portal?.profile?.workspace_mode === "developer";
+  const tabs = isDevWorkspace ? DEV_MOBILE_TAB_NAV : PERSONAL_MOBILE_TAB_NAV;
+  const baseActiveId = navIdFromPathname(pathname);
+  const activeId =
+    isDevWorkspace && pathname.startsWith("/dashboard/workspace")
+      ? "mcp"
+      : baseActiveId;
+
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border-subtle)] bg-[var(--card)]/95 backdrop-blur-md md:hidden"
+      aria-label="Primary navigation"
+    >
+      <div className="flex h-14 items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)]">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = activeId === tab.id;
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[10px] font-medium transition-colors ${
+                active
+                  ? "text-[var(--primary)]"
+                  : "text-[var(--muted)] hover:text-[var(--text-secondary)]"
+              }`}
+            >
+              <Icon className="h-5 w-5 shrink-0" strokeWidth={active ? 2 : 1.75} />
+              <span className="truncate">{tab.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 function PortalLayoutInner({ children }: PortalLayoutProps) {
   const pathname = usePathname();
   const portal = usePortalDataOptional();
+  const isDevWorkspace =
+    portal?.profile?.workspace_mode === "developer";
+  const mobileHomeHref = isDevWorkspace
+    ? "/dashboard/projects"
+    : DASHBOARD_HOME;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const issueCount = portal?.issueCount ?? 0;
@@ -453,21 +516,25 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
               <PanelLeft className="h-5 w-5" strokeWidth={1.5} />
             </button>
 
-            <Link
-              href={FIXES_NAV.href}
-              className={`rounded-full px-3 py-1.5 text-[12px] ${
-                issueCount > 0
-                  ? "bg-[var(--surface)] text-[var(--text-secondary)]"
-                  : "text-[var(--muted)] hover:text-[var(--text-secondary)]"
-              }`}
-            >
-              {issueCount > 0
-                ? `${issueCount} fix${issueCount === 1 ? "" : "es"}`
-                : "Fixes"}
-            </Link>
+            {!isDevWorkspace ? (
+              <Link
+                href={FIXES_NAV.href}
+                className={`rounded-full px-3 py-1.5 text-[12px] ${
+                  issueCount > 0
+                    ? "bg-[var(--surface)] text-[var(--text-secondary)]"
+                    : "text-[var(--muted)] hover:text-[var(--text-secondary)]"
+                }`}
+              >
+                {issueCount > 0
+                  ? `${issueCount} fix${issueCount === 1 ? "" : "es"}`
+                  : "Fixes"}
+              </Link>
+            ) : (
+              <span className="w-[52px]" aria-hidden />
+            )}
 
             <Link
-              href={DASHBOARD_HOME}
+              href={mobileHomeHref}
               className="flex h-9 w-9 shrink-0 items-center justify-center"
               aria-label="Meto home"
             >
@@ -480,10 +547,12 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
           <TrialBanner entitlements={portal.entitlements} />
         ) : null}
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden pb-14 md:pb-0">
           {children}
         </main>
       </div>
+
+      <PortalMobileTabBar />
     </div>
   );
 }

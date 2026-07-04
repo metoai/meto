@@ -8,11 +8,14 @@ import {
   availablePresetSectionTypes,
   friendlySectionTitle,
 } from "@/lib/section-display";
+import { SECTION_KEYS } from "@/lib/meto-prompts";
 import {
   getSectionStatus,
   statusSortPriority,
 } from "@/lib/section-status";
 import type { ContextSection } from "@/lib/types";
+
+const PRESET_SECTION_TYPES = new Set<string>(SECTION_KEYS);
 
 export type ProfileSectionDraft = ContextSection & {
   savedTitle: string;
@@ -24,6 +27,7 @@ type ProfileGridViewProps = {
   username: string;
   tieredLayout?: boolean;
   hideLiveBanner?: boolean;
+  sectionTypesFilter?: ReadonlySet<string>;
   initialSectionType?: string | null;
   savingId: string | null;
   onUsernameClaimed: (username: string) => void;
@@ -44,6 +48,7 @@ export function ProfileGridView({
   username,
   tieredLayout = false,
   hideLiveBanner = false,
+  sectionTypesFilter,
   initialSectionType = null,
   savingId,
   onUsernameClaimed,
@@ -159,18 +164,27 @@ export function ProfileGridView({
   }
 
   const presetOptions = availablePresetSectionTypes(
-    sections.map((section) => section.section_type)
+    sections.map((section) => section.section_type),
+    sectionTypesFilter
   );
 
+  const filteredSections = sectionTypesFilter
+    ? sections.filter(
+        (section) =>
+          sectionTypesFilter.has(section.section_type) ||
+          !PRESET_SECTION_TYPES.has(section.section_type)
+      )
+    : sections;
+
   const displaySections = tieredLayout
-    ? [...sections].sort((a, b) => {
+    ? [...filteredSections].sort((a, b) => {
         const priorityDiff =
           statusSortPriority(getSectionStatus(a)) -
           statusSortPriority(getSectionStatus(b));
         if (priorityDiff !== 0) return priorityDiff;
         return a.display_order - b.display_order;
       })
-    : sections;
+    : filteredSections;
 
   return (
     <div className="w-full">

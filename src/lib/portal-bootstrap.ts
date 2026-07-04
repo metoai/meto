@@ -15,6 +15,7 @@ export type PortalBootstrapData = {
   contextScore: ContextScoreResult | null;
   contextScoreCached: boolean;
   contextScoreStale: boolean;
+  workspaceMode: "personal" | "developer";
 };
 
 function latestSectionUpdate(sections: Pick<ContextSection, "updated_at">[]) {
@@ -42,7 +43,7 @@ export async function loadPortalBootstrap(
     await Promise.all([
       supabase
         .from("profiles")
-        .select("id, username, display_name, created_at, updated_at")
+        .select("id, username, display_name, created_at, updated_at, workspace_mode")
         .eq("id", userId)
         .single(),
       supabase
@@ -110,5 +111,9 @@ export async function loadPortalBootstrap(
     contextScore,
     contextScoreCached,
     contextScoreStale,
+    workspaceMode:
+      profileResult.data?.workspace_mode === "developer"
+        ? "developer"
+        : "personal",
   };
 }

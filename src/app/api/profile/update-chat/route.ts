@@ -23,6 +23,11 @@ import {
 } from "@/lib/meto-prompts";
 import { assertAiAccess, recordAiUsage } from "@/lib/ai-usage";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
+import { dualWriteSectionUpdates } from "@/lib/knowledge/extract";
+import { autoCreateProjectsFromDeveloperUpdate } from "@/lib/projects/auto-create";
+import { isKnowledgeFlagEnabled } from "@/lib/knowledge/feature-flags";
+import { isV2FullyEnabled } from "@/lib/knowledge/v2-mode";
+import { scheduleRegeneration, flushRegeneration } from "@/lib/views/regen-queue";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
@@ -111,6 +116,12 @@ async function finalizeUpdateResult(
       conversation
     );
   }
+  return result;
+}
+
+function withShadowExtraction(result: UpdateChatResult) {
+  // Shadow extraction runs server-side for dual-write only — do not send
+  // full section blobs to the client (floods the Updates UI).
   return result;
 }
 
@@ -267,6 +278,65 @@ export async function POST(request: Request) {
 
       await mergeProfileSectionUpdates(supabase, user.id, finalUpdates);
 
+      const lastUserMessage = [...messages]
+        .reverse()
+        .find((m) => m.role === "user")?.content;
+
+      let projectsCreated = 0;
+      try {
+        const projectResult = await autoCreateProjectsFromDeveloperUpdate(
+          supabase,
+          user.id,
+          {
+            updates: finalUpdates,
+            fact: lastUserMessage,
+            source: "quick_update",
+          }
+        );
+        projectsCreated = projectResult.createdCount;
+      } catch (projectError) {
+        console.error("Update auto-create projects failed:", projectError);
+      }
+
+      if (isKnowledgeFlagEnabled("writeEnabled")) {
+        try {
+          await dualWriteSectionUpdates(
+            supabase,
+            user.id,
+            finalUpdates,
+            "quick_update"
+          );
+        } catch (knowledgeError) {
+          console.error("Knowledge dual-write failed:", knowledgeError);
+        }
+      }
+
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+      if (isKnowledgeFlagEnabled("layerEnabled")) {
+        try {
+          if (isV2FullyEnabled()) {
+            await flushRegeneration(
+              supabase,
+              user.id,
+              profileRow?.username ?? null
+            );
+          } else if (isKnowledgeFlagEnabled("writeEnabled")) {
+            void scheduleRegeneration(
+              supabase,
+              user.id,
+              profileRow?.username ?? null
+            );
+          }
+        } catch (regenError) {
+          console.error("View regeneration failed:", regenError);
+        }
+      }
+
       const { data: updatedSections } = await supabase
         .from("context_sections")
         .select("section_type, title, content")
@@ -291,6 +361,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         savedSections: Object.keys(finalUpdates),
+        projectsCreated,
       });
     }
 
@@ -413,6 +484,7 @@ export async function POST(request: Request) {
           result,
           conversation
         );
+        result = withShadowExtraction(result);
         await recordAiUsage(user.id, 1, aiAccess.row);
         emit({
           reply: result.reply,
@@ -427,6 +499,7 @@ export async function POST(request: Request) {
 
     let result = safeParseUpdateChatResponse(raw) ?? chatFallback;
     result = await finalizeUpdateResult(currentSections, result, conversation);
+    result = withShadowExtraction(result);
 
     await recordAiUsage(user.id, 1, aiAccess.row);
 

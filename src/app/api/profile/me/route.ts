@@ -16,7 +16,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, username, display_name, created_at, updated_at")
+      .select("id, username, display_name, created_at, updated_at, workspace_mode")
       .eq("id", user.id)
       .single();
 
@@ -43,7 +43,8 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { display_name, username, password } = await request.json();
+    const { display_name, username, password, workspace_mode } =
+      await request.json();
     const updates: Record<string, string> = {
       updated_at: new Date().toISOString(),
     };
@@ -82,6 +83,16 @@ export async function PATCH(request: Request) {
       updates.username = normalized;
     }
 
+    if (workspace_mode !== undefined) {
+      if (workspace_mode !== "personal" && workspace_mode !== "developer") {
+        return NextResponse.json(
+          { error: "workspace_mode must be personal or developer." },
+          { status: 400 }
+        );
+      }
+      updates.workspace_mode = workspace_mode;
+    }
+
     if (password !== undefined) {
       if (password.length < 6) {
         return NextResponse.json(
@@ -102,7 +113,7 @@ export async function PATCH(request: Request) {
         .from("profiles")
         .update(updates)
         .eq("id", user.id)
-        .select("id, username, display_name, created_at, updated_at")
+        .select("id, username, display_name, created_at, updated_at, workspace_mode")
         .single();
 
       if (error) throw error;
@@ -112,7 +123,7 @@ export async function PATCH(request: Request) {
 
     const { data } = await supabase
       .from("profiles")
-      .select("id, username, display_name, created_at, updated_at")
+      .select("id, username, display_name, created_at, updated_at, workspace_mode")
       .eq("id", user.id)
       .single();
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { SuccessToast } from "@/components/dashboard-shell";
 import { PageHeader } from "@/components/dashboard/ui/dashboard-card";
 import { SectionQualityBars } from "@/components/dashboard/ui/section-quality-bars";
@@ -16,8 +17,10 @@ import {
   generateQualityInsight,
 } from "@/lib/section-quality";
 import type { CompileFormat } from "@/lib/types";
+import { isDeveloperWorkspace } from "@/lib/workspace-mode";
 
 export function DashboardPageClient() {
+  const router = useRouter();
   const {
     loaded,
     profile,
@@ -30,6 +33,13 @@ export function DashboardPageClient() {
   const { score: fetchedScore, celebrating, scoreDelta } =
     useContextScore(dataVersion);
   const score = fetchedScore ?? contextScore;
+
+  useEffect(() => {
+    if (!loaded) return;
+    if (isDeveloperWorkspace(profile)) {
+      router.replace("/dashboard/projects");
+    }
+  }, [loaded, profile, router]);
 
   const contextSections = useMemo(
     () =>

@@ -12,6 +12,7 @@ import {
   markOnboardingAiUsed,
 } from "@/lib/billing-profile";
 import { saveProfileSections } from "@/lib/profile-sections";
+import { syncOnboardingToKnowledge } from "@/lib/knowledge/onboarding-sync";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
     const sections = parseJsonFromGemini(text);
 
     await saveProfileSections(supabase, user.id, sections);
+    await syncOnboardingToKnowledge(supabase, user.id, sections, "onboarding");
     await markOnboardingAiUsed(user.id, "brain_dump");
     await recordAiUsage(user.id, 1, aiAccess.row);
 

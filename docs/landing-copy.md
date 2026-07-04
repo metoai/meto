@@ -27,7 +27,7 @@
 **Auth (logged out):**
 
 - Log in
-- Get started
+- Get started free
 
 **Auth (logged in):**
 
@@ -37,20 +37,28 @@
 
 ## Hero (`landing-hero-copy.tsx`)
 
-**Pill link:**
-
-- Free to start
-- No signup required
+**Eyebrow:** Structured context for every AI
 
 **Headline:** Never explain yourself **twice.**
 
-**Subhead:** Chat with Meto once. It builds a structured profile you can share with every AI, agent, and collaborator.
+**Subhead:** Paste your bio or let Meto learn as you work. Give every AI instant memory via link or MCP.
+
+**Outcome line:** One conversation → Universal AI memory
+
+**CTAs:**
+
+- Get started free → `/auth/signup`
+- See how it works → `#how-it-works`
+
+**Microproof:** No credit card · 2 min setup · Works with Claude, Cursor & ChatGPT
+
+**Proof cards (`landing-hero-proof.tsx`):** Without Meto vs With Meto comparison (desktop: beside copy; mobile: below)
 
 ---
 
 ## Hero chat (`page.tsx` + `landing-chat.ts`)
 
-**Toolbar tabs:** Chat · Build · Share
+**Toolbar (`landing-hero-toolbar.tsx`):** Numbered step map — "Your path" label, `1 Chat — 2 Build — 3 Share` (visual guide, not clickable tabs)
 
 **Opening message (Meto):** Hey — what do you do and what are you working on right now?
 

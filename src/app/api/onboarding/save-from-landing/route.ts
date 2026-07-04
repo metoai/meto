@@ -4,6 +4,7 @@ import {
   saveProfileSections,
   userHasSections,
 } from "@/lib/profile-sections";
+import { syncOnboardingToKnowledge } from "@/lib/knowledge/onboarding-sync";
 import { createClient } from "@/lib/supabase/server";
 
 type CollectedProfile = {
@@ -54,10 +55,12 @@ export async function POST(request: Request) {
 
     if (alreadyHasSections) {
       await mergeProfileSectionUpdates(supabase, user.id, sections);
+      await syncOnboardingToKnowledge(supabase, user.id, sections, "landing");
       return NextResponse.json({ success: true, merged: true });
     }
 
     await saveProfileSections(supabase, user.id, sections);
+    await syncOnboardingToKnowledge(supabase, user.id, sections, "landing");
 
     return NextResponse.json({ success: true });
   } catch (error) {

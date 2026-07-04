@@ -43,10 +43,16 @@ export function sectionPlaceholder(sectionType: string) {
   return SECTION_PLACEHOLDERS[sectionType] ?? SECTION_PLACEHOLDERS.custom;
 }
 
-/** Preset section types the user can add (not yet on their profile) */
-export function availablePresetSectionTypes(existingTypes: string[]) {
+export function availablePresetSectionTypes(
+  existingTypes: string[],
+  allowedTypes?: ReadonlySet<string>
+) {
   const existing = new Set(existingTypes);
-  return PROFILE_SECTIONS.filter((s) => !existing.has(s.type));
+  return PROFILE_SECTIONS.filter(
+    (s) =>
+      !existing.has(s.type) &&
+      (!allowedTypes || allowedTypes.has(s.type))
+  );
 }
 
 export const ALL_PRESET_SECTION_TYPES = SECTION_KEYS;

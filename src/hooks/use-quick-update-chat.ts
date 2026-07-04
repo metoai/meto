@@ -30,6 +30,7 @@ import {
   isAllowedDocumentFilename,
   type IngestedDocument,
 } from "@/lib/document-import";
+import type { NewKnowledgeObject } from "@/lib/knowledge/types";
 import type { PendingAttachment } from "@/components/update-chat-attachments";
 import {
   labelsForStatusPhase,
@@ -48,6 +49,18 @@ export { QUICK_UPDATE_SUGGESTIONS } from "@/lib/quick-update-content";
 
 function createId() {
   return crypto.randomUUID();
+}
+
+function assistantDisplayReply(
+  reply: string | null | undefined,
+  hasPendingUpdates: boolean
+): string {
+  const fallback = hasPendingUpdates
+    ? "I've drafted section updates — review the list below and save when ready."
+    : "Got it.";
+  const text = reply?.trim() || fallback;
+  if (!hasPendingUpdates || text.length <= 360) return text;
+  return `${text.slice(0, 360).trimEnd()}…`;
 }
 
 function gapFixPayload(gapFix: GapFixIntent) {
@@ -88,6 +101,9 @@ export function useQuickUpdateChat(
     string,
     string
   > | null>(null);
+  const [extractedMemories, setExtractedMemories] = useState<
+    NewKnowledgeObject[]
+  >([]);
   const [applied, setApplied] = useState(false);
   const [gapFixInitDone, setGapFixInitDone] = useState(false);
   const [gapFixPaused, setGapFixPaused] = useState(false);
@@ -158,7 +174,13 @@ export function useQuickUpdateChat(
       setPendingUpdates(updates);
     }
 
-    return reply;
+    if (Array.isArray(data.extracted_memories)) {
+      setExtractedMemories(data.extracted_memories as NewKnowledgeObject[]);
+    } else if (!done) {
+      setExtractedMemories([]);
+    }
+
+    return { reply, done, hasUpdates: Object.keys(updates).length > 0 };
   }, []);
 
   const handleStreamError = useCallback((err: unknown, fallback: string) => {
@@ -215,13 +237,17 @@ export function useQuickUpdateChat(
           }
         );
 
-        applyStreamResult(data ?? {});
-        const reply = typeof data?.reply === "string" ? data.reply : null;
-        if (reply) {
-          setMessages([
-            { id: assistantId, role: "assistant", content: reply },
-          ]);
-        }
+        const streamResult = applyStreamResult(data ?? {});
+        setMessages([
+          {
+            id: assistantId,
+            role: "assistant",
+            content: assistantDisplayReply(
+              typeof data?.reply === "string" ? data.reply : streamResult.reply,
+              streamResult.hasUpdates
+            ),
+          },
+        ]);
         setGapFixInitDone(true);
       } catch (err) {
         setMessages([]);
@@ -499,14 +525,20 @@ export function useQuickUpdateChat(
         }
       );
 
-      applyStreamResult(data ?? {});
-      if (typeof data?.reply === "string") {
-        setMessages((current) =>
-          current.map((m) =>
-            m.id === assistantId ? { ...m, content: data.reply as string } : m
-          )
-        );
-      }
+      const streamResult = applyStreamResult(data ?? {});
+      setMessages((current) =>
+        current.map((m) =>
+          m.id === assistantId
+            ? {
+                ...m,
+                content: assistantDisplayReply(
+                  typeof data?.reply === "string" ? data.reply : streamResult.reply,
+                  streamResult.hasUpdates
+                ),
+              }
+            : m
+        )
+      );
     } catch (err) {
       setMessages(nextMessages);
       setAttachments(pendingFiles);
@@ -547,15 +579,15 @@ export function useQuickUpdateChat(
 
       setApplied(true);
       setPendingUpdates(null);
+      setExtractedMemories([]);
       setMessages([]);
       setLastApplied({
         sections: appliedSections,
-        preview: appliedPreview,
+        preview: {},
       });
       recordUpdate({
         message: lastUserMessageRef.current || "Profile update",
         sections: appliedSections,
-        preview: appliedPreview,
       });
       setUpdateHistory(readUpdateHistory());
       setGapFixInitDone(false);
@@ -664,6 +696,7 @@ export function useQuickUpdateChat(
     lastDocumentsRef.current = null;
     setError(null);
     setPendingUpdates(null);
+    setExtractedMemories([]);
     setApplied(false);
     setGapFixPaused(false);
     setRemainingGaps([]);
@@ -706,6 +739,7 @@ export function useQuickUpdateChat(
     removeAttachment,
     error,
     pendingUpdates,
+    extractedMemories,
     applied,
     chatStarted,
     gapFixBootstrapping,

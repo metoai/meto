@@ -11,6 +11,16 @@ import {
   SECTION_KEYS,
 } from "@/lib/meto-prompts";
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
+import { dualWriteSectionUpdates } from "@/lib/knowledge/extract";
+import { autoCreateProjectsFromDeveloperUpdate } from "@/lib/projects/auto-create";
+import { loadProjectMemoriesGrouped } from "@/lib/projects/project-memories";
+import { buildTodayContext } from "@/lib/projects/today-context";
+import { buildProjectContext } from "@/lib/projects/types";
+import type { KnowledgeObject } from "@/lib/knowledge/types";
+import { isKnowledgeFlagEnabled } from "@/lib/knowledge/feature-flags";
+import { isV2FullyEnabled } from "@/lib/knowledge/v2-mode";
+import { flushRegeneration, scheduleRegeneration } from "@/lib/views/regen-queue";
+import { resolveHandoffBundle, resolveSectionContent } from "@/lib/views/read";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
@@ -237,7 +247,7 @@ async function rebuildCompiledContextCache(userId: string): Promise<void> {
 async function mergeFactIntoProfileWithLlm(
   userId: string,
   newFact: string
-): Promise<string[]> {
+): Promise<{ sections: string[]; projectsCreated: number }> {
   const admin = createAdminClient();
   const currentRows = await getContextSections(userId);
   const currentSections = buildCurrentSectionsMap(currentRows);
@@ -260,7 +270,49 @@ async function mergeFactIntoProfileWithLlm(
   }
 
   await mergeProfileSectionUpdates(admin, userId, updates);
-  return Object.keys(updates);
+
+  let projectsCreated = 0;
+  try {
+    const projectResult = await autoCreateProjectsFromDeveloperUpdate(
+      admin,
+      userId,
+      {
+        updates,
+        fact: newFact,
+        source: "mcp",
+      }
+    );
+    projectsCreated = projectResult.createdCount;
+  } catch (projectError) {
+    console.error("MCP auto-create projects failed:", projectError);
+  }
+
+  if (isKnowledgeFlagEnabled("writeEnabled")) {
+    try {
+      await dualWriteSectionUpdates(admin, userId, updates, "mcp");
+    } catch (knowledgeError) {
+      console.error("MCP knowledge dual-write failed:", knowledgeError);
+    }
+  }
+
+  if (isKnowledgeFlagEnabled("layerEnabled")) {
+    try {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("username")
+        .eq("id", userId)
+        .single();
+      if (isV2FullyEnabled()) {
+        await flushRegeneration(admin, userId, profile?.username ?? null);
+      } else {
+        void scheduleRegeneration(admin, userId, profile?.username ?? null);
+      }
+    } catch (regenError) {
+      console.error("MCP view regeneration failed:", regenError);
+    }
+  }
+
+  return { sections: Object.keys(updates), projectsCreated };
 }
 
 function mcpTransportPaths(username: string) {
@@ -326,18 +378,42 @@ function createUserScopedMcpHandler(
 
           if (section === "handoff") {
             const rows = await getContextSections(userId);
+            const text = await resolveHandoffBundle(
+              createAdminClient(),
+              userId,
+              username,
+              rows
+            );
             return {
               contents: [
                 {
                   uri: uri.href,
                   mimeType: "text/plain",
-                  text: buildHandoffBundleText(username, rows),
+                  text,
                 },
               ],
             };
           }
 
           const admin = createAdminClient();
+          const generated = await resolveSectionContent(
+            admin,
+            userId,
+            section
+          );
+
+          if (generated) {
+            return {
+              contents: [
+                {
+                  uri: uri.href,
+                  mimeType: "text/plain",
+                  text: generated,
+                },
+              ],
+            };
+          }
+
           const { data, error } = await admin
             .from("context_sections")
             .select("content, updated_at")
@@ -365,6 +441,109 @@ function createUserScopedMcpHandler(
       );
 
       /**
+       * RESOURCE: profile://project/{slug}
+       * Project-scoped knowledge graph for developer workspace.
+       * profile://project/{slug}/today — today's context bundle.
+       */
+      server.registerResource(
+        "meto-project",
+        new ResourceTemplate("profile://project/{slug}", {
+          list: async () => {
+            const admin = createAdminClient();
+            const { data: projects } = await admin
+              .from("projects")
+              .select("slug, name, description")
+              .eq("user_id", userId)
+              .order("updated_at", { ascending: false });
+
+            const base =
+              projects?.map((p) => ({
+                uri: `profile://project/${p.slug}`,
+                name: p.name,
+                description: p.description || `Project memory for ${p.slug}`,
+                mimeType: "text/plain",
+              })) ?? [];
+
+            const today = (projects ?? []).map((p) => ({
+              uri: `profile://project/${p.slug}/today`,
+              name: `${p.name} — today's context`,
+              description: "Current sprint, architecture, rules, recent changes",
+              mimeType: "text/plain",
+            }));
+
+            return { resources: [...base, ...today] };
+          },
+        }),
+        {
+          title: "Meto project memory",
+          description: "Read project-scoped AI context from the developer workspace.",
+          mimeType: "text/plain",
+        },
+        async (uri, variables) => {
+          const rawSlug = String(variables.slug ?? "").trim().toLowerCase();
+          if (!rawSlug) {
+            throw new Error("Project slug is required in profile://project/{slug}.");
+          }
+
+          const today = rawSlug.endsWith("/today");
+          const slug = today ? rawSlug.replace(/\/today$/, "") : rawSlug;
+
+          const admin = createAdminClient();
+          const { data: project, error } = await admin
+            .from("projects")
+            .select(
+              "id, slug, name, description, status, current_focus, repo_url, last_scanned_at"
+            )
+            .eq("user_id", userId)
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (error) throw error;
+          if (!project) {
+            throw new Error(`Project "${slug}" not found for user "${username}".`);
+          }
+
+          const grouped = await loadProjectMemoriesGrouped(admin, userId, project.id);
+          const memoriesByRole: Record<string, KnowledgeObject[]> = {};
+          const flat: KnowledgeObject[] = [];
+
+          for (const [role, items] of Object.entries(grouped)) {
+            memoriesByRole[role] = items as KnowledgeObject[];
+            flat.push(...(items as KnowledgeObject[]));
+          }
+
+          if (today) {
+            const { data: events } = await admin
+              .from("project_events")
+              .select("title, content, created_at")
+              .eq("project_id", project.id)
+              .eq("user_id", userId)
+              .order("created_at", { ascending: false })
+              .limit(8);
+
+            const text = buildTodayContext(
+              project as never,
+              memoriesByRole,
+              (events ?? []).map((e) => ({
+                title: e.title,
+                content: e.content,
+                created_at: e.created_at,
+              }))
+            );
+
+            return {
+              contents: [{ uri: uri.href, mimeType: "text/plain", text }],
+            };
+          }
+
+          const text = buildProjectContext(project as never, flat);
+          return {
+            contents: [{ uri: uri.href, mimeType: "text/plain", text }],
+          };
+        }
+      );
+
+      /**
        * TOOL: update_meto_profile
        * Input schema: { new_fact: string }
        *
@@ -383,14 +562,20 @@ function createUserScopedMcpHandler(
           },
         },
         async ({ new_fact }) => {
-          const updatedSections = await mergeFactIntoProfileWithLlm(userId, new_fact);
+          const { sections, projectsCreated } =
+            await mergeFactIntoProfileWithLlm(userId, new_fact);
           await rebuildCompiledContextCache(userId);
+
+          const projectNote =
+            projectsCreated > 0
+              ? ` Auto-created ${projectsCreated} project${projectsCreated === 1 ? "" : "s"} in developer workspace.`
+              : "";
 
           return {
             content: [
               {
                 type: "text",
-                text: `Profile updated successfully. Merged fact into sections: ${updatedSections.join(", ")}.`,
+                text: `Profile updated successfully. Merged fact into sections: ${sections.join(", ")}.${projectNote}`,
               },
             ],
           };

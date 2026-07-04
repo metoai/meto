@@ -4,7 +4,7 @@
 > **Product:** Meto — personal AI identity layer  
 > **Production URL:** https://www.metoai.site (canonical; apex redirects to www)  
 > **Repository:** https://github.com/metoai/meto  
-> **Stack:** Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS · Supabase · DeepSeek/Gemini · Vercel · Polar (billing)
+> **Stack:** Next.js 16 (App Router) · React 18 · TypeScript · Tailwind CSS · Supabase · DeepSeek/Gemini · Vercel · Polar (billing) · MCP (`mcp-handler`, `@modelcontextprotocol/sdk`)
 
 ---
 
@@ -43,8 +43,10 @@ Meto centralizes that identity as structured data, keeps it up to date, and expo
 | **Gap** | Actionable weakness detected by scoring (e.g. thin `projects`, missing `goals`). Badge count = live `contextScore.gaps.length` (resolved sections filtered out). |
 | **Gap fix** | Short AI interview (1–3 questions) targeting one gap or a queued “fix all” flow. |
 | **Quick update** | Free-form chat on dashboard; AI proposes merges across sections; user confirms save. |
-| **Landing chat** | Pre-auth try flow on `/`; collects partial profile (`about`, `work`, `projects`, `goals`) before signup. |
-| **Workspace** | Two-column copy builder: **left** — platform tabs (Paste into) + section grid (3 columns) with public toggles; **right** — copy prompt + text preview, then scenario presets. Platform-specific share prompts for ChatGPT/Gemini. |
+| **Landing chat** | Pre-auth try flow on `/`; collects partial profile (`about`, `work`, `projects`, `goals`) before signup. Hero includes proof cards, compact chat widget, and numbered step map (Chat → Build → Share). |
+| **Workspace** | MCP Quick Connect card (recommended) + two-column copy builder: **left** — platform tabs (Paste into) + section grid (3 columns) with public toggles; **right** — copy prompt + text preview, then scenario presets. |
+| **MCP handoff** | Remote server at `/api/mcp/{username}` (Bearer `profiles.mcp_access_token`). Resources: `profile://{section}`, `profile://handoff`. Tool: `update_meto_profile`. Cursor uses streamable HTTP; Claude Desktop uses `mcp-remote` config from workspace. Requires username before token generation. |
+| **MCP access API** | `GET/POST/DELETE /api/profile/mcp-access` — token lifecycle + Cursor/Claude JSON config snippets; updates `mcp_last_used_at` on successful MCP calls. |
 | **Public profile** | `https://www.metoai.site/profile/[username]` — branded page; only `is_public` sections. AI fetchers get plain text via `/api/public/profile/[username]/context`. |
 | **Bootstrap API** | `GET /api/profile/bootstrap` — single request loads portal data (profile, sections, score, entitlements). |
 
@@ -54,13 +56,14 @@ Meto centralizes that identity as structured data, keeps it up to date, and expo
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14.2 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | UI | React 18, Tailwind CSS 3, Geist fonts, Lucide icons |
 | Charts | Recharts (dashboard sparkline) |
-| Theming | `next-themes` (light / dark / system), CSS variables in `src/app/globals.css` |
+| Theming | Custom `ThemeProvider` (`src/components/theme-provider.tsx`), CSS variables in `src/app/globals.css` |
+| MCP | `mcp-handler` + `@modelcontextprotocol/sdk` — Streamable HTTP + SSE at `/api/mcp/[username]/[[...path]]` |
 | Auth & DB | Supabase (Postgres, Auth, Row Level Security) |
 | AI (server-only) | DeepSeek primary (`DEEPSEEK_API_KEY`), Google Gemini fallback (`GEMINI_API_KEY`) via `src/lib/llm.ts` |
-| Billing | Polar.sh (checkout, webhooks, subscription sync) |
+| Billing | Polar.sh (`@polar-sh/sdk`) — checkout, webhooks, subscription sync; custom fetcher in `src/lib/polar.ts` for Node 24 / Next.js compatibility |
 | Rate limiting | In-memory + optional Upstash Redis (`src/lib/rate-limit.ts`) |
 | Hosting | Vercel (deploys from `main`) |
 
@@ -72,7 +75,7 @@ Meto centralizes that identity as structured data, keeps it up to date, and expo
 
 ```
 ┌──────────────┐     ┌─────────────────────────┐     ┌─────────────────┐
-│   Browser    │────▶│  Next.js 14 App Router  │────▶│    Supabase     │
+│   Browser    │────▶│  Next.js 16 App Router  │────▶│    Supabase     │
 │  (React)     │◀────│  Pages + API routes     │◀────│  Auth + Postgres│
 └──────────────┘     └───────────┬─────────────┘     └─────────────────┘
                                  │
@@ -110,10 +113,11 @@ meto/
 │   │   │   └── billing/
 │   │   ├── profile/[username]/ ← public profile
 │   │   └── api/                ← Route Handlers (backend)
+│   │       └── mcp/[username]/[[...path]]/  ← remote MCP (per-user)
 │   ├── components/
 │   │   ├── dashboard/          ← editor, score UI, quick update
 │   │   ├── portal/             ← sidebar layout, settings panel
-│   │   ├── context-share/      ← workspace copy builder
+│   │   ├── context-share/      ← workspace copy builder, MCP quick connect (`mcp-quick-connect-card.tsx`)
 │   │   ├── onboarding/
 │   │   ├── marketing/
 │   │   ├── billing/
@@ -132,10 +136,13 @@ meto/
 
 ### 7.1 Try before signup (landing)
 
-1. Visitor opens `/` and chats with Meto (no account required).
-2. AI asks one question at a time; client merges `collected` fields (`about`, `work`, `projects`, `goals`).
-3. When ready, user signs up → `POST /api/onboarding/save-from-landing` → dashboard.
-4. Client storage: `meto_landing_session`, `meto_landing_pending_save` (localStorage).
+1. Visitor opens `/` — hero with proof cards (Without/With Meto), **Get started free** CTA, and compact try-chat widget.
+2. Hero copy emphasizes **Universal AI memory** via link or MCP; chat collects profile before signup.
+3. AI asks one question at a time; client merges `collected` fields (`about`, `work`, `projects`, `goals`).
+4. When ready, user signs up → `POST /api/onboarding/save-from-landing` → dashboard.
+5. Client storage: `meto_landing_session`, `meto_landing_pending_save` (localStorage).
+
+**Planned (not shipped):** separate `/developers` landing + split onboarding for dev vs consumer audiences.
 
 ### 7.2 Full onboarding (post-auth)
 
@@ -158,15 +165,22 @@ Route: `/onboarding` (redirect from `/dashboard` if no sections).
 | `/dashboard/fixes` | Gap list sorted by impact; fix one or fix all with AI. **Always visible** in sidebar; badge shows open gap count (0 = no badge). |
 | `/settings` | Email (read-only), display name, username, password, appearance (theme), delete account |
 
-### 7.4 Public sharing
+### 7.4 Public sharing & MCP
 
-1. Claim `username` in settings → `www.metoai.site/profile/{username}`.
+1. Claim `username` in **Settings** (required before MCP token generation).
 2. Toggle `is_public` per section in Profile or Workspace section grid.
-3. **Workspace → MCP handoff (recommended)** — generate token + endpoint, then copy ready client configs.
-4. **Workspace fallback target** — for tools without MCP, copy platform-specific prompt (ChatGPT/Gemini) or API link (others).
-5. Public page shows branded profile UI + machine-readable context for crawlers.
-6. **Best URL for AI fetch tools:** `/api/public/profile/{username}/context?preset=all&format=universal` (plain text, CORS).
-7. Middleware rewrites AI bot requests on `/profile/{username}` to the API context endpoint.
+3. **Workspace → MCP Quick Connect (recommended):**
+   - Generate/rotate `profiles.mcp_access_token`
+   - Endpoint: `{SITE_URL}/api/mcp/{username}` (Streamable HTTP POST at root path)
+   - Copy Cursor config (`streamable_http` + Bearer header) or Claude Desktop config (`mcp-remote`)
+   - Interop health shows last MCP sync via `profiles.mcp_last_used_at`
+4. **MCP resources:** `profile://handoff` (compiled + raw bundle), `profile://{section}` per section type.
+5. **MCP tool:** `update_meto_profile({ new_fact })` — LLM merges fact into sections, rebuilds compile cache.
+6. **Workspace fallback** — for tools without MCP: copy platform-specific prompt (ChatGPT/Gemini) or public API link.
+7. Public page: `www.metoai.site/profile/{username}`; AI fetch: `/api/public/profile/{username}/context?preset=all&format=universal`.
+8. Middleware rewrites AI bot requests on `/profile/{username}` to the API context endpoint.
+
+**MCP route:** `src/app/api/mcp/[username]/[[...path]]/route.ts` — optional catch-all supports `/sse` and `/message` fallbacks. Transport paths must match client URL (do not use `basePath` suffix `/mcp` when clients POST to `/api/mcp/{username}`).
 
 ### 7.5 Close a gap
 
@@ -186,7 +200,7 @@ Dashboard or Fixes → “Fix with AI” → quick-update chat in gap mode → u
 | `/onboarding` | Protected | First-time profile creation |
 | `/dashboard` | Protected | Home dashboard |
 | `/dashboard/profile` | Protected | Section editor |
-| `/dashboard/workspace` | Protected | Copy builder |
+| `/dashboard/workspace` | Protected | MCP Quick Connect + copy builder |
 | `/dashboard/update` | Protected | Quick update + gap fix chat |
 | `/dashboard/fixes` | Protected | Score gaps |
 | `/settings` | Protected | Account settings |
@@ -242,7 +256,7 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 | Method | Route | Description |
 |--------|-------|-------------|
 | GET | `/api/public/profile/[username]/context` | Public plain-text / JSON context (CORS, AI-optimized) |
-| GET/POST/DELETE | `/api/mcp/[username]` | Remote MCP endpoint (Streamable HTTP/SSE, Bearer auth) |
+| GET/POST/DELETE | `/api/mcp/[username]` (+ `/sse`, `/message`) | Remote MCP endpoint (Streamable HTTP + SSE, Bearer auth) |
 | GET | `/api/public-profile/[username]` | Public profile JSON |
 | GET | `/api/profile/entitlements` | Plan limits (trial/free/pro) |
 | POST | `/api/billing/checkout` | Polar checkout session |
@@ -258,7 +272,7 @@ All routes are under `src/app/api/`. Unless noted, routes require a valid Supaba
 
 | Table | Role |
 |-------|------|
-| `profiles` | 1:1 with `auth.users` — `username`, `display_name`, `plan`, `trial_ends_at`, Polar IDs, `mcp_access_token` |
+| `profiles` | 1:1 with `auth.users` — `username`, `display_name`, `plan`, `trial_ends_at`, Polar IDs, `mcp_access_token`, `mcp_last_used_at` |
 | `context_sections` | Profile content — `section_type`, `title`, `content`, `is_public`, `updated_at` |
 | `compiled_profiles` | Cached compile output — unique `(user_id, format)` |
 | `context_scores` | Latest `score`, `headline`, `summary`, `gaps` (jsonb), `analyzed_at` |
@@ -329,11 +343,13 @@ Migrations live in `supabase/migrations/`.
 
 ## 13. Billing (Polar)
 
-- Checkout: `POST /api/billing/checkout`
+- Checkout: `POST /api/billing/checkout` (Node.js runtime; detailed dev errors for invalid/expired `POLAR_ACCESS_TOKEN`)
+- `src/lib/polar.ts` uses custom HTTP fetcher to avoid Next.js/Node 24 `expected non-null body source` crashes on Polar 401s
 - Webhook updates `profiles.plan`, Polar customer/subscription IDs
 - Entitlements gate AI routes (`src/lib/ai-usage.ts`, `src/lib/billing-client.ts`)
 - Optional `METO_GRANDFATHER_PRO=true` treats all users as Pro
 - Trial expiry cron: `/api/cron/trial-expiry`
+- **Ops note:** Sandbox and production Polar tokens/products are separate; `POLAR_SERVER` must match token origin
 
 ---
 
@@ -355,7 +371,7 @@ Migrations live in `supabase/migrations/`.
 
 ### Theme
 
-- `ThemeProvider` (`src/components/theme-provider.tsx`) — `next-themes`, default `system`.
+- `ThemeProvider` (`src/components/theme-provider.tsx`) — light / dark / system (replaces `next-themes` script-injection warning)
 - Toggle in marketing nav, portal sidebar, settings → Appearance.
 
 ---
@@ -413,7 +429,10 @@ npm start
 
 | Goal | File(s) |
 |------|---------|
-| Product copy / tagline | Landing `src/app/page.tsx`, `src/lib/workspace-content.ts` |
+| Product copy / tagline | `src/components/landing/landing-hero-copy.tsx`, `src/lib/workspace-content.ts` |
+| Landing layout / proof | `src/components/landing/landing-hero-section.tsx`, `landing-hero-proof.tsx` |
+| MCP server | `src/app/api/mcp/[username]/[[...path]]/route.ts` |
+| MCP client setup UI | `src/components/context-share/mcp-quick-connect-card.tsx`, `src/app/api/profile/mcp-access/route.ts` |
 | Rebrand colors | `src/lib/brand.ts` + `src/app/globals.css` |
 | AI behavior / prompts | `src/lib/meto-prompts.ts`, landing `src/app/api/landing-chat/route.ts` |
 | Context scoring | `src/lib/context-score.ts` |
@@ -421,7 +440,7 @@ npm start
 | Portal navigation | `src/components/portal/portal-nav.ts`, `portal-layout.tsx` |
 | Section types | `src/lib/meto-prompts.ts` (`PROFILE_SECTIONS`) |
 | Rate limits | `src/lib/rate-limit.ts` |
-| Billing logic | `src/lib/billing-client.ts`, `src/app/api/billing/*` |
+| Billing logic | `src/lib/polar.ts`, `src/lib/billing-client.ts`, `src/app/api/billing/*` |
 | Public profile | `src/components/public-profile-view.tsx`, `src/app/profile/[username]/`, `src/lib/public-context.ts` |
 | AI share / workspace | `src/lib/platform-share.ts`, `src/components/context-share/` |
 | Context score sync | `src/components/portal/portal-context-score-sync.tsx`, `src/hooks/use-context-score.ts` |
@@ -467,4 +486,4 @@ When helping with Meto:
 
 ---
 
-*Last updated: June 2026 — orange brand, workspace two-column layout, 8 AI platform formats, public API context URLs, auto gap analysis on login/edits, Fixes nav always visible, Perplexity removed from share UI.*
+*Last updated: July 2026 — Next.js 16, remote MCP server (Cursor/Claude verified), MCP Quick Connect in workspace, landing conversion refresh (proof cards, Universal AI memory copy), Polar checkout hardening, optional catch-all MCP transport routes.*

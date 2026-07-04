@@ -96,8 +96,21 @@ export const SUPPORTED_AI_PARTNERS: AiPartner[] = [
   },
 ];
 
-/** @deprecated Use SUPPORTED_AI_PARTNERS */
-export const LANDING_AI_PARTNERS = SUPPORTED_AI_PARTNERS;
+/** MCP-capable dev tools shown on the connect page */
+export const MCP_TOOL_ICONS = {
+  cursor: {
+    label: "Cursor",
+    url: `${ICONIFY}/simple-icons/cursor.svg`,
+    hint: "Built-in MCP · one-click install",
+  },
+  claude: {
+    label: "Claude Desktop",
+    url: AI_PLATFORM_ICONS.claude.url,
+    hint: "Paste config · restart app",
+  },
+} as const;
+
+export type McpToolId = keyof typeof MCP_TOOL_ICONS;
 
 export function aiPlatformIconUrl(format: CompileFormat) {
   return AI_PLATFORM_ICONS[format]?.url || null;
