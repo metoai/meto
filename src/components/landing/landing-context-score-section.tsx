@@ -16,9 +16,9 @@ export function LandingContextScoreSection() {
           style={{ animationDelay: "0.1s" }}
         >
           <LandingSectionIntro
-            eyebrow="Context Score"
-            title="See how well AI understands you."
-            subtitle="A single score for profile completeness — with clear meters on what still needs work. Fix gaps in a short AI chat."
+            eyebrow="Context Intelligence"
+            title="Quantify your AI's understanding."
+            subtitle="A realtime index of your profile completeness. Identify context gaps and resolve them instantly to guarantee AI continuity."
             align="right"
           />
         </div>

@@ -37,7 +37,7 @@ export function LandingHeroNav({
             <Link
               key={link.label}
               href={link.href}
-              className="landing-hover-link-muted rounded-md px-3 py-1.5 font-mono-brand text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]"
+              className="landing-hover-link-muted rounded-md px-3 py-1.5 font-mono-brand text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)]"
             >
               {link.label}
             </Link>
@@ -89,7 +89,7 @@ export function LandingHeroNav({
               </Link>
               <Link
                 href="/auth/signup"
-                className="rounded-md bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-white transition-[background-color] duration-150 hover:bg-[var(--primary-hover)] sm:px-4"
+                className="landing-hover-link rounded-md border border-[var(--border)] bg-[var(--card)] px-3.5 py-1.5 text-[13px] font-medium text-[var(--text)] transition-[border-color] duration-150 hover:border-[var(--accent-border)] sm:px-4"
               >
                 Get started free
               </Link>
@@ -108,7 +108,7 @@ export function LandingHeroNav({
               key={link.label}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="landing-hover-link-muted block rounded-md px-2 py-2.5 font-mono-brand text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]"
+              className="landing-hover-link-muted block rounded-md px-2 py-2.5 font-mono-brand text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--text-secondary)]"
             >
               {link.label}
             </Link>

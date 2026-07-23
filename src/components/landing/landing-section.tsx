@@ -69,14 +69,14 @@ export function LandingSectionIntro({
 
   return (
     <div className={`${alignClass} ${railClass} ${className}`}>
-      <p className="mb-3 font-mono-brand text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--muted)]">
+      <p className="mb-4 font-mono-brand text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--primary)]">
         {eyebrow}
       </p>
-      <h2 className="text-balance text-[1.75rem] font-semibold leading-[1.1] tracking-[-0.03em] text-[var(--text)] sm:text-[2rem] lg:text-[2.25rem]">
+      <h2 className="text-balance text-[2rem] font-medium leading-[1.1] tracking-[-0.03em] text-[var(--text)] sm:text-[2.5rem] lg:text-[2.75rem]">
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-3 text-[14px] leading-[1.65] text-[var(--text-secondary)] sm:text-[15px]">
+        <p className="mt-4 text-[16px] leading-[1.6] text-[var(--muted)] sm:text-[17px]">
           {subtitle}
         </p>
       ) : null}

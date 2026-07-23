@@ -42,7 +42,6 @@ const SHARE_PLATFORMS = [
 const PROFILE_SECTIONS = [
   { label: "Work", value: "Product designer, early-stage SaaS" },
   { label: "Projects", value: "Meto, design system, landing rebuild" },
-  { label: "Style", value: "Direct, iterative, ships fast" },
 ] as const;
 
 function ChatPreview() {
@@ -191,7 +190,7 @@ export function LandingHowItWorksDemo() {
       </div>
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:items-start lg:divide-x lg:divide-[var(--landing-panel-border)]">
-        <div className="landing-panel-stage p-4 sm:p-5">
+        <div className="landing-panel-stage flex min-h-[160px] flex-col justify-center p-4 sm:p-5">
           <div
             key={activeIndex}
             className="transition-opacity duration-[var(--fade-ms)]"

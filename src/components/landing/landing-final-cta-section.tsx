@@ -15,7 +15,7 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
 
   const primaryContent = (
     <>
-      Start building
+      Create your AI identity
       <ArrowRight className="h-4 w-4" strokeWidth={2} />
     </>
   );
@@ -31,19 +31,18 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
                 <p className="landing-panel-label">Get started</p>
               </div>
 
-              <h2 className="max-w-[14ch] text-balance text-[1.875rem] font-semibold leading-[1.06] tracking-[-0.035em] text-[var(--text)] sm:text-[2.125rem] lg:text-[2.375rem]">
-                Stop starting from zero.
+              <h2 className="max-w-[14ch] text-balance text-[2rem] font-medium leading-[1.06] tracking-[-0.035em] text-[var(--text)] sm:text-[2.25rem] lg:text-[2.5rem]">
+                The AI-native future has a memory.
               </h2>
-              <p className="mt-4 max-w-md text-[15px] leading-[1.65] text-[var(--text-secondary)] sm:text-base">
-                One profile that travels with you — so every AI already knows who
-                you are, what you build, and how you work.
+              <p className="mt-4 max-w-md text-[16px] leading-[1.65] text-[var(--muted)] sm:text-[17px]">
+                Claim your AI identity. Build your context layer once and bring your entire workflow to every model, instantly.
               </p>
             </div>
 
             <div className="flex flex-col justify-center border-t border-[var(--landing-panel-border)] p-8 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
               <div className="mx-auto w-full max-w-sm lg:mx-0">
-                <p className="mb-5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
-                  Try Meto free — no credit card, no setup friction.
+                <p className="mb-5 text-[14px] leading-relaxed text-[var(--muted)]">
+                  Free for individuals. Connect via MCP in 10 seconds.
                 </p>
 
                 <div className="flex flex-col gap-3">

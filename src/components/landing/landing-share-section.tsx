@@ -7,11 +7,11 @@ export function LandingShareSection() {
   return (
     <LandingSection id="share">
       <LandingSectionIntro
-        eyebrow="Share"
-        title="Use your understanding everywhere."
-        subtitle="One profile link — paste it into ChatGPT, Claude, agents, collaborators, or anywhere you work with AI."
+        eyebrow="Universal Access"
+        title="Deploy your context everywhere."
+        subtitle="One secure profile. Sync automatically via MCP (for developers), or inject your context into Claude and ChatGPT with one click."
         align="center"
-        className="mb-10 sm:mb-12"
+        className="mb-14 sm:mb-16"
       />
 
       <div className="landing-stagger-item mx-auto max-w-2xl">

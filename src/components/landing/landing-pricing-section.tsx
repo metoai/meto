@@ -11,11 +11,11 @@ export function LandingPricingSection() {
   return (
     <LandingSection id="pricing">
       <LandingSectionIntro
-        eyebrow="Pricing"
-        title="Start free. Upgrade when you need AI."
-        subtitle="Every account gets a trial. Pick Free to edit manually, or Pro for AI-powered updates and gap fixes."
+        eyebrow="Infrastructure Pricing"
+        title="Foundational access is free."
+        subtitle="Build your core identity for free. Upgrade to Pro for automated context syncing, API access, and advanced memory retention."
         align="center"
-        className="mb-10 sm:mb-12"
+        className="mb-14 sm:mb-16"
       />
 
       <div className="landing-stagger-item mx-auto grid max-w-[640px] gap-3 sm:grid-cols-2 sm:gap-4">

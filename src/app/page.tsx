@@ -616,7 +616,7 @@ export default function Home() {
                           : "I'm a designer working on a new product…"
                       }
                       disabled={typing}
-                      className={`w-full resize-none border-none bg-transparent font-[inherit] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--placeholder)] ${
+                      className={`w-full resize-none border-none bg-transparent font-[inherit] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--muted)] ${
                         chatStarted
                           ? "min-h-[44px] text-[15px] sm:min-h-[52px] sm:text-[16px]"
                           : "min-h-[24px] text-[15px] sm:text-[16px]"

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GitCommit } from "lucide-react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { useInView } from "@/hooks/use-in-view";
 
 const UPDATES = [
-  "Projects updated",
-  "Goals updated",
-  "Context score +4",
+  "Codebase index refreshed",
+  "Architectural rules extracted",
+  "Context score +12",
 ] as const;
 
 export function LandingKeepUpdatedPanel() {
@@ -37,20 +38,24 @@ export function LandingKeepUpdatedPanel() {
     >
       <div className="grid lg:grid-cols-2 lg:divide-x lg:divide-[var(--landing-panel-border)]">
         <div className="landing-panel-stage space-y-4 p-6 sm:p-7">
-          <p className="landing-panel-label">Quick update</p>
-
-          <div className="flex justify-end">
-            <p className="max-w-[90%] rounded-xl landing-panel-glass px-4 py-2.5 text-[13px] leading-snug text-[var(--text)]">
-              I started a new startup.
-            </p>
-          </div>
+          <p className="landing-panel-label mb-2">Integration Event</p>
 
           <div className="flex gap-3">
+            <div className="flex mt-1 h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--text)] text-[var(--bg)]">
+              <GitCommit className="h-3 w-3" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[13px] font-medium text-[var(--text)]">feat: switch to turbopack</p>
+              <p className="mt-0.5 text-[12px] text-[var(--muted)]">GitHub repo • 2m ago</p>
+            </div>
+          </div>
+
+          <div className="mt-4 flex gap-3 border-t border-[var(--landing-panel-border)] pt-4">
             <MetoMarkBadge size="sm" />
             <div className="min-w-0">
-              <p className="mb-1 text-[11px] font-medium text-[var(--text)]">Meto</p>
+              <p className="mb-1 text-[11px] font-medium text-[var(--text)]">Meto Background Sync</p>
               <p className="text-[13px] leading-[1.6] text-[var(--text-secondary)]">
-                Got it — I&apos;ve updated your profile.
+                Tech stack updated automatically. New build system preferences recorded.
               </p>
             </div>
           </div>
@@ -95,8 +100,8 @@ export function LandingKeepUpdatedPanel() {
             })}
           </ul>
 
-          <p className="mt-4 text-[12px] text-[var(--muted)]">
-            Or edit any section manually.
+          <p className="mt-5 text-[12px] text-[var(--muted)]">
+            Powered by direct MCP and Git integrations.
           </p>
         </div>
       </div>

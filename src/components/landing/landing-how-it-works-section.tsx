@@ -7,11 +7,11 @@ export function LandingHowItWorksSection() {
   return (
     <LandingSection id="how-it-works">
       <LandingSectionIntro
-        eyebrow="How it works"
-        title="Chat. Build. Share."
-        subtitle="Three steps to a portable understanding of who you are."
+        eyebrow="The Meto Infrastructure"
+        title="One persistent identity. Infinite integrations."
+        subtitle="Connect your favorite AI assistants and coding tools to a single, portable source of truth."
         align="center"
-        className="mb-10 sm:mb-12"
+        className="mb-14 sm:mb-16"
       />
 
       <div className="landing-stagger-item lg:mx-auto lg:max-w-[96%]">

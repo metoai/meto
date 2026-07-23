@@ -2,7 +2,7 @@ import { LandingHeroBackground } from "@/components/landing/landing-hero-backgro
 import { LandingHeroCopy } from "@/components/landing/landing-hero-copy";
 import { LandingHeroNav } from "@/components/landing/landing-hero-nav";
 import { LandingHeroPartners } from "@/components/landing/landing-hero-partners";
-import { LandingHeroProof } from "@/components/landing/landing-hero-proof";
+
 
 type LandingHeroSectionProps = {
   chatStarted: boolean;
@@ -45,7 +45,7 @@ export function LandingHeroSection({
             }`}
           >
             {!chatStarted ? (
-              <div className="mb-8 w-full sm:mb-10 flex justify-center">
+              <div className="mb-8 w-full sm:mb-10">
                 <LandingHeroCopy chatStarted={false} />
               </div>
             ) : null}

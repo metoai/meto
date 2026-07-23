@@ -251,23 +251,11 @@ body {
   }
 
   .landing-hero-bg::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse 120% 38% at 50% 100%,
-      var(--landing-hero-glow),
-      transparent 72%
-    );
+    content: none;
   }
 
   .landing-hero-bg::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 5rem;
-    background: linear-gradient(to bottom, transparent, var(--bg));
+    content: none;
   }
 
   .auth-hero-panel {

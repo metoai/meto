@@ -8,9 +8,9 @@ export function LandingKeepUpdatedSection() {
     <LandingSection id="keep-updated">
       <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16 xl:gap-20">
         <LandingSectionIntro
-          eyebrow="Always current"
-          title="Your profile stays alive."
-          subtitle="Most tools stop after setup. Tell Meto what changed — your profile and context score update automatically."
+          eyebrow="Continuous Sync"
+          title="Context that evolves automatically."
+          subtitle="Connect your GitHub, import local folders, or integrate via MCP. Meto monitors your work and updates your AI identity instantly, without you saying a word."
           align="left"
           className="landing-stagger-item lg:pr-6"
         />
