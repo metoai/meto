@@ -37,6 +37,7 @@ import {
 import { streamPlainTextForDisplay } from "@/lib/stream-prompt";
 import { fetchPostAuthRedirect } from "@/lib/post-auth-redirect-client";
 import { createClient } from "@/lib/supabase/client";
+import { useCyclingPlaceholder } from "@/hooks/use-cycling-placeholder";
 
 const STORAGE_KEY = "meto_landing_session";
 const PENDING_SAVE_KEY = "meto_landing_pending_save";
@@ -128,6 +129,7 @@ export default function Home() {
 
   const userMessageCount = messages.filter((m) => m.role === "user").length;
   const chatStarted = userMessageCount > 0;
+  const cyclingPlaceholder = useCyclingPlaceholder(!chatStarted);
   const shouldOfferSave =
     profileReady ||
     (userMessageCount >= LANDING_SAVE_PROMPT_AFTER &&
@@ -613,7 +615,7 @@ export default function Home() {
                       placeholder={
                         chatStarted
                           ? "Answer in your own words…"
-                          : "I'm a designer working on a new product…"
+                          : cyclingPlaceholder
                       }
                       disabled={typing}
                       className={`w-full resize-none border-none bg-transparent font-[inherit] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--muted)] ${
