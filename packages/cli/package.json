@@ -1,0 +1,20 @@
+{
+  "name": "meto",
+  "version": "1.0.0",
+  "description": "Identity Engine CLI for AI — sync rules, context profiles, and MCP tools with Cursor, Claude, and AI agents.",
+  "bin": {
+    "meto": "./index.js"
+  },
+  "type": "module",
+  "keywords": [
+    "cursorrules",
+    "mcp",
+    "ai",
+    "context",
+    "developer-tools",
+    "claude",
+    "cursor"
+  ],
+  "author": "Meto AI",
+  "license": "MIT"
+}

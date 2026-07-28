@@ -14,6 +14,7 @@ import { LandingHeroToolbar } from "@/components/landing/landing-hero-toolbar";
 import { LandingContextScoreSection } from "@/components/landing/landing-context-score-section";
 import { LandingFinalCtaSection } from "@/components/landing/landing-final-cta-section";
 import { LandingHeroSection } from "@/components/landing/landing-hero-section";
+import { LandingHeroShowcase } from "@/components/landing/landing-hero-showcase";
 import { LandingHowItWorksSection } from "@/components/landing/landing-how-it-works-section";
 import { LandingKeepUpdatedSection } from "@/components/landing/landing-keep-updated-section";
 import { LandingPageFooter } from "@/components/landing/landing-page-footer";
@@ -490,16 +491,12 @@ export default function Home() {
           loggedInHref={loggedInHref}
           loggedInLabel={loggedInLabel}
         >
-          <div
-            id="chat"
-            ref={chatContainerRef}
-            className={`landing-panel landing-hero-card landing-chat-shell w-full ${
-              chatStarted
-                ? `is-active flex min-h-0 flex-1 flex-col overflow-hidden ${chatEnterActive ? "landing-chat-focus" : ""}`
-                : ""
-            }`}
-          >
-            {chatStarted ? (
+          {chatStarted ? (
+            <div
+              id="chat"
+              ref={chatContainerRef}
+              className="landing-panel landing-hero-card landing-chat-shell w-full is-active flex min-h-0 flex-1 flex-col overflow-hidden landing-chat-focus"
+            >
               <div className="flex shrink-0 items-center justify-end border-b border-[var(--landing-panel-border)] bg-transparent px-3 py-2 sm:px-4">
                 <button
                   type="button"
@@ -510,140 +507,122 @@ export default function Home() {
                   <CloseIcon />
                 </button>
               </div>
-            ) : null}
 
-            {chatStarted ? (
               <div className="landing-scrollbar-hidden min-h-0 flex-1 overflow-y-auto border-b border-[var(--landing-panel-border)] bg-transparent px-4 pb-4 pt-4 sm:px-5">
-                    <div className="space-y-5">
-                      <LandingOpeningMessage />
-                      {messages.map((message) => (
-                        <div
-                          key={message.id}
-                          className={`landing-animate-message ${
-                            message.role === "user" ? "flex justify-end" : "text-left"
-                          }`}
-                        >
-                          {message.role === "assistant" ? (
-                            <div className="flex max-w-[92%] gap-3">
-                              <MetoMarkBadge size="sm" />
-                              <div>
-                                <p className="mb-1 text-xs font-semibold text-[var(--text)]">
-                                  Meto
-                                </p>
-                                {message.content ? (
-                                  <p className="whitespace-pre-wrap text-sm leading-[1.6] text-[var(--text)]">
-                                    {message.content}
-                                  </p>
-                                ) : null}
-                                {isAssistantReplying(typing, messages, message) ? (
-                                  <LandingTypingDots />
-                                ) : null}
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="max-w-[85%] whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm leading-[1.6] text-[var(--text)]">
-                              {message.content}
+                <div className="space-y-5">
+                  <LandingOpeningMessage />
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`landing-animate-message ${
+                        message.role === "user" ? "flex justify-end" : "text-left"
+                      }`}
+                    >
+                      {message.role === "assistant" ? (
+                        <div className="flex max-w-[92%] gap-3">
+                          <MetoMarkBadge size="sm" />
+                          <div>
+                            <p className="mb-1 text-xs font-semibold text-[var(--text)]">
+                              Meto
                             </p>
-                          )}
-                        </div>
-                      ))}
-                      {showSavePrompt ? (
-                        <div className="landing-animate-message pt-1">
-                          <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
-                            <p className="text-sm font-medium text-[var(--text)]">
-                              Apply this to your profile?
-                            </p>
-                            <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
-                              I&apos;ve got a good picture of you. Save it to your
-                              dashboard, or keep chatting if you want to add more.
-                            </p>
-                            {saveError ? (
-                              <p className="mt-2 text-xs text-red-600" role="alert">
-                                {saveError}
+                            {message.content ? (
+                              <p className="whitespace-pre-wrap text-sm leading-[1.6] text-[var(--text)]">
+                                {message.content}
                               </p>
                             ) : null}
-                            {!isLoggedIn ? (
-                              <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                                Sign in to save — your chat stays on this device until
-                                then.
-                              </p>
+                            {isAssistantReplying(typing, messages, message) ? (
+                              <LandingTypingDots />
                             ) : null}
-                            <div className="mt-3 flex flex-wrap items-center gap-2">
-                              <button
-                                type="button"
-                                disabled={saving}
-                                onClick={() => void handleApplyToProfile()}
-                                className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
-                              >
-                                {saving ? "Saving…" : "Save to my profile"}
-                              </button>
-                              <button
-                                type="button"
-                                disabled={saving}
-                                onClick={handleKeepChatting}
-                                className="rounded-lg px-2 py-1.5 text-xs text-[var(--muted)] transition-colors duration-150 hover:text-[var(--text)]"
-                              >
-                                Keep chatting
-                              </button>
-                            </div>
                           </div>
                         </div>
-                      ) : null}
-                      <div ref={messagesEndRef} />
+                      ) : (
+                        <p className="max-w-[85%] whitespace-pre-wrap rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm leading-[1.6] text-[var(--text)]">
+                          {message.content}
+                        </p>
+                      )}
                     </div>
-                  </div>
-                ) : null}
+                  ))}
+                  {showSavePrompt ? (
+                    <div className="landing-animate-message pt-1">
+                      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+                        <p className="text-sm font-medium text-[var(--text)]">
+                          Apply this to your profile?
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-[var(--text-secondary)]">
+                          I&apos;ve got a good picture of you. Save it to your
+                          dashboard, or keep chatting if you want to add more.
+                        </p>
+                        {saveError ? (
+                          <p className="mt-2 text-xs text-red-600" role="alert">
+                            {saveError}
+                          </p>
+                        ) : null}
+                        {!isLoggedIn ? (
+                          <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                            Sign in to save — your chat stays on this device until
+                            then.
+                          </p>
+                        ) : null}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={saving}
+                            onClick={() => void handleApplyToProfile()}
+                            className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] disabled:opacity-50"
+                          >
+                            {saving ? "Saving…" : "Save to my profile"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={saving}
+                            onClick={handleKeepChatting}
+                            className="rounded-lg px-2 py-1.5 text-xs text-[var(--muted)] transition-colors duration-150 hover:text-[var(--text)]"
+                          >
+                            Keep chatting
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                  <div ref={messagesEndRef} />
+                </div>
+              </div>
 
-                <form onSubmit={handleSubmit} className="shrink-0 bg-transparent">
-                  <div
-                    className={`flex gap-2.5 sm:gap-3 ${
-                      chatStarted
-                        ? "items-start px-4 py-4 sm:px-5 sm:py-5"
-                        : "items-center px-3.5 py-2.5 sm:px-4 sm:py-3"
-                    }`}
-                  >
-                    <div className={`shrink-0 ${chatStarted ? "mt-0.5" : ""}`}>
-                      <MetoMarkBadge size="sm" />
-                    </div>
-                    <textarea
-                      ref={textareaRef}
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      rows={1}
-                      autoFocus
-                      placeholder={
-                        chatStarted
-                          ? "Answer in your own words…"
-                          : cyclingPlaceholder
-                      }
-                      disabled={typing}
-                      className={`w-full resize-none border-none bg-transparent font-[inherit] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--muted)] ${
-                        chatStarted
-                          ? "min-h-[44px] text-[15px] sm:min-h-[52px] sm:text-[16px]"
-                          : "min-h-[24px] text-[15px] sm:text-[16px]"
-                      }`}
-                    />
+              <form onSubmit={handleSubmit} className="shrink-0 bg-transparent">
+                <div className="flex items-start gap-2.5 px-4 py-4 sm:gap-3 sm:px-5 sm:py-5">
+                  <div className="shrink-0 mt-0.5">
+                    <MetoMarkBadge size="sm" />
                   </div>
-                  <div
-                    className={`flex items-center justify-between gap-3 border-t border-[var(--landing-panel-border)] ${
-                      chatStarted ? "px-3 py-2.5 sm:px-4" : "px-3 py-2 sm:px-3.5"
-                    }`}
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    rows={1}
+                    autoFocus
+                    placeholder="Answer in your own words…"
+                    disabled={typing}
+                    className="w-full min-h-[44px] sm:min-h-[52px] resize-none border-none bg-transparent font-[inherit] text-[15px] sm:text-[16px] leading-[1.5] text-[var(--text)] outline-none placeholder:text-[var(--muted)]"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3 border-t border-[var(--landing-panel-border)] px-3 py-2.5 sm:px-4">
+                  <LandingHeroToolbar chatStarted={chatStarted} />
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || typing}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-none bg-[var(--primary)] text-white transition-[background,transform] duration-150 hover:bg-[var(--primary-hover)] active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+                    aria-label="Send message"
                   >
-                    <LandingHeroToolbar chatStarted={chatStarted} />
-                    <button
-                      type="submit"
-                      disabled={!input.trim() || typing}
-                      className={`flex shrink-0 items-center justify-center rounded-xl border-none bg-[var(--primary)] text-white transition-[background,transform] duration-150 hover:bg-[var(--primary-hover)] active:scale-95 disabled:pointer-events-none disabled:opacity-40 ${
-                        chatStarted ? "h-10 w-10" : "h-9 w-9"
-                      }`}
-                      aria-label={chatStarted ? "Send message" : "Start chat"}
-                    >
-                      <SendArrowIcon />
-                    </button>
-                  </div>
-                </form>
-          </div>
+                    <SendArrowIcon />
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div id="demo" className="w-full">
+              <LandingHeroShowcase />
+            </div>
+          )}
         </LandingHeroSection>
 
         {!chatStarted ? (

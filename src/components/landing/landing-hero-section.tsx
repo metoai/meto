@@ -36,17 +36,22 @@ export function LandingHeroSection({
 
         <div
           className={`flex flex-1 flex-col items-center ${
-            chatStarted ? "py-4 lg:py-6" : "justify-start py-8 pb-6 lg:py-10 lg:pb-8"
+            chatStarted ? "py-4 lg:py-6" : "justify-start py-8 pb-6 lg:py-10 lg:pb-12"
           }`}
         >
           <div
             className={`flex w-full flex-col ${
-              chatStarted ? "min-h-0 flex-1 items-stretch" : "max-w-[960px] items-center"
+              chatStarted ? "min-h-0 flex-1 items-stretch" : "max-w-[1000px] items-center"
             }`}
           >
             {!chatStarted ? (
               <div className="mb-8 w-full sm:mb-10">
-                <LandingHeroCopy chatStarted={false} />
+                <LandingHeroCopy
+                  chatStarted={false}
+                  isLoggedIn={isLoggedIn}
+                  loggedInHref={loggedInHref}
+                  loggedInLabel={loggedInLabel}
+                />
               </div>
             ) : null}
 
