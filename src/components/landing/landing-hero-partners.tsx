@@ -34,11 +34,6 @@ export function LandingHeroPartners() {
             </li>
           ))}
         </ul>
-
-        <p className="text-[11px] text-[var(--muted)] flex items-center gap-1.5 mt-1">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Trusted by 12,000+ engineers, designers, & founders</span>
-        </p>
       </div>
     </div>
   );

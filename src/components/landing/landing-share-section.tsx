@@ -5,7 +5,8 @@ import { LandingSharePanel } from "@/components/landing/landing-share-panel";
 
 export function LandingShareSection() {
   return (
-    <LandingSection id="share">
+    <LandingSection id="integrations">
+      <span id="share" className="absolute -top-20" aria-hidden="true" />
       <LandingSectionIntro
         eyebrow="Universal Access"
         title="Deploy your context everywhere."

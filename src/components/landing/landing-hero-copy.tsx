@@ -1,9 +1,9 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Sparkles, Terminal, Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy } from "lucide-react";
+import { HeroMeta } from "@/components/landing/landing-hero-meta";
 
 type LandingHeroCopyProps = {
   chatStarted?: boolean;
@@ -22,74 +22,80 @@ export function LandingHeroCopy({
 
   if (chatStarted) return null;
 
-  function handleCopyCli() {
-    void navigator.clipboard.writeText("npx meto init");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  async function handleCopyCli() {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText("npx meto init");
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
   }
 
   return (
-    <div className="flex flex-col items-center text-center">
-      {/* Pill Badge */}
-      <div className="landing-animate-in mb-6 inline-flex items-center rounded-full border border-[var(--accent-border)] bg-[var(--surface)]/90 px-3.5 py-1.5 text-xs font-medium text-[var(--text)] shadow-xs backdrop-blur-md">
-        <span className="relative mr-2 flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--primary)] opacity-75"></span>
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--primary)]"></span>
-        </span>
-        <span className="font-mono-brand text-[11px] uppercase tracking-wider text-[var(--muted)]">
-          Identity Engine • Works with ChatGPT, Claude & Cursor
-        </span>
+    <div className="flex flex-col items-center text-center lg:items-start lg:text-left w-full">
+      {/* 1. Hero Label: YOUR AI IDENTITY pill (28–32px spacing to headline) */}
+      <div className="landing-animate-in mb-7 inline-flex h-8 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 text-[12px] font-medium tracking-[0.08em] uppercase text-[var(--text-secondary)] shadow-2xs">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] shrink-0 animate-pulse" />
+        <span>YOUR AI IDENTITY</span>
       </div>
 
-      {/* Main Headline */}
-      <h1 className="landing-animate-in max-w-[920px] text-balance text-[3.25rem] font-semibold leading-[1.04] tracking-[-0.035em] text-[var(--text)] sm:text-[4.5rem] lg:text-[5.5rem]">
-        Every AI should <br className="hidden sm:block" />
-        <span className="bg-gradient-to-r from-[var(--primary)] via-[#ff6b2c] to-[#ff9858] bg-clip-text text-transparent">
+      {/* 2. Main Headline: Exactly 2 lines on desktop, 78–84px font size, tight tracking, 0.95 line height */}
+      <h1 className="landing-animate-in w-full font-bold leading-[0.95] tracking-[-0.04em] text-5xl sm:text-6xl lg:text-[78px] xl:text-[84px]">
+        <span className="block text-[var(--text)] whitespace-normal lg:whitespace-nowrap">
+          Every AI should
+        </span>
+        <span className="block text-[var(--primary)] whitespace-normal lg:whitespace-nowrap">
           already know you.
         </span>
       </h1>
 
-      {/* Subheadline */}
-      <p
-        className="landing-animate-in mx-auto mt-5 max-w-[640px] text-[17px] leading-[1.6] text-[var(--text-secondary)] sm:text-[19px]"
+      {/* 3. Short Supporting Description (H2 removed, concise description preserved) */}
+      <div
+        className="landing-animate-in mt-6 max-w-[540px]"
         style={{ animationDelay: "0.04s" }}
       >
-        Stop re-explaining your stack, role, and preferences. Build one unified context profile that gives every AI assistant persistent memory.
-      </p>
+        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-[var(--text-secondary)] font-normal text-balance">
+          Create one structured identity profile that gives every AI assistant persistent memory, accurate context, and workflow continuity.
+        </p>
+      </div>
 
-      {/* Combined Action Row: Primary Button + Terminal Pill */}
+      {/* 4. CTA Row: Fully responsive on mobile, tablet, and desktop */}
       <div
-        className="landing-animate-in mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 w-full max-w-[560px]"
+        className="landing-animate-in mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 sm:gap-4 w-full max-w-[360px] sm:max-w-none"
         style={{ animationDelay: "0.08s" }}
       >
         <Link
           href={isLoggedIn ? loggedInHref : "/auth/signup"}
-          className="group relative flex h-12 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-7 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-[var(--primary-hover)] hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+          className="group relative flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[220px] lg:w-[225px] shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-[15px] font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[var(--primary-hover)] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
         >
           <span>{isLoggedIn ? loggedInLabel : "Get started free"}</span>
           <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
         </Link>
 
         {/* Quick Terminal Command Pill */}
-        <div className="flex h-12 w-full sm:w-auto items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[#0d1117] px-4 font-mono text-xs text-gray-300 shadow-md backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
-          <div className="flex items-center gap-2">
-            <Terminal className="h-3.5 w-3.5 text-[var(--primary)]" />
-            <span className="text-gray-400">$</span>
-            <span className="font-semibold text-white">npx meto init</span>
+        <div className="flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[270px] lg:w-[280px] shrink-0 items-center justify-between gap-2 sm:gap-3 rounded-xl border border-gray-800 bg-[#0d1117] px-3.5 sm:px-4 font-mono text-xs sm:text-[13px] lg:text-[13.5px] text-gray-300 shadow-sm backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <span className="font-bold text-[var(--primary)] font-mono">&gt;_</span>
+            <span className="text-gray-400 font-mono">$</span>
+            <span className="font-semibold text-white font-mono whitespace-nowrap">npx meto init</span>
           </div>
           <button
             type="button"
             onClick={handleCopyCli}
-            className="flex items-center gap-1 rounded-md bg-gray-800 px-2.5 py-1 text-[11px] font-medium text-gray-300 transition-all hover:bg-gray-700 hover:text-white"
+            className="flex shrink-0 items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1 text-[11px] font-medium text-gray-300 transition-all hover:bg-gray-700 hover:text-white cursor-pointer"
+            aria-label="Copy CLI command to clipboard"
           >
             {copied ? (
               <>
-                <Check className="h-3 w-3 text-emerald-400" />
+                <Check className="h-3.5 w-3.5 text-emerald-400" />
                 <span className="text-emerald-400">Copied</span>
               </>
             ) : (
               <>
-                <Copy className="h-3 w-3 text-gray-400" />
+                <Copy className="h-3.5 w-3.5 text-gray-400" />
                 <span>Copy</span>
               </>
             )}
@@ -97,26 +103,8 @@ export function LandingHeroCopy({
         </div>
       </div>
 
-      {/* Conversion Badges */}
-      <div
-        className="landing-animate-in mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-center text-xs text-[var(--muted)]"
-        style={{ animationDelay: "0.12s" }}
-      >
-        <span className="flex items-center gap-1.5">
-          <span className="text-emerald-500 font-bold">✓</span> Free forever
-        </span>
-        <span className="hidden sm:inline text-[var(--border)]">•</span>
-        <span className="flex items-center gap-1.5">
-          <span className="text-[var(--primary)] font-bold">⚡</span> 30-second setup
-        </span>
-        <span className="hidden sm:inline text-[var(--border)]">•</span>
-        <span className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3.5 w-3.5 text-sky-500" /> 100% Encrypted & private
-        </span>
-      </div>
+      {/* 5. Product Metadata: Data-driven, Lucide icons, 26–30px below CTA */}
+      <HeroMeta className="landing-animate-in mt-7" />
     </div>
   );
 }
-
-
-

@@ -14,7 +14,7 @@ import { LandingHeroToolbar } from "@/components/landing/landing-hero-toolbar";
 import { LandingContextScoreSection } from "@/components/landing/landing-context-score-section";
 import { LandingFinalCtaSection } from "@/components/landing/landing-final-cta-section";
 import { LandingHeroSection } from "@/components/landing/landing-hero-section";
-import { LandingHeroShowcase } from "@/components/landing/landing-hero-showcase";
+import { LandingHeroVisual } from "@/components/landing/landing-hero-visual";
 import { LandingHowItWorksSection } from "@/components/landing/landing-how-it-works-section";
 import { LandingKeepUpdatedSection } from "@/components/landing/landing-keep-updated-section";
 import { LandingPageFooter } from "@/components/landing/landing-page-footer";
@@ -619,9 +619,7 @@ export default function Home() {
               </form>
             </div>
           ) : (
-            <div id="demo" className="w-full">
-              <LandingHeroShowcase />
-            </div>
+            <LandingHeroVisual />
           )}
         </LandingHeroSection>
 

@@ -6,6 +6,8 @@ import { PostHogProvider } from "@/components/posthog-provider";
 import { brandCssVariables } from "@/lib/brand";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
+import { ResponsiveDX } from 'responsive-dx';
+
 
 const siteUrl = getSiteUrl();
 
@@ -54,6 +56,7 @@ export default function RootLayout({
         <PostHogProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </PostHogProvider>
+              <ResponsiveDX />
       </body>
     </html>
   );
