@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { Buffer } from "node:buffer";
 import { createMcpHandler } from "mcp-handler";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -22,6 +23,8 @@ import { isV2FullyEnabled } from "@/lib/knowledge/v2-mode";
 import { flushRegeneration, scheduleRegeneration } from "@/lib/views/regen-queue";
 import { resolveHandoffBundle, resolveSectionContent } from "@/lib/views/read";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getUserContextSections, getCompiledContext } from "@/lib/context/read";
+import { measureLatency } from "@/lib/observability";
 
 /**
  * MCP route runs on Node.js runtime (required for mcp-handler/sdk internals).
@@ -45,6 +48,34 @@ type ContextSectionRow = {
   updated_at?: string | null;
 };
 
+type IdempotentResult = {
+  result: { content: [{ type: "text"; text: string }] };
+  timestamp: number;
+};
+
+const toolIdempotencyCache = new Map<string, IdempotentResult>();
+const IDEMPOTENCY_TTL_MS = 60_000;
+
+function checkIdempotency(key: string): { content: [{ type: "text"; text: string }] } | null {
+  const cached = toolIdempotencyCache.get(key);
+  if (cached && Date.now() - cached.timestamp < IDEMPOTENCY_TTL_MS) {
+    return cached.result;
+  }
+  return null;
+}
+
+function setIdempotency(key: string, result: { content: [{ type: "text"; text: string }] }) {
+  if (toolIdempotencyCache.size > 1000) {
+    const now = Date.now();
+    for (const [k, v] of toolIdempotencyCache.entries()) {
+      if (now - v.timestamp >= IDEMPOTENCY_TTL_MS) {
+        toolIdempotencyCache.delete(k);
+      }
+    }
+  }
+  toolIdempotencyCache.set(key, { result, timestamp: Date.now() });
+}
+
 /**
  * Parse `Authorization: Bearer <token>` from an incoming request.
  * Returns null when the header is absent/malformed.
@@ -66,10 +97,16 @@ function extractBearerToken(request: Request): string | null {
  * This is useful because LLM responses sometimes arrive wrapped in ```json blocks.
  */
 function parseJsonSafely<T>(value: string): T {
-  const cleaned = value
+  let cleaned = value
     .replace(/^```(?:json)?\s*/i, "")
     .replace(/\s*```$/i, "")
     .trim();
+
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (match) {
+    cleaned = match[0];
+  }
+
   return JSON.parse(cleaned) as T;
 }
 
@@ -104,11 +141,13 @@ function normalizeLlmUpdates(
   return output;
 }
 
+import { hashMcpToken } from "@/lib/mcp-auth";
+
 /**
  * Authenticate this MCP request for a specific username by comparing:
  * - Route param username
  * - Authorization bearer token
- * against `profiles(username, mcp_access_token)`.
+ * against `profiles(username, mcp_access_token_hash)` (falling back to legacy `mcp_access_token`).
  *
  * Returns `{ userId, username }` when valid, otherwise `null`.
  */
@@ -122,24 +161,25 @@ async function authenticateMcpRequest(
   const normalizedUsername = usernameParam.trim().toLowerCase();
   if (!normalizedUsername) return null;
 
+  const tokenHash = hashMcpToken(token);
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("profiles")
     .select("id, username")
     .eq("username", normalizedUsername)
-    .eq("mcp_access_token", token)
+    .or(`mcp_access_token_hash.eq.${tokenHash},mcp_access_token.eq.${token}`)
     .maybeSingle<ProfileAuthRow>();
 
   if (error || !data) {
     return null;
   }
 
-  // Best-effort heartbeat for interoperability health in the dashboard.
-  // This powers "last sync" visibility without blocking successful MCP calls.
-  await admin
+  // Best-effort non-blocking heartbeat for interoperability health in the dashboard.
+  void admin
     .from("profiles")
     .update({ mcp_last_used_at: new Date().toISOString() })
-    .eq("id", data.id);
+    .eq("id", data.id)
+    .then(() => {});
 
   return {
     userId: data.id,
@@ -147,97 +187,60 @@ async function authenticateMcpRequest(
   };
 }
 
-/**
- * Load all context sections for one user in display order.
- * This is the source of truth for both resource reads and tool writes.
- */
-async function getContextSections(userId: string): Promise<ContextSectionRow[]> {
+
+
+function triggerBackgroundProfileProcessing(
+  userId: string,
+  newFact: string,
+  updates: Record<string, string>
+) {
   const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("context_sections")
-    .select("section_type, title, content, display_order, updated_at")
-    .eq("user_id", userId)
-    .order("display_order", { ascending: true });
+  after(async () => {
+    try {
+      await autoCreateProjectsFromDeveloperUpdate(
+        admin,
+        userId,
+        {
+          updates,
+          fact: newFact,
+          source: "mcp",
+        }
+      );
+    } catch (projectError) {
+      console.error("MCP auto-create projects failed:", projectError);
+    }
 
-  if (error) throw error;
-  return (data ?? []) as ContextSectionRow[];
-}
+    if (isKnowledgeFlagEnabled("writeEnabled")) {
+      try {
+        await dualWriteSectionUpdates(admin, userId, updates, "mcp");
+      } catch (knowledgeError) {
+        console.error("MCP knowledge dual-write failed:", knowledgeError);
+      }
+    }
 
-function buildHandoffVersion(rows: ContextSectionRow[]): string {
-  const checksumInput = rows
-    .map(
-      (row) =>
-        `${row.section_type}:${row.updated_at ?? "none"}:${row.content.length}`
-    )
-    .join("|");
-  return Buffer.from(checksumInput).toString("base64url").slice(0, 24);
-}
+    if (isKnowledgeFlagEnabled("layerEnabled")) {
+      try {
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("username")
+          .eq("id", userId)
+          .single();
+        if (isV2FullyEnabled()) {
+          await flushRegeneration(admin, userId, profile?.username ?? null);
+        } else {
+          void scheduleRegeneration(admin, userId, profile?.username ?? null);
+        }
+      } catch (regenError) {
+        console.error("MCP view regeneration failed:", regenError);
+      }
+    }
 
-function latestSectionUpdate(rows: ContextSectionRow[]): string | null {
-  const sorted = rows
-    .map((row) => row.updated_at)
-    .filter((value): value is string => Boolean(value))
-    .sort();
-  return sorted.length ? sorted[sorted.length - 1] : null;
-}
-
-function buildHandoffBundleText(
-  username: string,
-  rows: ContextSectionRow[]
-): string {
-  const compiled = compileLocally("universal", rows);
-  const version = buildHandoffVersion(rows);
-  const updatedAt = latestSectionUpdate(rows) ?? new Date().toISOString();
-
-  const sectionBlock = rows
-    .map(
-      (row) =>
-        `## ${row.title || row.section_type}\n${row.content.trim() || "(empty)"}`
-    )
-    .join("\n\n");
-
-  return [
-    `# Meto Handoff Bundle`,
-    ``,
-    `username: ${username}`,
-    `version: ${version}`,
-    `updated_at: ${updatedAt}`,
-    ``,
-    `## Compiled context`,
-    compiled,
-    ``,
-    `## Raw sections`,
-    sectionBlock,
-  ].join("\n");
-}
-
-/**
- * Rebuild the local compiled profile cache after updates.
- * We intentionally use compileLocally() (not an LLM compile) for predictable,
- * low-latency cache refresh after every MCP write tool call.
- */
-async function rebuildCompiledContextCache(userId: string): Promise<void> {
-  const admin = createAdminClient();
-  const sections = await getContextSections(userId);
-
-  if (sections.length === 0) {
-    return;
-  }
-
-  const compiled = compileLocally("universal", sections);
-  const now = new Date().toISOString();
-
-  const { error } = await admin.from("compiled_profiles").upsert(
-    {
-      user_id: userId,
-      format: "universal",
-      full_context: compiled,
-      last_compiled: now,
-    },
-    { onConflict: "user_id,format" }
-  );
-
-  if (error) throw error;
+    try {
+      await getCompiledContext(admin, userId, "universal");
+    } catch (cacheError) {
+      console.error("MCP cache warmup failed:", cacheError);
+    }
+  });
 }
 
 /**
@@ -247,9 +250,9 @@ async function rebuildCompiledContextCache(userId: string): Promise<void> {
 async function mergeFactIntoProfileWithLlm(
   userId: string,
   newFact: string
-): Promise<{ sections: string[]; projectsCreated: number }> {
+): Promise<{ sections: string[] }> {
   const admin = createAdminClient();
-  const currentRows = await getContextSections(userId);
+  const currentRows = await getUserContextSections(admin, userId) as ContextSectionRow[];
   const currentSections = buildCurrentSectionsMap(currentRows);
   const customSections = currentRows
     .filter((row) => row.section_type === "custom")
@@ -261,8 +264,28 @@ async function mergeFactIntoProfileWithLlm(
     customSections
   );
 
-  const llmRaw = await generateText(prompt, { temperature: 0.2 });
-  const parsed = parseJsonSafely<{ updates?: unknown }>(llmRaw);
+  let parsed: { updates?: unknown } | null = null;
+  let attempts = 0;
+  let lastError: unknown;
+
+  while (attempts < 2 && !parsed) {
+    attempts++;
+    try {
+      const temperature = attempts === 1 ? 0.2 : 0.4;
+      const llmRaw = await generateText(prompt, { temperature });
+      parsed = parseJsonSafely<{ updates?: unknown }>(llmRaw);
+    } catch (error) {
+      lastError = error;
+      if (!(error instanceof SyntaxError)) {
+        throw error;
+      }
+    }
+  }
+
+  if (!parsed) {
+    throw lastError || new Error("Failed to parse LLM JSON after multiple attempts.");
+  }
+
   const updates = normalizeLlmUpdates(parsed.updates);
 
   if (Object.keys(updates).length === 0) {
@@ -271,48 +294,9 @@ async function mergeFactIntoProfileWithLlm(
 
   await mergeProfileSectionUpdates(admin, userId, updates);
 
-  let projectsCreated = 0;
-  try {
-    const projectResult = await autoCreateProjectsFromDeveloperUpdate(
-      admin,
-      userId,
-      {
-        updates,
-        fact: newFact,
-        source: "mcp",
-      }
-    );
-    projectsCreated = projectResult.createdCount;
-  } catch (projectError) {
-    console.error("MCP auto-create projects failed:", projectError);
-  }
+  triggerBackgroundProfileProcessing(userId, newFact, updates);
 
-  if (isKnowledgeFlagEnabled("writeEnabled")) {
-    try {
-      await dualWriteSectionUpdates(admin, userId, updates, "mcp");
-    } catch (knowledgeError) {
-      console.error("MCP knowledge dual-write failed:", knowledgeError);
-    }
-  }
-
-  if (isKnowledgeFlagEnabled("layerEnabled")) {
-    try {
-      const { data: profile } = await admin
-        .from("profiles")
-        .select("username")
-        .eq("id", userId)
-        .single();
-      if (isV2FullyEnabled()) {
-        await flushRegeneration(admin, userId, profile?.username ?? null);
-      } else {
-        void scheduleRegeneration(admin, userId, profile?.username ?? null);
-      }
-    } catch (regenError) {
-      console.error("MCP view regeneration failed:", regenError);
-    }
-  }
-
-  return { sections: Object.keys(updates), projectsCreated };
+  return { sections: Object.keys(updates) };
 }
 
 function mcpTransportPaths(username: string) {
@@ -345,24 +329,26 @@ function createUserScopedMcpHandler(
         "meto-profile-section",
         new ResourceTemplate("profile://{section}", {
           list: async () => {
-            const rows = await getContextSections(userId);
-            return {
-              resources: [
-                {
-                  uri: "profile://handoff",
-                  name: "Meto handoff bundle",
-                  description:
-                    "Compiled + raw profile content with version metadata for frictionless agent handoffs.",
-                  mimeType: "text/plain",
-                },
-                ...rows.map((row) => ({
-                  uri: `profile://${row.section_type}`,
-                  name: row.title || row.section_type,
-                  description: `Raw profile text for ${row.section_type}`,
-                  mimeType: "text/plain",
-                })),
-              ],
-            };
+            return measureLatency(`MCP List Resources: profile (user=${userId})`, async () => {
+              const rows = await getUserContextSections(createAdminClient(), userId);
+              return {
+                resources: [
+                  {
+                    uri: "profile://handoff",
+                    name: "Meto handoff bundle",
+                    description:
+                      "Compiled + raw profile content with version metadata for frictionless agent handoffs.",
+                    mimeType: "text/plain",
+                  },
+                  ...rows.map((row) => ({
+                    uri: `profile://${row.section_type}`,
+                    name: row.title || row.section_type,
+                    description: `Raw profile text for ${row.section_type}`,
+                    mimeType: "text/plain",
+                  })),
+                ],
+              };
+            });
           },
         }),
         {
@@ -371,72 +357,74 @@ function createUserScopedMcpHandler(
           mimeType: "text/plain",
         },
         async (uri, variables) => {
-          const section = String(variables.section ?? "").trim().toLowerCase();
-          if (!section) {
-            throw new Error("Section is required in profile://{section}.");
-          }
+          return measureLatency(`MCP Read Resource: ${uri.href}`, async () => {
+            const section = String(variables.section ?? "").trim().toLowerCase();
+            if (!section) {
+              throw new Error("Section is required in profile://{section}.");
+            }
 
-          if (section === "handoff") {
-            const rows = await getContextSections(userId);
-            const text = await resolveHandoffBundle(
-              createAdminClient(),
+            if (section === "handoff") {
+              const rows = await getUserContextSections(createAdminClient(), userId) as ContextSectionRow[];
+              const text = await resolveHandoffBundle(
+                createAdminClient(),
+                userId,
+                username,
+                rows
+              );
+              return {
+                contents: [
+                  {
+                    uri: uri.href,
+                    mimeType: "text/plain",
+                    text,
+                  },
+                ],
+              };
+            }
+
+            const admin = createAdminClient();
+            const generated = await resolveSectionContent(
+              admin,
               userId,
-              username,
-              rows
+              section
             );
+
+            if (generated) {
+              return {
+                contents: [
+                  {
+                    uri: uri.href,
+                    mimeType: "text/plain",
+                    text: generated,
+                  },
+                ],
+              };
+            }
+
+            const { data, error } = await admin
+              .from("context_sections")
+              .select("content, updated_at")
+              .eq("user_id", userId)
+              .eq("section_type", section)
+              .order("updated_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (error) throw error;
+            if (!data?.content) {
+              throw new Error(`Section "${section}" not found for user "${username}".`);
+            }
+
             return {
               contents: [
                 {
                   uri: uri.href,
                   mimeType: "text/plain",
-                  text,
+                  text: data.content,
                 },
               ],
             };
-          }
-
-          const admin = createAdminClient();
-          const generated = await resolveSectionContent(
-            admin,
-            userId,
-            section
-          );
-
-          if (generated) {
-            return {
-              contents: [
-                {
-                  uri: uri.href,
-                  mimeType: "text/plain",
-                  text: generated,
-                },
-              ],
-            };
-          }
-
-          const { data, error } = await admin
-            .from("context_sections")
-            .select("content, updated_at")
-            .eq("user_id", userId)
-            .eq("section_type", section)
-            .order("updated_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          if (error) throw error;
-          if (!data?.content) {
-            throw new Error(`Section "${section}" not found for user "${username}".`);
-          }
-
-          return {
-            contents: [
-              {
-                uri: uri.href,
-                mimeType: "text/plain",
-                text: data.content,
-              },
-            ],
-          };
+          });
         }
       );
 
@@ -545,40 +533,98 @@ function createUserScopedMcpHandler(
 
       /**
        * TOOL: update_meto_profile
+       * TOOL: upsert_meto_profile_sections
+       * Input schema: { sections: Record<string, string> }
+       *
+       * Bypasses the LLM and applies deterministic, exact text edits to sections.
+       */
+      server.registerTool(
+        "upsert_meto_profile_sections",
+        {
+          title: "Upsert Meto profile sections",
+          description:
+            "Directly overwrite specific profile sections with exact text, bypassing the LLM. Use this when you have deterministic, structured changes to apply.",
+          inputSchema: {
+            sections: z.record(z.string()).describe("Map of section keys to exact markdown content"),
+          },
+        },
+        async ({ sections }) => {
+          const cacheKey = `upsert:${userId}:${JSON.stringify(sections)}`;
+          const cached = checkIdempotency(cacheKey);
+          if (cached) {
+            console.log(`[IDEMPOTENCY HIT] Returning cached upsert result for user=${userId}`);
+            return cached;
+          }
+
+          const admin = createAdminClient();
+          const validUpdates: Record<string, string> = {};
+          
+          for (const [k, v] of Object.entries(sections)) {
+             validUpdates[k] = String(v);
+          }
+          
+          if (Object.keys(validUpdates).length === 0) {
+            throw new Error("No sections provided to upsert.");
+          }
+
+          await mergeProfileSectionUpdates(admin, userId, validUpdates);
+          triggerBackgroundProfileProcessing(userId, "Explicit section upsert via MCP tool", validUpdates);
+
+          const result = {
+            content: [
+              {
+                type: "text" as const,
+                text: `Successfully upserted sections: ${Object.keys(validUpdates).join(", ")}. Background processing started.`,
+              },
+            ] as [{ type: "text"; text: string }],
+          };
+
+          setIdempotency(cacheKey, result);
+          return result;
+        }
+      );
+
+      /**
+       * TOOL: update_meto_profile
        * Input schema: { new_fact: string }
        *
        * 1) Sends fact to LLM helper to generate merged profile updates
        * 2) Persists merged updates to `context_sections`
-       * 3) Rebuilds compiled cache via compileLocally()
+       * 3) Triggers background processing
        */
       server.registerTool(
         "update_meto_profile",
         {
           title: "Update Meto profile",
           description:
-            "Merge a new user fact into profile sections and rebuild compiled cache.",
+            "Merge a new user fact into profile sections using AI. Use this when you have unstructured information to add. If you have exact, deterministic changes to make, use upsert_meto_profile_sections instead.",
           inputSchema: {
             new_fact: z.string().min(1),
           },
         },
         async ({ new_fact }) => {
-          const { sections, projectsCreated } =
-            await mergeFactIntoProfileWithLlm(userId, new_fact);
-          await rebuildCompiledContextCache(userId);
+          const trimmedFact = new_fact.trim();
+          const cacheKey = `update:${userId}:${trimmedFact.toLowerCase()}`;
+          const cached = checkIdempotency(cacheKey);
+          if (cached) {
+            console.log(`[IDEMPOTENCY HIT] Returning cached update result for user=${userId}`);
+            return cached;
+          }
 
-          const projectNote =
-            projectsCreated > 0
-              ? ` Auto-created ${projectsCreated} project${projectsCreated === 1 ? "" : "s"} in developer workspace.`
-              : "";
+          const { sections } =
+            await mergeFactIntoProfileWithLlm(userId, trimmedFact);
 
-          return {
+          const result = {
             content: [
               {
-                type: "text",
-                text: `Profile updated successfully. Merged fact into sections: ${sections.join(", ")}.${projectNote}`,
+                type: "text" as const,
+                text: `Profile updated successfully. Merged fact into sections: ${sections.join(", ")}. Background processing started.`,
               },
-            ],
+            ] as [{ type: "text"; text: string }],
           };
+
+          setIdempotency(cacheKey, result);
+          return result;
         }
       );
     },

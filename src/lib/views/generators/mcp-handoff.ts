@@ -1,4 +1,3 @@
-import { compileLocally } from "@/lib/compile-local";
 import { hashContent } from "@/lib/views/hash";
 
 type SectionRow = {
@@ -10,9 +9,9 @@ type SectionRow = {
 
 export function buildMcpHandoffBundle(
   username: string,
-  rows: SectionRow[]
+  rows: SectionRow[],
+  compiledText: string
 ): { text: string; version: string; updatedAt: string } {
-  const compiled = compileLocally("universal", rows);
   const version = hashContent(
     rows.map((r) => `${r.section_type}:${r.content}`).join("|")
   );
@@ -37,7 +36,7 @@ export function buildMcpHandoffBundle(
     `updated_at: ${updatedAt}`,
     ``,
     `## Compiled context`,
-    compiled,
+    compiledText,
     ``,
     `## Raw sections`,
     sectionBlock,

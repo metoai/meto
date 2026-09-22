@@ -3,12 +3,13 @@
 import fs from "fs";
 import path from "path";
 import readline from "readline";
-import http from "http";
-import https from "https";
 
 const METO_API_BASE = process.env.METO_API_URL || "https://meto.ai";
 const CONFIG_DIR = path.join(process.env.HOME || process.env.USERPROFILE || ".", ".meto");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
+
+const METO_START_MARKER = "# <!-- METO_MANAGED_START -->";
+const METO_END_MARKER = "# <!-- METO_MANAGED_END -->";
 
 // Color formatting helpers
 const colors = {
@@ -25,7 +26,56 @@ const colors = {
 };
 
 function logHeader() {
-  console.log(`\n${colors.orange}${colors.bold}⚡ METO IDENTITY ENGINE CLI${colors.reset} ${colors.dim}v1.1.2${colors.reset}\n`);
+  console.log(`\n${colors.orange}${colors.bold}⚡ METO IDENTITY ENGINE CLI${colors.reset} ${colors.dim}v1.1.3${colors.reset}\n`);
+}
+
+/**
+ * Safe, atomic file writing using a temporary file in the same directory.
+ * Prevents corrupted or truncated files if process is interrupted.
+ */
+function atomicWriteFileSync(filePath, content) {
+  const targetDir = path.dirname(filePath);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  const tempPath = `${filePath}.tmp.${Date.now()}.${Math.random().toString(36).slice(2)}`;
+  fs.writeFileSync(tempPath, content, "utf8");
+  fs.renameSync(tempPath, filePath);
+}
+
+/**
+ * Merges Meto-generated rules into an existing rule file without overwriting user custom rules.
+ */
+function mergeWithExistingRuleFile(targetPath, newMetoBlock) {
+  const wrappedMetoBlock = `${METO_START_MARKER}\n${newMetoBlock.trim()}\n${METO_END_MARKER}`;
+
+  if (!fs.existsSync(targetPath)) {
+    return wrappedMetoBlock + "\n";
+  }
+
+  try {
+    const existing = fs.readFileSync(targetPath, "utf8");
+
+    const startIndex = existing.indexOf(METO_START_MARKER);
+    const endIndex = existing.indexOf(METO_END_MARKER);
+
+    if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+      // Replace only the Meto managed section, preserve everything before and after!
+      const before = existing.slice(0, startIndex);
+      const after = existing.slice(endIndex + METO_END_MARKER.length);
+      return before + wrappedMetoBlock + after;
+    }
+
+    // Existing file with no Meto markers:
+    // Don't overwrite user rules! Keep existing content below the Meto block.
+    if (existing.trim().length > 0) {
+      return `${wrappedMetoBlock}\n\n# --- User Custom Rules (Preserved) ---\n${existing.trim()}\n`;
+    }
+  } catch {
+    // If read fails, fallback to wrapped block
+  }
+
+  return wrappedMetoBlock + "\n";
 }
 
 function getConfig() {
@@ -45,7 +95,7 @@ function saveConfig(data) {
       fs.mkdirSync(CONFIG_DIR, { recursive: true });
     }
     const current = getConfig();
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify({ ...current, ...data }, null, 2));
+    atomicWriteFileSync(CONFIG_FILE, JSON.stringify({ ...current, ...data }, null, 2));
   } catch (err) {
     console.error(`${colors.gray}Warning: Could not save config to ${CONFIG_FILE}${colors.reset}`);
   }
@@ -97,7 +147,6 @@ function scanProject(cwd = process.cwd()) {
 function generateRulesContent(role, stackList, directives, projectName, customRules = []) {
   const stackStr = stackList.length > 0 ? stackList.join(", ") : "Modern Web Architecture";
 
-  // Build directive lines, deduplicating hardcoded rules against user-provided ones
   const hardcodedRules = [
     "Type Safety: Ensure clear types, interfaces, and strict checking where applicable.",
     "Clean Code: Prefer clean, modular, self-documenting code. Never swallow errors silently.",
@@ -148,8 +197,9 @@ async function runInit(options = {}) {
   console.log(`${colors.cyan}🔍 Scanned Project:${colors.reset} ${colors.bold}${folderName}${colors.reset}`);
   console.log(`${colors.gray}Detected Stack:${colors.reset} ${scan.stack.join(", ") || "General Project"}\n`);
 
-  let role = userConfig.identity?.role || "Senior Fullstack Engineer";
-  let directives = userConfig.identity?.directives || "Write clean, type-safe code. Prefer server components and functional patterns. Never swallow errors.";
+  let role = options.cloudProfile?.role || userConfig.identity?.role || "Senior Fullstack Engineer";
+  let directives = options.cloudProfile?.directives || userConfig.identity?.directives || "Write clean, type-safe code. Prefer server components and functional patterns. Never swallow errors.";
+  let stack = options.cloudProfile?.stack && options.cloudProfile.stack.length > 0 ? options.cloudProfile.stack : scan.stack;
   const customRules = userConfig.customRules || [];
 
   if (!options.yes && process.stdin.isTTY) {
@@ -164,7 +214,7 @@ async function runInit(options = {}) {
     console.log(`${colors.dim}Using automatic detection defaults...${colors.reset}`);
   }
 
-  const content = generateRulesContent(role, scan.stack, directives, folderName, customRules);
+  const content = generateRulesContent(role, stack, directives, folderName, customRules);
 
   // Rule file definitions across all major AI editors
   const ruleTargets = [
@@ -180,19 +230,16 @@ async function runInit(options = {}) {
   const filesCreated = [];
   ruleTargets.forEach((target) => {
     try {
-      const targetDir = path.dirname(target.path);
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-      }
-      fs.writeFileSync(target.path, content);
+      const mergedContent = mergeWithExistingRuleFile(target.path, content);
+      atomicWriteFileSync(target.path, mergedContent);
       filesCreated.push(target.name);
     } catch {
       // Ignore individual file write failures
     }
   });
 
-  console.log(`\n${colors.emerald}${colors.bold}✨ Success! Meto context synchronized across all IDEs:${colors.reset}`);
-  filesCreated.forEach((f) => console.log(`   ${colors.green}✓${colors.reset} ${colors.bold}${f}${colors.reset}`));
+  console.log(`\n${colors.emerald}${colors.bold}✨ Success! Meto context synchronized safely across all IDEs:${colors.reset}`);
+  filesCreated.forEach((f) => console.log(`   ${colors.green}✓${colors.reset} ${colors.bold}${f}${colors.reset} ${colors.dim}(preserved user custom rules)${colors.reset}`));
 
   console.log(`\n${colors.bold}💡 Next Step:${colors.reset}`);
   console.log(`   To auto-install Meto MCP into Cursor, Claude Desktop & Windsurf, run:`);
@@ -266,11 +313,6 @@ async function runSetupMcp() {
     }
 
     try {
-      const targetDir = path.dirname(targetPath);
-      if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-      }
-
       let configJson = { mcpServers: {} };
       if (fs.existsSync(targetPath)) {
         try {
@@ -283,7 +325,7 @@ async function runSetupMcp() {
       }
 
       configJson.mcpServers.meto = metoServerConfig;
-      fs.writeFileSync(targetPath, JSON.stringify(configJson, null, 2));
+      atomicWriteFileSync(targetPath, JSON.stringify(configJson, null, 2));
 
       console.log(`   ${colors.green}✓${colors.reset} ${colors.bold}${ide.name}${colors.reset} Configured: ${colors.gray}${targetPath}${colors.reset}`);
       updatedCount++;
@@ -356,7 +398,7 @@ function runMcpServer() {
             result: {
               protocolVersion: "2024-11-05",
               capabilities: { tools: {} },
-              serverInfo: { name: "meto-mcp-server", version: "1.1.2" },
+              serverInfo: { name: "meto-mcp-server", version: "1.1.3" },
             },
           };
           process.stdout.write(JSON.stringify(res) + "\n");
@@ -442,21 +484,115 @@ function runMcpServer() {
   });
 }
 
-// Login Device Authentication Flow
+// Login Device Authentication Flow with Polling
 async function runLogin() {
   logHeader();
   console.log(`${colors.cyan}Connecting to Meto Cloud Auth...${colors.reset}\n`);
 
-  console.log(`Please visit the following URL to authenticate your CLI:`);
-  console.log(`👉 ${colors.orange}${colors.bold}${METO_API_BASE}/cli-auth${colors.reset}\n`);
+  try {
+    const res = await fetch(`${METO_API_BASE}/api/cli/auth`, { method: "POST" });
+    if (!res.ok) {
+      throw new Error(`Failed to initialize session (${res.status})`);
+    }
 
-  saveConfig({
-    authStatus: "pending_login",
-    updatedAt: new Date().toISOString(),
-  });
+    const data = await res.json();
+    const { device_code, verification_uri, interval = 2, expires_in = 600 } = data;
 
-  console.log(`${colors.green}✓ Authentication link generated.${colors.reset}`);
-  console.log(`${colors.gray}Run 'npx meto sync' once you have logged in on meto.ai.${colors.reset}\n`);
+    console.log(`Please visit the following URL to authenticate your CLI session:`);
+    console.log(`👉 ${colors.orange}${colors.bold}${verification_uri}${colors.reset}\n`);
+    console.log(`Device Code: ${colors.bold}${device_code}${colors.reset}\n`);
+
+    // Attempt to open browser automatically
+    try {
+      const openCmd = process.platform === "win32" ? "start" : process.platform === "darwin" ? "open" : "xdg-open";
+      const { exec } = await import("child_process");
+      exec(`${openCmd} "${verification_uri}"`);
+    } catch {
+      // Non-fatal
+    }
+
+    console.log(`${colors.dim}Waiting for authorization in browser... (Press Ctrl+C to cancel)${colors.reset}`);
+
+    const startTime = Date.now();
+    const maxWaitMs = expires_in * 1000;
+
+    while (Date.now() - startTime < maxWaitMs) {
+      await new Promise((r) => setTimeout(r, interval * 1000));
+
+      const pollRes = await fetch(`${METO_API_BASE}/api/cli/auth?code=${device_code}`);
+      if (pollRes.ok) {
+        const pollData = await pollRes.json();
+        if (pollData.status === "approved" && pollData.token) {
+          saveConfig({
+            token: pollData.token,
+            username: pollData.username,
+            authStatus: "authenticated",
+            updatedAt: new Date().toISOString(),
+          });
+
+          console.log(`\n${colors.emerald}${colors.bold}✨ Successfully authenticated as @${pollData.username}!${colors.reset}\n`);
+          console.log(`${colors.cyan}Synchronizing cloud identity to local workspace...${colors.reset}`);
+          await runSync();
+          return;
+        } else if (pollData.status === "expired") {
+          console.log(`\n${colors.yellow}Session expired. Please run 'npx meto login' again.${colors.reset}\n`);
+          return;
+        }
+      }
+    }
+
+    console.log(`\n${colors.yellow}Authentication timed out.${colors.reset}\n`);
+  } catch (err) {
+    console.error(`\n${colors.gray}Could not reach Meto Cloud: ${err.message}${colors.reset}`);
+    console.log(`${colors.dim}You can still use Meto offline by running: npx meto init${colors.reset}\n`);
+  }
+}
+
+// Cloud-Backed Identity Synchronization
+async function runSync() {
+  logHeader();
+  console.log(`${colors.cyan}⚡ Meto Identity Sync${colors.reset}\n`);
+
+  const config = getConfig();
+  let cloudProfile = null;
+
+  if (config.token) {
+    try {
+      console.log(`${colors.dim}Fetching latest cloud identity from meto.ai...${colors.reset}`);
+      const res = await fetch(`${METO_API_BASE}/api/cli/sync`, {
+        headers: {
+          Authorization: `Bearer ${config.token}`,
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated && data.profile) {
+          cloudProfile = data.profile;
+          saveConfig({
+            identity: {
+              role: data.profile.role,
+              stack: data.profile.stack,
+              directives: data.profile.directives,
+            },
+            username: data.username,
+            updatedAt: new Date().toISOString(),
+          });
+          console.log(`${colors.green}✓ Synchronized with @${data.username}'s cloud profile.${colors.reset}\n`);
+        }
+      } else {
+        console.log(`${colors.gray}Notice: Cloud token invalid or expired. Run 'npx meto login' to re-authenticate.${colors.reset}\n`);
+      }
+    } catch {
+      console.log(`${colors.gray}Notice: Cloud unreachable. Proceeding with locally cached identity...${colors.reset}\n`);
+    }
+  } else {
+    console.log(`${colors.dim}Tip: Connect to your cloud profile with: ${colors.orange}npx @metoai/cli login${colors.reset}\n`);
+  }
+
+  // Refresh all rule files with atomic writes and preservation
+  await runInit({ yes: true, cloudProfile });
+  console.log(`\n${colors.emerald}${colors.bold}✓ All IDE rule files refreshed safely without overwriting custom rules.${colors.reset}\n`);
 }
 
 // Main CLI Entry Point
@@ -482,12 +618,7 @@ async function main() {
       await runLogin();
       break;
     case "sync":
-      logHeader();
-      console.log(`${colors.cyan}⚡ Meto Identity Sync${colors.reset}\n`);
-      // Re-run init silently to refresh all rule files from saved config
-      await runInit({ yes: true });
-      console.log(`${colors.emerald}✓ All IDE rule files refreshed from your saved Meto profile.${colors.reset}`);
-      console.log(`${colors.gray}  To link with your meto.ai cloud account, run: npx @metoai/cli login${colors.reset}\n`);
+      await runSync();
       break;
     case "help":
     case "--help":
@@ -495,12 +626,12 @@ async function main() {
       logHeader();
       console.log(`Usage: npx @metoai/cli [command]\n`);
       console.log(`Commands:`);
-      console.log(`  init       Synchronize rules across all IDEs (.cursorrules, AGENTS.md, CLAUDE.md, etc.)`);
+      console.log(`  init       Synchronize rules across all IDEs safely (.cursorrules, AGENTS.md, etc.)`);
       console.log(`  setup-mcp  Auto-detect and install Meto MCP into Cursor, Claude Desktop & Windsurf`);
       console.log(`  health     Run workspace diagnostic & rule synchronization audit`);
       console.log(`  mcp        Start Meto Stdio MCP Server for Cursor, Claude & AI Coding Agents`);
-      console.log(`  login      Authenticate CLI with your meto.ai account`);
-      console.log(`  sync       Refresh all IDE rule files from your saved Meto profile\n`);
+      console.log(`  login      Authenticate CLI with your meto.ai cloud account via device code`);
+      console.log(`  sync       Fetch latest cloud identity and safely refresh IDE rule files\n`);
       break;
     default:
       await runInit(options);
@@ -512,4 +643,3 @@ main().catch((err) => {
   console.error("CLI Error:", err);
   process.exit(1);
 });
-

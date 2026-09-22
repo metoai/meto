@@ -37,8 +37,8 @@ export function LandingHeroSection({
 
         {/* Hero Content Area */}
         <div
-          className={`flex flex-1 flex-col justify-center ${
-            chatStarted ? "py-4 lg:py-6" : "py-2 sm:py-4 lg:py-0"
+          className={`flex flex-1 flex-col ${
+            chatStarted ? "py-4 lg:py-6 justify-center" : "pt-6 pb-2 sm:py-4 lg:py-0 justify-start lg:justify-center"
           }`}
         >
           {chatStarted ? (
@@ -49,9 +49,9 @@ export function LandingHeroSection({
             </div>
           ) : (
             /* 2-Column Editorial Split: Left 57%, Right 43% */
-            <div className="grid w-full grid-cols-1 items-center gap-8 lg:grid-cols-[57%_43%] xl:gap-12 my-auto">
+            <div className="grid w-full grid-cols-1 items-center gap-8 lg:grid-cols-[57%_43%] xl:gap-12 mt-2 lg:my-auto">
               {/* Left Column: Pill Label, 2-line Headline, Copy, CTAs, Trust Signals */}
-              <div className="flex w-full flex-col">
+              <div className="flex w-full flex-col justify-center min-h-[calc(100svh-140px)] lg:min-h-0">
                 <LandingHeroCopy
                   chatStarted={false}
                   isLoggedIn={isLoggedIn}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Copy } from "lucide-react";
+import { ArrowRight, Check, Copy, Fingerprint } from "lucide-react";
 import { HeroMeta } from "@/components/landing/landing-hero-meta";
 
 type LandingHeroCopyProps = {
@@ -37,19 +37,27 @@ export function LandingHeroCopy({
   return (
     <div className="flex flex-col items-center text-center lg:items-start lg:text-left w-full">
       {/* 1. Hero Label: YOUR AI IDENTITY pill (28–32px spacing to headline) */}
-      <div className="landing-animate-in mb-7 inline-flex h-8 items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 text-[12px] font-medium tracking-[0.08em] uppercase text-[var(--text-secondary)] shadow-2xs">
-        <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] shrink-0 animate-pulse" />
+      <div className="landing-animate-in mb-7 inline-flex items-center gap-2.5 rounded-full bg-[var(--text)]/[0.03] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-[var(--text)]/70 ring-1 ring-inset ring-[var(--text)]/[0.08] backdrop-blur-sm transition-all hover:bg-[var(--text)]/[0.05]">
+        <Fingerprint className="h-3.5 w-3.5 text-[var(--primary)]" />
         <span>YOUR AI IDENTITY</span>
       </div>
 
-      {/* 2. Main Headline: Exactly 2 lines on desktop, 78–84px font size, tight tracking, 0.95 line height */}
-      <h1 className="landing-animate-in w-full font-bold leading-[0.95] tracking-[-0.04em] text-5xl sm:text-6xl lg:text-[78px] xl:text-[84px]">
-        <span className="block text-[var(--text)] whitespace-normal lg:whitespace-nowrap">
-          Every AI should
-        </span>
-        <span className="block text-[var(--primary)] whitespace-normal lg:whitespace-nowrap">
-          already know you.
-        </span>
+      <h1 className="landing-animate-in w-full font-bold leading-[0.95] tracking-[-0.04em] text-[52px] sm:text-[64px] lg:text-[78px] xl:text-[84px]">
+        {/* Mobile: 3 lines */}
+        <div className="flex flex-col lg:hidden">
+          <span className="block text-[var(--text)] whitespace-nowrap">Every AI</span>
+          <span className="block text-[var(--text)] whitespace-nowrap">should already</span>
+          <span className="block text-[var(--primary)] whitespace-nowrap">know you.</span>
+        </div>
+        {/* Desktop: 2 lines */}
+        <div className="hidden lg:block">
+          <span className="block text-[var(--text)] whitespace-nowrap">
+            Every AI should
+          </span>
+          <span className="block text-[var(--primary)] whitespace-nowrap">
+            already know you.
+          </span>
+        </div>
       </h1>
 
       {/* 3. Short Supporting Description (H2 removed, concise description preserved) */}
@@ -58,7 +66,7 @@ export function LandingHeroCopy({
         style={{ animationDelay: "0.04s" }}
       >
         <p className="text-[17px] sm:text-[18px] leading-[1.55] text-[var(--text-secondary)] font-normal text-balance">
-          Create one structured identity profile that gives every AI assistant persistent memory, accurate context, and workflow continuity.
+          One identity profile for persistent memory and context across all your AI assistants.
         </p>
       </div>
 
@@ -76,7 +84,7 @@ export function LandingHeroCopy({
         </Link>
 
         {/* Quick Terminal Command Pill */}
-        <div className="flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[270px] lg:w-[280px] shrink-0 items-center justify-between gap-2 sm:gap-3 rounded-xl border border-gray-800 bg-[#0d1117] px-3.5 sm:px-4 font-mono text-xs sm:text-[13px] lg:text-[13.5px] text-gray-300 shadow-sm backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
+        <div className="flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[270px] lg:w-[280px] shrink-0 items-center justify-center gap-2 sm:gap-3 rounded-xl border border-gray-800 bg-[#0d1117] px-3.5 sm:px-4 font-mono text-xs sm:text-[13px] lg:text-[13.5px] text-gray-300 shadow-sm backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <span className="font-bold text-[var(--primary)] font-mono">&gt;_</span>
             <span className="text-gray-400 font-mono">$</span>
@@ -85,7 +93,7 @@ export function LandingHeroCopy({
           <button
             type="button"
             onClick={handleCopyCli}
-            className="flex shrink-0 items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1 text-[11px] font-medium text-gray-300 transition-all hover:bg-gray-700 hover:text-white cursor-pointer"
+            className="flex shrink-0 items-center gap-1.5 rounded-md bg-gray-800 px-2.5 py-1 text-[11px] font-medium text-gray-300 transition-all hover:bg-gray-700 hover:text-white cursor-pointer ml-2"
             aria-label="Copy CLI command to clipboard"
           >
             {copied ? (

@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { isV2ReadMode } from "@/lib/knowledge/v2-mode";
 import { getGeneratedView } from "@/lib/views/regenerate";
 import { buildMcpHandoffBundle } from "@/lib/views/generators/mcp-handoff";
+import { getCompiledContext } from "@/lib/context/read";
 
 type SectionRow = {
   section_type: string;
@@ -54,5 +55,6 @@ export async function resolveHandoffBundle(
     if (generated?.trim()) return generated;
   }
 
-  return buildMcpHandoffBundle(username, fallbackRows).text;
+  const compiled = await getCompiledContext(supabase, userId, "universal", fallbackRows);
+  return buildMcpHandoffBundle(username, fallbackRows, compiled).text;
 }

@@ -8,7 +8,6 @@ import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 import { ResponsiveDX } from 'responsive-dx';
 
-
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
@@ -56,7 +55,7 @@ export default function RootLayout({
         <PostHogProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </PostHogProvider>
-              <ResponsiveDX />
+        <ResponsiveDX />
       </body>
     </html>
   );

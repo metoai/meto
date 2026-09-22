@@ -21,7 +21,7 @@ const GEMINI_FALLBACK_MODELS = [
   "gemini-2.0-flash",
 ];
 
-const LLM_TIMEOUT_MS = 60_000;
+const LLM_TIMEOUT_MS = 25_000;
 const MAX_MODEL_ATTEMPTS = 2;
 
 const SECTION_KEY_SET = new Set([
@@ -105,7 +105,9 @@ export function isRetryableLlmError(error: unknown): boolean {
     message.includes("not found") ||
     message.includes("DEEPSEEK_API_KEY") ||
     message.includes("GEMINI_API_KEY") ||
-    message.includes("not supported for generateContent")
+    message.includes("not supported for generateContent") ||
+    message.includes("TimeoutError") ||
+    message.includes("timed out")
   );
 }
 

@@ -1,4 +1,4 @@
-import { compileLocally } from "@/lib/compile-local";
+import { getCompiledContext, type ContextSection } from "@/lib/context/read";
 import {
   getAiProfileJsonUrl,
   getPublicContextApiUrl,
@@ -13,14 +13,9 @@ export { getSiteUrl };
 const URL_REGEX = /https?:\/\/[^\s<>"{}|\\^`[\]]+/gi;
 
 type RawProfileRow = {
+  id: string;
   username: string | null;
   display_name: string | null;
-};
-
-export type RawPublicSection = {
-  section_type: string;
-  title: string;
-  content: string;
 };
 
 export type PublicProfileLink = {
@@ -73,9 +68,9 @@ export type AiProfileDocument = {
 };
 
 function sectionByType(
-  sections: RawPublicSection[],
+  sections: ContextSection[],
   type: string
-): RawPublicSection | undefined {
+): ContextSection | undefined {
   return sections.find((s) => s.section_type === type);
 }
 
@@ -90,7 +85,7 @@ function parseSkills(content: string): string[] {
     .filter((item) => item.length > 0 && item.length < 80);
 }
 
-function extractLinks(sections: RawPublicSection[]): PublicProfileLink[] {
+function extractLinks(sections: ContextSection[]): PublicProfileLink[] {
   const seen = new Set<string>();
   const links: PublicProfileLink[] = [];
 
@@ -132,11 +127,14 @@ function buildAiSummary(
   return parts.join(" ");
 }
 
-export function buildPublicProfile(
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export async function buildPublicProfile(
+  supabase: SupabaseClient,
   username: string,
   profile: RawProfileRow,
-  publicSections: RawPublicSection[]
-): PublicProfile {
+  publicSections: ContextSection[]
+): Promise<PublicProfile> {
   const name = profile.display_name?.trim() || profile.username?.trim() || username;
   const about = sectionByType(publicSections, "about");
   const work = sectionByType(publicSections, "work");
@@ -147,13 +145,15 @@ export function buildPublicProfile(
   const skills = skillsSection ? parseSkills(skillsSection.content) : [];
   const links = extractLinks(publicSections);
 
-  const sections = publicSections.map(({ section_type, title, content }) => ({
+  const sections = publicSections.map(({ section_type, title, content, updated_at, display_order }) => ({
     section_type,
     title,
     content,
+    updated_at,
+    display_order
   }));
   const compiled =
-    sections.length > 0 ? compileLocally("universal", sections) : "";
+    sections.length > 0 ? await getCompiledContext(supabase, profile.id, "universal", sections) : "";
   const aiSummary = buildAiSummary(name, bio, headline, skills);
 
   return {
@@ -271,12 +271,13 @@ export async function fetchPublicProfileByUsername(
 
   const { data: sections } = await supabase
     .from("context_sections")
-    .select("section_type, title, content")
+    .select("section_type, title, content, updated_at, display_order")
     .eq("user_id", profile.id)
     .eq("is_public", true)
     .order("display_order", { ascending: true });
 
-  return buildPublicProfile(
+  return await buildPublicProfile(
+    supabase,
     profile.username ?? normalized,
     profile,
     sections ?? []

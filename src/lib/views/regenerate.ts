@@ -97,8 +97,25 @@ export async function regenerateViews(
     };
   });
 
+  let sectionsSynced = false;
+  if (
+    isKnowledgeFlagEnabled("readEnabled") &&
+    Object.keys(sectionUpdates).length > 0
+  ) {
+    await mergeProfileSectionUpdates(supabase, userId, sectionUpdates);
+    sectionsSynced = true;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("context_version")
+    .eq("id", userId)
+    .single();
+  const contextVersion = profile?.context_version;
+
+  let universal = "";
   if (scopes.includes("compile") && sectionRows.length > 0) {
-    const universal = generateCompileFromSections("universal", sectionRows);
+    universal = generateCompileFromSections("universal", sectionRows);
     await upsertGeneratedView(
       supabase,
       userId,
@@ -109,19 +126,25 @@ export async function regenerateViews(
     );
     viewsUpdated += 1;
 
-    await supabase.from("compiled_profiles").upsert(
-      {
-        user_id: userId,
-        full_context: universal,
-        format: "universal",
-        last_compiled: new Date().toISOString(),
-      },
-      { onConflict: "user_id,format" }
-    );
+    if (contextVersion) {
+      await supabase.from("compiled_profiles").upsert(
+        {
+          user_id: userId,
+          full_context: universal,
+          format: "universal",
+          context_version: contextVersion,
+          last_compiled: new Date().toISOString(),
+        },
+        { onConflict: "user_id,format" }
+      );
+    }
   }
 
   if (scopes.includes("mcp_handoff") && sectionRows.length > 0) {
-    const handoff = buildMcpHandoffBundle(username ?? userId, sectionRows);
+    if (!universal) {
+      universal = generateCompileFromSections("universal", sectionRows);
+    }
+    const handoff = buildMcpHandoffBundle(username ?? userId, sectionRows, universal);
     await upsertGeneratedView(
       supabase,
       userId,
@@ -133,15 +156,7 @@ export async function regenerateViews(
     viewsUpdated += 1;
   }
 
-  let sectionsSynced = false;
-  if (
-    isKnowledgeFlagEnabled("readEnabled") &&
-    Object.keys(sectionUpdates).length > 0
-  ) {
-    await mergeProfileSectionUpdates(supabase, userId, sectionUpdates);
-    sectionsSynced = true;
-  }
-
+  // Removed from here, moved to earlier in the function
   return { viewsUpdated, sectionsSynced, scopes };
 }
 

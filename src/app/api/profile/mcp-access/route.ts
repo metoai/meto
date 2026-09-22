@@ -7,24 +7,21 @@ import {
 } from "@/lib/mcp-install";
 import { getSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
+import { generateMcpToken } from "@/lib/mcp-auth";
 
 type ProfileMcpRow = {
   id: string;
   username: string | null;
   mcp_access_token: string | null;
+  mcp_access_token_hash?: string | null;
   mcp_last_used_at: string | null;
   updated_at: string;
 };
 
-function generateMcpAccessToken(): string {
-  const random = crypto.randomUUID().replace(/-/g, "");
-  return `meto_mcp_${random}`;
-}
-
-function buildPayload(profile: ProfileMcpRow) {
+function buildPayload(profile: ProfileMcpRow, freshToken?: string) {
   const username = profile.username?.trim().toLowerCase() ?? "";
-  const token = profile.mcp_access_token?.trim() ?? "";
-  const hasToken = Boolean(token);
+  const token = freshToken ?? profile.mcp_access_token?.trim() ?? "";
+  const hasToken = Boolean(token || profile.mcp_access_token_hash);
   const endpointUrl = username ? buildMcpEndpointUrl(getSiteUrl(), username) : "";
   const install =
     hasToken && endpointUrl
@@ -34,7 +31,7 @@ function buildPayload(profile: ProfileMcpRow) {
   return {
     username,
     hasToken,
-    token: hasToken ? token : null,
+    token: hasToken ? (token || null) : null,
     endpointUrl: endpointUrl || null,
     cursorConfig:
       hasToken && endpointUrl ? buildCursorMcpJson(endpointUrl, token) : null,
@@ -61,7 +58,7 @@ async function loadOwnProfile() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
+    .select("id, username, mcp_access_token, mcp_access_token_hash, mcp_last_used_at, updated_at")
     .eq("id", user.id)
     .single<ProfileMcpRow>();
 
@@ -101,21 +98,22 @@ export async function POST() {
       );
     }
 
-    const token = generateMcpAccessToken();
+    const { rawToken, tokenHash } = generateMcpToken();
     const { data, error } = await supabase
       .from("profiles")
       .update({
-        mcp_access_token: token,
+        mcp_access_token: rawToken,
+        mcp_access_token_hash: tokenHash,
         mcp_last_used_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)
-      .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
+      .select("id, username, mcp_access_token, mcp_access_token_hash, mcp_last_used_at, updated_at")
       .single<ProfileMcpRow>();
 
     if (error) throw error;
 
-    return NextResponse.json(buildPayload(data));
+    return NextResponse.json(buildPayload(data, rawToken));
   } catch (error) {
     console.error("POST mcp-access error:", error);
     return NextResponse.json(
@@ -136,11 +134,12 @@ export async function DELETE() {
       .from("profiles")
       .update({
         mcp_access_token: null,
+        mcp_access_token_hash: null,
         mcp_last_used_at: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", user.id)
-      .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
+      .select("id, username, mcp_access_token, mcp_access_token_hash, mcp_last_used_at, updated_at")
       .single<ProfileMcpRow>();
 
     if (error) throw error;
