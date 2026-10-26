@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MetoMarkBadge } from "@/components/meto-mark";
 import { AI_BRAND_ICON_LANDING_CLASS } from "@/lib/ai-brand-icon";
 import { Plus } from "lucide-react";
 
@@ -11,57 +9,6 @@ type AiToolItem = {
   iconUrl?: string;
   isMore?: boolean;
 };
-
-const IDENTITY_PREVIEWS = [
-  "role: senior_engineer",
-  "stack: nextjs · ts · supabase",
-  "rules: type_safe, modular",
-  "context: developer_profile",
-  "memory: cross_assistant",
-  "mcp: unified_identity",
-  "prefs: concise, functional",
-] as const;
-
-function TechIdentityTyper() {
-  const [index, setIndex] = useState(0);
-  const [displayed, setDisplayed] = useState<string>(IDENTITY_PREVIEWS[0]);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    const current = IDENTITY_PREVIEWS[index];
-    let timer: NodeJS.Timeout;
-
-    if (!isDeleting && displayed.length < current.length) {
-      timer = setTimeout(() => {
-        setDisplayed(current.slice(0, displayed.length + 1));
-      }, 45);
-    } else if (!isDeleting && displayed.length === current.length) {
-      timer = setTimeout(() => {
-        setIsDeleting(true);
-      }, 1900);
-    } else if (isDeleting && displayed.length > 0) {
-      timer = setTimeout(() => {
-        setDisplayed(current.slice(0, displayed.length - 1));
-      }, 25);
-    } else if (isDeleting && displayed.length === 0) {
-      setIsDeleting(false);
-      setIndex((prev) => (prev + 1) % IDENTITY_PREVIEWS.length);
-    }
-
-    return () => clearTimeout(timer);
-  }, [displayed, isDeleting, index]);
-
-  return (
-    <div className="mt-3.5 flex items-center gap-1.5 rounded-full border border-black/[0.08] dark:border-white/10 bg-black/[0.03] dark:bg-white/[0.05] px-3.5 py-1 font-mono text-[11px] sm:text-[11.5px] text-[var(--text-secondary)] shadow-2xs backdrop-blur-md max-w-[270px] sm:max-w-[290px] overflow-hidden">
-      <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)] shrink-0 animate-pulse" />
-      <span className="text-gray-400 dark:text-gray-500 font-mono select-none text-[10px]">&gt;</span>
-      <span className="font-mono text-[var(--text)] font-medium tracking-tight truncate">
-        {displayed}
-      </span>
-      <span className="inline-block w-1 h-3 bg-[var(--primary)] shrink-0 -ml-0.5 animate-pulse" />
-    </div>
-  );
-}
 
 const AI_TOOLS: AiToolItem[] = [
   {
@@ -138,30 +85,39 @@ export function LandingHeroVisual() {
         </svg>
       </div>
 
-      {/* Atmospheric warm orange glow behind Meto card */}
+      {/* Atmospheric warm orange ambient glow behind Meto card */}
       <div
-        className="absolute top-10 left-1/2 -translate-x-1/2 w-[340px] h-[220px] rounded-full bg-gradient-to-b from-[var(--primary)]/12 to-transparent blur-3xl pointer-events-none"
+        className="absolute top-8 left-1/2 -translate-x-1/2 w-[360px] h-[200px] rounded-full bg-gradient-to-b from-[var(--primary)]/15 via-[var(--primary)]/5 to-transparent blur-3xl pointer-events-none"
         aria-hidden="true"
       />
 
-      {/* 1. Meto Identity Card: Premium Glassmorphism with large centered icon logo and tech typing identity text */}
-      <div className="relative z-10 flex h-[195px] w-[305px] sm:h-[205px] sm:w-[325px] flex-col items-center justify-center rounded-[24px] border border-white/80 dark:border-white/10 bg-white/45 dark:bg-white/[0.04] backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_48px_rgba(255,77,0,0.14)]">
-        <div className="flex h-16 w-16 sm:h-[74px] sm:w-[74px] items-center justify-center rounded-[18px] sm:rounded-[20px] bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_8px_24px_rgba(255,77,0,0.32)] transition-transform duration-200 hover:scale-105">
+      {/* 1. Meto Identity Card: Minimalist, tactile glassmorphism following Emil Kowalski & Linear design standards */}
+      <div className="relative z-10 flex h-[168px] w-[295px] sm:h-[178px] sm:w-[315px] flex-col items-center justify-center rounded-[24px] border border-white/80 dark:border-white/10 bg-white/50 dark:bg-white/[0.04] backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(255,77,0,0.16)]">
+        {/* Meto Core Brand Icon */}
+        <div className="flex h-15 w-15 sm:h-16 sm:w-16 items-center justify-center rounded-[18px] sm:rounded-[20px] bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_8px_24px_rgba(255,77,0,0.32)] transition-transform duration-200 ease-out hover:scale-105 active:scale-95">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/brand/logo-icon.svg"
             alt="Meto logo"
-            width={44}
-            height={44}
-            className="h-9 w-9 sm:h-10 sm:w-10 object-contain brightness-0 invert select-none"
+            width={40}
+            height={40}
+            className="h-8 w-8 sm:h-9 sm:w-9 object-contain brightness-0 invert select-none"
           />
         </div>
 
-        {/* Minimal Tech Typing Identity Badge */}
-        <TechIdentityTyper />
+        {/* Clean Live Context Status Pill (Linear / Apple style) */}
+        <div className="mt-3.5 flex items-center gap-2 rounded-full border border-black/[0.07] dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] px-3.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] shadow-2xs backdrop-blur-md">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 duration-1000" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+          </span>
+          <span className="text-[var(--text)] font-semibold tracking-tight">Active Context</span>
+          <span className="text-[var(--muted)]">·</span>
+          <span className="text-[var(--text-secondary)]">Live Sync</span>
+        </div>
       </div>
 
-      {/* 2. Connection System: 110px curved SVG Lines flowing to AI integrations */}
+      {/* 2. Connection System: GPU-accelerated SVG flow lines with normalized pathLength for perfectly uniform, smooth animation */}
       <div className="relative w-full max-w-[520px] h-[95px] sm:h-[110px] hidden sm:block pointer-events-none -mt-2">
         <svg
           viewBox="0 0 520 110"
@@ -170,6 +126,14 @@ export function LandingHeroVisual() {
           className="w-full h-full"
           aria-hidden="true"
         >
+          <defs>
+            <linearGradient id="beamGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="var(--primary)" stopOpacity="1" />
+              <stop offset="100%" stopColor="#ff7a3d" stopOpacity="0.4" />
+            </linearGradient>
+          </defs>
+
           {TARGET_X_COORDS.map((targetX, index) => {
             const pathD =
               targetX === 260
@@ -178,35 +142,36 @@ export function LandingHeroVisual() {
 
             return (
               <g key={targetX}>
-                {/* Thin neutral connection line */}
+                {/* Static neutral connection track */}
                 <path
                   d={pathD}
                   stroke="var(--border)"
                   strokeWidth="1.2"
                   strokeLinecap="round"
-                  className="opacity-75 dark:opacity-40"
+                  className="opacity-70 dark:opacity-30"
                 />
 
-                {/* Subtle active orange pulse */}
+                {/* Smooth flowing data beam — pathLength=100 ensures identical velocity on all curves */}
                 <path
                   d={pathD}
-                  stroke="var(--primary)"
-                  strokeWidth="1.2"
+                  pathLength={100}
+                  stroke="url(#beamGradient)"
+                  strokeWidth="1.75"
                   strokeLinecap="round"
-                  strokeDasharray="14 180"
-                  className="meto-flow-pulse"
+                  strokeDasharray="20 100"
+                  className="meto-smooth-beam"
                   style={{
-                    animationDelay: `${index * 0.2}s`,
+                    animationDelay: `${index * 0.22}s`,
                   }}
                 />
 
-                {/* Connection node dot */}
+                {/* Receiving connection node dot */}
                 <circle
                   cx={targetX}
                   cy="108"
-                  r="2"
+                  r="2.25"
                   fill="var(--primary)"
-                  className="opacity-70"
+                  className="opacity-80 transition-opacity duration-300"
                 />
               </g>
             );
@@ -219,7 +184,7 @@ export function LandingHeroVisual() {
         <div className="w-[1.5px] h-7 bg-gradient-to-b from-[var(--border-hover)] to-[var(--primary)]" />
       </div>
 
-      {/* 3. AI Integrations Row: 64x64px rounded cards with authentic icons */}
+      {/* 3. AI Integrations Row: Tactile micro-interactions (Emil Kowalski craftsmanship) */}
       <div className="relative w-full max-w-[520px] px-2 sm:px-0">
         <div className="grid grid-cols-3 sm:grid-cols-7 gap-y-4 gap-x-3 sm:gap-2 items-start justify-items-center">
           {AI_TOOLS.map((tool, index) => {
@@ -232,14 +197,14 @@ export function LandingHeroVisual() {
                 }`}
               >
                 <div
-                  className={`flex h-[56px] w-[56px] sm:h-[64px] sm:w-[64px] items-center justify-center rounded-[16px] transition-all duration-200 group-hover:-translate-y-1 ${
+                  className={`flex h-[56px] w-[56px] sm:h-[64px] sm:w-[64px] items-center justify-center rounded-[18px] transition-all duration-200 ease-out group-hover:-translate-y-1 active:scale-95 ${
                     tool.isMore
-                      ? "border border-dashed border-[var(--border-hover)] bg-[var(--surface)]/50 text-[var(--muted)] group-hover:border-[var(--primary)] group-hover:text-[var(--text)]"
-                      : "border border-[var(--border)] bg-[var(--card)] shadow-2xs group-hover:border-[var(--border-hover)] group-hover:shadow-sm"
+                      ? "border border-dashed border-[var(--border-hover)] bg-[var(--surface)]/50 text-[var(--muted)] group-hover:border-[var(--primary)] group-hover:text-[var(--text)] group-hover:shadow-sm"
+                      : "border border-[var(--border)] bg-[var(--card)] shadow-2xs group-hover:border-[var(--border-hover)] group-hover:shadow-md"
                   }`}
                 >
                   {tool.isMore ? (
-                    <Plus className="h-5 w-5 transition-transform duration-200 group-hover:rotate-90 text-[var(--text-secondary)]" aria-label="More AI tools supported" />
+                    <Plus className="h-5 w-5 transition-transform duration-200 ease-out group-hover:rotate-90 text-[var(--text-secondary)]" aria-label="More AI tools supported" />
                   ) : tool.iconUrl ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
@@ -248,12 +213,12 @@ export function LandingHeroVisual() {
                       width={26}
                       height={26}
                       loading="lazy"
-                      className={`h-[24px] w-[24px] sm:h-[26px] sm:w-[26px] object-contain transition-transform duration-200 group-hover:scale-108 ${AI_BRAND_ICON_LANDING_CLASS}`}
+                      className={`h-[24px] w-[24px] sm:h-[26px] sm:w-[26px] object-contain transition-transform duration-200 ease-out group-hover:scale-110 ${AI_BRAND_ICON_LANDING_CLASS}`}
                     />
                   ) : null}
                 </div>
                 <span
-                  className={`mt-2 text-[12px] sm:text-[13px] font-medium transition-colors ${
+                  className={`mt-2 text-[12px] sm:text-[13px] font-medium transition-colors duration-150 ${
                     tool.isMore
                       ? "text-[var(--muted)] group-hover:text-[var(--text)]"
                       : "text-[var(--text-secondary)] group-hover:text-[var(--text)]"
@@ -267,29 +232,31 @@ export function LandingHeroVisual() {
         </div>
       </div>
 
-      {/* Subtle pulse animation */}
+      {/* Physics-accurate smooth beam animation */}
       <style jsx>{`
-        @keyframes metoFlowAnimation {
+        @keyframes metoSmoothBeam {
           0% {
-            stroke-dashoffset: 194;
+            stroke-dashoffset: 120;
             opacity: 0;
           }
           15% {
-            opacity: 0.95;
+            opacity: 1;
           }
-          85% {
-            opacity: 0.95;
+          75% {
+            opacity: 1;
           }
           100% {
-            stroke-dashoffset: 0;
+            stroke-dashoffset: -20;
             opacity: 0;
           }
         }
-        .meto-flow-pulse {
-          animation: metoFlowAnimation 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+        .meto-smooth-beam {
+          animation: metoSmoothBeam 2.4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
         }
+
         @media (prefers-reduced-motion: reduce) {
-          .meto-flow-pulse {
+          .meto-smooth-beam {
             animation: none !important;
             opacity: 0 !important;
           }
