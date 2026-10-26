@@ -1,15 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { LandingSection } from "@/components/landing/landing-section";
+import { useTheme } from "@/components/theme-provider";
+import { Grainient } from "@/components/ui/grainient";
+
+const CTA_DARK_PALETTE = ["#141414", "#230e06", "#9a3412", "#ff4d00", "#ffaa70"];
+const CTA_LIGHT_PALETTE = ["#fdfaf7", "#fff7ed", "#ffedd5", "#fed7aa", "#ff6b2c"];
 
 type LandingFinalCtaSectionProps = {
   onStartChat?: () => void;
 };
 
 export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLight = mounted && resolvedTheme === "light";
+
   const primaryClassName =
     "inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--text)] px-6 py-3.5 text-[15px] font-medium text-[var(--bg)] shadow-[var(--shadow-sm)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.99] sm:w-auto";
 
@@ -24,10 +39,32 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
     <LandingSection id="get-started" compact>
       <div className="landing-stagger-item w-full">
         <div className="landing-cta-card relative overflow-hidden">
-          {/* Ambient Smooth Living Motion Gradient Orbs */}
+          {/* Ambient Living Grainient WebGL Brand Canvas */}
+          <div
+            className="absolute inset-0 pointer-events-none overflow-hidden !z-0 rounded-[inherit] opacity-75 dark:opacity-45"
+            aria-hidden="true"
+          >
+            {mounted && (
+              <Grainient
+                colors={isLight ? CTA_LIGHT_PALETTE : CTA_DARK_PALETTE}
+                lightMode={isLight}
+                angle={120}
+                flow={0.65}
+                speed={0.35}
+                silk={0.25}
+                grainAmount={0.06}
+                grainSize={1.1}
+                softness={0.9}
+                interactive={false}
+                className="w-full h-full"
+              />
+            )}
+          </div>
+
+          {/* Smooth Living Motion Gradient Orbs */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-            <div className="absolute -top-20 -right-20 w-[440px] h-[440px] rounded-full bg-gradient-to-br from-[var(--primary)]/20 via-[#ff7a3d]/10 to-transparent blur-3xl meto-motion-gradient-a" />
-            <div className="absolute -bottom-24 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[var(--primary)]/15 via-[#ff9c5a]/8 to-transparent blur-3xl meto-motion-gradient-b" />
+            <div className="absolute -top-20 -right-20 w-[440px] h-[440px] rounded-full bg-gradient-to-br from-[var(--primary)]/15 via-[#ff7a3d]/8 to-transparent blur-3xl meto-motion-gradient-a" />
+            <div className="absolute -bottom-24 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[var(--primary)]/12 via-[#ff9c5a]/6 to-transparent blur-3xl meto-motion-gradient-b" />
           </div>
 
           <div className="relative z-10 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch">
