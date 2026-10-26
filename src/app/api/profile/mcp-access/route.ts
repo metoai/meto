@@ -8,6 +8,10 @@ import {
 import { getSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { generateMcpToken } from "@/lib/mcp-auth";
+import { generateDefaultUsername } from "@/lib/username";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type ProfileMcpRow = {
   id: string;
@@ -56,7 +60,7 @@ async function loadOwnProfile() {
     return { supabase, user: null as null, profile: null as null };
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("profiles")
     .select("id, username, mcp_access_token, mcp_access_token_hash, mcp_last_used_at, updated_at")
     .eq("id", user.id)
@@ -64,17 +68,42 @@ async function loadOwnProfile() {
 
   if (error) throw error;
 
+  // Auto-generate and persist default username if not set yet
+  if (data && !data.username?.trim()) {
+    const rawName =
+      (user.user_metadata?.full_name as string | undefined) ||
+      (user.user_metadata?.name as string | undefined) ||
+      user.email?.split("@")[0] ||
+      "user";
+    const defaultUsername = generateDefaultUsername(rawName);
+
+    const { data: updated } = await supabase
+      .from("profiles")
+      .update({ username: defaultUsername, updated_at: new Date().toISOString() })
+      .eq("id", user.id)
+      .select("id, username, mcp_access_token, mcp_access_token_hash, mcp_last_used_at, updated_at")
+      .single<ProfileMcpRow>();
+
+    if (updated) {
+      data = updated;
+    }
+  }
+
   return { supabase, user, profile: data };
 }
 
 export async function GET() {
   try {
     const { user, profile } = await loadOwnProfile();
-    if (!user) {
+    if (!user || !profile) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json(buildPayload(profile));
+    return NextResponse.json(buildPayload(profile), {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+      },
+    });
   } catch (error) {
     console.error("GET mcp-access error:", error);
     return NextResponse.json(
@@ -87,7 +116,7 @@ export async function GET() {
 export async function POST() {
   try {
     const { supabase, user, profile } = await loadOwnProfile();
-    if (!user) {
+    if (!user || !profile) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -125,8 +154,8 @@ export async function POST() {
 
 export async function DELETE() {
   try {
-    const { supabase, user } = await loadOwnProfile();
-    if (!user) {
+    const { supabase, user, profile } = await loadOwnProfile();
+    if (!user || !profile) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

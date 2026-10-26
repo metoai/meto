@@ -29,7 +29,7 @@ export function formatMcpRelativeTime(iso: string | null): string {
   return `${days}d ago`;
 }
 
-export function useMcpAccess() {
+export function useMcpAccess(fallbackUsername?: string) {
   const [data, setData] = useState<McpAccessPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
@@ -39,10 +39,13 @@ export function useMcpAccess() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/profile/mcp-access");
+      const res = await fetch("/api/profile/mcp-access", { cache: "no-store" });
       const payload = (await res.json()) as McpAccessPayload & { error?: string };
       if (!res.ok) {
         throw new Error(payload.error ?? "Failed to load MCP settings.");
+      }
+      if (!payload.username && fallbackUsername?.trim()) {
+        payload.username = fallbackUsername.trim().toLowerCase();
       }
       setData(payload);
     } catch (err) {
@@ -50,7 +53,7 @@ export function useMcpAccess() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fallbackUsername]);
 
   useEffect(() => {
     void load();

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, ChevronDown, Copy } from "lucide-react";
 import { useState } from "react";
+import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { McpToolIcon } from "@/components/ui/mcp-tool-icon";
 import { useMcpAccess } from "@/hooks/use-mcp-access";
 import { MCP_TOOL_ICONS } from "@/lib/ai-platform-icons";
@@ -97,8 +98,12 @@ function IntegrationRow({
 }
 
 export function McpConnectPage() {
+  const portal = usePortalDataOptional();
+  const portalUsername = portal?.profile?.username?.trim() || "";
   const { data, loading, working, error, status, ensureToken, addToCursor, revokeToken } =
-    useMcpAccess();
+    useMcpAccess(portalUsername);
+
+  const effectiveUsername = data?.username || portalUsername;
   const [copied, setCopied] = useState<CopyKey | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [claudeStepsOpen, setClaudeStepsOpen] = useState(false);
@@ -117,7 +122,7 @@ export function McpConnectPage() {
     setClaudeStepsOpen(true);
   }
 
-  if (loading) {
+  if (loading && !effectiveUsername) {
     return (
       <div className="space-y-4">
         <div className="skeleton h-14 w-full max-w-md rounded-lg" />
@@ -145,7 +150,7 @@ export function McpConnectPage() {
         />
       </div>
 
-      {!data?.username ? (
+      {!effectiveUsername ? (
         <div className="rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-5 py-5">
           <p className="text-sm font-medium text-[var(--text)]">
             Claim a username to enable MCP
@@ -200,7 +205,7 @@ export function McpConnectPage() {
             </IntegrationRow>
           </div>
 
-          {data.hasToken ? (
+          {data?.hasToken ? (
             <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/60 px-4 py-4 sm:px-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -257,7 +262,7 @@ export function McpConnectPage() {
               <div>
                 <p className="text-[var(--muted)]">Endpoint</p>
                 <p className="mt-1 break-all font-mono-brand text-[var(--text)]">
-                  {data.endpointUrl ?? "—"}
+                  {data?.endpointUrl ?? "—"}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -273,8 +278,8 @@ export function McpConnectPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => void copyText(data.cursorConfig, "config")}
-                  disabled={!data.cursorConfig}
+                  onClick={() => void copyText(data?.cursorConfig ?? null, "config")}
+                  disabled={!data?.cursorConfig}
                   className="rounded-md border border-[var(--border)] px-2.5 py-1.5 hover:text-[var(--text)] disabled:opacity-40"
                 >
                   {copied === "config" ? "Copied JSON" : "Copy mcp.json"}
@@ -282,7 +287,7 @@ export function McpConnectPage() {
                 <button
                   type="button"
                   onClick={() => void revokeToken()}
-                  disabled={working || !data.hasToken}
+                  disabled={working || !data?.hasToken}
                   className="rounded-md border border-[var(--border)] px-2.5 py-1.5 hover:text-[var(--text)] disabled:opacity-40"
                 >
                   Revoke token

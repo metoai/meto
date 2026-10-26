@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
+import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { McpToolIcon } from "@/components/ui/mcp-tool-icon";
 import { useMcpAccess } from "@/hooks/use-mcp-access";
 import { MCP_TEST_PROMPT } from "@/lib/mcp-install";
@@ -18,8 +19,12 @@ export function McpQuickConnectCard({
   description?: string;
   compact?: boolean;
 }) {
+  const portal = usePortalDataOptional();
+  const portalUsername = portal?.profile?.username?.trim() || "";
   const { data, loading, working, error, addToCursor, ensureToken } =
-    useMcpAccess();
+    useMcpAccess(portalUsername);
+
+  const effectiveUsername = data?.username || portalUsername;
   const [copied, setCopied] = useState<CopyKey | null>(null);
 
   async function copyText(value: string | null, key: CopyKey) {
@@ -29,7 +34,7 @@ export function McpQuickConnectCard({
     setTimeout(() => setCopied((current) => (current === key ? null : current)), 1500);
   }
 
-  if (loading) {
+  if (loading && !effectiveUsername) {
     return <div className="skeleton h-32 rounded-xl" />;
   }
 
@@ -42,7 +47,7 @@ export function McpQuickConnectCard({
         <p className="mt-3 text-xs text-red-600">{error}</p>
       ) : null}
 
-      {!data?.username ? (
+      {!effectiveUsername ? (
         <Link
           href="/settings"
           className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-[var(--primary)] hover:underline"
@@ -74,7 +79,7 @@ export function McpQuickConnectCard({
             <McpToolIcon tool="claude" size={14} />
             {copied === "claude" ? "Copied" : "Claude config"}
           </button>
-          {data.hasToken ? (
+          {data?.hasToken ? (
             <button
               type="button"
               onClick={() => void copyText(MCP_TEST_PROMPT, "test")}

@@ -1,10 +1,10 @@
 import {
+  Cpu,
   FolderKanban,
   LayoutDashboard,
   LogOut,
   MessageSquare,
   Settings,
-  Sparkles,
   User,
   Wrench,
 } from "lucide-react";
@@ -35,14 +35,14 @@ export const PROFILE_NAV = {
 export const WORKSPACE_NAV = {
   id: "workspace" as const,
   label: "Workspace",
-  icon: Sparkles,
+  icon: Cpu,
   href: "/dashboard/workspace",
 };
 
 export const MCP_NAV = {
   id: "mcp" as const,
   label: "MCP",
-  icon: Sparkles,
+  icon: Cpu,
   href: "/dashboard/workspace",
 };
 
