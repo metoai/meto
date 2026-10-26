@@ -26,7 +26,7 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
   const isLight = mounted && resolvedTheme === "light";
 
   const primaryClassName =
-    "inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--text)] px-6 py-3.5 text-[15px] font-medium text-[var(--bg)] shadow-[var(--shadow-sm)] transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.99] sm:w-auto";
+    "inline-flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-6 py-3.5 text-[15px] font-medium shadow-[0_4px_16px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 active:scale-[0.99] sm:w-auto";
 
   const primaryContent = (
     <>
@@ -99,7 +99,7 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
 
                   <Link
                     href="/pricing"
-                    className="inline-flex w-full items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-3 text-[14px] font-medium text-[var(--text)] transition-[border-color,background-color] duration-150 hover:border-[var(--accent-border)] sm:w-auto"
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-black/[0.08] dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-md px-6 py-3 text-[14px] font-medium text-neutral-900 dark:text-white transition-all duration-150 hover:bg-white dark:hover:bg-white/10 hover:border-black/15 dark:hover:border-white/20 sm:w-auto"
                   >
                     View pricing
                   </Link>

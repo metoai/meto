@@ -46,7 +46,7 @@ export function LandingHeroNav({
             <Link
               key={link.label}
               href={link.href}
-              className="text-[14.5px] font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]"
+              className="text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white transition-colors duration-150"
             >
               {link.label}
             </Link>
@@ -89,7 +89,7 @@ export function LandingHeroNav({
           {isLoggedIn ? (
             <Link
               href={loggedInHref}
-              className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 sm:px-5 text-[14px] font-semibold text-white shadow-xs transition-all duration-150 hover:bg-[var(--primary-hover)] hover:-translate-y-0.5 active:translate-y-0"
+              className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
             >
               <span>{loggedInLabel}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -98,13 +98,13 @@ export function LandingHeroNav({
             <>
               <Link
                 href="/auth/login"
-                className="hidden text-[14.5px] font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)] sm:block px-1"
+                className="hidden text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white transition-colors duration-150 sm:block px-1"
               >
                 Log in
               </Link>
               <Link
                 href="/auth/signup"
-                className="hidden sm:inline-flex group h-10 sm:h-[46px] items-center gap-2 rounded-xl bg-[var(--primary)] px-4 sm:px-6 text-[14px] sm:text-[14.5px] font-semibold text-white shadow-xs transition-all duration-150 hover:bg-[var(--primary-hover)] hover:-translate-y-0.5 active:translate-y-0"
+                className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Get started free</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -141,7 +141,7 @@ export function LandingHeroNav({
                 <Link
                   href="/auth/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-[14.5px] font-semibold text-white shadow-xs transition-transform active:scale-98"
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-98"
                 >
                   <span>Get started free</span>
                   <ArrowRight className="h-4 w-4" />
@@ -151,7 +151,7 @@ export function LandingHeroNav({
               <Link
                 href={loggedInHref}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-[14.5px] font-semibold text-white shadow-xs transition-transform active:scale-98"
+                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-98"
               >
                 <span>{loggedInLabel}</span>
                 <ArrowRight className="h-4 w-4" />

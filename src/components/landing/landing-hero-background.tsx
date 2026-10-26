@@ -20,7 +20,7 @@ export function LandingHeroBackground() {
   return (
     <div className="landing-hero-bg pointer-events-none select-none overflow-hidden" aria-hidden>
       {/* 1. Grainient Living Brand Canvas with film grain & fluid wave motion */}
-      <div className="absolute inset-0 z-0 opacity-85 dark:opacity-80 meto-hero-mask">
+      <div className="absolute inset-0 z-0 opacity-80 dark:opacity-75 meto-hero-mask">
         <Grainient
           colors={isLight ? HERO_LIGHT_PALETTE : HERO_DARK_PALETTE}
           lightMode={false}

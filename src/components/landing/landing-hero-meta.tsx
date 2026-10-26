@@ -59,7 +59,7 @@ export type HeroMetaProps = {
 export function HeroMeta({ items = DEFAULT_HERO_META, className = "" }: HeroMetaProps) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-[13px] sm:text-[14px] text-[var(--text-secondary)] ${className}`}
+      className={`flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-[13px] sm:text-[14px] text-neutral-600 dark:text-neutral-400 ${className}`}
     >
       {items.map((item, index) => (
         <div key={item.id} className="inline-flex items-center gap-x-6">
@@ -70,7 +70,7 @@ export function HeroMeta({ items = DEFAULT_HERO_META, className = "" }: HeroMeta
           />
           {index < items.length - 1 ? (
             <span
-              className="hidden sm:inline-block h-1 w-1 rounded-full bg-[var(--border)]"
+              className="hidden sm:inline-block h-1 w-1 rounded-full bg-neutral-300 dark:bg-neutral-700"
               aria-hidden="true"
             />
           ) : null}
