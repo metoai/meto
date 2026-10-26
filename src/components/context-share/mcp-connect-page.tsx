@@ -79,8 +79,8 @@ function SnippetBox({
   copied: boolean;
 }) {
   return (
-    <div className="mt-2.5 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] text-xs">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--card)] px-3 py-1.5 text-[11px] text-[var(--muted)]">
+    <div className="mt-2.5 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg)] text-xs">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface)]/50 px-3 py-1.5 text-[11px] text-[var(--muted)]">
         <span className="font-mono-brand truncate">{title}</span>
         <button
           type="button"
@@ -95,7 +95,7 @@ function SnippetBox({
           ) : (
             <>
               <Copy className="h-3 w-3" />
-              Copy snippet
+              Copy
             </>
           )}
         </button>
@@ -109,6 +109,7 @@ function SnippetBox({
 
 function IntegrationRow({
   tool,
+  badge,
   action,
   actionLabel,
   working,
@@ -118,6 +119,7 @@ function IntegrationRow({
   children,
 }: {
   tool: McpToolId;
+  badge?: string;
   action: () => void;
   actionLabel: string;
   working?: boolean;
@@ -129,21 +131,32 @@ function IntegrationRow({
   const meta = MCP_TOOL_ICONS[tool];
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] transition-colors hover:border-[var(--border)]">
-      <div className="flex items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]">
-          <McpToolIcon tool={tool} size={22} />
+    <div className="group transition-colors hover:bg-[var(--surface)]/40">
+      <div className="flex items-center gap-3 px-3.5 py-3 sm:px-4 sm:py-3.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/80 transition-colors group-hover:border-[var(--border)]">
+          <McpToolIcon tool={tool} size={18} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--text)]">{meta.label}</p>
-          <p className="mt-0.5 text-xs text-[var(--muted)]">{meta.hint}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[13px] font-medium text-[var(--text)]">{meta.label}</p>
+            {badge ? (
+              <span className="hidden sm:inline-flex rounded border border-[var(--border-subtle)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted)]">
+                {badge}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-xs text-[var(--muted)] truncate">{meta.hint}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={action}
             disabled={working}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--text)] px-3 py-1.5 text-xs font-medium text-[var(--bg)] transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-3.5 sm:py-2"
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg text-xs font-medium transition-all ${
+              actionLabel === "Connect"
+                ? "bg-[var(--text)] text-[var(--bg)] px-3 py-1.5 hover:opacity-90 disabled:opacity-50 shadow-xs"
+                : "border border-[var(--border-subtle)] bg-[var(--surface)]/70 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)] px-2.5 py-1.5"
+            }`}
           >
             {done ? (
               <>
@@ -155,7 +168,11 @@ function IntegrationRow({
             ) : (
               <>
                 {actionLabel}
-                <ArrowRight className="h-3.5 w-3.5" />
+                {actionLabel === "Connect" ? (
+                  <ArrowRight className="h-3 w-3" />
+                ) : (
+                  <Copy className="h-3 w-3 text-[var(--muted)]" />
+                )}
               </>
             )}
           </button>
@@ -164,10 +181,10 @@ function IntegrationRow({
               type="button"
               onClick={onToggleExpand}
               aria-label={`Toggle setup steps for ${meta.label}`}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] text-[var(--muted)] transition-colors hover:border-[var(--border)] hover:text-[var(--text)]"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
             >
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
+                className={`h-3.5 w-3.5 transition-transform duration-150 ${
                   expanded ? "rotate-180" : ""
                 }`}
               />
@@ -176,7 +193,7 @@ function IntegrationRow({
         </div>
       </div>
       {expanded && children ? (
-        <div className="border-t border-[var(--border-subtle)] bg-[var(--surface)]/40 px-4 py-3.5 sm:px-5">
+        <div className="border-t border-[var(--border-subtle)]/70 bg-[var(--surface)]/25 px-4 py-3 sm:px-4 sm:py-3.5">
           {children}
         </div>
       ) : null}
@@ -187,6 +204,7 @@ function IntegrationRow({
 function ChatAiRow({
   format,
   label,
+  badge,
   hint,
   prompt,
   steps,
@@ -197,6 +215,7 @@ function ChatAiRow({
 }: {
   format: CompileFormat;
   label: string;
+  badge?: string;
   hint: string;
   prompt: string;
   steps: string[];
@@ -208,43 +227,50 @@ function ChatAiRow({
   const iconConfig = AI_PLATFORM_ICONS[format];
 
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] transition-colors hover:border-[var(--border)]">
-      <div className="flex items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]">
+    <div className="group transition-colors hover:bg-[var(--surface)]/40">
+      <div className="flex items-center gap-3 px-3.5 py-3 sm:px-4 sm:py-3.5">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/80 transition-colors group-hover:border-[var(--border)]">
           {iconConfig?.url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={iconConfig.url}
               alt=""
               aria-hidden
-              width={22}
-              height={22}
+              width={18}
+              height={18}
               className={`${AI_BRAND_ICON_CLASS} shrink-0 object-contain`}
               loading="lazy"
             />
           ) : (
-            <MessageSquare className="h-5 w-5 text-[var(--muted)]" />
+            <MessageSquare className="h-4 w-4 text-[var(--muted)]" />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-[var(--text)]">{label}</p>
-          <p className="mt-0.5 text-xs text-[var(--muted)]">{hint}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[13px] font-medium text-[var(--text)]">{label}</p>
+            {badge ? (
+              <span className="hidden sm:inline-flex rounded border border-[var(--border-subtle)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted)]">
+                {badge}
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-0.5 text-xs text-[var(--muted)] truncate">{hint}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={onCopy}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--text)] px-3 py-1.5 text-xs font-medium text-[var(--bg)] transition-opacity hover:opacity-90 sm:px-3.5 sm:py-2"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/70 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)] px-2.5 py-1.5 text-xs font-medium transition-colors"
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                Copied prompt
+                <Check className="h-3 w-3 text-emerald-500" />
+                Copied
               </>
             ) : (
               <>
                 Copy prompt
-                <ArrowRight className="h-3.5 w-3.5" />
+                <Copy className="h-3 w-3 text-[var(--muted)]" />
               </>
             )}
           </button>
@@ -252,10 +278,10 @@ function ChatAiRow({
             type="button"
             onClick={onToggleExpand}
             aria-label={`Toggle setup instructions for ${label}`}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] text-[var(--muted)] transition-colors hover:border-[var(--border)] hover:text-[var(--text)]"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
           >
             <ChevronDown
-              className={`h-4 w-4 transition-transform ${
+              className={`h-3.5 w-3.5 transition-transform duration-150 ${
                 expanded ? "rotate-180" : ""
               }`}
             />
@@ -263,10 +289,15 @@ function ChatAiRow({
         </div>
       </div>
       {expanded ? (
-        <div className="border-t border-[var(--border-subtle)] bg-[var(--surface)]/40 px-4 py-3.5 sm:px-5">
+        <div className="border-t border-[var(--border-subtle)]/70 bg-[var(--surface)]/25 px-4 py-3 sm:px-4 sm:py-3.5">
           <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
             {steps.map((step, idx) => (
-              <li key={idx}>{step}</li>
+              <li key={idx} className="flex items-start gap-2">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--muted)]">
+                  {idx + 1}
+                </span>
+                <span className="flex-1">{step}</span>
+              </li>
             ))}
           </ol>
           <SnippetBox
@@ -411,8 +442,8 @@ export function McpConnectPage() {
   }
 
   return (
-    <div className="w-full max-w-3xl">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="w-full max-w-4xl space-y-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-medium tracking-tight text-[var(--text)] md:text-2xl">
             Integrations & MCP
@@ -429,34 +460,34 @@ export function McpConnectPage() {
       </div>
 
       {/* Category Tabs */}
-      <div className="mb-6 flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2">
+      <div className="inline-flex items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/60 p-1">
         <button
           type="button"
           onClick={() => setActiveCategory("ide")}
-          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
             activeCategory === "ide"
-              ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-sm"
-              : "text-[var(--text-secondary)] hover:bg-[var(--surface)]/50 hover:text-[var(--text)]"
+              ? "bg-[var(--card)] text-[var(--text)] shadow-xs"
+              : "text-[var(--text-secondary)] hover:text-[var(--text)]"
           }`}
         >
-          <Cpu className="h-4 w-4" />
-          IDEs & Coding Agents (MCP)
-          <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--card)] px-1.5 py-0.2 text-[10px] text-[var(--muted)]">
+          <Cpu className="h-3.5 w-3.5" />
+          <span>IDEs & Coding Agents</span>
+          <span className="rounded-full bg-[var(--surface)] border border-[var(--border-subtle)]/70 px-1.5 py-0.2 text-[10px] text-[var(--muted)] font-mono">
             8
           </span>
         </button>
         <button
           type="button"
           onClick={() => setActiveCategory("chat")}
-          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors ${
+          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all ${
             activeCategory === "chat"
-              ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-sm"
-              : "text-[var(--text-secondary)] hover:bg-[var(--surface)]/50 hover:text-[var(--text)]"
+              ? "bg-[var(--card)] text-[var(--text)] shadow-xs"
+              : "text-[var(--text-secondary)] hover:text-[var(--text)]"
           }`}
         >
-          <MessageSquare className="h-4 w-4" />
-          Chat AIs & Web Models
-          <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--card)] px-1.5 py-0.2 text-[10px] text-[var(--muted)]">
+          <MessageSquare className="h-3.5 w-3.5" />
+          <span>Chat AIs & Web Models</span>
+          <span className="rounded-full bg-[var(--surface)] border border-[var(--border-subtle)]/70 px-1.5 py-0.2 text-[10px] text-[var(--muted)] font-mono">
             7
           </span>
         </button>
@@ -481,17 +512,18 @@ export function McpConnectPage() {
         </div>
       ) : activeCategory === "ide" ? (
         /* IDE & MCP Category */
-        <div className="space-y-6">
+        <div className="space-y-5">
           {error ? (
             <p className="rounded-lg border border-red-500/25 bg-red-500/5 px-3 py-2 text-sm text-red-600">
               {error}
             </p>
           ) : null}
 
-          <div className="space-y-3">
+          <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] divide-y divide-[var(--border-subtle)] shadow-xs">
             {/* Cursor */}
             <IntegrationRow
               tool="cursor"
+              badge="1-Click / SSE"
               action={() => void addToCursor()}
               actionLabel="Connect"
               working={working}
@@ -517,6 +549,7 @@ export function McpConnectPage() {
             {/* Windsurf */}
             <IntegrationRow
               tool="windsurf"
+              badge="Direct SSE"
               action={() => void handleCopyToolConfig("windsurf", windsurfSnippet)}
               actionLabel="Copy config"
               working={working}
@@ -547,6 +580,7 @@ export function McpConnectPage() {
             {/* Claude Desktop */}
             <IntegrationRow
               tool="claude"
+              badge="Stdio Proxy"
               action={() => void handleCopyToolConfig("claude", claudeSnippet)}
               actionLabel="Copy config"
               working={working}
@@ -572,6 +606,7 @@ export function McpConnectPage() {
             {/* VS Code */}
             <IntegrationRow
               tool="vscode"
+              badge="Extension / JSON"
               action={() => void handleCopyToolConfig("vscode", vscodeSnippet)}
               actionLabel="Copy config"
               working={working}
@@ -601,6 +636,7 @@ export function McpConnectPage() {
             {/* Antigravity */}
             <IntegrationRow
               tool="antigravity"
+              badge="Native MCP"
               action={() => void handleCopyToolConfig("antigravity", antigravitySnippet)}
               actionLabel="Copy config"
               working={working}
@@ -630,6 +666,7 @@ export function McpConnectPage() {
             {/* GitHub Copilot & Codex */}
             <IntegrationRow
               tool="copilot"
+              badge="Chat & Rules"
               action={() => void handleCopyToolConfig("copilot", copilotSnippet)}
               actionLabel="Copy config"
               working={working}
@@ -662,6 +699,7 @@ export function McpConnectPage() {
             {/* Zed */}
             <IntegrationRow
               tool="zed"
+              badge="Settings JSON"
               action={() => void handleCopyToolConfig("zed", zedSnippet)}
               actionLabel="Copy config"
               working={working}
@@ -691,6 +729,7 @@ export function McpConnectPage() {
             {/* CLI & Claude Code */}
             <IntegrationRow
               tool="terminal"
+              badge="CLI"
               action={() => void handleCopyToolConfig("terminal", terminalSnippet)}
               actionLabel="Copy command"
               working={working}
@@ -714,29 +753,33 @@ export function McpConnectPage() {
           </div>
 
           {data?.hasToken ? (
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/60 px-4 py-4 sm:px-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[var(--text-secondary)]">
-                    Verify in Agent chat
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--text)]">
-                    {MCP_TEST_PROMPT}
-                  </p>
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-3.5 sm:px-4 text-xs shadow-xs">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <p className="font-medium text-[var(--text)]">Verify in Agent Chat</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void copyText(MCP_TEST_PROMPT, "test")}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
-                >
-                  {copied === "test" ? (
-                    <Check className="h-3 w-3 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
-                  {copied === "test" ? "Copied" : "Copy"}
-                </button>
+                <p className="mt-1 font-mono text-[11px] text-[var(--text-secondary)] truncate">
+                  {MCP_TEST_PROMPT}
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={() => void copyText(MCP_TEST_PROMPT, "test")}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-2.5 py-1.5 text-xs font-medium text-[var(--text)] transition-colors hover:bg-[var(--surface)]/80"
+              >
+                {copied === "test" ? (
+                  <>
+                    <Check className="h-3 w-3 text-emerald-500" />
+                    Copied
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3 w-3" />
+                    Copy prompt
+                  </>
+                )}
+              </button>
             </div>
           ) : null}
 
@@ -806,18 +849,19 @@ export function McpConnectPage() {
         </div>
       ) : (
         /* Chat AIs & Web Models Category */
-        <div className="space-y-6">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/50 p-4 text-xs text-[var(--text-secondary)] leading-relaxed">
+        <div className="space-y-5">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/50 p-3.5 sm:p-4 text-xs text-[var(--text-secondary)] leading-relaxed">
             <p>
-              For web and chat interfaces without MCP, copy your compiled persona prompt and paste it into the AI's <strong>Custom Instructions</strong>, <strong>System Prompt</strong>, or <strong>Custom Gems/GPTs</strong>.
+              For web and chat interfaces without MCP, copy your compiled persona prompt and paste it into the AI&apos;s <strong className="text-[var(--text)]">Custom Instructions</strong>, <strong className="text-[var(--text)]">System Prompt</strong>, or <strong className="text-[var(--text)]">Custom Gems/GPTs</strong>.
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] divide-y divide-[var(--border-subtle)] shadow-xs">
             {/* ChatGPT */}
             <ChatAiRow
               format="chatgpt"
               label="ChatGPT"
+              badge="Custom Instructions"
               hint="Custom Instructions & GPTs"
               prompt={chatPrompts.chatgpt}
               steps={[
@@ -835,6 +879,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="claude"
               label="Claude.ai"
+              badge="Projects"
               hint="Projects & Custom Instructions"
               prompt={chatPrompts.claude}
               steps={[
@@ -852,6 +897,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="gemini"
               label="Google Gemini"
+              badge="Custom Gems"
               hint="Custom Gems & AI Studio"
               prompt={chatPrompts.gemini}
               steps={[
@@ -869,6 +915,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="deepseek"
               label="DeepSeek"
+              badge="System Prompt"
               hint="System Prompt & Reasoning Persona"
               prompt={chatPrompts.deepseek}
               steps={[
@@ -885,6 +932,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="grok"
               label="Grok"
+              badge="System Prompt"
               hint="Conversation Context & Preferences"
               prompt={chatPrompts.grok}
               steps={[
@@ -901,6 +949,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="kimi"
               label="Moonshot (Kimi)"
+              badge="Kimi+ Prompt"
               hint="Kimi+ Context & Prompt"
               prompt={chatPrompts.kimi}
               steps={[
@@ -917,6 +966,7 @@ export function McpConnectPage() {
             <ChatAiRow
               format="qwen"
               label="Qwen"
+              badge="System Prompt"
               hint="Tongyi Qianwen & Assistant Instructions"
               prompt={chatPrompts.qwen}
               steps={[

@@ -435,7 +435,7 @@ function createUserScopedMcpHandler(
        */
       server.registerResource(
         "meto-project",
-        new ResourceTemplate("profile://project/{slug}", {
+        new ResourceTemplate("profile://project/{+slug}", {
           list: async () => {
             const admin = createAdminClient();
             const { data: projects } = await admin
