@@ -39,7 +39,7 @@ export function MarketingNavBar({
             className="flex shrink-0 items-center gap-2 pl-0.5 sm:pl-1"
           >
             <MetoMarkBadge size="sm" />
-            <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">
+            <span className="text-[15px] font-semibold tracking-tight text-neutral-950 dark:text-white">
               meto
             </span>
           </Link>
@@ -52,7 +52,7 @@ export function MarketingNavBar({
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)]"
+                className="rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150"
               >
                 {link.label}
               </Link>
@@ -64,7 +64,7 @@ export function MarketingNavBar({
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)] md:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 md:hidden"
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -90,7 +90,7 @@ export function MarketingNavBar({
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="rounded-full bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] sm:px-4"
+                className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-colors duration-150 sm:px-4"
               >
                 Dashboard
               </Link>
@@ -98,13 +98,13 @@ export function MarketingNavBar({
               <>
                 <Link
                   href="/auth/login"
-                  className="hidden rounded-full px-3 py-1.5 text-[13px] font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)] sm:block sm:px-3.5"
+                  className="hidden rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 sm:block sm:px-3.5"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="rounded-full bg-[var(--primary)] px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors duration-150 hover:bg-[var(--primary-hover)] sm:px-4"
+                  className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-colors duration-150 sm:px-4"
                 >
                   Get started
                 </Link>
@@ -115,7 +115,7 @@ export function MarketingNavBar({
 
         {mobileMenuOpen ? (
           <nav
-            className="mt-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)]/80 p-2 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl md:hidden"
+            className="mt-2 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white/95 dark:bg-[#121212]/95 p-2 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl md:hidden"
             aria-label="Mobile"
           >
             {MARKETING_NAV_LINKS.map((link) => (
@@ -123,7 +123,7 @@ export function MarketingNavBar({
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)]"
+                className="block rounded-xl px-4 py-3 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150"
               >
                 {link.label}
               </Link>
@@ -132,7 +132,7 @@ export function MarketingNavBar({
               <Link
                 href="/auth/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)] sm:hidden"
+                className="block rounded-xl px-4 py-3 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150 sm:hidden"
               >
                 Log in
               </Link>

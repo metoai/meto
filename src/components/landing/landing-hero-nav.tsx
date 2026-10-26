@@ -28,14 +28,14 @@ export function LandingHeroNav({
 
   return (
     <header className="relative z-20 w-full">
-      <div className="flex h-[72px] items-center justify-between gap-4 border-b border-[var(--border-subtle)] px-2 sm:px-4">
+      <div className="flex h-[72px] items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/[0.08] px-2 sm:px-4">
         {/* Left: Meto Logo + Brand Mark */}
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2.5 text-[var(--text)] transition-opacity hover:opacity-85"
+          className="group flex shrink-0 items-center gap-2.5 text-neutral-900 dark:text-white transition-opacity hover:opacity-85"
         >
           <MetoMarkBadge size="sm" />
-          <span className="text-[16px] font-semibold tracking-[-0.02em] text-[var(--text)]">
+          <span className="text-[16px] font-semibold tracking-[-0.02em] text-neutral-950 dark:text-white">
             meto
           </span>
         </Link>
@@ -46,7 +46,7 @@ export function LandingHeroNav({
             <Link
               key={link.label}
               href={link.href}
-              className="text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white transition-colors duration-150"
+              className="text-[14px] font-medium text-neutral-700 hover:text-neutral-950 dark:text-[#d6ccc5] dark:hover:text-white transition-colors duration-150"
             >
               {link.label}
             </Link>
@@ -57,13 +57,13 @@ export function LandingHeroNav({
         <div className="flex items-center gap-3.5 sm:gap-4">
           <ThemeToggle compact />
 
-          <span className="hidden h-4 w-px bg-[var(--border-subtle)] sm:block" aria-hidden="true" />
+          <span className="hidden h-4 w-px bg-black/[0.08] dark:bg-white/[0.12] sm:block" aria-hidden="true" />
 
           {/* Mobile hamburger menu toggle */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)] md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/10 md:hidden transition-colors"
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -98,7 +98,7 @@ export function LandingHeroNav({
             <>
               <Link
                 href="/auth/login"
-                className="hidden text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white transition-colors duration-150 sm:block px-1"
+                className="hidden text-[14px] font-medium text-neutral-700 hover:text-neutral-950 dark:text-[#d6ccc5] dark:hover:text-white transition-colors duration-150 sm:block px-1"
               >
                 Log in
               </Link>
@@ -116,25 +116,25 @@ export function LandingHeroNav({
 
       {/* Responsive Minimal Mobile Dropdown Drawer */}
       {mobileMenuOpen ? (
-        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-[var(--border)] bg-[var(--card)]/95 dark:bg-[#121212]/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white/95 dark:bg-[#121212]/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
             {HERO_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors"
               >
                 {link.label}
               </Link>
             ))}
-            <div className="my-2 h-px bg-[var(--border-subtle)]" />
+            <div className="my-2 h-px bg-black/[0.06] dark:bg-white/[0.08]" />
             {!isLoggedIn ? (
               <div className="flex flex-col gap-2.5 pt-1">
                 <Link
                   href="/auth/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-xl px-3.5 py-2 text-[14.5px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
+                  className="rounded-xl px-3.5 py-2 text-[14.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors"
                 >
                   Log in
                 </Link>
