@@ -76,7 +76,7 @@ export function LandingSectionIntro({
         {title}
       </h2>
       {subtitle ? (
-        <p className="mt-4 text-[16px] leading-[1.6] text-[var(--muted)] sm:text-[17px]">
+        <p className="mt-4 text-[16px] leading-[1.6] text-[var(--text-secondary)] sm:text-[17px]">
           {subtitle}
         </p>
       ) : null}

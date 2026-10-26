@@ -113,14 +113,16 @@ export function LandingProblemFeed() {
             return (
               <div
                 key={`${item.id}-${i}`}
-                className="flex items-center gap-3.5 px-5 sm:px-6"
+                className={`flex items-center gap-3.5 px-5 sm:px-6 rounded-xl transition-all duration-300 ${
+                  isActive ? "bg-black/[0.025] dark:bg-white/[0.04] shadow-2xs" : ""
+                }`}
                 style={{
                   height: ITEM_HEIGHT,
-                  filter: isActive ? "none" : isNear ? "blur(1px)" : "blur(2px)",
-                  opacity: isActive ? 1 : isNear ? 0.55 : 0.28,
-                  transform: isActive ? "scale(1)" : "scale(0.98)",
+                  filter: isActive ? "none" : isNear ? "blur(0.5px)" : "blur(1px)",
+                  opacity: isActive ? 1 : isNear ? 0.72 : 0.46,
+                  transform: isActive ? "scale(1)" : "scale(0.985)",
                   transition: transition
-                    ? "filter 0.5s ease, opacity 0.5s ease, transform 0.5s ease"
+                    ? "filter 0.5s ease, opacity 0.5s ease, transform 0.5s ease, background-color 0.3s ease"
                     : "none",
                 }}
               >
@@ -128,7 +130,7 @@ export function LandingProblemFeed() {
                 <div className="min-w-0 flex-1">
                   <p
                     className={`text-[11px] font-medium transition-colors duration-500 ${
-                      isActive ? "text-[var(--text-secondary)]" : "text-[var(--muted)]"
+                      isActive ? "text-[var(--primary)] font-semibold" : "text-[var(--text-secondary)]"
                     }`}
                   >
                     {item.label}
@@ -136,8 +138,8 @@ export function LandingProblemFeed() {
                   <p
                     className={`mt-1 truncate text-[13px] leading-snug transition-colors duration-500 sm:text-[14px] ${
                       isActive
-                        ? "text-[var(--text)]"
-                        : "text-[var(--placeholder)]"
+                        ? "text-[var(--text)] font-medium"
+                        : "text-[var(--text-secondary)]/85"
                     }`}
                   >
                     {isActive ? (

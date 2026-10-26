@@ -48,7 +48,7 @@ function ChatPreview() {
   return (
     <div className="space-y-3">
       <div className="flex justify-end">
-        <p className="max-w-[88%] rounded-xl landing-panel-glass px-3.5 py-2 text-[13px] leading-snug text-[var(--text)]">
+        <p className="max-w-[88%] rounded-xl border border-black/[0.06] dark:border-white/[0.08] bg-white/85 dark:bg-white/[0.04] px-3.5 py-2 text-[13px] leading-snug text-[var(--text)] shadow-2xs">
           I&apos;m a product designer building Meto — a profile every AI can read.
         </p>
       </div>
@@ -71,7 +71,7 @@ function BuildPreview() {
       {PROFILE_SECTIONS.map((section, index) => (
         <div
           key={section.label}
-          className="flex items-start gap-3 rounded-xl landing-panel-glass px-3.5 py-2.5"
+          className="flex items-start gap-3 rounded-xl border border-black/[0.06] dark:border-white/[0.08] bg-white/85 dark:bg-white/[0.03] px-3.5 py-2.5 shadow-2xs"
           style={{ animationDelay: `${index * 0.08}s` }}
         >
           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--primary-light)] text-[10px] font-semibold text-[var(--primary)]">
@@ -92,7 +92,7 @@ function BuildPreview() {
 function SharePreview() {
   return (
     <div className="space-y-3.5">
-      <div className="flex items-center gap-3 rounded-xl landing-panel-glass px-3.5 py-2.5">
+      <div className="flex items-center gap-3 rounded-xl border border-black/[0.06] dark:border-white/[0.08] bg-white/85 dark:bg-white/[0.03] px-3.5 py-2.5 shadow-2xs">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-[var(--primary)]">
           <Link2 className="h-4 w-4" strokeWidth={1.75} />
         </div>
@@ -101,7 +101,7 @@ function SharePreview() {
             Your link
           </p>
           <p className="mt-0.5 truncate font-mono-brand text-[13px] text-[var(--text)]">
-            meto.app/u/alex
+            metoai.site/profile/alex
           </p>
         </div>
       </div>

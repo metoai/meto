@@ -96,10 +96,13 @@ export function LandingContextScorePanel() {
             </ul>
           </div>
 
-          <p className="mt-8 flex items-center gap-1.5 text-[13px] font-medium text-[var(--primary)] lg:mt-10">
-            Fix with AI
-            <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.75} />
-          </p>
+          <a
+            href="#chat"
+            className="group mt-8 inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--primary)] transition-colors hover:text-[var(--primary-hover)] lg:mt-10"
+          >
+            <span>Fix with AI</span>
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-150 group-hover:translate-x-1" strokeWidth={2} />
+          </a>
         </div>
       </div>
     </div>

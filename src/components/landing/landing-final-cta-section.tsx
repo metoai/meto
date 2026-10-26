@@ -34,14 +34,14 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
               <h2 className="max-w-[14ch] text-balance text-[2rem] font-medium leading-[1.06] tracking-[-0.035em] text-[var(--text)] sm:text-[2.25rem] lg:text-[2.5rem]">
                 The AI-native future has a memory.
               </h2>
-              <p className="mt-4 max-w-md text-[16px] leading-[1.65] text-[var(--muted)] sm:text-[17px]">
+              <p className="mt-4 max-w-md text-[16px] leading-[1.65] text-[var(--text-secondary)] sm:text-[17px]">
                 Claim your AI identity. Build your context layer once and bring your entire workflow to every model, instantly.
               </p>
             </div>
 
             <div className="flex flex-col justify-center border-t border-[var(--landing-panel-border)] p-8 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
               <div className="mx-auto w-full max-w-sm lg:mx-0">
-                <p className="mb-5 text-[14px] leading-relaxed text-[var(--muted)]">
+                <p className="mb-5 text-[14px] leading-relaxed text-[var(--text-secondary)]">
                   Free for individuals. Connect via MCP in 10 seconds.
                 </p>
 
