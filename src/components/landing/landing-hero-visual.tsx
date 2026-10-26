@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { AI_BRAND_ICON_LANDING_CLASS } from "@/lib/ai-brand-icon";
-import { Plus, Terminal } from "lucide-react";
+import { Plus } from "lucide-react";
 
 type AiToolItem = {
   id: string;
@@ -52,6 +53,7 @@ const AI_TOOLS: AiToolItem[] = [
 const TARGET_X_COORDS = [38, 112, 186, 260, 334, 408, 482];
 
 export function LandingHeroVisual() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   return (
     <div className="relative w-full max-w-[540px] xl:max-w-[580px] mx-auto flex flex-col items-center select-none pt-1 sm:pt-2 lg:pt-3">
       {/* Editorial Annotation: Above/left of Meto card with comfortable clearance */}
@@ -91,82 +93,64 @@ export function LandingHeroVisual() {
         aria-hidden="true"
       />
 
-      {/* 1. Universal Developer Identity Card (Linear x Stripe Craftsmanship) */}
-      <div className="relative z-10 w-full max-w-[430px] sm:max-w-[460px] rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white/75 dark:bg-[#111113]/85 backdrop-blur-2xl shadow-[0_12px_44px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.06)] overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_24px_64px_rgba(255,77,0,0.14)]">
-        {/* Card Header Bar (IDE / macOS Terminal Style) */}
-        <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.02]">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
-              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
-              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
-            </div>
-            <div className="ml-2 flex items-center gap-1.5 text-[11px] font-mono text-[var(--muted)]">
-              <Terminal className="h-3 w-3 text-[var(--muted)]" />
-              <span>identity.meto.json</span>
-            </div>
+      {/* 1. Universal Developer Identity Card — Minimal & Human */}
+      <div className="relative z-10 w-full max-w-[400px] sm:max-w-[420px] rounded-2xl border border-black/[0.06] dark:border-white/10 bg-white/80 dark:bg-[#111113]/90 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.05),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.06)] p-4 sm:p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(255,77,0,0.12)]">
+        {/* Subtle top bar: Window dots & quiet Synced indicator */}
+        <div className="flex items-center justify-between pb-3 border-b border-black/[0.05] dark:border-white/[0.06]">
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-black/15 dark:bg-white/20" />
+            <span className="h-2 w-2 rounded-full bg-black/15 dark:bg-white/20" />
+            <span className="h-2 w-2 rounded-full bg-black/15 dark:bg-white/20" />
           </div>
-
-          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+          <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>MCP Active</span>
+            <span>Synced</span>
           </div>
         </div>
 
-        {/* Card Body */}
-        <div className="p-4 sm:p-4.5 space-y-3.5">
-          {/* Identity & Role Header */}
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_4px_16px_rgba(255,77,0,0.28)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/brand/logo-icon.svg"
-                alt="Meto logo"
-                width={26}
-                height={26}
-                className="h-6 w-6 object-contain brightness-0 invert select-none"
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold text-sm text-[var(--text)] tracking-tight">
-                  Alex Mercer
-                </span>
-                <span className="text-xs font-mono text-[var(--muted)]">@alex</span>
-              </div>
-              <p className="text-xs text-[var(--text-secondary)] truncate">
-                Staff Software Engineer · <span className="text-[var(--primary)] font-mono text-[11px]">89 memories</span>
-              </p>
-            </div>
+        {/* Identity & Role */}
+        <div className="pt-3.5 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_4px_14px_rgba(255,77,0,0.25)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/logo-icon.svg"
+              alt="Meto logo"
+              width={24}
+              height={24}
+              className="h-5 w-5 object-contain brightness-0 invert select-none"
+            />
           </div>
-
-          {/* Stack & Context Pills */}
-          <div className="flex flex-wrap gap-1.5">
-            {["Next.js 15", "TypeScript", "Supabase", "Tailwind", "MCP Hub"].map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.04] px-2 py-0.5 text-[11px] font-mono font-medium text-[var(--text-secondary)]"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Active Rules Injected into Assistants */}
-          <div className="rounded-xl border border-black/[0.06] dark:border-white/[0.06] bg-black/[0.03] dark:bg-black/40 px-3 py-2 font-mono text-[11px] leading-relaxed">
-            <div className="flex items-center justify-between text-[10px] text-[var(--muted)] mb-1">
-              <span className="font-semibold uppercase tracking-wider">Injected Agent Rules</span>
-              <span className="text-[var(--primary)] font-mono">universal_sync</span>
-            </div>
-            <p className="text-[var(--text)] line-clamp-2">
-              <span className="text-[var(--primary)] font-bold mr-1">&gt;</span>
-              Strict TypeScript · Modular App Router · Concise, no apologies.
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-[14px] text-[var(--text)] tracking-tight leading-none">
+              Alex Mercer
+            </h3>
+            <p className="mt-1 text-[12px] text-[var(--text-secondary)]">
+              Senior Full-Stack Engineer
             </p>
           </div>
         </div>
+
+        {/* Stack Chips */}
+        <div className="pt-3 flex flex-wrap gap-1.5">
+          {["TypeScript", "Next.js", "Supabase", "Tailwind"].map((tag) => (
+            <span
+              key={tag}
+              className="rounded-md border border-black/[0.05] dark:border-white/[0.07] bg-black/[0.02] dark:bg-white/[0.03] px-2.5 py-0.5 text-[11px] text-[var(--text-secondary)]"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Human Instruction Note */}
+        <div className="mt-3.5 rounded-xl border border-black/[0.04] dark:border-white/[0.05] bg-black/[0.02] dark:bg-white/[0.02] px-3.5 py-2.5">
+          <p className="text-[12px] leading-relaxed text-[var(--text)] italic">
+            &ldquo;Prefer clean TypeScript and modular code. Skip conversational filler.&rdquo;
+          </p>
+        </div>
       </div>
 
-      {/* 2. Connection System: GPU-accelerated SVG flow lines with normalized pathLength for perfectly uniform, smooth animation */}
+      {/* 2. Connection System: Whisper-quiet, calm ambient pulse with interactive hover connections */}
       <div className="relative w-full max-w-[520px] h-[85px] sm:h-[95px] hidden sm:block pointer-events-none -mt-1.5">
         <svg
           viewBox="0 0 520 95"
@@ -176,14 +160,34 @@ export function LandingHeroVisual() {
           aria-hidden="true"
         >
           <defs>
+            {/* Feathered beam gradient: zero opacity at both ends for soft, organic flow */}
             <linearGradient id="beamGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.1" />
-              <stop offset="50%" stopColor="var(--primary)" stopOpacity="1" />
-              <stop offset="100%" stopColor="#ff7a3d" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="var(--primary)" stopOpacity="0" />
+              <stop offset="25%" stopColor="var(--primary)" stopOpacity="0.45" />
+              <stop offset="70%" stopColor="#ff7a3d" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#ff7a3d" stopOpacity="0" />
             </linearGradient>
+
+            {/* Subtle glow filter for the hovered connection */}
+            <filter id="hoverGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
           </defs>
 
+          {/* Central top origin port dot */}
+          <circle
+            cx="260"
+            cy="0"
+            r="2.5"
+            className="fill-[var(--primary)] opacity-40"
+          />
+
           {TARGET_X_COORDS.map((targetX, index) => {
+            const isHovered = hoveredIndex === index;
+            const hasAnyHover = hoveredIndex !== null;
+            const distanceFromCenter = Math.abs(index - 3);
+
             const pathD =
               targetX === 260
                 ? "M 260 0 L 260 95"
@@ -194,23 +198,32 @@ export function LandingHeroVisual() {
                 {/* Static neutral connection track */}
                 <path
                   d={pathD}
-                  stroke="var(--border)"
-                  strokeWidth="1.2"
+                  stroke={isHovered ? "var(--primary)" : "currentColor"}
+                  strokeWidth={isHovered ? "1.75" : "1"}
                   strokeLinecap="round"
-                  className="opacity-70 dark:opacity-30"
+                  filter={isHovered ? "url(#hoverGlow)" : undefined}
+                  className={`transition-all duration-200 ${
+                    isHovered
+                      ? "opacity-100"
+                      : hasAnyHover
+                      ? "text-black/5 dark:text-white/5 opacity-40"
+                      : "text-black/10 dark:text-white/10 opacity-70"
+                  }`}
                 />
 
-                {/* Smooth flowing data beam — pathLength=100 ensures identical velocity on all curves */}
+                {/* Calm, rhythmic ambient pulse (active only when not hovering an item) */}
                 <path
                   d={pathD}
                   pathLength={100}
                   stroke="url(#beamGradient)"
-                  strokeWidth="1.75"
+                  strokeWidth="1.25"
                   strokeLinecap="round"
-                  strokeDasharray="20 100"
-                  className="meto-smooth-beam"
+                  strokeDasharray="26 120"
+                  className={`meto-smooth-beam transition-opacity duration-300 ${
+                    hasAnyHover ? "opacity-0" : "opacity-100"
+                  }`}
                   style={{
-                    animationDelay: `${index * 0.2}s`,
+                    animationDelay: `${distanceFromCenter * 0.16}s`,
                   }}
                 />
 
@@ -218,9 +231,12 @@ export function LandingHeroVisual() {
                 <circle
                   cx={targetX}
                   cy="93"
-                  r="2.25"
-                  fill="var(--primary)"
-                  className="opacity-80 transition-opacity duration-300"
+                  r={isHovered ? "3" : "1.75"}
+                  className={`transition-all duration-200 ${
+                    isHovered
+                      ? "fill-[var(--primary)] opacity-100"
+                      : "fill-black/20 dark:fill-white/25"
+                  }`}
                 />
               </g>
             );
@@ -238,9 +254,12 @@ export function LandingHeroVisual() {
         <div className="grid grid-cols-3 sm:grid-cols-7 gap-y-4 gap-x-3 sm:gap-2 items-start justify-items-center">
           {AI_TOOLS.map((tool, index) => {
             const isLastMobile = index === 6; // '+ more' continuation node
+            const isHovered = hoveredIndex === index;
             return (
               <div
                 key={tool.id}
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
                 className={`group flex flex-col items-center text-center cursor-default ${
                   isLastMobile ? "col-span-3 sm:col-span-1" : ""
                 }`}
@@ -249,6 +268,8 @@ export function LandingHeroVisual() {
                   className={`flex h-[54px] w-[54px] sm:h-[62px] sm:w-[62px] items-center justify-center rounded-[18px] transition-all duration-200 ease-out group-hover:-translate-y-1 active:scale-95 ${
                     tool.isMore
                       ? "border border-dashed border-[var(--border-hover)] bg-[var(--surface)]/50 text-[var(--muted)] group-hover:border-[var(--primary)] group-hover:text-[var(--text)] group-hover:shadow-sm"
+                      : isHovered
+                      ? "border-[var(--primary)]/60 bg-[var(--card)] shadow-md -translate-y-0.5"
                       : "border border-[var(--border)] bg-[var(--card)] shadow-2xs group-hover:border-[var(--border-hover)] group-hover:shadow-md"
                   }`}
                 >
@@ -270,6 +291,8 @@ export function LandingHeroVisual() {
                   className={`mt-2 text-[11.5px] sm:text-[12.5px] font-medium transition-colors duration-150 ${
                     tool.isMore
                       ? "text-[var(--muted)] group-hover:text-[var(--text)]"
+                      : isHovered
+                      ? "text-[var(--text)] font-semibold"
                       : "text-[var(--text-secondary)] group-hover:text-[var(--text)]"
                   }`}
                 >
@@ -281,27 +304,31 @@ export function LandingHeroVisual() {
         </div>
       </div>
 
-      {/* Physics-accurate smooth beam animation */}
+      {/* Calm, product-grade animation with generous rest interval */}
       <style jsx>{`
-        @keyframes metoSmoothBeam {
+        @keyframes metoSmoothPulse {
           0% {
-            stroke-dashoffset: 120;
+            stroke-dashoffset: 140;
             opacity: 0;
           }
-          15% {
-            opacity: 1;
+          8% {
+            opacity: 0.65;
           }
-          75% {
-            opacity: 1;
+          32% {
+            opacity: 0.65;
+          }
+          44% {
+            stroke-dashoffset: -30;
+            opacity: 0;
           }
           100% {
-            stroke-dashoffset: -20;
+            stroke-dashoffset: -30;
             opacity: 0;
           }
         }
 
         .meto-smooth-beam {
-          animation: metoSmoothBeam 2.4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+          animation: metoSmoothPulse 5.4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
