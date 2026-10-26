@@ -105,7 +105,7 @@ export const MCP_TOOL_ICONS = {
   },
   windsurf: {
     label: "Windsurf",
-    url: `${ICONIFY}/simple-icons/codeium.svg`,
+    url: `${ICONIFY}/simple-icons/windsurf.svg`,
     hint: "Cascade MCP · paste config",
   },
   claude: {
@@ -120,7 +120,7 @@ export const MCP_TOOL_ICONS = {
   },
   antigravity: {
     label: "Antigravity",
-    url: `${ICONIFY}/lucide/orbit.svg`,
+    url: `${ICONIFY}/devicon-plain/antigravity.svg`,
     hint: "Google Antigravity · agy / MCP",
   },
   copilot: {

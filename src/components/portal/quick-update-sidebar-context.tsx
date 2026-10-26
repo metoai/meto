@@ -27,7 +27,7 @@ export function QuickUpdateSidebarProvider({
 
   const registerOnProfileUpdated = useCallback(
     (handler: (() => void) | null) => {
-      setOnProfileUpdated(handler);
+      setOnProfileUpdated(() => handler);
     },
     []
   );
