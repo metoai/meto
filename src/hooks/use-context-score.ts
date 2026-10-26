@@ -125,7 +125,6 @@ export function useContextScore(
     }
 
     if (
-      portalScore &&
       !forceCelebrate &&
       !autoAnalyze &&
       lastLoadedVersionRef.current === dataVersion
@@ -135,6 +134,7 @@ export function useContextScore(
     }
 
     loadInFlightRef.current = true;
+    lastLoadedVersionRef.current = dataVersion;
     setError(null);
 
     const isInitial = scoreRef.current === null;
@@ -151,7 +151,6 @@ export function useContextScore(
       if (getData.score) {
         setScore(getData.score);
         syncIssueCount(getData.score);
-        lastLoadedVersionRef.current = dataVersion;
 
         const shouldAnalyze =
           forceCelebrate ||

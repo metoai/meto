@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { COMPARISONS_LIST } from "@/lib/comparisons-data";
+import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
 import { fetchPublicProfileUsernames } from "@/lib/public-profile";
 import {
   getPublicContextApiUrl,
@@ -12,12 +14,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const now = new Date();
 
-  const staticEntries: MetadataRoute.Sitemap = [
+  const coreMarketingPages: MetadataRoute.Sitemap = [
     {
       url: base,
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 1,
+      priority: 1.0,
+    },
+    {
+      url: `${base}/pricing`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${base}/integrations`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${base}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
+      url: `${base}/auth/signup`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
     },
     {
       url: `${base}/auth/login`,
@@ -26,12 +52,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     {
-      url: `${base}/auth/signup`,
+      url: `${base}/terms`,
       lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: `${base}/privacy`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ];
+
+  const integrationPages: MetadataRoute.Sitemap = INTEGRATIONS_LIST.map(
+    (item) => ({
+      url: `${base}/integrations/${item.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    })
+  );
+
+  const comparisonPages: MetadataRoute.Sitemap = COMPARISONS_LIST.map(
+    (item) => ({
+      url: `${base}/compare/${item.slug}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    })
+  );
 
   const usernames = await fetchPublicProfileUsernames();
   const profileEntries: MetadataRoute.Sitemap = usernames.flatMap(
@@ -40,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: getPublicProfileUrl(username),
         lastModified: now,
         changeFrequency: "weekly" as const,
-        priority: 0.7,
+        priority: 0.75,
       },
       {
         url: getPublicContextApiUrl(username),
@@ -51,5 +101,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
   );
 
-  return [...staticEntries, ...profileEntries];
+  return [
+    ...coreMarketingPages,
+    ...integrationPages,
+    ...comparisonPages,
+    ...profileEntries,
+  ];
 }

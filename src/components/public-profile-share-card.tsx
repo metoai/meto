@@ -41,11 +41,20 @@ export function PublicProfileShareCard({
   username,
 }: PublicProfileShareCardProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedBadge, setCopiedBadge] = useState(false);
 
   async function handleCopy() {
     await navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  async function handleCopyBadge() {
+    const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://www.metoai.site";
+    const badgeMarkdown = `[![Meto AI Context](${siteUrl}/api/badge/${encodeURIComponent(username)})](${siteUrl}/profile/${encodeURIComponent(username)})`;
+    await navigator.clipboard.writeText(badgeMarkdown);
+    setCopiedBadge(true);
+    setTimeout(() => setCopiedBadge(false), 2000);
   }
 
   return (
@@ -63,14 +72,23 @@ export function PublicProfileShareCard({
         fetch this as your background context.
       </p>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
+      <div className="mt-5 flex flex-wrap items-center gap-2.5">
         <button
           type="button"
           onClick={handleCopy}
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-5 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-[var(--primary-hover)]"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--primary)] px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-[var(--primary-hover)]"
         >
           {copied ? <CheckIcon /> : <CopyIcon />}
           {copied ? "Copied" : "Copy for AI"}
+        </button>
+        <button
+          type="button"
+          onClick={handleCopyBadge}
+          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface)] px-3.5 py-2 text-[12px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--border-subtle)] hover:text-[var(--text)]"
+          title="Embed verified Meto badge in your GitHub README"
+        >
+          {copiedBadge ? <CheckIcon /> : <CopyIcon />}
+          {copiedBadge ? "Badge Copied" : "GitHub Badge"}
         </button>
         <span className="font-mono-brand text-[12px] text-[var(--muted)]">
           {publicProfileLabel(username)}
