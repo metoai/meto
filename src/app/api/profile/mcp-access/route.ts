@@ -66,7 +66,15 @@ async function loadOwnProfile() {
     .eq("id", user.id)
     .single<ProfileMcpRow>();
 
-  if (error) throw error;
+  if (error) {
+    const fallback = await supabase
+      .from("profiles")
+      .select("id, username, mcp_access_token, mcp_last_used_at, updated_at")
+      .eq("id", user.id)
+      .single<ProfileMcpRow>();
+    if (fallback.error) throw fallback.error;
+    data = fallback.data;
+  }
 
   // Auto-generate and persist default username if not set yet
   if (data && !data.username?.trim()) {
