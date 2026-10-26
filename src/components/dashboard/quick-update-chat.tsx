@@ -12,6 +12,7 @@ import { MetoTypingDots, isAssistantReplying } from "@/components/landing/landin
 import { MetoChatAvatar, MetoMark } from "@/components/meto-mark";
 import { MetoChatInput } from "@/components/meto-chat-input";
 import { UpdateChatAttachments } from "@/components/update-chat-attachments";
+import { KnowledgeExtractPreview } from "@/components/knowledge/knowledge-extract-preview";
 import type { QuickUpdateMessage } from "@/hooks/use-quick-update-chat";
 import { friendlySectionTitle } from "@/lib/section-display";
 import {
@@ -321,6 +322,12 @@ export function QuickUpdateChat({
         {chat.chatStarted || (gapFix && chat.gapFixBootstrapping) ? (
           <div className="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--bg)] px-4 pb-5 pt-3 md:px-6">
             <div className={CHAT_COLUMN}>
+              {chat.extractedMemories && chat.extractedMemories.length > 0 ? (
+                <div className="mb-3">
+                  <KnowledgeExtractPreview memories={chat.extractedMemories} />
+                </div>
+              ) : null}
+
               {chat.pendingUpdates ? (
                 <div className="mb-3 rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3">
                   <div className="flex items-start justify-between gap-3">

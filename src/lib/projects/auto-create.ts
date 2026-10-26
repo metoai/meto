@@ -35,10 +35,11 @@ const FACT_PROJECT_PATTERNS = [
   /\bfor\s+([A-Za-z][A-Za-z0-9]{1,30})\b/i,
 ];
 
-function cleanProjectName(raw: string): string {
+export function cleanProjectName(raw: string): string {
   return raw
+    .replace(/\*{1,2}|_{1,2}/g, "")
     .replace(/\s*\([^)]*\)\s*/g, " ")
-    .replace(/['"]/g, "")
+    .replace(/['"`]/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .replace(/[.,;:!?]+$/, "");

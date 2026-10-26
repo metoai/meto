@@ -105,16 +105,14 @@ export function ProfilePageClient() {
           }
         />
 
-        {!isDev ? (
-          <details className="landing-panel mt-6 p-4">
-            <summary className="cursor-pointer text-sm font-medium text-[var(--text)]">
-              View underlying memories (V2)
-            </summary>
-            <div className="mt-4">
-              <MemoryEditorPanel />
-            </div>
-          </details>
-        ) : null}
+        <details className="landing-panel mt-6 p-4">
+          <summary className="cursor-pointer text-sm font-medium text-[var(--text)]">
+            View underlying memories (V2)
+          </summary>
+          <div className="mt-4">
+            <MemoryEditorPanel />
+          </div>
+        </details>
       </PortalPageShell>
     </>
   );

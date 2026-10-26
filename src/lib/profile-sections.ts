@@ -93,8 +93,24 @@ export async function mergeProfileSectionUpdates(
           .select("id, section_type, title, display_order")
           .single();
 
-        if (error) throw error;
-        if (inserted) {
+        if (error) {
+          // In case of a race condition with a concurrent insert, update the concurrently created row
+          if (error.code === "23505" || error.message.includes("unique")) {
+            const { error: updateErr } = await supabase
+              .from("context_sections")
+              .update({
+                content: trimmed,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", userId)
+              .eq("section_type", "custom")
+              .ilike("title", title);
+
+            if (updateErr) throw updateErr;
+          } else {
+            throw error;
+          }
+        } else if (inserted) {
           rows.push(inserted);
           customCount += 1;
         }
@@ -131,8 +147,25 @@ export async function mergeProfileSectionUpdates(
         .select("id, section_type, title, display_order")
         .single();
 
-      if (error) throw error;
-      if (inserted) rows.push(inserted);
+      if (error) {
+        // In case of a race condition with a concurrent insert, update the concurrently created row
+        if (error.code === "23505" || error.message.includes("unique")) {
+          const { error: updateErr } = await supabase
+            .from("context_sections")
+            .update({
+              content: trimmed,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("user_id", userId)
+            .eq("section_type", sectionType);
+
+          if (updateErr) throw updateErr;
+        } else {
+          throw error;
+        }
+      } else if (inserted) {
+        rows.push(inserted);
+      }
     }
   }
 }
