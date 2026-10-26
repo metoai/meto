@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
   const next = new URL(request.url).searchParams.get("next");
   const [path, isAdmin] = await Promise.all([
-    resolvePostAuthRedirect(user.id, user.email, next),
+    resolvePostAuthRedirect(user.id, user.email, next, supabase),
     isAdminUser(user.id, user.email),
   ]);
 

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (user?.email) {
-    redirectPath = await resolvePostAuthRedirect(user.id, user.email, nextParam);
+    redirectPath = await resolvePostAuthRedirect(user.id, user.email, nextParam, supabase);
   }
 
   supabaseResponse.headers.set("Location", `${origin}${redirectPath}`);

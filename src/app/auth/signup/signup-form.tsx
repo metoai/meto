@@ -57,8 +57,8 @@ export function SignupForm() {
     if (pendingSave) {
       router.push("/");
     } else {
-      const path = await fetchPostAuthRedirect("/dashboard");
-      router.push(path);
+      const path = await fetchPostAuthRedirect("/onboarding");
+      router.replace(path);
     }
     clearPricingPlanChoice();
     router.refresh();
@@ -79,10 +79,10 @@ export function SignupForm() {
         data: { full_name: fullName },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(
           planChoice === "pro"
-            ? "/dashboard"
+            ? "/onboarding"
             : pendingSave
               ? "/"
-              : "/dashboard"
+              : "/onboarding"
         )}`,
       },
     });
@@ -106,10 +106,10 @@ export function SignupForm() {
       localStorage.getItem("meto_landing_pending_save") === "true";
     const next =
       planChoice === "pro"
-        ? "/dashboard"
+        ? "/onboarding"
         : pendingSave
           ? "/"
-          : "/dashboard";
+          : "/onboarding";
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
