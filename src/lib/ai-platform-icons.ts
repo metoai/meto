@@ -103,10 +103,30 @@ export const MCP_TOOL_ICONS = {
     url: `${ICONIFY}/simple-icons/cursor.svg`,
     hint: "Built-in MCP · one-click install",
   },
+  windsurf: {
+    label: "Windsurf",
+    url: `${ICONIFY}/simple-icons/codeium.svg`,
+    hint: "Cascade MCP · paste config",
+  },
   claude: {
     label: "Claude Desktop",
     url: AI_PLATFORM_ICONS.claude.url,
     hint: "Paste config · restart app",
+  },
+  vscode: {
+    label: "VS Code",
+    url: `${ICONIFY}/simple-icons/visualstudiocode.svg`,
+    hint: "Cline / Continue / Roo Code",
+  },
+  zed: {
+    label: "Zed",
+    url: `${ICONIFY}/simple-icons/zedindustries.svg`,
+    hint: "Context servers · paste config",
+  },
+  terminal: {
+    label: "Claude Code / CLI",
+    url: `${ICONIFY}/lucide/terminal.svg`,
+    hint: "Terminal agent · one-line command",
   },
 } as const;
 

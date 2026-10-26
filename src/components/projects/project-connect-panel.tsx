@@ -10,8 +10,11 @@ import { MCP_TOOL_ICONS } from "@/lib/ai-platform-icons";
 
 const AI_TOOLS = [
   { id: "cursor" as const, mcp: true },
+  { id: "windsurf" as const, mcp: true },
   { id: "claude" as const, mcp: true },
-  { id: "chatgpt", label: "Codex / VS Code", mcp: false },
+  { id: "vscode" as const, mcp: true },
+  { id: "zed" as const, mcp: true },
+  { id: "chatgpt", label: "ChatGPT / Web", mcp: false },
   { id: "gemini", label: "Gemini CLI", mcp: false },
 ];
 

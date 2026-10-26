@@ -13,7 +13,7 @@ type CopyKey = "claude" | "test";
 /** Compact MCP connect — settings panel & personal workspace advanced */
 export function McpQuickConnectCard({
   title = "MCP",
-  description = "Connect Cursor or Claude to your live profile.",
+  description = "Connect Cursor, Windsurf, Claude, VS Code, or Zed to your live profile.",
 }: {
   title?: string;
   description?: string;
@@ -91,6 +91,12 @@ export function McpQuickConnectCard({
               Test prompt
             </button>
           ) : null}
+          <Link
+            href="/dashboard/workspace"
+            className="inline-flex items-center gap-1 rounded-lg border border-[var(--border-subtle)] px-2.5 py-2 text-xs text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+          >
+            All editors →
+          </Link>
         </div>
       )}
     </div>

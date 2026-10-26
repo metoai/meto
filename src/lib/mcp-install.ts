@@ -108,5 +108,52 @@ export function buildCursorInstallLinks(
   };
 }
 
+export function buildWindsurfMcpJson(
+  endpointUrl: string,
+  token: string
+): string {
+  return buildClaudeDesktopMcpJson(endpointUrl, token);
+}
+
+export function buildVSCodeMcpJson(
+  endpointUrl: string,
+  token: string
+): string {
+  return buildClaudeDesktopMcpJson(endpointUrl, token);
+}
+
+export function buildZedMcpJson(
+  endpointUrl: string,
+  token: string
+): string {
+  return JSON.stringify(
+    {
+      context_servers: {
+        [MCP_SERVER_NAME]: {
+          command: {
+            path: "npx",
+            args: [
+              "-y",
+              "mcp-remote",
+              endpointUrl,
+              "--header",
+              `Authorization: Bearer ${token}`,
+            ],
+          },
+        },
+      },
+    },
+    null,
+    2
+  );
+}
+
+export function buildClaudeCodeCliCommand(
+  endpointUrl: string,
+  token: string
+): string {
+  return `claude mcp add ${MCP_SERVER_NAME} -- npx -y mcp-remote ${endpointUrl} --header "Authorization: Bearer ${token}"`;
+}
+
 export const MCP_TEST_PROMPT =
   "Use my Meto MCP profile — summarize who I am, what I'm building, and my tech stack.";
