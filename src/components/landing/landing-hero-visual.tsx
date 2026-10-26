@@ -92,28 +92,17 @@ export function LandingHeroVisual() {
       />
 
       {/* 1. Meto Identity Card: Minimalist, tactile glassmorphism following Emil Kowalski & Linear design standards */}
-      <div className="relative z-10 flex h-[168px] w-[295px] sm:h-[178px] sm:w-[315px] flex-col items-center justify-center rounded-[24px] border border-white/80 dark:border-white/10 bg-white/50 dark:bg-white/[0.04] backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(255,77,0,0.16)]">
+      <div className="relative z-10 flex h-[140px] w-[270px] sm:h-[150px] sm:w-[290px] flex-col items-center justify-center rounded-[24px] border border-white/80 dark:border-white/10 bg-white/50 dark:bg-white/[0.04] backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(255,77,0,0.16)]">
         {/* Meto Core Brand Icon */}
-        <div className="flex h-15 w-15 sm:h-16 sm:w-16 items-center justify-center rounded-[18px] sm:rounded-[20px] bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_8px_24px_rgba(255,77,0,0.32)] transition-transform duration-200 ease-out hover:scale-105 active:scale-95">
+        <div className="flex h-16 w-16 sm:h-[72px] sm:w-[72px] items-center justify-center rounded-[20px] sm:rounded-[22px] bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_8px_24px_rgba(255,77,0,0.32)] transition-transform duration-200 ease-out hover:scale-105 active:scale-95">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/brand/logo-icon.svg"
             alt="Meto logo"
-            width={40}
-            height={40}
-            className="h-8 w-8 sm:h-9 sm:w-9 object-contain brightness-0 invert select-none"
+            width={44}
+            height={44}
+            className="h-9 w-9 sm:h-10 sm:w-10 object-contain brightness-0 invert select-none"
           />
-        </div>
-
-        {/* Clean Live Context Status Pill (Linear / Apple style) */}
-        <div className="mt-3.5 flex items-center gap-2 rounded-full border border-black/[0.07] dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.04] px-3.5 py-1 text-[11.5px] font-medium text-[var(--text-secondary)] shadow-2xs backdrop-blur-md">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75 duration-1000" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-[var(--text)] font-semibold tracking-tight">Active Context</span>
-          <span className="text-[var(--muted)]">·</span>
-          <span className="text-[var(--text-secondary)]">Live Sync</span>
         </div>
       </div>
 
