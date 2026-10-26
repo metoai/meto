@@ -36,36 +36,43 @@ export function LandingHeroCopy({
 
   return (
     <div className="flex flex-col items-center text-center lg:items-start lg:text-left w-full">
-      {/* 1. Hero Label: YOUR AI IDENTITY pill (28–32px spacing to headline) */}
-      <div className="landing-animate-in mb-7 inline-flex items-center gap-2.5 rounded-full bg-[var(--text)]/[0.03] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-[var(--text)]/70 ring-1 ring-inset ring-[var(--text)]/[0.08] backdrop-blur-sm transition-all hover:bg-[var(--text)]/[0.05]">
+      {/* 1. Hero Label: YOUR AI IDENTITY pill (blended with warm ambient glow) */}
+      <div className="landing-animate-in mb-7 inline-flex items-center gap-2.5 rounded-full bg-orange-500/[0.08] dark:bg-orange-500/[0.12] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.15em] uppercase text-orange-600 dark:text-orange-200 border border-orange-500/20 dark:border-orange-500/30 backdrop-blur-md transition-all hover:bg-orange-500/[0.12] dark:hover:bg-orange-500/[0.18]">
         <Fingerprint className="h-3.5 w-3.5 text-[var(--primary)]" />
         <span>YOUR AI IDENTITY</span>
       </div>
 
+      {/* 2. Headline with ambient light blending */}
       <h1 className="landing-animate-in w-full font-bold leading-[0.95] tracking-[-0.04em] text-[52px] sm:text-[64px] lg:text-[78px] xl:text-[84px]">
         {/* Mobile: 3 lines */}
         <div className="flex flex-col lg:hidden">
-          <span className="block text-[var(--text)] whitespace-nowrap">Every AI</span>
-          <span className="block text-[var(--text)] whitespace-nowrap">should already</span>
-          <span className="block text-[var(--primary)] whitespace-nowrap">know you.</span>
+          <span className="block whitespace-nowrap text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-white dark:via-white dark:to-orange-100/80">
+            Every AI
+          </span>
+          <span className="block whitespace-nowrap text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-white dark:via-white dark:to-orange-100/80">
+            should already
+          </span>
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[var(--primary)] via-[#ff6524] to-[#ffa366]">
+            know you.
+          </span>
         </div>
         {/* Desktop: 2 lines */}
         <div className="hidden lg:block">
-          <span className="block text-[var(--text)] whitespace-nowrap">
+          <span className="block whitespace-nowrap text-neutral-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-b dark:from-white dark:via-white dark:to-orange-100/80">
             Every AI should
           </span>
-          <span className="block text-[var(--primary)] whitespace-nowrap">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[var(--primary)] via-[#ff6524] to-[#ffa366]">
             already know you.
           </span>
         </div>
       </h1>
 
-      {/* 3. Short Supporting Description (H2 removed, concise description preserved) */}
+      {/* 3. Supporting Description (warm ambient tone) */}
       <div
         className="landing-animate-in mt-6 max-w-[540px]"
         style={{ animationDelay: "0.04s" }}
       >
-        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-[var(--text-secondary)] font-normal text-balance">
+        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-stone-700 dark:text-stone-300/90 font-normal text-balance">
           One identity profile for persistent memory and context across all your AI assistants.
         </p>
       </div>

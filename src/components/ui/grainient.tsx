@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, type CSSProperties, type HTMLAttributes } from 'react';
+import React, { useEffect, useRef, useState, type CSSProperties, type HTMLAttributes } from 'react';
 import './grainient.css';
 
 const MAX_COLORS = 8;
@@ -218,6 +218,23 @@ const toLab = ([r, g, b]: [number, number, number]): [number, number, number] =>
   ];
 };
 
+const parseColor = (value: string): [number, number, number] => {
+  const hex = value.trim().replace(/^#/, '');
+  if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+    const r = parseInt(hex[0] + hex[0], 16) / 255;
+    const g = parseInt(hex[1] + hex[1], 16) / 255;
+    const b = parseInt(hex[2] + hex[2], 16) / 255;
+    return [r, g, b];
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+    const r = parseInt(hex.slice(0, 2), 16) / 255;
+    const g = parseInt(hex.slice(2, 4), 16) / 255;
+    const b = parseInt(hex.slice(4, 6), 16) / 255;
+    return [r, g, b];
+  }
+  return [0, 0, 0];
+};
+
 const compile = (gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null => {
   const shader = gl.createShader(type);
   if (!shader) return null;
@@ -252,8 +269,11 @@ const link = (gl: WebGL2RenderingContext, fragmentSource: string): ProgramInfo |
   for (let i = 0; i < count; i++) {
     const info = gl.getActiveUniform(program, i);
     if (!info) continue;
-    const name = info.name.replace(/\[0\]$/, '');
-    uniforms[name] = gl.getUniformLocation(program, name);
+    const rawName = info.name;
+    const baseName = rawName.replace(/\[0\]$/, '');
+    const loc = gl.getUniformLocation(program, rawName) ?? gl.getUniformLocation(program, baseName);
+    uniforms[baseName] = loc;
+    uniforms[rawName] = loc;
   }
   return { program, uniforms };
 };
@@ -313,6 +333,8 @@ export const Grainient: React.FC<GrainientProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wakeRef = useRef<(() => void) | null>(null);
+  const [webglSupported, setWebglSupported] = useState(true);
+
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   const settings = {
     colors: palette.length > 1 ? palette : [palette[0], palette[0]],
@@ -345,18 +367,30 @@ export const Grainient: React.FC<GrainientProps> = ({
     const canvas = canvasRef.current;
     if (!container || !canvas) return undefined;
 
-    const gl = canvas.getContext('webgl2', {
-      alpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false
-    }) as WebGL2RenderingContext | null;
+    let gl: WebGL2RenderingContext | null = null;
+    try {
+      gl = canvas.getContext('webgl2', {
+        alpha: false,
+        antialias: false,
+        depth: false,
+        stencil: false
+      }) as WebGL2RenderingContext | null;
+    } catch {
+      gl = null;
+    }
 
-    if (!gl) return undefined;
+    if (!gl) {
+      setWebglSupported(false);
+      return undefined;
+    }
 
     const field = link(gl, FIELD);
     const composite = link(gl, COMPOSITE);
-    if (!field || !composite) return undefined;
+    if (!field || !composite) {
+      setWebglSupported(false);
+      return undefined;
+    }
+
     const fu = field.uniforms;
     const cu = composite.uniforms;
     const vao = gl.createVertexArray();
@@ -369,23 +403,12 @@ export const Grainient: React.FC<GrainientProps> = ({
     const buffer = gl.createFramebuffer();
     const fieldSize = { width: 0, height: 0 };
 
-    const probe = typeof document !== 'undefined'
-      ? document.createElement('canvas').getContext('2d', { willReadFrequently: true })
-      : null;
     const colorCache = new Map<string, [number, number, number]>();
     const parse = (value: string): [number, number, number] => {
       const key = String(value);
       const cached = colorCache.get(key);
       if (cached) return cached;
-      let rgb: [number, number, number] = [0, 0, 0];
-      if (probe) {
-        probe.clearRect(0, 0, 1, 1);
-        probe.fillStyle = '#000000';
-        probe.fillStyle = key;
-        probe.fillRect(0, 0, 1, 1);
-        const [r, g, b] = probe.getImageData(0, 0, 1, 1).data;
-        rgb = [r / 255, g / 255, b / 255];
-      }
+      const rgb = parseColor(key);
       colorCache.set(key, rgb);
       return rgb;
     };
@@ -659,14 +682,31 @@ export const Grainient: React.FC<GrainientProps> = ({
     wakeRef.current?.();
   });
 
+  // Pure CSS / SVG fallback when WebGL2 context is unavailable
+  const fallbackGradient = {
+    background: settings.colors.length >= 2
+      ? `linear-gradient(${settings.angle}deg, ${settings.colors.join(', ')})`
+      : undefined
+  };
+
   return (
     <div
       ref={containerRef}
       className={`grainient-container${className ? ` ${className}` : ''}`}
-      style={style}
+      style={{ ...fallbackGradient, ...style }}
       {...rest}
     >
-      <canvas ref={canvasRef} className="grainient-canvas" aria-hidden="true" />
+      {webglSupported ? (
+        <canvas ref={canvasRef} className="grainient-canvas" aria-hidden="true" />
+      ) : (
+        <div
+          className="grainient-canvas pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='${settings.grainAmount}'/%3E%3C/svg%3E")`
+          }}
+          aria-hidden="true"
+        />
+      )}
     </div>
   );
 };

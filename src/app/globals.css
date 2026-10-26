@@ -912,4 +912,9 @@ body {
   }
 }
 
+.meto-hero-mask {
+  mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 100%);
+}
+
 

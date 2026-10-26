@@ -58,7 +58,7 @@ export function LandingHeroVisual() {
     <div className="relative w-full max-w-[540px] xl:max-w-[580px] mx-auto flex flex-col items-center select-none pt-1 sm:pt-2 lg:pt-3">
       {/* Editorial Annotation: Above/left of Meto card with comfortable clearance */}
       <div className="hidden lg:flex absolute -top-4 left-2 xl:-left-4 items-end gap-2 pointer-events-none z-20">
-        <span className="font-serif italic text-[13px] leading-tight text-[var(--muted)] tracking-wide">
+        <span className="font-serif italic text-[13px] leading-tight text-amber-800/90 dark:text-amber-200/90 tracking-wide">
           Your identity<br />lives here
         </span>
         <svg
@@ -66,7 +66,7 @@ export function LandingHeroVisual() {
           height="26"
           viewBox="0 0 30 26"
           fill="none"
-          className="text-[var(--primary)] opacity-80"
+          className="text-[var(--primary)] dark:text-orange-300 opacity-90"
           aria-hidden="true"
         >
           <path

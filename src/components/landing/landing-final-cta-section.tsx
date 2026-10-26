@@ -8,8 +8,8 @@ import { LandingSection } from "@/components/landing/landing-section";
 import { useTheme } from "@/components/theme-provider";
 import { Grainient } from "@/components/ui/grainient";
 
-const CTA_DARK_PALETTE = ["#141414", "#230e06", "#9a3412", "#ff4d00", "#ffaa70"];
-const CTA_LIGHT_PALETTE = ["#fdfaf7", "#fff7ed", "#ffedd5", "#fed7aa", "#ff6b2c"];
+const CTA_DARK_PALETTE = ["#150e18", "#2d0e06", "#9a3412", "#ff4d00", "#ffaa70"];
+const CTA_LIGHT_PALETTE = ["#ffffff", "#fff5eb", "#fed7aa", "#ff9e66", "#ff5500"];
 
 type LandingFinalCtaSectionProps = {
   onStartChat?: () => void;
@@ -39,26 +39,24 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
     <LandingSection id="get-started" compact>
       <div className="landing-stagger-item w-full">
         <div className="landing-cta-card relative overflow-hidden">
-          {/* Ambient Living Grainient WebGL Brand Canvas */}
+          {/* Ambient Living Grainient Brand Canvas */}
           <div
-            className="absolute inset-0 pointer-events-none overflow-hidden !z-0 rounded-[inherit] opacity-75 dark:opacity-45"
+            className="absolute inset-0 pointer-events-none overflow-hidden !z-0 rounded-[inherit] opacity-90 dark:opacity-85"
             aria-hidden="true"
           >
-            {mounted && (
-              <Grainient
-                colors={isLight ? CTA_LIGHT_PALETTE : CTA_DARK_PALETTE}
-                lightMode={isLight}
-                angle={120}
-                flow={0.65}
-                speed={0.35}
-                silk={0.25}
-                grainAmount={0.06}
-                grainSize={1.1}
-                softness={0.9}
-                interactive={false}
-                className="w-full h-full"
-              />
-            )}
+            <Grainient
+              colors={isLight ? CTA_LIGHT_PALETTE : CTA_DARK_PALETTE}
+              lightMode={false}
+              angle={125}
+              flow={0.8}
+              speed={0.4}
+              silk={0.3}
+              grainAmount={0.07}
+              grainSize={1.2}
+              softness={0.9}
+              interactive={false}
+              className="w-full h-full"
+            />
           </div>
 
           {/* Smooth Living Motion Gradient Orbs */}
