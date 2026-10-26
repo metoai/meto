@@ -66,7 +66,7 @@ export function WorkspacePageClient() {
       <>
         <SuccessToast />
         <PortalPageShell flush>
-          {loaded ? <McpConnectPage /> : <div className="skeleton h-48 w-full max-w-4xl rounded-xl" />}
+          {loaded ? <McpConnectPage /> : <div className="skeleton h-48 w-full max-w-6xl rounded-xl" />}
         </PortalPageShell>
       </>
     );

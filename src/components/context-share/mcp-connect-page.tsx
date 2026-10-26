@@ -9,8 +9,9 @@ import {
   Cpu,
   ExternalLink,
   MessageSquare,
+  X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { McpToolIcon } from "@/components/ui/mcp-tool-icon";
 import { useMcpAccess } from "@/hooks/use-mcp-access";
@@ -37,6 +38,19 @@ import {
 import type { CompileFormat } from "@/lib/types";
 
 type CopyKey = string;
+
+type SetupModalData = {
+  title: string;
+  badge?: string;
+  icon: React.ReactNode;
+  steps: string[];
+  snippet?: string;
+  snippetTitle?: string;
+  copyKey?: string;
+  secondarySnippet?: string;
+  secondarySnippetTitle?: string;
+  secondaryCopyKey?: string;
+};
 
 function StatusPill({
   label,
@@ -79,8 +93,8 @@ function SnippetBox({
   copied: boolean;
 }) {
   return (
-    <div className="mt-2.5 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg)] text-xs">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface)]/50 px-3 py-1.5 text-[11px] text-[var(--muted)]">
+    <div className="mt-3 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg)] text-xs">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface)]/60 px-3 py-1.5 text-[11px] text-[var(--muted)]">
         <span className="font-mono-brand truncate">{title}</span>
         <button
           type="button"
@@ -100,23 +114,21 @@ function SnippetBox({
           )}
         </button>
       </div>
-      <pre className="max-h-48 overflow-x-auto p-3 font-mono text-[11px] leading-relaxed text-[var(--text)]">
+      <pre className="max-h-52 overflow-x-auto p-3 font-mono text-[11px] leading-relaxed text-[var(--text)]">
         <code>{snippet}</code>
       </pre>
     </div>
   );
 }
 
-function IntegrationRow({
+function IntegrationCard({
   tool,
   badge,
   action,
   actionLabel,
   working,
   done,
-  expanded,
-  onToggleExpand,
-  children,
+  onOpenSetup,
 }: {
   tool: McpToolId;
   badge?: string;
@@ -124,190 +136,161 @@ function IntegrationRow({
   actionLabel: string;
   working?: boolean;
   done?: boolean;
-  expanded?: boolean;
-  onToggleExpand?: () => void;
-  children?: React.ReactNode;
+  onOpenSetup: () => void;
 }) {
   const meta = MCP_TOOL_ICONS[tool];
 
   return (
-    <div className="group transition-colors hover:bg-[var(--surface)]/40">
-      <div className="flex items-center gap-3 px-3.5 py-3 sm:px-4 sm:py-3.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/80 transition-colors group-hover:border-[var(--border)]">
-          <McpToolIcon tool={tool} size={18} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="text-[13px] font-medium text-[var(--text)]">{meta.label}</p>
-            {badge ? (
-              <span className="hidden sm:inline-flex rounded border border-[var(--border-subtle)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted)]">
-                {badge}
-              </span>
-            ) : null}
+    <div className="group relative flex flex-col justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4 transition-all duration-150 hover:border-[var(--border)] hover:shadow-xs">
+      <div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] transition-colors group-hover:border-[var(--border)]">
+            <McpToolIcon tool={tool} size={20} />
           </div>
-          <p className="mt-0.5 text-xs text-[var(--muted)] truncate">{meta.hint}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={action}
-            disabled={working}
-            className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg text-xs font-medium transition-all ${
-              actionLabel === "Connect"
-                ? "bg-[var(--text)] text-[var(--bg)] px-3 py-1.5 hover:opacity-90 disabled:opacity-50 shadow-xs"
-                : "border border-[var(--border-subtle)] bg-[var(--surface)]/70 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)] px-2.5 py-1.5"
-            }`}
-          >
-            {done ? (
-              <>
-                <Check className="h-3.5 w-3.5 text-emerald-500" />
-                Copied
-              </>
-            ) : working ? (
-              "…"
-            ) : (
-              <>
-                {actionLabel}
-                {actionLabel === "Connect" ? (
-                  <ArrowRight className="h-3 w-3" />
-                ) : (
-                  <Copy className="h-3 w-3 text-[var(--muted)]" />
-                )}
-              </>
-            )}
-          </button>
-          {children ? (
-            <button
-              type="button"
-              onClick={onToggleExpand}
-              aria-label={`Toggle setup steps for ${meta.label}`}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
-            >
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform duration-150 ${
-                  expanded ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+          {badge ? (
+            <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface)]/80 px-2 py-0.5 text-[10px] font-mono text-[var(--muted)]">
+              {badge}
+            </span>
           ) : null}
         </div>
-      </div>
-      {expanded && children ? (
-        <div className="border-t border-[var(--border-subtle)]/70 bg-[var(--surface)]/25 px-4 py-3 sm:px-4 sm:py-3.5">
-          {children}
+
+        <div className="mt-3">
+          <h3 className="text-sm font-semibold tracking-tight text-[var(--text)]">
+            {meta.label}
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--muted)] line-clamp-2 min-h-[2.5rem]">
+            {meta.hint}
+          </p>
         </div>
-      ) : null}
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 pt-3 border-t border-[var(--border-subtle)]/70">
+        <button
+          type="button"
+          onClick={action}
+          disabled={working}
+          className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg text-xs font-medium py-1.5 transition-all ${
+            actionLabel === "Connect"
+              ? "bg-[var(--text)] text-[var(--bg)] hover:opacity-90 disabled:opacity-50 shadow-xs"
+              : "border border-[var(--border-subtle)] bg-[var(--surface)]/80 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)]"
+          }`}
+        >
+          {done ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+              Copied
+            </>
+          ) : working ? (
+            "…"
+          ) : (
+            <>
+              {actionLabel}
+              {actionLabel === "Connect" ? (
+                <ArrowRight className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3 w-3 text-[var(--muted)]" />
+              )}
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenSetup}
+          className="inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/40 px-2.5 py-1.5 text-xs text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)] hover:border-[var(--border)]"
+          title={`Setup guide for ${meta.label}`}
+        >
+          Setup
+        </button>
+      </div>
     </div>
   );
 }
 
-function ChatAiRow({
+function ChatAiCard({
   format,
   label,
   badge,
   hint,
-  prompt,
-  steps,
   onCopy,
   copied,
-  expanded,
-  onToggleExpand,
+  onOpenSetup,
 }: {
   format: CompileFormat;
   label: string;
   badge?: string;
   hint: string;
-  prompt: string;
-  steps: string[];
   onCopy: () => void;
   copied: boolean;
-  expanded: boolean;
-  onToggleExpand: () => void;
+  onOpenSetup: () => void;
 }) {
   const iconConfig = AI_PLATFORM_ICONS[format];
 
   return (
-    <div className="group transition-colors hover:bg-[var(--surface)]/40">
-      <div className="flex items-center gap-3 px-3.5 py-3 sm:px-4 sm:py-3.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/80 transition-colors group-hover:border-[var(--border)]">
-          {iconConfig?.url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={iconConfig.url}
-              alt=""
-              aria-hidden
-              width={18}
-              height={18}
-              className={`${AI_BRAND_ICON_CLASS} shrink-0 object-contain`}
-              loading="lazy"
-            />
-          ) : (
-            <MessageSquare className="h-4 w-4 text-[var(--muted)]" />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="text-[13px] font-medium text-[var(--text)]">{label}</p>
-            {badge ? (
-              <span className="hidden sm:inline-flex rounded border border-[var(--border-subtle)] bg-[var(--surface)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted)]">
-                {badge}
-              </span>
-            ) : null}
-          </div>
-          <p className="mt-0.5 text-xs text-[var(--muted)] truncate">{hint}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            onClick={onCopy}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/70 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)] px-2.5 py-1.5 text-xs font-medium transition-colors"
-          >
-            {copied ? (
-              <>
-                <Check className="h-3 w-3 text-emerald-500" />
-                Copied
-              </>
+    <div className="group relative flex flex-col justify-between rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4 transition-all duration-150 hover:border-[var(--border)] hover:shadow-xs">
+      <div>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] transition-colors group-hover:border-[var(--border)]">
+            {iconConfig?.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={iconConfig.url}
+                alt=""
+                aria-hidden
+                width={20}
+                height={20}
+                className={`${AI_BRAND_ICON_CLASS} shrink-0 object-contain`}
+                loading="lazy"
+              />
             ) : (
-              <>
-                Copy prompt
-                <Copy className="h-3 w-3 text-[var(--muted)]" />
-              </>
+              <MessageSquare className="h-5 w-5 text-[var(--muted)]" />
             )}
-          </button>
-          <button
-            type="button"
-            onClick={onToggleExpand}
-            aria-label={`Toggle setup instructions for ${label}`}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)]"
-          >
-            <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform duration-150 ${
-                expanded ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+          </div>
+          {badge ? (
+            <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface)]/80 px-2 py-0.5 text-[10px] font-mono text-[var(--muted)]">
+              {badge}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="mt-3">
+          <h3 className="text-sm font-semibold tracking-tight text-[var(--text)]">
+            {label}
+          </h3>
+          <p className="mt-1 text-xs leading-relaxed text-[var(--muted)] line-clamp-2 min-h-[2.5rem]">
+            {hint}
+          </p>
         </div>
       </div>
-      {expanded ? (
-        <div className="border-t border-[var(--border-subtle)]/70 bg-[var(--surface)]/25 px-4 py-3 sm:px-4 sm:py-3.5">
-          <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-            {steps.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--muted)]">
-                  {idx + 1}
-                </span>
-                <span className="flex-1">{step}</span>
-              </li>
-            ))}
-          </ol>
-          <SnippetBox
-            title={`${label} Tailored Prompt`}
-            snippet={prompt}
-            onCopy={onCopy}
-            copied={copied}
-          />
-        </div>
-      ) : null}
+
+      <div className="mt-4 flex items-center gap-2 pt-3 border-t border-[var(--border-subtle)]/70">
+        <button
+          type="button"
+          onClick={onCopy}
+          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/80 hover:bg-[var(--surface)] hover:border-[var(--border)] text-[var(--text)] py-1.5 text-xs font-medium transition-colors"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+              Copied
+            </>
+          ) : (
+            <>
+              Copy prompt
+              <Copy className="h-3 w-3 text-[var(--muted)]" />
+            </>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenSetup}
+          className="inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/40 px-2.5 py-1.5 text-xs text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)] hover:border-[var(--border)]"
+          title={`Setup guide for ${label}`}
+        >
+          Setup
+        </button>
+      </div>
     </div>
   );
 }
@@ -322,7 +305,17 @@ export function McpConnectPage() {
   const [activeCategory, setActiveCategory] = useState<"ide" | "chat">("ide");
   const [copied, setCopied] = useState<CopyKey | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [expandedTools, setExpandedTools] = useState<Record<string, boolean>>({});
+  const [activeModal, setActiveModal] = useState<SetupModalData | null>(null);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setActiveModal(null);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "https://meto.ai";
   const endpointUrl =
@@ -369,40 +362,31 @@ export function McpConnectPage() {
   );
 
   // Chat AI Tailored Prompts
+  const sections = portal?.sections || [];
+
   const chatPrompts = useMemo(() => {
-    const sectionsList =
-      portal?.sections && portal.sections.length > 0
-        ? portal.sections.map((s) => ({
-            title: s.title || s.section_type,
-            content: s.content,
-          }))
-        : [
-            {
-              title: "Persona",
-              content: `${portal?.displayName || effectiveUsername || "Developer"}: Software engineer focused on clean architecture, type safety, and maintainable code.`,
-            },
-          ];
-
-    return {
-      chatgpt: compileLocally("chatgpt", sectionsList),
-      claude: compileLocally("claude", sectionsList),
-      gemini: compileLocally("gemini", sectionsList),
-      deepseek: compileLocally("deepseek", sectionsList),
-      grok: compileLocally("grok", sectionsList),
-      kimi: compileLocally("kimi", sectionsList),
-      qwen: compileLocally("qwen", sectionsList),
+    const list: Record<CompileFormat, string> = {
+      universal: compileLocally("universal", sections),
+      chatgpt: compileLocally("chatgpt", sections),
+      claude: compileLocally("claude", sections),
+      gemini: compileLocally("gemini", sections),
+      deepseek: compileLocally("deepseek", sections),
+      grok: compileLocally("grok", sections),
+      kimi: compileLocally("kimi", sections),
+      qwen: compileLocally("qwen", sections),
     };
-  }, [portal?.sections, portal?.displayName, effectiveUsername]);
+    return list;
+  }, [sections]);
 
-  async function copyText(value: string | null, key: CopyKey) {
-    if (!value) return;
-    await navigator.clipboard.writeText(value);
-    setCopied(key);
-    setTimeout(() => setCopied((current) => (current === key ? null : current)), 1800);
-  }
-
-  function toggleExpand(key: string) {
-    setExpandedTools((prev) => ({ ...prev, [key]: !prev[key] }));
+  async function copyText(text: string | null | undefined, key: CopyKey) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(key);
+      setTimeout(() => setCopied((prev) => (prev === key ? null : prev)), 2200);
+    } catch {
+      /* ignore */
+    }
   }
 
   async function handleCopyToolConfig(tool: McpToolId, snippet: string) {
@@ -423,12 +407,10 @@ export function McpConnectPage() {
     }
 
     await copyText(text, tool);
-    setExpandedTools((prev) => ({ ...prev, [tool]: true }));
   }
 
   async function handleCopyChatPrompt(format: CompileFormat, prompt: string) {
     await copyText(prompt, `chat-${format}`);
-    setExpandedTools((prev) => ({ ...prev, [`chat-${format}`]: true }));
   }
 
   if (loading && !effectiveUsername) {
@@ -442,7 +424,7 @@ export function McpConnectPage() {
   }
 
   return (
-    <div className="w-full max-w-4xl space-y-5">
+    <div className="w-full max-w-6xl space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-medium tracking-tight text-[var(--text)] md:text-2xl">
@@ -512,244 +494,246 @@ export function McpConnectPage() {
         </div>
       ) : activeCategory === "ide" ? (
         /* IDE & MCP Category */
-        <div className="space-y-5">
+        <div className="space-y-6">
           {error ? (
             <p className="rounded-lg border border-red-500/25 bg-red-500/5 px-3 py-2 text-sm text-red-600">
               {error}
             </p>
           ) : null}
 
-          <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] divide-y divide-[var(--border-subtle)] shadow-xs">
+          {/* 3 cards per row grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Cursor */}
-            <IntegrationRow
+            <IntegrationCard
               tool="cursor"
               badge="1-Click / SSE"
               action={() => void addToCursor()}
               actionLabel="Connect"
               working={working}
-              expanded={Boolean(expandedTools.cursor)}
-              onToggleExpand={() => toggleExpand("cursor")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  Click <strong className="text-[var(--text)] font-medium">Connect</strong> for one-click installation into Cursor.
-                </li>
-                <li>
-                  Or open Cursor → <span className="font-mono-brand text-[var(--text)]">Settings → Features → MCP</span> and paste:
-                </li>
-              </ol>
-              <SnippetBox
-                title=".cursor/mcp.json"
-                snippet={cursorSnippet}
-                onCopy={() => void copyText(cursorSnippet, "cursor-snippet")}
-                copied={copied === "cursor-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Cursor Setup",
+                  badge: "1-Click / SSE",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="cursor" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "Click Connect on the card for instant 1-click installation into Cursor.",
+                    "Or open Cursor → Settings → Features → MCP.",
+                    "Add new server with the configuration snippet below.",
+                  ],
+                  snippet: cursorSnippet,
+                  snippetTitle: ".cursor/mcp.json",
+                  copyKey: "cursor-snippet",
+                })
+              }
+            />
 
             {/* Windsurf */}
-            <IntegrationRow
+            <IntegrationCard
               tool="windsurf"
               badge="Direct SSE"
               action={() => void handleCopyToolConfig("windsurf", windsurfSnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "windsurf"}
-              expanded={Boolean(expandedTools.windsurf)}
-              onToggleExpand={() => toggleExpand("windsurf")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  In Windsurf, press <kbd className="rounded border border-[var(--border)] px-1 py-0.5 font-mono text-[10px]">Cmd/Ctrl + Shift + P</kbd> → select{" "}
-                  <strong className="text-[var(--text)] font-medium">Windsurf: Open MCP Config</strong> (or edit <code className="font-mono-brand text-[var(--text)]">~/.codeium/windsurf/mcp_config.json</code>).
-                </li>
-                <li>
-                  Paste under <code className="font-mono-brand text-[var(--text)]">mcpServers</code>.
-                </li>
-                <li>
-                  Cascade will immediately connect to your live Meto profile.
-                </li>
-              </ol>
-              <SnippetBox
-                title="~/.codeium/windsurf/mcp_config.json"
-                snippet={windsurfSnippet}
-                onCopy={() => void copyText(windsurfSnippet, "windsurf-snippet")}
-                copied={copied === "windsurf-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Windsurf Setup",
+                  badge: "Direct SSE",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="windsurf" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "In Windsurf, press Cmd/Ctrl + Shift + P → select 'Windsurf: Open MCP Config' (or edit ~/.codeium/windsurf/mcp_config.json).",
+                    "Paste under the 'mcpServers' key.",
+                    "Cascade will immediately connect to your live Meto profile.",
+                  ],
+                  snippet: windsurfSnippet,
+                  snippetTitle: "~/.codeium/windsurf/mcp_config.json",
+                  copyKey: "windsurf-snippet",
+                })
+              }
+            />
 
             {/* Claude Desktop */}
-            <IntegrationRow
+            <IntegrationCard
               tool="claude"
               badge="Stdio Proxy"
               action={() => void handleCopyToolConfig("claude", claudeSnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "claude"}
-              expanded={Boolean(expandedTools.claude)}
-              onToggleExpand={() => toggleExpand("claude")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>Claude Desktop → Settings → Developer → Edit Config.</li>
-                <li>
-                  Paste under <code className="font-mono-brand text-[var(--text)]">mcpServers</code> in <code className="font-mono-brand text-[var(--text)]">claude_desktop_config.json</code>.
-                </li>
-                <li>Restart Claude Desktop to load your context.</li>
-              </ol>
-              <SnippetBox
-                title="claude_desktop_config.json"
-                snippet={claudeSnippet}
-                onCopy={() => void copyText(claudeSnippet, "claude-snippet")}
-                copied={copied === "claude-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Claude Desktop Setup",
+                  badge: "Stdio Proxy",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="claude" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "Open Claude Desktop → Settings → Developer → Edit Config.",
+                    "Paste under 'mcpServers' in claude_desktop_config.json.",
+                    "Restart Claude Desktop to load your profile.",
+                  ],
+                  snippet: claudeSnippet,
+                  snippetTitle: "claude_desktop_config.json",
+                  copyKey: "claude-snippet",
+                })
+              }
+            />
 
             {/* VS Code */}
-            <IntegrationRow
+            <IntegrationCard
               tool="vscode"
-              badge="Extension / JSON"
+              badge="Extension"
               action={() => void handleCopyToolConfig("vscode", vscodeSnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "vscode"}
-              expanded={Boolean(expandedTools.vscode)}
-              onToggleExpand={() => toggleExpand("vscode")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  In VS Code, open your AI extension: <strong className="text-[var(--text)] font-medium">Cline</strong>, <strong className="text-[var(--text)] font-medium">Roo Code</strong>, or <strong className="text-[var(--text)] font-medium">Continue</strong>.
-                </li>
-                <li>
-                  Open <span className="font-mono-brand text-[var(--text)]">MCP Servers</span> settings (or edit <code className="font-mono-brand text-[var(--text)]">cline_mcp_settings.json</code>).
-                </li>
-                <li>
-                  Paste under <code className="font-mono-brand text-[var(--text)]">mcpServers</code>.
-                </li>
-              </ol>
-              <SnippetBox
-                title="cline_mcp_settings.json"
-                snippet={vscodeSnippet}
-                onCopy={() => void copyText(vscodeSnippet, "vscode-snippet")}
-                copied={copied === "vscode-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "VS Code Setup",
+                  badge: "Cline / Roo / Continue",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="vscode" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "In VS Code, open your AI extension: Cline, Roo Code, or Continue.",
+                    "Open MCP Servers settings (or edit cline_mcp_settings.json).",
+                    "Paste under 'mcpServers'.",
+                  ],
+                  snippet: vscodeSnippet,
+                  snippetTitle: "cline_mcp_settings.json",
+                  copyKey: "vscode-snippet",
+                })
+              }
+            />
 
             {/* Antigravity */}
-            <IntegrationRow
+            <IntegrationCard
               tool="antigravity"
               badge="Native MCP"
               action={() => void handleCopyToolConfig("antigravity", antigravitySnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "antigravity"}
-              expanded={Boolean(expandedTools.antigravity)}
-              onToggleExpand={() => toggleExpand("antigravity")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  In Google Antigravity, add <code className="font-mono-brand text-[var(--text)]">meto</code> to your MCP servers in <code className="font-mono-brand text-[var(--text)]">~/.gemini/antigravity/mcp/</code> or agy CLI settings.
-                </li>
-                <li>
-                  Paste the stdio configuration below.
-                </li>
-                <li>
-                  Antigravity subagents and planners will automatically pull your verified directives and stack.
-                </li>
-              </ol>
-              <SnippetBox
-                title="Antigravity MCP Configuration"
-                snippet={antigravitySnippet}
-                onCopy={() => void copyText(antigravitySnippet, "antigravity-snippet")}
-                copied={copied === "antigravity-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Google Antigravity Setup",
+                  badge: "Native MCP",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="antigravity" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "In Google Antigravity, add meto to your MCP servers in ~/.gemini/antigravity/mcp/ or agy CLI settings.",
+                    "Paste the stdio configuration below.",
+                    "Antigravity subagents and planners will automatically pull your verified directives and stack.",
+                  ],
+                  snippet: antigravitySnippet,
+                  snippetTitle: "Antigravity MCP Configuration",
+                  copyKey: "antigravity-snippet",
+                })
+              }
+            />
 
             {/* GitHub Copilot & Codex */}
-            <IntegrationRow
+            <IntegrationCard
               tool="copilot"
               badge="Chat & Rules"
               action={() => void handleCopyToolConfig("copilot", copilotSnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "copilot"}
-              expanded={Boolean(expandedTools.copilot)}
-              onToggleExpand={() => toggleExpand("copilot")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  <strong className="text-[var(--text)] font-medium">Option A (Copilot Chat MCP):</strong> In VS Code Settings (<code className="font-mono-brand text-[var(--text)]">settings.json</code>), add under <code className="font-mono-brand text-[var(--text)]">github.copilot.chat.mcpServers</code>.
-                </li>
-                <li>
-                  <strong className="text-[var(--text)] font-medium">Option B (Copilot Repo Instructions):</strong> Create a file at <code className="font-mono-brand text-[var(--text)]">.github/copilot-instructions.md</code> in your project root.
-                </li>
-              </ol>
-              <SnippetBox
-                title="settings.json (Copilot Chat MCP)"
-                snippet={copilotSnippet}
-                onCopy={() => void copyText(copilotSnippet, "copilot-snippet")}
-                copied={copied === "copilot-snippet"}
-              />
-              <SnippetBox
-                title=".github/copilot-instructions.md (Repo Instructions)"
-                snippet={copilotInstructionsSnippet}
-                onCopy={() => void copyText(copilotInstructionsSnippet, "copilot-md-snippet")}
-                copied={copied === "copilot-md-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "GitHub Copilot & Codex Setup",
+                  badge: "Chat & Rules",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="copilot" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "Option A (Copilot Chat MCP): In VS Code Settings (settings.json), add under github.copilot.chat.mcpServers.",
+                    "Option B (Copilot Repo Instructions): Create a file at .github/copilot-instructions.md in your project root.",
+                  ],
+                  snippet: copilotSnippet,
+                  snippetTitle: "settings.json (Copilot Chat MCP)",
+                  copyKey: "copilot-snippet",
+                  secondarySnippet: copilotInstructionsSnippet,
+                  secondarySnippetTitle: ".github/copilot-instructions.md (Repo Instructions)",
+                  secondaryCopyKey: "copilot-md-snippet",
+                })
+              }
+            />
 
             {/* Zed */}
-            <IntegrationRow
+            <IntegrationCard
               tool="zed"
               badge="Settings JSON"
               action={() => void handleCopyToolConfig("zed", zedSnippet)}
               actionLabel="Copy config"
               working={working}
               done={copied === "zed"}
-              expanded={Boolean(expandedTools.zed)}
-              onToggleExpand={() => toggleExpand("zed")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>
-                  In Zed, open Settings via <kbd className="rounded border border-[var(--border)] px-1 py-0.5 font-mono text-[10px]">Cmd/Ctrl + ,</kbd> (or edit <code className="font-mono-brand text-[var(--text)]">~/.config/zed/settings.json</code>).
-                </li>
-                <li>
-                  Add under the top-level <code className="font-mono-brand text-[var(--text)]">context_servers</code> object.
-                </li>
-                <li>
-                  Zed Assistant Panel will now have access to your live profile.
-                </li>
-              </ol>
-              <SnippetBox
-                title="~/.config/zed/settings.json"
-                snippet={zedSnippet}
-                onCopy={() => void copyText(zedSnippet, "zed-snippet")}
-                copied={copied === "zed-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Zed Setup",
+                  badge: "Settings JSON",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="zed" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "In Zed, open Settings via Cmd/Ctrl + , (or edit ~/.config/zed/settings.json).",
+                    "Add under the top-level 'context_servers' object.",
+                    "Zed Assistant Panel will now have access to your live profile.",
+                  ],
+                  snippet: zedSnippet,
+                  snippetTitle: "~/.config/zed/settings.json",
+                  copyKey: "zed-snippet",
+                })
+              }
+            />
 
             {/* CLI & Claude Code */}
-            <IntegrationRow
+            <IntegrationCard
               tool="terminal"
               badge="CLI"
               action={() => void handleCopyToolConfig("terminal", terminalSnippet)}
               actionLabel="Copy command"
               working={working}
               done={copied === "terminal"}
-              expanded={Boolean(expandedTools.terminal)}
-              onToggleExpand={() => toggleExpand("terminal")}
-            >
-              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-                <li>Run the one-line command in your terminal.</li>
-                <li>
-                  In Claude Code, type <code className="font-mono-brand text-[var(--text)]">/mcp</code> or run <code className="font-mono-brand text-[var(--text)]">claude mcp list</code> to verify.
-                </li>
-              </ol>
-              <SnippetBox
-                title="Terminal Command"
-                snippet={terminalSnippet}
-                onCopy={() => void copyText(terminalSnippet, "terminal-snippet")}
-                copied={copied === "terminal-snippet"}
-              />
-            </IntegrationRow>
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Claude Code CLI Setup",
+                  badge: "CLI",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <McpToolIcon tool="terminal" size={22} />
+                    </div>
+                  ),
+                  steps: [
+                    "Run the one-line command in your terminal.",
+                    "In Claude Code, type /mcp or run 'claude mcp list' to verify.",
+                  ],
+                  snippet: terminalSnippet,
+                  snippetTitle: "Terminal Command",
+                  copyKey: "terminal-snippet",
+                })
+              }
+            />
           </div>
 
           {data?.hasToken ? (
@@ -849,134 +833,254 @@ export function McpConnectPage() {
         </div>
       ) : (
         /* Chat AIs & Web Models Category */
-        <div className="space-y-5">
+        <div className="space-y-6">
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/50 p-3.5 sm:p-4 text-xs text-[var(--text-secondary)] leading-relaxed">
             <p>
               For web and chat interfaces without MCP, copy your compiled persona prompt and paste it into the AI&apos;s <strong className="text-[var(--text)]">Custom Instructions</strong>, <strong className="text-[var(--text)]">System Prompt</strong>, or <strong className="text-[var(--text)]">Custom Gems/GPTs</strong>.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] divide-y divide-[var(--border-subtle)] shadow-xs">
+          {/* 3 cards per row grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* ChatGPT */}
-            <ChatAiRow
+            <ChatAiCard
               format="chatgpt"
               label="ChatGPT"
               badge="Custom Instructions"
               hint="Custom Instructions & GPTs"
-              prompt={chatPrompts.chatgpt}
-              steps={[
-                "In ChatGPT, click your profile avatar (bottom-left) → Settings → Personalization.",
-                "Open Custom Instructions ('What would you like ChatGPT to know about you to provide better responses?').",
-                "Paste your compiled Meto profile prompt below.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("chatgpt", chatPrompts.chatgpt)}
               copied={copied === "chat-chatgpt"}
-              expanded={Boolean(expandedTools["chat-chatgpt"])}
-              onToggleExpand={() => toggleExpand("chat-chatgpt")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "ChatGPT Setup",
+                  badge: "Custom Instructions",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.chatgpt.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In ChatGPT, click your profile avatar (bottom-left) → Settings → Personalization.",
+                    "Open Custom Instructions ('What would you like ChatGPT to know about you to provide better responses?').",
+                    "Paste your compiled Meto profile prompt below.",
+                  ],
+                  snippet: chatPrompts.chatgpt,
+                  snippetTitle: "ChatGPT Tailored Prompt",
+                  copyKey: "chat-chatgpt",
+                })
+              }
             />
 
             {/* Claude.ai */}
-            <ChatAiRow
+            <ChatAiCard
               format="claude"
               label="Claude.ai"
               badge="Projects"
               hint="Projects & Custom Instructions"
-              prompt={chatPrompts.claude}
-              steps={[
-                "In Claude.ai, open your Project (or click Projects in the left sidebar).",
-                "Click Set Project Instructions (or add as Project Knowledge document).",
-                "Paste your compiled context prompt below.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("claude", chatPrompts.claude)}
               copied={copied === "chat-claude"}
-              expanded={Boolean(expandedTools["chat-claude"])}
-              onToggleExpand={() => toggleExpand("chat-claude")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Claude.ai Setup",
+                  badge: "Projects",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.claude.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In Claude.ai, open your Project (or click Projects in the left sidebar).",
+                    "Click Set Project Instructions (or add as Project Knowledge document).",
+                    "Paste your compiled context prompt below.",
+                  ],
+                  snippet: chatPrompts.claude,
+                  snippetTitle: "Claude.ai Tailored Prompt",
+                  copyKey: "chat-claude",
+                })
+              }
             />
 
             {/* Google Gemini */}
-            <ChatAiRow
+            <ChatAiCard
               format="gemini"
               label="Google Gemini"
               badge="Custom Gems"
               hint="Custom Gems & AI Studio"
-              prompt={chatPrompts.gemini}
-              steps={[
-                "In Google Gemini, open Gems manager (or System instructions in Google AI Studio).",
-                "Create a new custom Gem or add to conversation instructions.",
-                "Paste your compiled context prompt below.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("gemini", chatPrompts.gemini)}
               copied={copied === "chat-gemini"}
-              expanded={Boolean(expandedTools["chat-gemini"])}
-              onToggleExpand={() => toggleExpand("chat-gemini")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Google Gemini Setup",
+                  badge: "Custom Gems",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.gemini.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In Google Gemini, open Gems manager (or System instructions in Google AI Studio).",
+                    "Create a new custom Gem or add to conversation instructions.",
+                    "Paste your compiled context prompt below.",
+                  ],
+                  snippet: chatPrompts.gemini,
+                  snippetTitle: "Gemini Tailored Prompt",
+                  copyKey: "chat-gemini",
+                })
+              }
             />
 
             {/* DeepSeek */}
-            <ChatAiRow
+            <ChatAiCard
               format="deepseek"
               label="DeepSeek"
               badge="System Prompt"
               hint="System Prompt & Reasoning Persona"
-              prompt={chatPrompts.deepseek}
-              steps={[
-                "In DeepSeek Chat or API clients, paste into the System Prompt or conversation opening.",
-                "DeepSeek will apply your preferred architectural patterns and stack to all reasoning steps.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("deepseek", chatPrompts.deepseek)}
               copied={copied === "chat-deepseek"}
-              expanded={Boolean(expandedTools["chat-deepseek"])}
-              onToggleExpand={() => toggleExpand("chat-deepseek")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "DeepSeek Setup",
+                  badge: "System Prompt",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.deepseek.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In DeepSeek Chat or API clients, paste into the System Prompt or conversation opening.",
+                    "DeepSeek will apply your preferred architectural patterns and stack to all reasoning steps.",
+                  ],
+                  snippet: chatPrompts.deepseek,
+                  snippetTitle: "DeepSeek Tailored Prompt",
+                  copyKey: "chat-deepseek",
+                })
+              }
             />
 
             {/* Grok */}
-            <ChatAiRow
+            <ChatAiCard
               format="grok"
               label="Grok"
               badge="System Prompt"
               hint="Conversation Context & Preferences"
-              prompt={chatPrompts.grok}
-              steps={[
-                "In Grok on X, paste the prompt snippet into your chat context or Custom Instructions.",
-                "Grok will personalize technical answers and code to your workflow.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("grok", chatPrompts.grok)}
               copied={copied === "chat-grok"}
-              expanded={Boolean(expandedTools["chat-grok"])}
-              onToggleExpand={() => toggleExpand("chat-grok")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Grok Setup",
+                  badge: "System Prompt",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.grok.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In Grok on X, paste the prompt snippet into your chat context or Custom Instructions.",
+                    "Grok will personalize technical answers and code to your workflow.",
+                  ],
+                  snippet: chatPrompts.grok,
+                  snippetTitle: "Grok Tailored Prompt",
+                  copyKey: "chat-grok",
+                })
+              }
             />
 
             {/* Moonshot (Kimi) */}
-            <ChatAiRow
+            <ChatAiCard
               format="kimi"
               label="Moonshot (Kimi)"
               badge="Kimi+ Prompt"
               hint="Kimi+ Context & Prompt"
-              prompt={chatPrompts.kimi}
-              steps={[
-                "In Kimi Chat, paste into your custom prompt or agent instructions.",
-                "Kimi will personalize responses according to your tech stack directives.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("kimi", chatPrompts.kimi)}
               copied={copied === "chat-kimi"}
-              expanded={Boolean(expandedTools["chat-kimi"])}
-              onToggleExpand={() => toggleExpand("chat-kimi")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Moonshot (Kimi) Setup",
+                  badge: "Kimi+ Prompt",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.kimi.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In Kimi Chat, paste into your custom prompt or agent instructions.",
+                    "Kimi will personalize responses according to your tech stack directives.",
+                  ],
+                  snippet: chatPrompts.kimi,
+                  snippetTitle: "Kimi Tailored Prompt",
+                  copyKey: "chat-kimi",
+                })
+              }
             />
 
             {/* Qwen */}
-            <ChatAiRow
+            <ChatAiCard
               format="qwen"
               label="Qwen"
               badge="System Prompt"
               hint="Tongyi Qianwen & Assistant Instructions"
-              prompt={chatPrompts.qwen}
-              steps={[
-                "In Tongyi Qianwen or Qwen API clients, paste into the system prompt.",
-                "Qwen will adapt to your coding standards.",
-              ]}
               onCopy={() => void handleCopyChatPrompt("qwen", chatPrompts.qwen)}
               copied={copied === "chat-qwen"}
-              expanded={Boolean(expandedTools["chat-qwen"])}
-              onToggleExpand={() => toggleExpand("chat-qwen")}
+              onOpenSetup={() =>
+                setActiveModal({
+                  title: "Qwen Setup",
+                  badge: "System Prompt",
+                  icon: (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]">
+                      <img
+                        src={AI_PLATFORM_ICONS.qwen.url}
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`${AI_BRAND_ICON_CLASS} object-contain`}
+                      />
+                    </div>
+                  ),
+                  steps: [
+                    "In Tongyi Qianwen or Qwen API clients, paste into the system prompt.",
+                    "Qwen will adapt to your coding standards.",
+                  ],
+                  snippet: chatPrompts.qwen,
+                  snippetTitle: "Qwen Tailored Prompt",
+                  copyKey: "chat-qwen",
+                })
+              }
             />
           </div>
 
@@ -1027,6 +1131,98 @@ export function McpConnectPage() {
           </div>
         </div>
       )}
+
+      {/* Setup Guide Modal */}
+      {activeModal ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+          onClick={() => setActiveModal(null)}
+        >
+          <div
+            className="relative w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6 shadow-2xl animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {activeModal.icon}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-semibold text-[var(--text)]">
+                      {activeModal.title}
+                    </h3>
+                    {activeModal.badge ? (
+                      <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 text-[10px] font-mono text-[var(--muted)]">
+                        {activeModal.badge}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="text-xs text-[var(--muted)] mt-0.5">Setup Instructions & Configuration</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="rounded-lg p-1.5 text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)] transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Steps */}
+            <div className="mt-4 space-y-2">
+              <p className="text-xs font-medium text-[var(--text)]">Instructions:</p>
+              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+                {activeModal.steps.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--surface)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--muted)]">
+                      {idx + 1}
+                    </span>
+                    <span className="flex-1">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            {/* Snippet */}
+            {activeModal.snippet ? (
+              <SnippetBox
+                title={activeModal.snippetTitle || "Configuration Snippet"}
+                snippet={activeModal.snippet}
+                onCopy={() => void copyText(activeModal.snippet, activeModal.copyKey || "modal-snippet")}
+                copied={copied === (activeModal.copyKey || "modal-snippet")}
+              />
+            ) : null}
+
+            {/* Secondary Snippet */}
+            {activeModal.secondarySnippet ? (
+              <SnippetBox
+                title={activeModal.secondarySnippetTitle || "Additional Instructions"}
+                snippet={activeModal.secondarySnippet}
+                onCopy={() =>
+                  void copyText(
+                    activeModal.secondarySnippet,
+                    activeModal.secondaryCopyKey || "modal-sec-snippet"
+                  )
+                }
+                copied={copied === (activeModal.secondaryCopyKey || "modal-sec-snippet")}
+              />
+            ) : null}
+
+            {/* Footer */}
+            <div className="mt-5 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] pt-3">
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-1.5 text-xs font-medium text-[var(--text)] hover:bg-[var(--surface)]/80 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
