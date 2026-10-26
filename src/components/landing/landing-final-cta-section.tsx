@@ -23,8 +23,14 @@ export function LandingFinalCtaSection({ onStartChat }: LandingFinalCtaSectionPr
   return (
     <LandingSection id="get-started" compact>
       <div className="landing-stagger-item w-full">
-        <div className="landing-cta-card">
-          <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch">
+        <div className="landing-cta-card relative overflow-hidden">
+          {/* Ambient Smooth Living Motion Gradient Orbs */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+            <div className="absolute -top-20 -right-20 w-[440px] h-[440px] rounded-full bg-gradient-to-br from-[var(--primary)]/20 via-[#ff7a3d]/10 to-transparent blur-3xl meto-motion-gradient-a" />
+            <div className="absolute -bottom-24 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[var(--primary)]/15 via-[#ff9c5a]/8 to-transparent blur-3xl meto-motion-gradient-b" />
+          </div>
+
+          <div className="relative z-10 grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-stretch">
             <div className="flex flex-col justify-center p-8 sm:p-10 lg:p-12">
               <div className="mb-6 flex items-center gap-2.5">
                 <MetoMarkBadge size="sm" />

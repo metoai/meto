@@ -87,9 +87,9 @@ export function LandingHeroVisual() {
         </svg>
       </div>
 
-      {/* Atmospheric warm orange ambient glow behind Meto card */}
+      {/* Atmospheric warm orange ambient motion glow behind Meto card */}
       <div
-        className="absolute top-6 left-1/2 -translate-x-1/2 w-[420px] h-[240px] rounded-full bg-gradient-to-b from-[var(--primary)]/14 via-[var(--primary)]/4 to-transparent blur-3xl pointer-events-none"
+        className="absolute top-6 left-1/2 -translate-x-1/2 w-[440px] h-[260px] rounded-full bg-gradient-to-b from-[var(--primary)]/16 via-[var(--primary)]/5 to-transparent blur-3xl pointer-events-none meto-motion-gradient-hero"
         aria-hidden="true"
       />
 

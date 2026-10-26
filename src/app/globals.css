@@ -835,3 +835,69 @@ body {
   }
 }
 
+/* Ambient Smooth Motion Gradients (GPU accelerated, calm physical easing) */
+@keyframes metoMotionGradientA {
+  0% {
+    transform: translate3d(0%, 0%, 0) scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(6%, -8%, 0) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-5%, 6%, 0) scale(0.96);
+    opacity: 0.8;
+  }
+}
+
+@keyframes metoMotionGradientB {
+  0% {
+    transform: translate3d(0%, 0%, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(-8%, 7%, 0) scale(1.06);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(6%, -5%, 0) scale(0.98);
+    opacity: 0.7;
+  }
+}
+
+@keyframes metoMotionGradientHero {
+  0%, 100% {
+    transform: translate3d(-50%, 0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate3d(-50%, -10px, 0) scale(1.1);
+    opacity: 1;
+  }
+}
+
+.meto-motion-gradient-a {
+  animation: metoMotionGradientA 14s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  will-change: transform, opacity;
+}
+
+.meto-motion-gradient-b {
+  animation: metoMotionGradientB 18s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  will-change: transform, opacity;
+}
+
+.meto-motion-gradient-hero {
+  animation: metoMotionGradientHero 10s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meto-motion-gradient-a,
+  .meto-motion-gradient-b,
+  .meto-motion-gradient-hero {
+    animation: none !important;
+  }
+}
+
+
