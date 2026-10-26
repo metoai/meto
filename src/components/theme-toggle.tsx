@@ -33,21 +33,24 @@ export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProp
 
   const active = theme ?? "system";
 
-  const cycleTheme = () => {
-    const order = ["light", "dark", "system"] as const;
-    const idx = order.indexOf(active as (typeof order)[number]);
-    setTheme(order[(idx + 1) % order.length]);
+  const toggleCompactTheme = () => {
+    // Single click toggles directly between light and dark without invisible intermediate 'system' step
+    const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
   };
 
   if (compact) {
-    const Icon = resolvedTheme === "dark" ? Moon : Sun;
+    const isDark = resolvedTheme === "dark";
+    const Icon = isDark ? Moon : Sun;
+    const nextLabel = isDark ? "Switch to light theme" : "Switch to dark theme";
+
     return (
       <button
         type="button"
-        onClick={cycleTheme}
-        className={`flex h-8 w-8 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors duration-150 hover:bg-[var(--border-subtle)] hover:text-[var(--text)] ${className}`}
-        aria-label={`Theme: ${active}. Click to change.`}
-        title={`Theme: ${active}`}
+        onClick={toggleCompactTheme}
+        className={`flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/10 transition-colors duration-150 ${className}`}
+        aria-label={nextLabel}
+        title={nextLabel}
       >
         <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
       </button>
