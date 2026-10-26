@@ -1,7 +1,7 @@
 "use client";
 
 import { AI_BRAND_ICON_LANDING_CLASS } from "@/lib/ai-brand-icon";
-import { Plus } from "lucide-react";
+import { Plus, Terminal } from "lucide-react";
 
 type AiToolItem = {
   id: string;
@@ -55,7 +55,7 @@ export function LandingHeroVisual() {
   return (
     <div className="relative w-full max-w-[540px] xl:max-w-[580px] mx-auto flex flex-col items-center select-none pt-1 sm:pt-2 lg:pt-3">
       {/* Editorial Annotation: Above/left of Meto card with comfortable clearance */}
-      <div className="hidden lg:flex absolute -top-3 left-3 xl:-left-3 items-end gap-2 pointer-events-none z-20">
+      <div className="hidden lg:flex absolute -top-4 left-2 xl:-left-4 items-end gap-2 pointer-events-none z-20">
         <span className="font-serif italic text-[13px] leading-tight text-[var(--muted)] tracking-wide">
           Your identity<br />lives here
         </span>
@@ -87,29 +87,89 @@ export function LandingHeroVisual() {
 
       {/* Atmospheric warm orange ambient glow behind Meto card */}
       <div
-        className="absolute top-8 left-1/2 -translate-x-1/2 w-[360px] h-[200px] rounded-full bg-gradient-to-b from-[var(--primary)]/15 via-[var(--primary)]/5 to-transparent blur-3xl pointer-events-none"
+        className="absolute top-6 left-1/2 -translate-x-1/2 w-[420px] h-[240px] rounded-full bg-gradient-to-b from-[var(--primary)]/14 via-[var(--primary)]/4 to-transparent blur-3xl pointer-events-none"
         aria-hidden="true"
       />
 
-      {/* 1. Meto Identity Card: Minimalist, tactile glassmorphism following Emil Kowalski & Linear design standards */}
-      <div className="relative z-10 flex h-[140px] w-[270px] sm:h-[150px] sm:w-[290px] flex-col items-center justify-center rounded-[24px] border border-white/80 dark:border-white/10 bg-white/50 dark:bg-white/[0.04] backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.1)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(255,77,0,0.16)]">
-        {/* Meto Core Brand Icon */}
-        <div className="flex h-16 w-16 sm:h-[72px] sm:w-[72px] items-center justify-center rounded-[20px] sm:rounded-[22px] bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_8px_24px_rgba(255,77,0,0.32)] transition-transform duration-200 ease-out hover:scale-105 active:scale-95">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/logo-icon.svg"
-            alt="Meto logo"
-            width={44}
-            height={44}
-            className="h-9 w-9 sm:h-10 sm:w-10 object-contain brightness-0 invert select-none"
-          />
+      {/* 1. Universal Developer Identity Card (Linear x Stripe Craftsmanship) */}
+      <div className="relative z-10 w-full max-w-[430px] sm:max-w-[460px] rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white/75 dark:bg-[#111113]/85 backdrop-blur-2xl shadow-[0_12px_44px_rgba(0,0,0,0.06),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.06)] overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_24px_64px_rgba(255,77,0,0.14)]">
+        {/* Card Header Bar (IDE / macOS Terminal Style) */}
+        <div className="flex items-center justify-between border-b border-black/[0.06] dark:border-white/[0.08] px-4 py-2.5 bg-black/[0.02] dark:bg-white/[0.02]">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15 dark:bg-white/20" />
+            </div>
+            <div className="ml-2 flex items-center gap-1.5 text-[11px] font-mono text-[var(--muted)]">
+              <Terminal className="h-3 w-3 text-[var(--muted)]" />
+              <span>identity.meto.json</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-medium text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span>MCP Active</span>
+          </div>
+        </div>
+
+        {/* Card Body */}
+        <div className="p-4 sm:p-4.5 space-y-3.5">
+          {/* Identity & Role Header */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--primary)] via-[#ff5a14] to-[#ff7332] shadow-[0_4px_16px_rgba(255,77,0,0.28)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/logo-icon.svg"
+                alt="Meto logo"
+                width={26}
+                height={26}
+                className="h-6 w-6 object-contain brightness-0 invert select-none"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-[var(--text)] tracking-tight">
+                  Alex Mercer
+                </span>
+                <span className="text-xs font-mono text-[var(--muted)]">@alex</span>
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] truncate">
+                Staff Software Engineer · <span className="text-[var(--primary)] font-mono text-[11px]">89 memories</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Stack & Context Pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {["Next.js 15", "TypeScript", "Supabase", "Tailwind", "MCP Hub"].map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md border border-black/[0.06] dark:border-white/[0.08] bg-black/[0.03] dark:bg-white/[0.04] px-2 py-0.5 text-[11px] font-mono font-medium text-[var(--text-secondary)]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* Active Rules Injected into Assistants */}
+          <div className="rounded-xl border border-black/[0.06] dark:border-white/[0.06] bg-black/[0.03] dark:bg-black/40 px-3 py-2 font-mono text-[11px] leading-relaxed">
+            <div className="flex items-center justify-between text-[10px] text-[var(--muted)] mb-1">
+              <span className="font-semibold uppercase tracking-wider">Injected Agent Rules</span>
+              <span className="text-[var(--primary)] font-mono">universal_sync</span>
+            </div>
+            <p className="text-[var(--text)] line-clamp-2">
+              <span className="text-[var(--primary)] font-bold mr-1">&gt;</span>
+              Strict TypeScript · Modular App Router · Concise, no apologies.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* 2. Connection System: GPU-accelerated SVG flow lines with normalized pathLength for perfectly uniform, smooth animation */}
-      <div className="relative w-full max-w-[520px] h-[95px] sm:h-[110px] hidden sm:block pointer-events-none -mt-2">
+      <div className="relative w-full max-w-[520px] h-[85px] sm:h-[95px] hidden sm:block pointer-events-none -mt-1.5">
         <svg
-          viewBox="0 0 520 110"
+          viewBox="0 0 520 95"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full"
@@ -126,8 +186,8 @@ export function LandingHeroVisual() {
           {TARGET_X_COORDS.map((targetX, index) => {
             const pathD =
               targetX === 260
-                ? "M 260 0 L 260 110"
-                : `M 260 0 C 260 ${Math.abs(targetX - 260) > 130 ? 38 : 52}, ${targetX} 58, ${targetX} 110`;
+                ? "M 260 0 L 260 95"
+                : `M 260 0 C 260 ${Math.abs(targetX - 260) > 130 ? 32 : 44}, ${targetX} 50, ${targetX} 95`;
 
             return (
               <g key={targetX}>
@@ -150,14 +210,14 @@ export function LandingHeroVisual() {
                   strokeDasharray="20 100"
                   className="meto-smooth-beam"
                   style={{
-                    animationDelay: `${index * 0.22}s`,
+                    animationDelay: `${index * 0.2}s`,
                   }}
                 />
 
                 {/* Receiving connection node dot */}
                 <circle
                   cx={targetX}
-                  cy="108"
+                  cy="93"
                   r="2.25"
                   fill="var(--primary)"
                   className="opacity-80 transition-opacity duration-300"
@@ -169,8 +229,8 @@ export function LandingHeroVisual() {
       </div>
 
       {/* Mobile Vertical Connector */}
-      <div className="sm:hidden flex flex-col items-center my-3" aria-hidden="true">
-        <div className="w-[1.5px] h-7 bg-gradient-to-b from-[var(--border-hover)] to-[var(--primary)]" />
+      <div className="sm:hidden flex flex-col items-center my-2.5" aria-hidden="true">
+        <div className="w-[1.5px] h-6 bg-gradient-to-b from-[var(--border-hover)] to-[var(--primary)]" />
       </div>
 
       {/* 3. AI Integrations Row: Tactile micro-interactions (Emil Kowalski craftsmanship) */}
@@ -186,7 +246,7 @@ export function LandingHeroVisual() {
                 }`}
               >
                 <div
-                  className={`flex h-[56px] w-[56px] sm:h-[64px] sm:w-[64px] items-center justify-center rounded-[18px] transition-all duration-200 ease-out group-hover:-translate-y-1 active:scale-95 ${
+                  className={`flex h-[54px] w-[54px] sm:h-[62px] sm:w-[62px] items-center justify-center rounded-[18px] transition-all duration-200 ease-out group-hover:-translate-y-1 active:scale-95 ${
                     tool.isMore
                       ? "border border-dashed border-[var(--border-hover)] bg-[var(--surface)]/50 text-[var(--muted)] group-hover:border-[var(--primary)] group-hover:text-[var(--text)] group-hover:shadow-sm"
                       : "border border-[var(--border)] bg-[var(--card)] shadow-2xs group-hover:border-[var(--border-hover)] group-hover:shadow-md"
@@ -207,7 +267,7 @@ export function LandingHeroVisual() {
                   ) : null}
                 </div>
                 <span
-                  className={`mt-2 text-[12px] sm:text-[13px] font-medium transition-colors duration-150 ${
+                  className={`mt-2 text-[11.5px] sm:text-[12.5px] font-medium transition-colors duration-150 ${
                     tool.isMore
                       ? "text-[var(--muted)] group-hover:text-[var(--text)]"
                       : "text-[var(--text-secondary)] group-hover:text-[var(--text)]"
