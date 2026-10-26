@@ -118,6 +118,16 @@ export const MCP_TOOL_ICONS = {
     url: `${ICONIFY}/simple-icons/visualstudiocode.svg`,
     hint: "Cline / Continue / Roo Code",
   },
+  antigravity: {
+    label: "Antigravity",
+    url: `${ICONIFY}/lucide/orbit.svg`,
+    hint: "Google Antigravity · agy / MCP",
+  },
+  copilot: {
+    label: "GitHub Copilot & Codex",
+    url: `${ICONIFY}/simple-icons/githubcopilot.svg`,
+    hint: "Copilot instructions & MCP",
+  },
   zed: {
     label: "Zed",
     url: `${ICONIFY}/simple-icons/zedindustries.svg`,

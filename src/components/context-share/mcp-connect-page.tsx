@@ -1,29 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, ChevronDown, Copy, Terminal } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronDown,
+  Copy,
+  Cpu,
+  ExternalLink,
+  MessageSquare,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { McpToolIcon } from "@/components/ui/mcp-tool-icon";
 import { useMcpAccess } from "@/hooks/use-mcp-access";
-import { MCP_TOOL_ICONS, type McpToolId } from "@/lib/ai-platform-icons";
+import { AI_BRAND_ICON_CLASS } from "@/lib/ai-brand-icon";
+import {
+  AI_PLATFORM_ICONS,
+  MCP_TOOL_ICONS,
+  type McpToolId,
+} from "@/lib/ai-platform-icons";
+import { compileLocally } from "@/lib/compile-local";
 import {
   MCP_TEST_PROMPT,
+  buildAntigravityMcpJson,
   buildClaudeCodeCliCommand,
   buildClaudeDesktopMcpJson,
+  buildCopilotInstructions,
+  buildCopilotMcpJson,
   buildCursorMcpJson,
   buildMcpEndpointUrl,
   buildVSCodeMcpJson,
   buildWindsurfMcpJson,
   buildZedMcpJson,
 } from "@/lib/mcp-install";
+import type { CompileFormat } from "@/lib/types";
 
-type CopyKey =
-  | McpToolId
-  | `${McpToolId}-snippet`
-  | "config"
-  | "test"
-  | "token";
+type CopyKey = string;
 
 function StatusPill({
   label,
@@ -171,6 +184,103 @@ function IntegrationRow({
   );
 }
 
+function ChatAiRow({
+  format,
+  label,
+  hint,
+  prompt,
+  steps,
+  onCopy,
+  copied,
+  expanded,
+  onToggleExpand,
+}: {
+  format: CompileFormat;
+  label: string;
+  hint: string;
+  prompt: string;
+  steps: string[];
+  onCopy: () => void;
+  copied: boolean;
+  expanded: boolean;
+  onToggleExpand: () => void;
+}) {
+  const iconConfig = AI_PLATFORM_ICONS[format];
+
+  return (
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] transition-colors hover:border-[var(--border)]">
+      <div className="flex items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-5">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]">
+          {iconConfig?.url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={iconConfig.url}
+              alt=""
+              aria-hidden
+              width={22}
+              height={22}
+              className={`${AI_BRAND_ICON_CLASS} shrink-0 object-contain`}
+              loading="lazy"
+            />
+          ) : (
+            <MessageSquare className="h-5 w-5 text-[var(--muted)]" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-[var(--text)]">{label}</p>
+          <p className="mt-0.5 text-xs text-[var(--muted)]">{hint}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={onCopy}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--text)] px-3 py-1.5 text-xs font-medium text-[var(--bg)] transition-opacity hover:opacity-90 sm:px-3.5 sm:py-2"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                Copied prompt
+              </>
+            ) : (
+              <>
+                Copy prompt
+                <ArrowRight className="h-3.5 w-3.5" />
+              </>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onToggleExpand}
+            aria-label={`Toggle setup instructions for ${label}`}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border-subtle)] text-[var(--muted)] transition-colors hover:border-[var(--border)] hover:text-[var(--text)]"
+          >
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${
+                expanded ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+      {expanded ? (
+        <div className="border-t border-[var(--border-subtle)] bg-[var(--surface)]/40 px-4 py-3.5 sm:px-5">
+          <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+            {steps.map((step, idx) => (
+              <li key={idx}>{step}</li>
+            ))}
+          </ol>
+          <SnippetBox
+            title={`${label} Tailored Prompt`}
+            snippet={prompt}
+            onCopy={onCopy}
+            copied={copied}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function McpConnectPage() {
   const portal = usePortalDataOptional();
   const portalUsername = portal?.profile?.username?.trim() || "";
@@ -178,6 +288,7 @@ export function McpConnectPage() {
     useMcpAccess(portalUsername);
 
   const effectiveUsername = data?.username || portalUsername;
+  const [activeCategory, setActiveCategory] = useState<"ide" | "chat">("ide");
   const [copied, setCopied] = useState<CopyKey | null>(null);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [expandedTools, setExpandedTools] = useState<Record<string, boolean>>({});
@@ -188,6 +299,7 @@ export function McpConnectPage() {
     (effectiveUsername ? buildMcpEndpointUrl(origin, effectiveUsername) : "");
   const activeToken = data?.token || "YOUR_TOKEN";
 
+  // IDE / MCP Snippets
   const cursorSnippet = useMemo(
     () => (endpointUrl ? buildCursorMcpJson(endpointUrl, activeToken) : ""),
     [endpointUrl, activeToken]
@@ -204,6 +316,18 @@ export function McpConnectPage() {
     () => (endpointUrl ? buildVSCodeMcpJson(endpointUrl, activeToken) : ""),
     [endpointUrl, activeToken]
   );
+  const antigravitySnippet = useMemo(
+    () => (endpointUrl ? buildAntigravityMcpJson(endpointUrl, activeToken) : ""),
+    [endpointUrl, activeToken]
+  );
+  const copilotSnippet = useMemo(
+    () => (endpointUrl ? buildCopilotMcpJson(endpointUrl, activeToken) : ""),
+    [endpointUrl, activeToken]
+  );
+  const copilotInstructionsSnippet = useMemo(
+    () => (endpointUrl ? buildCopilotInstructions(endpointUrl, activeToken) : ""),
+    [endpointUrl, activeToken]
+  );
   const zedSnippet = useMemo(
     () => (endpointUrl ? buildZedMcpJson(endpointUrl, activeToken) : ""),
     [endpointUrl, activeToken]
@@ -213,6 +337,32 @@ export function McpConnectPage() {
     [endpointUrl, activeToken]
   );
 
+  // Chat AI Tailored Prompts
+  const chatPrompts = useMemo(() => {
+    const sectionsList =
+      portal?.sections && portal.sections.length > 0
+        ? portal.sections.map((s) => ({
+            title: s.title || s.section_type,
+            content: s.content,
+          }))
+        : [
+            {
+              title: "Persona",
+              content: `${portal?.displayName || effectiveUsername || "Developer"}: Software engineer focused on clean architecture, type safety, and maintainable code.`,
+            },
+          ];
+
+    return {
+      chatgpt: compileLocally("chatgpt", sectionsList),
+      claude: compileLocally("claude", sectionsList),
+      gemini: compileLocally("gemini", sectionsList),
+      deepseek: compileLocally("deepseek", sectionsList),
+      grok: compileLocally("grok", sectionsList),
+      kimi: compileLocally("kimi", sectionsList),
+      qwen: compileLocally("qwen", sectionsList),
+    };
+  }, [portal?.sections, portal?.displayName, effectiveUsername]);
+
   async function copyText(value: string | null, key: CopyKey) {
     if (!value) return;
     await navigator.clipboard.writeText(value);
@@ -220,8 +370,8 @@ export function McpConnectPage() {
     setTimeout(() => setCopied((current) => (current === key ? null : current)), 1800);
   }
 
-  function toggleExpand(tool: McpToolId) {
-    setExpandedTools((prev) => ({ ...prev, [tool]: !prev[tool] }));
+  function toggleExpand(key: string) {
+    setExpandedTools((prev) => ({ ...prev, [key]: !prev[key] }));
   }
 
   async function handleCopyToolConfig(tool: McpToolId, snippet: string) {
@@ -235,12 +385,19 @@ export function McpConnectPage() {
       else if (tool === "windsurf") text = buildWindsurfMcpJson(url, token);
       else if (tool === "claude") text = buildClaudeDesktopMcpJson(url, token);
       else if (tool === "vscode") text = buildVSCodeMcpJson(url, token);
+      else if (tool === "antigravity") text = buildAntigravityMcpJson(url, token);
+      else if (tool === "copilot") text = buildCopilotMcpJson(url, token);
       else if (tool === "zed") text = buildZedMcpJson(url, token);
       else if (tool === "terminal") text = buildClaudeCodeCliCommand(url, token);
     }
 
     await copyText(text, tool);
     setExpandedTools((prev) => ({ ...prev, [tool]: true }));
+  }
+
+  async function handleCopyChatPrompt(format: CompileFormat, prompt: string) {
+    await copyText(prompt, `chat-${format}`);
+    setExpandedTools((prev) => ({ ...prev, [`chat-${format}`]: true }));
   }
 
   if (loading && !effectiveUsername) {
@@ -258,10 +415,10 @@ export function McpConnectPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-xl font-medium tracking-tight text-[var(--text)] md:text-2xl">
-            MCP
+            Integrations & MCP
           </h1>
           <p className="mt-1 text-sm leading-relaxed text-[var(--text-secondary)]">
-            Your live profile context inside Cursor, Windsurf, Claude, VS Code, and Zed.
+            Connect your live context to IDEs, coding agents, and chat models.
           </p>
         </div>
         <StatusPill
@@ -271,10 +428,44 @@ export function McpConnectPage() {
         />
       </div>
 
+      {/* Category Tabs */}
+      <div className="mb-6 flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveCategory("ide")}
+          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors ${
+            activeCategory === "ide"
+              ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-sm"
+              : "text-[var(--text-secondary)] hover:bg-[var(--surface)]/50 hover:text-[var(--text)]"
+          }`}
+        >
+          <Cpu className="h-4 w-4" />
+          IDEs & Coding Agents (MCP)
+          <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--card)] px-1.5 py-0.2 text-[10px] text-[var(--muted)]">
+            8
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveCategory("chat")}
+          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs sm:text-sm font-medium transition-colors ${
+            activeCategory === "chat"
+              ? "border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-sm"
+              : "text-[var(--text-secondary)] hover:bg-[var(--surface)]/50 hover:text-[var(--text)]"
+          }`}
+        >
+          <MessageSquare className="h-4 w-4" />
+          Chat AIs & Web Models
+          <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--card)] px-1.5 py-0.2 text-[10px] text-[var(--muted)]">
+            7
+          </span>
+        </button>
+      </div>
+
       {!effectiveUsername ? (
         <div className="rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-5 py-5">
           <p className="text-sm font-medium text-[var(--text)]">
-            Claim a username to enable MCP
+            Claim a username to enable integrations
           </p>
           <p className="mt-1 max-w-md text-sm text-[var(--text-secondary)]">
             Your endpoint is tied to your handle — e.g.{" "}
@@ -288,7 +479,8 @@ export function McpConnectPage() {
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-      ) : (
+      ) : activeCategory === "ide" ? (
+        /* IDE & MCP Category */
         <div className="space-y-6">
           {error ? (
             <p className="rounded-lg border border-red-500/25 bg-red-500/5 px-3 py-2 text-sm text-red-600">
@@ -403,6 +595,67 @@ export function McpConnectPage() {
                 snippet={vscodeSnippet}
                 onCopy={() => void copyText(vscodeSnippet, "vscode-snippet")}
                 copied={copied === "vscode-snippet"}
+              />
+            </IntegrationRow>
+
+            {/* Antigravity */}
+            <IntegrationRow
+              tool="antigravity"
+              action={() => void handleCopyToolConfig("antigravity", antigravitySnippet)}
+              actionLabel="Copy config"
+              working={working}
+              done={copied === "antigravity"}
+              expanded={Boolean(expandedTools.antigravity)}
+              onToggleExpand={() => toggleExpand("antigravity")}
+            >
+              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+                <li>
+                  In Google Antigravity, add <code className="font-mono-brand text-[var(--text)]">meto</code> to your MCP servers in <code className="font-mono-brand text-[var(--text)]">~/.gemini/antigravity/mcp/</code> or agy CLI settings.
+                </li>
+                <li>
+                  Paste the stdio configuration below.
+                </li>
+                <li>
+                  Antigravity subagents and planners will automatically pull your verified directives and stack.
+                </li>
+              </ol>
+              <SnippetBox
+                title="Antigravity MCP Configuration"
+                snippet={antigravitySnippet}
+                onCopy={() => void copyText(antigravitySnippet, "antigravity-snippet")}
+                copied={copied === "antigravity-snippet"}
+              />
+            </IntegrationRow>
+
+            {/* GitHub Copilot & Codex */}
+            <IntegrationRow
+              tool="copilot"
+              action={() => void handleCopyToolConfig("copilot", copilotSnippet)}
+              actionLabel="Copy config"
+              working={working}
+              done={copied === "copilot"}
+              expanded={Boolean(expandedTools.copilot)}
+              onToggleExpand={() => toggleExpand("copilot")}
+            >
+              <ol className="space-y-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+                <li>
+                  <strong className="text-[var(--text)] font-medium">Option A (Copilot Chat MCP):</strong> In VS Code Settings (<code className="font-mono-brand text-[var(--text)]">settings.json</code>), add under <code className="font-mono-brand text-[var(--text)]">github.copilot.chat.mcpServers</code>.
+                </li>
+                <li>
+                  <strong className="text-[var(--text)] font-medium">Option B (Copilot Repo Instructions):</strong> Create a file at <code className="font-mono-brand text-[var(--text)]">.github/copilot-instructions.md</code> in your project root.
+                </li>
+              </ol>
+              <SnippetBox
+                title="settings.json (Copilot Chat MCP)"
+                snippet={copilotSnippet}
+                onCopy={() => void copyText(copilotSnippet, "copilot-snippet")}
+                copied={copied === "copilot-snippet"}
+              />
+              <SnippetBox
+                title=".github/copilot-instructions.md (Repo Instructions)"
+                snippet={copilotInstructionsSnippet}
+                onCopy={() => void copyText(copilotInstructionsSnippet, "copilot-md-snippet")}
+                copied={copied === "copilot-md-snippet"}
               />
             </IntegrationRow>
 
@@ -550,6 +803,178 @@ export function McpConnectPage() {
               </div>
             </div>
           ) : null}
+        </div>
+      ) : (
+        /* Chat AIs & Web Models Category */
+        <div className="space-y-6">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)]/50 p-4 text-xs text-[var(--text-secondary)] leading-relaxed">
+            <p>
+              For web and chat interfaces without MCP, copy your compiled persona prompt and paste it into the AI's <strong>Custom Instructions</strong>, <strong>System Prompt</strong>, or <strong>Custom Gems/GPTs</strong>.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {/* ChatGPT */}
+            <ChatAiRow
+              format="chatgpt"
+              label="ChatGPT"
+              hint="Custom Instructions & GPTs"
+              prompt={chatPrompts.chatgpt}
+              steps={[
+                "In ChatGPT, click your profile avatar (bottom-left) → Settings → Personalization.",
+                "Open Custom Instructions ('What would you like ChatGPT to know about you to provide better responses?').",
+                "Paste your compiled Meto profile prompt below.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("chatgpt", chatPrompts.chatgpt)}
+              copied={copied === "chat-chatgpt"}
+              expanded={Boolean(expandedTools["chat-chatgpt"])}
+              onToggleExpand={() => toggleExpand("chat-chatgpt")}
+            />
+
+            {/* Claude.ai */}
+            <ChatAiRow
+              format="claude"
+              label="Claude.ai"
+              hint="Projects & Custom Instructions"
+              prompt={chatPrompts.claude}
+              steps={[
+                "In Claude.ai, open your Project (or click Projects in the left sidebar).",
+                "Click Set Project Instructions (or add as Project Knowledge document).",
+                "Paste your compiled context prompt below.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("claude", chatPrompts.claude)}
+              copied={copied === "chat-claude"}
+              expanded={Boolean(expandedTools["chat-claude"])}
+              onToggleExpand={() => toggleExpand("chat-claude")}
+            />
+
+            {/* Google Gemini */}
+            <ChatAiRow
+              format="gemini"
+              label="Google Gemini"
+              hint="Custom Gems & AI Studio"
+              prompt={chatPrompts.gemini}
+              steps={[
+                "In Google Gemini, open Gems manager (or System instructions in Google AI Studio).",
+                "Create a new custom Gem or add to conversation instructions.",
+                "Paste your compiled context prompt below.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("gemini", chatPrompts.gemini)}
+              copied={copied === "chat-gemini"}
+              expanded={Boolean(expandedTools["chat-gemini"])}
+              onToggleExpand={() => toggleExpand("chat-gemini")}
+            />
+
+            {/* DeepSeek */}
+            <ChatAiRow
+              format="deepseek"
+              label="DeepSeek"
+              hint="System Prompt & Reasoning Persona"
+              prompt={chatPrompts.deepseek}
+              steps={[
+                "In DeepSeek Chat or API clients, paste into the System Prompt or conversation opening.",
+                "DeepSeek will apply your preferred architectural patterns and stack to all reasoning steps.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("deepseek", chatPrompts.deepseek)}
+              copied={copied === "chat-deepseek"}
+              expanded={Boolean(expandedTools["chat-deepseek"])}
+              onToggleExpand={() => toggleExpand("chat-deepseek")}
+            />
+
+            {/* Grok */}
+            <ChatAiRow
+              format="grok"
+              label="Grok"
+              hint="Conversation Context & Preferences"
+              prompt={chatPrompts.grok}
+              steps={[
+                "In Grok on X, paste the prompt snippet into your chat context or Custom Instructions.",
+                "Grok will personalize technical answers and code to your workflow.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("grok", chatPrompts.grok)}
+              copied={copied === "chat-grok"}
+              expanded={Boolean(expandedTools["chat-grok"])}
+              onToggleExpand={() => toggleExpand("chat-grok")}
+            />
+
+            {/* Moonshot (Kimi) */}
+            <ChatAiRow
+              format="kimi"
+              label="Moonshot (Kimi)"
+              hint="Kimi+ Context & Prompt"
+              prompt={chatPrompts.kimi}
+              steps={[
+                "In Kimi Chat, paste into your custom prompt or agent instructions.",
+                "Kimi will personalize responses according to your tech stack directives.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("kimi", chatPrompts.kimi)}
+              copied={copied === "chat-kimi"}
+              expanded={Boolean(expandedTools["chat-kimi"])}
+              onToggleExpand={() => toggleExpand("chat-kimi")}
+            />
+
+            {/* Qwen */}
+            <ChatAiRow
+              format="qwen"
+              label="Qwen"
+              hint="Tongyi Qianwen & Assistant Instructions"
+              prompt={chatPrompts.qwen}
+              steps={[
+                "In Tongyi Qianwen or Qwen API clients, paste into the system prompt.",
+                "Qwen will adapt to your coding standards.",
+              ]}
+              onCopy={() => void handleCopyChatPrompt("qwen", chatPrompts.qwen)}
+              copied={copied === "chat-qwen"}
+              expanded={Boolean(expandedTools["chat-qwen"])}
+              onToggleExpand={() => toggleExpand("chat-qwen")}
+            />
+          </div>
+
+          {/* Public Profile Link card for Web Browsing AIs */}
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-[var(--text)]">
+                  Live Public Context Link
+                </p>
+                <p className="mt-1 text-xs text-[var(--muted)]">
+                  For AIs with web browsing (ChatGPT Plus, Gemini, Perplexity), share your live profile link:
+                </p>
+                <p className="mt-1.5 font-mono-brand text-xs text-[var(--text)]">
+                  {origin}/profile/{effectiveUsername}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    void copyText(`${origin}/profile/${effectiveUsername}`, "profile-link")
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
+                >
+                  {copied === "profile-link" ? (
+                    <>
+                      <Check className="h-3 w-3 text-emerald-500" />
+                      Copied link
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      Copy link
+                    </>
+                  )}
+                </button>
+                <Link
+                  href={`/profile/${effectiveUsername}`}
+                  target="_blank"
+                  className="inline-flex items-center gap-1 rounded-lg border border-[var(--border-subtle)] px-2.5 py-1.5 text-xs text-[var(--muted)] hover:text-[var(--text)] transition-colors"
+                >
+                  View
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

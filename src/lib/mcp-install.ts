@@ -155,5 +155,44 @@ export function buildClaudeCodeCliCommand(
   return `claude mcp add ${MCP_SERVER_NAME} -- npx -y mcp-remote ${endpointUrl} --header "Authorization: Bearer ${token}"`;
 }
 
+export function buildAntigravityMcpJson(
+  endpointUrl: string,
+  token: string
+): string {
+  return buildClaudeDesktopMcpJson(endpointUrl, token);
+}
+
+export function buildCopilotMcpJson(
+  endpointUrl: string,
+  token: string
+): string {
+  return JSON.stringify(
+    {
+      "github.copilot.chat.mcpServers": {
+        [MCP_SERVER_NAME]: buildClaudeDesktopMcpConfig(endpointUrl, token),
+      },
+    },
+    null,
+    2
+  );
+}
+
+export function buildCopilotInstructions(
+  endpointUrl: string,
+  token: string,
+  summary?: string
+): string {
+  return [
+    `# Meto Developer Context Instructions`,
+    ``,
+    `Use these directives, profile preferences, and architectural rules on all code suggestions:`,
+    ``,
+    summary ? summary : `- Always adhere to my verified tech stack and codebase standards.`,
+    ``,
+    `Live Meto Context URL: ${endpointUrl}`,
+    `Authorization: Bearer ${token}`,
+  ].join("\n");
+}
+
 export const MCP_TEST_PROMPT =
   "Use my Meto MCP profile — summarize who I am, what I'm building, and my tech stack.";

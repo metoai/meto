@@ -13,6 +13,8 @@ const AI_TOOLS = [
   { id: "windsurf" as const, mcp: true },
   { id: "claude" as const, mcp: true },
   { id: "vscode" as const, mcp: true },
+  { id: "antigravity" as const, mcp: true },
+  { id: "copilot" as const, mcp: true },
   { id: "zed" as const, mcp: true },
   { id: "chatgpt", label: "ChatGPT / Web", mcp: false },
   { id: "gemini", label: "Gemini CLI", mcp: false },
