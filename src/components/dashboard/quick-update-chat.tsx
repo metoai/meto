@@ -134,9 +134,9 @@ export function QuickUpdateChat({
 
   if (isFull) {
     return (
-      <div className="flex h-full min-h-0 flex-col bg-[var(--bg)]">
-        <div className="landing-scrollbar-hidden flex min-h-0 flex-1 flex-col justify-end overflow-y-auto">
-          <div className={`w-full px-4 py-6 md:px-6 ${CHAT_COLUMN}`}>
+      <div className="flex h-full min-h-0 flex-1 flex-col bg-[var(--bg)]">
+        <div className="landing-scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+          <div className={`mt-auto w-full px-4 py-6 md:px-6 ${CHAT_COLUMN}`}>
             {chat.applied ? (
               <div
                 className="mb-4 rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3 text-sm text-[var(--primary)]"
@@ -307,7 +307,7 @@ export function QuickUpdateChat({
                     )}
                   </div>
                 ))}
-                <div ref={chat.messagesEndRef} />
+                <div ref={chat.messagesEndRef} className="h-px shrink-0" />
               </div>
             )}
 
@@ -320,7 +320,7 @@ export function QuickUpdateChat({
         </div>
 
         {chat.chatStarted || (gapFix && chat.gapFixBootstrapping) ? (
-          <div className="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--bg)] px-4 pb-5 pt-3 md:px-6">
+          <div className="shrink-0 border-t border-[var(--border-subtle)] bg-[var(--bg)] px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 md:px-6">
             <div className={CHAT_COLUMN}>
               {chat.extractedMemories && chat.extractedMemories.length > 0 ? (
                 <div className="mb-3">

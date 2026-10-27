@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { PlanUsageCard } from "@/components/billing/plan-usage-card";
 import { McpQuickConnectCard } from "@/components/context-share/mcp-quick-connect-card";
 import { usePortalData } from "@/components/portal/portal-data-context";
+import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
@@ -194,8 +195,26 @@ export function PortalSettingsPanel() {
         </section>
 
         <form onSubmit={handleSave}>
+          <div className="mb-5 flex items-center gap-3.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] p-3">
+            <ProfileAvatar
+              name={profileUsername || displayName || email}
+              avatarUrl={profile?.avatar_url ?? profile?.avatar}
+              size={48}
+              square
+              className="rounded-xl shadow-xs"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-[var(--text)]">
+                {displayName || profileUsername || "Your profile"}
+              </p>
+              <p className="truncate text-xs text-[var(--muted)]">
+                {profileUsername ? `@${profileUsername}` : email}
+              </p>
+            </div>
+          </div>
+
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--placeholder)]">
-            Profile
+            Profile details
           </p>
 
           <div className="flex flex-col gap-3.5">

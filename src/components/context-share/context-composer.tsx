@@ -85,7 +85,7 @@ export function ContextComposer({
       className={
         embedded
           ? workspaceLayout
-            ? "flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+            ? "flex min-h-0 w-full flex-1 flex-col overflow-y-auto md:overflow-hidden"
             : "w-full"
           : "landing-panel p-5 sm:p-6"
       }
@@ -101,7 +101,7 @@ export function ContextComposer({
       ) : null}
 
       {workspaceLayout ? (
-        <div className="grid min-h-0 flex-1 gap-4 overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto md:overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
           <div className="min-h-0 min-w-0 space-y-4 overflow-y-auto overscroll-contain pr-0.5">
             {sections.length === 0 ? (
               emptySectionsMessage

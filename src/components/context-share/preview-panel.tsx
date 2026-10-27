@@ -88,7 +88,7 @@ export function PreviewPanel({
               </Link>
             </div>
           ) : linkReady && platformShare ? (
-            <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+            <pre className="max-h-60 sm:max-h-72 md:max-h-44 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
               {platformShare.clipboardText}
             </pre>
           ) : (
@@ -146,7 +146,7 @@ export function PreviewPanel({
                 : WORKSPACE_COPY.copyTextInstead}
             </button>
           </div>
-          <pre className="max-h-56 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
+          <pre className="max-h-80 md:max-h-60 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] whitespace-pre-wrap rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2.5 font-mono-brand text-[11px] leading-relaxed text-[var(--text-secondary)]">
             {contextText}
           </pre>
         </div>

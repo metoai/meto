@@ -85,7 +85,7 @@ export function WorkspacePageClient() {
             <>
               <div
                 id="workspace"
-                className="flex min-h-0 flex-1 flex-col scroll-mt-16 overflow-hidden"
+                className="flex min-h-0 flex-1 flex-col scroll-mt-16 overflow-y-auto md:overflow-hidden"
               >
                 <ContextComposer
                   sections={contextSections}

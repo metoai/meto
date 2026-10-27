@@ -144,7 +144,7 @@ export function useQuickUpdateChat(
   }, [initialGapFix]);
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, []);
 
   useEffect(() => {
@@ -527,17 +527,20 @@ export function useQuickUpdateChat(
 
       const streamResult = applyStreamResult(data ?? {});
       setMessages((current) =>
-        current.map((m) =>
-          m.id === assistantId
-            ? {
-                ...m,
-                content: assistantDisplayReply(
-                  typeof data?.reply === "string" ? data.reply : streamResult.reply,
-                  streamResult.hasUpdates
-                ),
-              }
-            : m
-        )
+        current.map((m) => {
+          if (m.id !== assistantId) return m;
+          const currentText = m.content?.trim();
+          const serverReply =
+            typeof data?.reply === "string" && data.reply.trim()
+              ? data.reply.trim()
+              : streamResult.reply?.trim();
+          return {
+            ...m,
+            content:
+              currentText ||
+              assistantDisplayReply(serverReply, streamResult.hasUpdates),
+          };
+        })
       );
     } catch (err) {
       setMessages(nextMessages);

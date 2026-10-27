@@ -7,6 +7,8 @@ export type UserProfile = {
   display_name: string | null;
   created_at: string;
   updated_at: string;
+  avatar?: string | null;
+  avatar_url?: string | null;
   workspace_mode?: WorkspaceMode;
   plan?: Plan;
   trial_ends_at?: string | null;

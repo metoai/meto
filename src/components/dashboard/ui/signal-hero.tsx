@@ -16,6 +16,7 @@ import {
 import type { ContextScoreResult } from "@/lib/context-score";
 import { CORE_SECTION_TYPES } from "@/lib/meto-prompts";
 import { buildProfileSummary } from "@/lib/profile-summary";
+import { ExpandableText } from "@/components/dashboard/ui/expandable-text";
 import type { ContextSection } from "@/lib/types";
 
 type SignalHeroProps = {
@@ -80,9 +81,14 @@ export function SignalHero({
                     Ready for any AI
                   </p>
                 </div>
-                <p className="mt-2.5 text-[15px] font-medium leading-[1.55] tracking-[-0.01em] text-[var(--text)] md:text-base">
-                  {profileSummary}
-                </p>
+                <div className="mt-2.5">
+                  <ExpandableText
+                    text={profileSummary}
+                    maxLinesMobile={5}
+                    maxLinesDesktop={7}
+                    className="text-[15px] font-medium leading-[1.55] tracking-[-0.01em] text-[var(--text)] md:text-base"
+                  />
+                </div>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">

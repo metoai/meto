@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MetoMarkBadge } from "@/components/meto-mark";
+import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sidebar-context";
 import {
@@ -36,18 +37,18 @@ const SIDEBAR_COLLAPSED_KEY = "meto-sidebar-collapsed";
 
 function navItemClass(active: boolean, collapsed: boolean, muted = false) {
   const base = collapsed
-    ? "group relative flex w-full items-center justify-center rounded-lg p-2.5 transition-all duration-150"
-    : "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium leading-none transition-all duration-150";
+    ? "group relative flex w-full items-center justify-center rounded-lg p-2.5 transition-all duration-150 active:scale-[0.97]"
+    : "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium leading-none transition-all duration-150 active:scale-[0.97]";
 
   if (active) {
-    return `${base} bg-[var(--card)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border-subtle)]`;
+    return `${base} bg-[var(--card)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border-subtle)] font-semibold`;
   }
 
   if (muted) {
     return `${base} text-[var(--muted)] hover:bg-[var(--card)]/70 hover:text-[var(--text-secondary)]`;
   }
 
-  return `${base} text-[var(--text-secondary)] hover:bg-[var(--card)]/70 hover:text-[var(--text)]`;
+  return `${base} text-[var(--text)] hover:bg-[var(--card)]/80 hover:text-[var(--primary)]`;
 }
 
 type SidebarContentProps = {
@@ -94,7 +95,13 @@ function SidebarContent({
   const initial = (sidebarDisplayName || username || "?")[0]?.toUpperCase();
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface)]/85 backdrop-blur-xl">
+    <div
+      className={`flex h-full min-h-0 flex-1 flex-col border-r border-[var(--border-subtle)] ${
+        onClose
+          ? "bg-[var(--card)] shadow-2xl"
+          : "bg-[var(--surface)]/90 backdrop-blur-xl"
+      }`}
+    >
       <div
         className={`flex h-[60px] shrink-0 items-center ${
           collapsed ? "justify-between px-2" : "justify-between px-4"
@@ -144,8 +151,8 @@ function SidebarContent({
 
       <div className={`flex-1 overflow-y-auto pb-3 ${collapsed ? "px-2" : "px-3"}`}>
         <nav aria-label="Main">
-          {!collapsed && !onClose ? (
-            <p className="mb-2 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
+          {!collapsed ? (
+            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
               Menu
             </p>
           ) : null}
@@ -178,14 +185,12 @@ function SidebarContent({
             ))}
           </ul>
 
-          {!collapsed && !onClose ? (
-            <p className="mb-2 mt-5 px-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
+          {!collapsed ? (
+            <p className="mb-2 mt-5 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
               Improve
             </p>
-          ) : collapsed ? (
-            <div className="my-3 border-t border-[var(--border-subtle)]" aria-hidden />
           ) : (
-            <div className="my-2 border-t border-[var(--border-subtle)]" aria-hidden />
+            <div className="my-3 border-t border-[var(--border-subtle)]" aria-hidden />
           )}
           <ul className="space-y-1">
             {secondaryNav.map(({ id, label, href, icon: Icon }) => {
@@ -241,12 +246,13 @@ function SidebarContent({
         {portal?.loaded && (sidebarDisplayName || username) ? (
           collapsed ? (
             <div className="mb-2 flex flex-col items-center gap-1">
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary-light)] text-xs font-semibold text-[var(--primary)]"
-                title={sidebarDisplayName || username || "Profile"}
-              >
-                {initial}
-              </div>
+              <ProfileAvatar
+                name={username || sidebarDisplayName}
+                avatarUrl={portal?.profile?.avatar_url ?? portal?.profile?.avatar}
+                size={34}
+                square
+                className="rounded-lg shadow-sm"
+              />
               <Link
                 href="/settings"
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-[var(--card)] ${
@@ -262,9 +268,13 @@ function SidebarContent({
           ) : (
             <div className="landing-panel mb-2 p-2.5">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-xs font-semibold text-[var(--primary)]">
-                  {initial}
-                </div>
+                <ProfileAvatar
+                  name={username || sidebarDisplayName}
+                  avatarUrl={portal?.profile?.avatar_url ?? portal?.profile?.avatar}
+                  size={32}
+                  square
+                  className="rounded-lg shrink-0 shadow-sm"
+                />
                 <div className="min-w-0 flex-1">
                   {sidebarDisplayName ? (
                     <p className="truncate text-[13px] font-medium text-[var(--text)]">
@@ -372,11 +382,11 @@ function PortalSidebarNav({
         <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             aria-label="Close menu"
             onClick={onMobileClose}
           />
-          <aside className="relative flex h-full w-[260px] max-w-[85vw] border-r border-[var(--border-subtle)]">
+          <aside className="relative flex h-full w-[270px] max-w-[85vw] border-r border-[var(--border-subtle)] bg-[var(--card)] shadow-2xl">
             <SidebarContent
               {...sidebarProps}
               onNavigate={onMobileClose}
@@ -490,7 +500,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
   }, [portal]);
 
   return (
-    <div className="h-screen overflow-hidden text-[var(--text)]">
+    <div className="h-[100dvh] overflow-hidden text-[var(--text)]">
       <PortalSidebarNav
         mobileOpen={mobileNavOpen}
         onMobileClose={() => setMobileNavOpen(false)}
@@ -547,7 +557,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
           <TrialBanner entitlements={portal.entitlements} />
         ) : null}
 
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden pb-14 md:pb-0">
+        <main className="flex min-h-0 flex-1 flex-col overflow-hidden pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
           {children}
         </main>
       </div>

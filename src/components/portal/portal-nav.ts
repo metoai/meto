@@ -71,8 +71,15 @@ export const PROJECTS_NAV = {
 export const PERSONAL_PRIMARY_NAV = [DASHBOARD_NAV, PROFILE_NAV, WORKSPACE_NAV];
 export const PERSONAL_SECONDARY_NAV = [UPDATES_NAV, FIXES_NAV];
 
-/** Developer users — projects + MCP; profile lives in Settings */
-export const DEV_PRIMARY_NAV = [PROJECTS_NAV, MCP_NAV];
+export const DEV_MY_CONTEXT_NAV = {
+  id: "profile" as const,
+  label: "My Context",
+  icon: User,
+  href: "/dashboard/profile",
+};
+
+/** Developer users — projects + MCP + My Context */
+export const DEV_PRIMARY_NAV = [PROJECTS_NAV, MCP_NAV, DEV_MY_CONTEXT_NAV];
 /** Devs only need chat updates; skip gap-fix strip unless they opt in via score */
 export const DEV_SECONDARY_NAV = [UPDATES_NAV];
 
@@ -90,7 +97,12 @@ export const PERSONAL_MOBILE_TAB_NAV = [
 ];
 
 /** Mobile bottom tab bar — developer */
-export const DEV_MOBILE_TAB_NAV = [PROJECTS_NAV, MCP_NAV, UPDATES_NAV];
+export const DEV_MOBILE_TAB_NAV = [
+  PROJECTS_NAV,
+  MCP_NAV,
+  DEV_MY_CONTEXT_NAV,
+  UPDATES_NAV,
+];
 
 export const MOBILE_TAB_NAV = PERSONAL_MOBILE_TAB_NAV;
 

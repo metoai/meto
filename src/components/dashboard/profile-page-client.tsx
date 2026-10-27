@@ -27,10 +27,10 @@ export function ProfilePageClient() {
       <SuccessToast />
       <PortalPageShell>
         <PageHeader
-          title={isDev ? "Dev context" : "Your profile"}
+          title={isDev ? "My Context" : "Your profile"}
           subtitle={
             isDev
-              ? "Stack, projects, and MCP rules — not your personal bio."
+              ? "Your tech stack, preferred tools, and coding directives shared across AI agents."
               : "Living sections that teach AI who you are."
           }
         />

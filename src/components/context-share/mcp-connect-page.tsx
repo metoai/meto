@@ -9,6 +9,7 @@ import {
   Cpu,
   ExternalLink,
   MessageSquare,
+  User,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -452,11 +453,20 @@ export function McpConnectPage() {
             Connect your live context to IDEs, coding agents, and chat models.
           </p>
         </div>
-        <StatusPill
-          label={status.label}
-          detail={status.detail}
-          tone={status.tone}
-        />
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/dashboard/profile"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-1.5 text-xs font-medium text-[var(--text)] transition-all hover:border-[var(--accent-border)] hover:bg-[var(--card)] active:scale-[0.97]"
+          >
+            <User className="h-3.5 w-3.5 text-[var(--primary)]" />
+            <span>My Context</span>
+          </Link>
+          <StatusPill
+            label={status.label}
+            detail={status.detail}
+            tone={status.tone}
+          />
+        </div>
       </div>
 
       {/* Category Tabs */}

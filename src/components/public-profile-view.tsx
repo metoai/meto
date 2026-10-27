@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LandingPageFooter } from "@/components/landing/landing-page-footer";
 import { MetoLogo } from "@/components/meto-logo";
 import { PublicProfileShareCard } from "@/components/public-profile-share-card";
+import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { sectionEmoji } from "@/lib/context-share/config";
 import type { PublicProfile } from "@/lib/public-profile";
 import { buildProfileShareClipboard } from "@/lib/profile-share";
@@ -65,21 +66,13 @@ export function PublicProfileView({ profile }: PublicProfileViewProps) {
       <main className="relative z-10 mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         <div className="landing-panel brand-spot overflow-hidden p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--primary)] text-xl font-semibold text-white shadow-[0_8px_24px_rgba(255,77,0,0.25)]"
-              aria-hidden
-            >
-              {profile.avatar ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatar}
-                  alt=""
-                  className="h-full w-full rounded-2xl object-cover"
-                />
-              ) : (
-                initials || profile.username.slice(0, 2).toUpperCase()
-              )}
-            </div>
+            <ProfileAvatar
+              name={profile.username || profile.name}
+              avatarUrl={profile.avatar}
+              size={64}
+              square
+              className="rounded-2xl shadow-[0_8px_24px_rgba(255,77,0,0.25)]"
+            />
 
             <div className="min-w-0 flex-1">
               <p className="font-mono-brand text-[11px] font-medium uppercase tracking-[0.1em] text-[var(--muted)]">

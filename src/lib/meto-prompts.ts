@@ -301,7 +301,7 @@ ${conversation}${documentBlock}
 
 Rules:
 - Sound warm and human — like a sharp friend, not a form or checklist
-- Be brief: 1–2 sentences in your reply
+- Be brief: produce exactly ONE concise text response for the user (1–2 sentences max). Never output multiple messages, multiple paragraphs, or split replies
 - Ask AT MOST ONE clarifying question if the update is too vague to place
 - If you have enough to update, set done: true and provide merged section content in updates
 - When done: true, briefly say which areas you're updating (e.g. work, what they're building, goals)
