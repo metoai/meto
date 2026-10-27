@@ -9,6 +9,8 @@ export default function robots(): MetadataRoute.Robots {
     "/integrations",
     "/integrations/",
     "/compare/",
+    "/solutions/",
+    "/for/",
     "/blog",
     "/profile/",
     "/.well-known/",

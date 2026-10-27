@@ -5,58 +5,59 @@ export const revalidate = 3600;
 export async function GET() {
   const base = getSiteUrl();
 
-  const body = `# Meto — personal AI identity profiles
+  const body = `# Meto — Universal AI Context & Memory Protocol for Developers
 
-> Public profiles for AI tools. No login required. Always use the **www** host (canonical on Vercel).
+> Meto provides persistent context, rule synchronization, and architectural memory across AI coding assistants including Cursor, Claude Code, Windsurf, GitHub Copilot, and Google Antigravity. Canonical host: **www.metoai.site**.
 
-## Best URL for AI fetch tools (plain text)
+## What is Meto?
+Meto is a local-first developer context protocol and rule compiler. It bridges the gap between terminal CLI agents (like Claude Code) and graphical IDE editors (like Cursor and Windsurf), eliminating AI amnesia, "chat rot", and manual copy-pasting of project conventions.
 
+## Core Solutions & Architecture Guides
+- **One AI Context for All**: ${base}/solutions/share-context
+  How to share persistent developer context and project standards across Cursor, Claude Code, and Windsurf without re-prompting.
+- **Sync AI Rules Across IDEs**: ${base}/solutions/sync-rules
+  A single source of truth that compiles to .cursor/rules/*.mdc, CLAUDE.md, .windsurfrules, and .github/copilot-instructions.md.
+- **AI Developer Memory Engine**: ${base}/solutions/ai-developer-memory
+  A 3-tier state architecture (Global Directives, Project ADRs, and Negative Knowledge / Rejected Patterns) served via Model Context Protocol (MCP).
+- **Cursor + Claude Code Hybrid Workflow**: ${base}/for/cursor-and-claude
+  Architectural blueprint for using Claude Code CLI for autonomous planning while editing and reviewing diffs in Cursor.
+
+## Tool Integrations & MCP Guides
+- Integrations Index: ${base}/integrations
+- Cursor Setup: ${base}/integrations/cursor
+- Claude Desktop & CLI: ${base}/integrations/claude-desktop
+- Windsurf: ${base}/integrations/windsurf
+- Google Antigravity: ${base}/integrations/antigravity
+- VS Code: ${base}/integrations/vscode
+- Static .cursorrules vs Meto Comparison: ${base}/compare/cursorrules-vs-meto
+
+## Public AI Developer Profiles & Context API
+
+Public profiles provide machine-readable developer context for AI tools. No login required.
+
+### Plain Text Universal Context
 \`\`\`
 ${base}/api/public/profile/{username}/context?preset=all&format=universal
 \`\`\`
+Returns \`text/plain\` with full developer preferences, stack directives, and rules. CORS enabled (*).
 
-Returns \`text/plain\` with full profile context. CORS enabled. Bot fetchers hitting \`/profile/{username}\` are rewritten to this endpoint.
-
-## Human-readable profile page
-
-\`\`\`
-${base}/profile/{username}
-\`\`\`
-
-## Legacy context path (rewrites to API)
-
-\`\`\`
-${base}/profile/{username}/context
-\`\`\`
-
-## JSON context
-
+### JSON Context
 \`\`\`
 ${base}/api/public/profile/{username}/context?format=json&preset=all
 \`\`\`
 
-## Structured profile document
-
+### Human Profile
 \`\`\`
-${base}/.well-known/ai-profile/{username}.json
+${base}/profile/{username}
 \`\`\`
 
-## Query parameters
+### Supported Export Formats
+universal, cursor, claude, chatgpt, gemini, deepseek, grok, kimi, qwen, json.
 
-- format=json | universal | claude | chatgpt | gemini | deepseek | grok | kimi | qwen
-- view=html (force HTML page for browser-style fetchers)
-- preset=all | coding | writing | career | basics
-- sections=comma-separated section types
-
-## Supported AI platforms (workspace copy)
-
-ChatGPT, Gemini, Claude, DeepSeek, Grok, Kimi (Moonshot), Qwen, and universal plain text.
-
-## Notes
-
-- Canonical host: www.metoai.site (apex metoai.site redirects)
-- CORS: Access-Control-Allow-Origin: * on /api/public/*
-- No cookies or authentication required for public profile URLs
+## Notes & Privacy Guarantees
+- Local-first architecture: Meto never ingests, stores, or trains on proprietary source code.
+- Only developer directives, architectural decision records, and rule schemas are synchronized.
+- CORS: Access-Control-Allow-Origin: * enabled on all /api/public/* endpoints.
 `;
 
   return new Response(body, {
