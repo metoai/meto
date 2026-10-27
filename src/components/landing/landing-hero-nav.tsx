@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LANDING_PAGE_NAV_LINKS } from "@/lib/marketing-nav";
 
 type LandingHeroNavProps = {
   isLoggedIn?: boolean;
@@ -12,19 +13,25 @@ type LandingHeroNavProps = {
   loggedInLabel?: string;
 };
 
-const HERO_NAV_LINKS = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Context Score", href: "#context-score" },
-  { label: "Integrations", href: "/integrations" },
-  { label: "Pricing", href: "#pricing" },
-] as const;
-
 export function LandingHeroNav({
   isLoggedIn = false,
   loggedInHref = "/dashboard",
   loggedInLabel = "Dashboard",
 }: LandingHeroNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string) {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const id = href.slice(1);
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+      }
+      setMobileMenuOpen(false);
+    }
+  }
 
   return (
     <header className="relative z-20 w-full backdrop-blur-md bg-transparent sm:bg-black/[0.02] dark:sm:bg-white/[0.02]">
@@ -40,19 +47,20 @@ export function LandingHeroNav({
           </span>
         </Link>
 
-        {/* Center: Desktop Navigation Links */}
+        {/* Center: Desktop In-Page Section Links Only */}
         <nav
           className="hidden items-center gap-1 sm:gap-2 md:flex"
-          aria-label="Main navigation"
+          aria-label="Landing page sections navigation"
         >
-          {HERO_NAV_LINKS.map((link) => (
-            <Link
+          {LANDING_PAGE_NAV_LINKS.map((link) => (
+            <a
               key={link.label}
               href={link.href}
-              className="rounded-full px-3.5 py-1.5 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
+              onClick={(e) => handleNavClick(e, link.href)}
+              className="rounded-full px-3.5 py-1.5 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-150 active:scale-[0.97] whitespace-nowrap cursor-pointer"
             >
               {link.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
@@ -129,15 +137,15 @@ export function LandingHeroNav({
       {mobileMenuOpen ? (
         <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-black/[0.08] dark:border-white/[0.12] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xl p-4 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-            {HERO_NAV_LINKS.map((link) => (
-              <Link
+            {LANDING_PAGE_NAV_LINKS.map((link) => (
+              <a
                 key={link.label}
                 href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150"
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 cursor-pointer"
               >
                 {link.label}
-              </Link>
+              </a>
             ))}
 
             <div className="my-2 h-px bg-black/[0.08] dark:bg-white/[0.12]" />
