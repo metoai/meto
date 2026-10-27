@@ -7,6 +7,7 @@ import {
   getSiteUrl,
 } from "@/lib/site";
 import { createPublicClient } from "@/lib/supabase/public";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export { getSiteUrl };
 
@@ -259,7 +260,9 @@ export async function fetchPublicProfileByUsername(
   if (!username || typeof username !== "string") {
     return null;
   }
-  const supabase = createPublicClient();
+  const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? createAdminClient()
+    : createPublicClient();
   const normalized = username.trim().toLowerCase();
 
   const { data: profile } = await supabase
