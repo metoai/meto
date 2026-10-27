@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SOLUTIONS_NAV_LINKS } from "@/lib/marketing-nav";
 
 type LandingHeroNavProps = {
   isLoggedIn?: boolean;
@@ -15,6 +14,7 @@ type LandingHeroNavProps = {
 
 const HERO_NAV_LINKS = [
   { label: "How it works", href: "#how-it-works" },
+  { label: "Context Score", href: "#context-score" },
   { label: "Integrations", href: "/integrations" },
   { label: "Pricing", href: "#pricing" },
 ] as const;
@@ -25,34 +25,6 @@ export function LandingHeroNav({
   loggedInLabel = "Dashboard",
 }: LandingHeroNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [solutionsOpen, setSolutionsOpen] = useState(false);
-  const solutionsRef = useRef<HTMLDivElement>(null);
-
-  // Close solutions dropdown when clicking outside or pressing Escape
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        solutionsRef.current &&
-        !solutionsRef.current.contains(event.target as Node)
-      ) {
-        setSolutionsOpen(false);
-      }
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSolutionsOpen(false);
-        setMobileMenuOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
 
   return (
     <header className="relative z-20 w-full">
@@ -70,66 +42,14 @@ export function LandingHeroNav({
 
         {/* Center: Desktop Navigation Links */}
         <nav
-          className="hidden items-center gap-7 lg:gap-9 md:flex"
+          className="hidden items-center gap-1 sm:gap-2 md:flex"
           aria-label="Main navigation"
         >
-          {/* Solutions Dropdown */}
-          <div
-            ref={solutionsRef}
-            className="relative"
-            onMouseEnter={() => setSolutionsOpen(true)}
-            onMouseLeave={() => setSolutionsOpen(false)}
-          >
-            <button
-              type="button"
-              onClick={() => setSolutionsOpen((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 text-[14px] font-medium transition-colors duration-150 ${
-                solutionsOpen
-                  ? "text-neutral-950 dark:text-white"
-                  : "text-neutral-700 hover:text-neutral-950 dark:text-[#d6ccc5] dark:hover:text-white"
-              }`}
-              aria-expanded={solutionsOpen}
-              aria-haspopup="true"
-            >
-              <span>Solutions</span>
-              <ChevronDown
-                className={`h-3.5 w-3.5 text-[var(--muted)] transition-transform duration-150 ${
-                  solutionsOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {solutionsOpen ? (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50 w-72">
-                <div className="rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-2 shadow-2xl ring-1 ring-black/10 dark:ring-white/10 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="space-y-0.5">
-                    {SOLUTIONS_NAV_LINKS.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setSolutionsOpen(false)}
-                        className="group block rounded-xl px-3 py-2 text-left transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98]"
-                      >
-                        <div className="text-[13px] font-medium text-[var(--text)] group-hover:text-[var(--primary)] transition-colors">
-                          {item.label}
-                        </div>
-                        <p className="text-[11px] text-[var(--muted)] leading-tight mt-0.5">
-                          {item.description}
-                        </p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          {/* Direct Links */}
           {HERO_NAV_LINKS.map((link) => (
             <Link
               key={link.label}
               href={link.href}
-              className="text-[14px] font-medium text-neutral-700 hover:text-neutral-950 dark:text-[#d6ccc5] dark:hover:text-white transition-colors duration-150"
+              className="rounded-full px-3.5 py-1.5 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap"
             >
               {link.label}
             </Link>
@@ -137,7 +57,7 @@ export function LandingHeroNav({
         </nav>
 
         {/* Right: Actions (Theme, Log in, Get started free) */}
-        <div className="flex items-center gap-3.5 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <ThemeToggle compact />
 
           <span
@@ -205,33 +125,10 @@ export function LandingHeroNav({
         </div>
       </div>
 
-      {/* Responsive Minimal Mobile Dropdown Drawer */}
+      {/* Responsive Minimal Mobile Drawer */}
       {mobileMenuOpen ? (
         <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-4 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
-            <div className="px-3.5 py-1 text-[11px] font-mono uppercase tracking-wider text-[var(--muted)]">
-              Solutions
-            </div>
-            <div className="space-y-0.5 mb-2">
-              {SOLUTIONS_NAV_LINKS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-xl px-3.5 py-2 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors"
-                >
-                  <span className="block text-[var(--text)] font-semibold">
-                    {item.label}
-                  </span>
-                  <span className="block text-[11px] text-[var(--muted)] font-normal">
-                    {item.description}
-                  </span>
-                </Link>
-              ))}
-            </div>
-
-            <div className="my-1.5 h-px bg-[var(--border-subtle)]" />
-
             {HERO_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
