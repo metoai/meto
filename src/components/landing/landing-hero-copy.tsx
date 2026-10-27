@@ -72,7 +72,7 @@ export function LandingHeroCopy({
         className="landing-animate-in mt-6 max-w-[540px]"
         style={{ animationDelay: "0.04s" }}
       >
-        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-neutral-700 dark:text-[#d6ccc5] font-normal text-balance">
+        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-neutral-700 dark:text-neutral-300 font-normal text-balance">
           One identity profile for persistent memory and context across all your AI assistants.
         </p>
       </div>

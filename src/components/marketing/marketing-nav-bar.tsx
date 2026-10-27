@@ -34,11 +34,11 @@ export function MarketingNavBar({
       className={`landing-animate-in relative z-50 flex justify-center px-4 pb-2 pt-4 ${className}`}
     >
       <div className={`w-full ${maxWidthClass}`}>
-        <div className="flex h-11 items-center justify-between gap-3 rounded-full border border-[var(--border-subtle)] bg-[var(--card)]/90 px-3 shadow-[var(--shadow-md)] backdrop-blur-xl sm:px-4">
+        <div className="flex h-11 items-center justify-between gap-3 rounded-full border border-black/[0.08] dark:border-white/[0.12] bg-white/60 dark:bg-black/45 backdrop-blur-xl backdrop-saturate-150 px-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.25)] sm:px-4">
           {/* Logo */}
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 pl-0.5 transition-opacity hover:opacity-85"
+            className="flex shrink-0 items-center gap-2 pl-0.5 transition-opacity hover:opacity-85 active:scale-[0.98] transition-transform duration-150"
           >
             <MetoMarkBadge size="sm" />
             <span className="text-[15px] font-semibold tracking-tight text-neutral-950 dark:text-white">
@@ -55,7 +55,7 @@ export function MarketingNavBar({
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-full px-3 py-1.5 text-[13.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap"
+                className="rounded-full px-3 py-1.5 text-[13.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 active:scale-[0.97] whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -70,7 +70,7 @@ export function MarketingNavBar({
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 md:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.95] transition-all duration-150 md:hidden"
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -105,7 +105,7 @@ export function MarketingNavBar({
               <div className="hidden items-center gap-1.5 sm:flex">
                 <Link
                   href="/auth/login"
-                  className="rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap"
+                  className="rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 active:scale-[0.97] whitespace-nowrap"
                 >
                   Log in
                 </Link>
@@ -123,7 +123,7 @@ export function MarketingNavBar({
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen ? (
           <nav
-            className="mt-2 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-3 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
+            className="mt-2 rounded-2xl border border-black/[0.08] dark:border-white/[0.12] bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl p-3 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
             aria-label="Mobile navigation"
           >
             <div className="space-y-0.5">
@@ -132,7 +132,7 @@ export function MarketingNavBar({
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-sm font-medium text-[var(--text)] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                  className="block rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                 >
                   {link.label}
                 </Link>
@@ -141,19 +141,19 @@ export function MarketingNavBar({
 
             {!isLoggedIn ? (
               <>
-                <div className="my-2 h-px bg-[var(--border-subtle)]" />
+                <div className="my-2 h-px bg-black/[0.06] dark:bg-white/[0.08]" />
                 <div className="flex flex-col gap-2 pt-1">
                   <Link
                     href="/auth/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] text-sm font-medium text-[var(--text)] transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                    className="flex h-10 items-center justify-center rounded-xl border border-black/[0.08] dark:border-white/[0.12] text-sm font-medium text-neutral-800 hover:text-neutral-950 dark:text-neutral-200 dark:hover:text-white transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98]"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/auth/signup"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] text-sm font-semibold text-white shadow-xs transition-transform active:scale-[0.98]"
+                    className="flex h-10 items-center justify-center rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-sm font-semibold shadow-xs transition-transform active:scale-[0.98]"
                   >
                     Get started
                   </Link>

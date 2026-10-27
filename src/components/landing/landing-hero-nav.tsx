@@ -27,12 +27,12 @@ export function LandingHeroNav({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="relative z-20 w-full">
+    <header className="relative z-20 w-full backdrop-blur-md bg-white/[0.02] dark:bg-black/[0.05]">
       <div className="flex h-[72px] items-center justify-between gap-4 border-b border-black/[0.06] dark:border-white/[0.08] px-2 sm:px-4">
         {/* Left: Meto Logo + Brand Mark */}
         <Link
           href="/"
-          className="group flex shrink-0 items-center gap-2.5 text-neutral-900 dark:text-white transition-opacity hover:opacity-85"
+          className="group flex shrink-0 items-center gap-2.5 text-neutral-900 dark:text-white transition-opacity hover:opacity-85 active:scale-[0.98] transition-transform duration-150"
         >
           <MetoMarkBadge size="sm" />
           <span className="text-[16px] font-semibold tracking-[-0.02em] text-neutral-950 dark:text-white">
@@ -49,7 +49,7 @@ export function LandingHeroNav({
             <Link
               key={link.label}
               href={link.href}
-              className="rounded-full px-3.5 py-1.5 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors duration-150 whitespace-nowrap"
+              className="rounded-full px-3.5 py-1.5 text-[14px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 active:scale-[0.97] whitespace-nowrap"
             >
               {link.label}
             </Link>
@@ -69,7 +69,7 @@ export function LandingHeroNav({
           <button
             type="button"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/10 md:hidden transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.95] md:hidden transition-all duration-150"
             aria-label="Toggle menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -100,7 +100,7 @@ export function LandingHeroNav({
           {isLoggedIn ? (
             <Link
               href={loggedInHref}
-              className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
+              className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
             >
               <span>{loggedInLabel}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -109,13 +109,13 @@ export function LandingHeroNav({
             <>
               <Link
                 href="/auth/login"
-                className="hidden text-[14px] font-medium text-neutral-700 hover:text-neutral-950 dark:text-[#d6ccc5] dark:hover:text-white transition-colors duration-150 sm:block px-1"
+                className="hidden text-[14px] font-medium text-neutral-700 hover:text-neutral-950 dark:text-neutral-200 dark:hover:text-white hover:bg-black/[0.05] dark:hover:bg-white/[0.08] rounded-full px-3 py-1.5 transition-colors duration-150 active:scale-[0.97] sm:block"
               >
                 Log in
               </Link>
               <Link
                 href="/auth/signup"
-                className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
+                className="hidden sm:inline-flex group h-10 sm:h-11 items-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-4 sm:px-5 text-[14px] font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.12)] dark:shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
               >
                 <span>Get started free</span>
                 <ArrowRight className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -127,14 +127,14 @@ export function LandingHeroNav({
 
       {/* Responsive Minimal Mobile Drawer */}
       {mobileMenuOpen ? (
-        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-4 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-black/[0.08] dark:border-white/[0.12] bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl p-4 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
             {HERO_NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors"
+                className="rounded-xl px-3.5 py-2.5 text-[15px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all"
               >
                 {link.label}
               </Link>
@@ -147,14 +147,14 @@ export function LandingHeroNav({
                 <Link
                   href="/auth/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-xl px-3.5 py-2 text-[14.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.04] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/[0.06] transition-colors"
+                  className="rounded-xl px-3.5 py-2 text-[14.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/auth/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-98"
+                  className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-[0.98]"
                 >
                   <span>Get started free</span>
                   <ArrowRight className="h-4 w-4" />
@@ -164,7 +164,7 @@ export function LandingHeroNav({
               <Link
                 href={loggedInHref}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-98"
+                className="flex h-11 items-center justify-center gap-2 rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 px-4 text-[14.5px] font-semibold shadow-xs transition-transform active:scale-[0.98]"
               >
                 <span>{loggedInLabel}</span>
                 <ArrowRight className="h-4 w-4" />

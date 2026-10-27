@@ -48,7 +48,7 @@ export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProp
       <button
         type="button"
         onClick={toggleCompactTheme}
-        className={`flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-[#d6ccc5] dark:hover:text-white dark:hover:bg-white/10 transition-colors duration-150 ${className}`}
+        className={`flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.95] transition-all duration-150 ${className}`}
         aria-label={nextLabel}
         title={nextLabel}
       >
