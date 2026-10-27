@@ -14,7 +14,7 @@ import {
 import { mergeProfileSectionUpdates } from "@/lib/profile-sections";
 import { dualWriteSectionUpdates } from "@/lib/knowledge/extract";
 import { autoCreateProjectsFromDeveloperUpdate } from "@/lib/projects/auto-create";
-import { loadProjectMemoriesGrouped } from "@/lib/projects/project-memories";
+import { loadProjectMemoriesGrouped, recordProjectEvent } from "@/lib/projects/project-memories";
 import { buildTodayContext } from "@/lib/projects/today-context";
 import { buildProjectContext } from "@/lib/projects/types";
 import type { KnowledgeObject } from "@/lib/knowledge/types";
@@ -308,6 +308,188 @@ function mcpTransportPaths(username: string) {
   };
 }
 
+function formatMetoSyncBanner(data: {
+  action: string;
+  detail: string;
+  scope?: string;
+  sections?: string[];
+}): string {
+  const line = "─".repeat(58);
+  const detailSnippet = data.detail.replace(/\n/g, " ").slice(0, 44);
+  const scopeText = data.scope ? data.scope.slice(0, 44) : "Global Profile";
+  const sectionsText = data.sections?.length ? data.sections.join(", ").slice(0, 44) : "";
+
+  return [
+    `┌${line}┐`,
+    `│ ✦ Meto Context Synced                                    │`,
+    `│ • Action: ${data.action.slice(0, 44).padEnd(46)}│`,
+    `│ • Recorded: ${detailSnippet.padEnd(44)}│`,
+    `│ • Scope: ${scopeText.padEnd(47)}│`,
+    ...(sectionsText ? [`│ • Sections: ${sectionsText.padEnd(44)}│`] : []),
+    `│ • Synced across: Cursor, Claude, Antigravity, Windsurf   │`,
+    `└${line}┘`,
+  ].join("\n");
+}
+
+async function searchMetoContext(
+  userId: string,
+  query: string,
+  projectSlug?: string
+): Promise<{
+  found: boolean;
+  text: string;
+}> {
+  const admin = createAdminClient();
+  const rawTokens = query
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, " ")
+    .split(/\s+/)
+    .filter(
+      (t) =>
+        t.length > 2 &&
+        ![
+          "what", "how", "why", "when", "where", "which", "should", "could", "would",
+          "we", "you", "use", "using", "the", "for", "with", "from", "and", "our",
+          "can", "best", "some", "any", "like", "good", "tool", "stack"
+        ].includes(t)
+    );
+
+  if (rawTokens.length === 0) {
+    return {
+      found: false,
+      text: "No specific keywords to search for past Meto decisions.",
+    };
+  }
+
+  type MatchItem = {
+    title: string;
+    content: string;
+    type: string;
+    scope: string;
+    score: number;
+  };
+
+  const matches: MatchItem[] = [];
+
+  // 1. Search project-specific events & memories if projectSlug provided
+  if (projectSlug) {
+    const cleanSlug = projectSlug.trim().toLowerCase();
+    const { data: project } = await admin
+      .from("projects")
+      .select("id, name, slug")
+      .eq("user_id", userId)
+      .eq("slug", cleanSlug)
+      .maybeSingle();
+
+    if (project) {
+      const { data: events } = await admin
+        .from("project_events")
+        .select("title, content, event_type, created_at")
+        .eq("project_id", project.id)
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(25);
+
+      if (events) {
+        for (const ev of events) {
+          const textToSearch = `${ev.title} ${ev.content || ""}`.toLowerCase();
+          let score = 0;
+          for (const token of rawTokens) {
+            if (textToSearch.includes(token)) score += 3; // higher weight for current project
+          }
+          if (score > 0) {
+            matches.push({
+              title: ev.title,
+              content: ev.content || ev.title,
+              type: ev.event_type.toUpperCase(),
+              scope: `Project: ${project.name}`,
+              score,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Search knowledge_objects (decisions, preferences, rules, tools)
+  const { data: knowledgeRows } = await admin
+    .from("knowledge_objects")
+    .select("title, content, type, metadata")
+    .eq("user_id", userId)
+    .order("updated_at", { ascending: false })
+    .limit(40);
+
+  if (knowledgeRows) {
+    for (const obj of knowledgeRows) {
+      const textToSearch = `${obj.title} ${obj.content || ""}`.toLowerCase();
+      let score = 0;
+      for (const token of rawTokens) {
+        if (textToSearch.includes(token)) score += 2;
+      }
+      if (score > 0) {
+        matches.push({
+          title: obj.title,
+          content: obj.content,
+          type: (obj.type || "memory").toUpperCase(),
+          scope: "Global Developer Memory",
+          score,
+        });
+      }
+    }
+  }
+
+  // 3. Search profile context_sections (work, skills, working_style, etc.)
+  const contextRows = (await getUserContextSections(admin, userId)) as ContextSectionRow[];
+  for (const sec of contextRows) {
+    const textToSearch = `${sec.title} ${sec.content || ""}`.toLowerCase();
+    let score = 0;
+    for (const token of rawTokens) {
+      if (textToSearch.includes(token)) score += 1;
+    }
+    if (score > 0) {
+      matches.push({
+        title: sec.title || sec.section_type,
+        content: sec.content.slice(0, 300),
+        type: "PREFERENCE",
+        scope: "Developer Profile",
+        score,
+      });
+    }
+  }
+
+  // Sort by score descending and deduplicate
+  matches.sort((a, b) => b.score - a.score);
+  const topMatches = matches.slice(0, 3);
+
+  if (topMatches.length === 0) {
+    return {
+      found: false,
+      text: `No prior verified decisions or preferences found in Meto for "${query}". Feel free to explore and choose the best modern pattern for this task.`,
+    };
+  }
+
+  const lines = [
+    `┌────────────────────────────────────────────────────────────┐`,
+    `│ ✦ Meto Recall: Past Decisions & Preferences                │`,
+    `│ Query: ${query.slice(0, 48).padEnd(51)}│`,
+    `├────────────────────────────────────────────────────────────┤`,
+  ];
+
+  for (const m of topMatches) {
+    lines.push(`│ • [${m.type}] ${m.title.slice(0, 48)}`);
+    lines.push(`│   Scope: ${m.scope}`);
+    lines.push(`│   Details: ${m.content.slice(0, 80).replace(/\n/g, " ")}`);
+    lines.push(`│`);
+  }
+
+  lines.push(`└────────────────────────────────────────────────────────────┘`);
+
+  return {
+    found: true,
+    text: lines.join("\n"),
+  };
+}
+
 /**
  * Build a per-user MCP handler after auth succeeds.
  * We create it per request so all tools/resources are safely scoped to the
@@ -570,11 +752,18 @@ function createUserScopedMcpHandler(
           await mergeProfileSectionUpdates(admin, userId, validUpdates);
           triggerBackgroundProfileProcessing(userId, "Explicit section upsert via MCP tool", validUpdates);
 
+          const banner = formatMetoSyncBanner({
+            action: "Profile Sections Upserted",
+            detail: `Updated: ${Object.keys(validUpdates).join(", ")}`,
+            scope: "Global Profile",
+            sections: Object.keys(validUpdates),
+          });
+
           const result = {
             content: [
               {
                 type: "text" as const,
-                text: `Successfully upserted sections: ${Object.keys(validUpdates).join(", ")}. Background processing started.`,
+                text: banner,
               },
             ] as [{ type: "text"; text: string }],
           };
@@ -586,45 +775,124 @@ function createUserScopedMcpHandler(
 
       /**
        * TOOL: update_meto_profile
-       * Input schema: { new_fact: string }
+       * Input schema: { new_fact: string, project_slug?: string }
        *
-       * 1) Sends fact to LLM helper to generate merged profile updates
-       * 2) Persists merged updates to `context_sections`
-       * 3) Triggers background processing
+       * 1) Records project event if project_slug is provided
+       * 2) Merges fact into profile sections using LLM helper
+       * 3) Persists merged updates to `context_sections` & triggers background processing
+       * 4) Returns formatted visual confirmation banner
        */
       server.registerTool(
         "update_meto_profile",
         {
-          title: "Update Meto profile",
+          title: "Update Meto profile & project memory",
           description:
-            "Merge a new user fact into profile sections using AI. Use this when you have unstructured information to add. If you have exact, deterministic changes to make, use upsert_meto_profile_sections instead.",
+            "Automatically call this tool whenever the user establishes an architectural decision (ADR), adopts a new dependency or framework, refactors stack conventions, or asks to remember something. Keeps Meto in sync in the background.",
           inputSchema: {
-            new_fact: z.string().min(1),
+            new_fact: z.string().min(1).describe("The fact, stack change, or architectural decision to record"),
+            project_slug: z
+              .string()
+              .optional()
+              .describe("Optional project slug if the decision applies to a specific repository or project"),
           },
         },
-        async ({ new_fact }) => {
+        async ({ new_fact, project_slug }) => {
           const trimmedFact = new_fact.trim();
-          const cacheKey = `update:${userId}:${trimmedFact.toLowerCase()}`;
+          const cleanProject = project_slug?.trim().toLowerCase();
+          const cacheKey = `update:${userId}:${cleanProject || "global"}:${trimmedFact.toLowerCase()}`;
           const cached = checkIdempotency(cacheKey);
           if (cached) {
             console.log(`[IDEMPOTENCY HIT] Returning cached update result for user=${userId}`);
             return cached;
           }
 
+          const admin = createAdminClient();
+          let projectFound = false;
+          let projectName = "";
+
+          if (cleanProject) {
+            const { data: project } = await admin
+              .from("projects")
+              .select("id, name, slug")
+              .eq("user_id", userId)
+              .eq("slug", cleanProject)
+              .maybeSingle();
+
+            if (project) {
+              projectFound = true;
+              projectName = project.name;
+              try {
+                await recordProjectEvent(admin, userId, project.id, {
+                  event_type: "decision",
+                  title: trimmedFact.slice(0, 100),
+                  content: trimmedFact,
+                  metadata: { source: "mcp", project_slug: cleanProject },
+                });
+              } catch (eventErr) {
+                console.error("Failed to record project decision event:", eventErr);
+              }
+            }
+          }
+
           const { sections } =
             await mergeFactIntoProfileWithLlm(userId, trimmedFact);
+
+          const banner = formatMetoSyncBanner({
+            action: projectFound ? `Decision Logged (${projectName})` : "Global Profile Updated",
+            detail: trimmedFact,
+            scope: projectFound ? `${projectName} (${cleanProject})` : "Global Profile",
+            sections,
+          });
 
           const result = {
             content: [
               {
                 type: "text" as const,
-                text: `Profile updated successfully. Merged fact into sections: ${sections.join(", ")}. Background processing started.`,
+                text: banner,
               },
             ] as [{ type: "text"; text: string }],
           };
 
           setIdempotency(cacheKey, result);
           return result;
+        }
+      );
+
+      /**
+       * TOOL: recall_meto_context
+       * Input schema: { query: string, project_slug?: string }
+       *
+       * Searches past decisions, vetted libraries, and developer preferences
+       * to contribute high-signal context when recommendations are requested.
+       */
+      server.registerTool(
+        "recall_meto_context",
+        {
+          title: "Recall Meto developer context & past decisions",
+          description:
+            "Search the user's Meto memory for past architectural decisions, vetted tools/libraries, and working preferences related to a topic. Call this when the developer asks for suggestions, library recommendations, or architectural patterns to check if they have solved this before.",
+          inputSchema: {
+            query: z
+              .string()
+              .min(1)
+              .describe("Topic or question, e.g. 'authentication', 'charting library', 'database migrations'"),
+            project_slug: z
+              .string()
+              .optional()
+              .describe("Optional project slug to prioritize project-specific ADRs and stack conventions"),
+          },
+        },
+        async ({ query, project_slug }) => {
+          const result = await searchMetoContext(userId, query, project_slug);
+
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: result.text,
+              },
+            ] as [{ type: "text"; text: string }],
+          };
         }
       );
     },

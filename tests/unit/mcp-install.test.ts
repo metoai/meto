@@ -13,6 +13,7 @@ import {
   buildVSCodeMcpJson,
   buildWindsurfMcpJson,
   buildZedMcpJson,
+  buildProjectMetoRules,
 } from "@/lib/mcp-install";
 import { MCP_TOOL_ICONS } from "@/lib/ai-platform-icons";
 
@@ -107,5 +108,34 @@ describe("mcp-install builders", () => {
       expect(MCP_TOOL_ICONS[key as keyof typeof MCP_TOOL_ICONS].label).toBeTruthy();
       expect(MCP_TOOL_ICONS[key as keyof typeof MCP_TOOL_ICONS].url).toBeTruthy();
     });
+  });
+
+  it("builds cursor project rules with frontmatter and project slug", () => {
+    const rule = buildProjectMetoRules({
+      editor: "cursor",
+      projectSlug: "meto-backend",
+      username: "testi",
+    });
+    expect(rule.filename).toBe(".cursor/rules/meto.mdc");
+    expect(rule.editor).toBe("cursor");
+    expect(rule.content).toContain("alwaysApply: true");
+    expect(rule.content).toContain("recall_meto_context");
+    expect(rule.content).toContain('project_slug="meto-backend"');
+    expect(rule.content).toContain("update_meto_profile");
+  });
+
+  it("builds claude and windsurf project rules without frontmatter", () => {
+    const claudeRule = buildProjectMetoRules({
+      editor: "claude",
+      projectSlug: "meto",
+    });
+    expect(claudeRule.filename).toBe("CLAUDE.md");
+    expect(claudeRule.content).not.toContain("alwaysApply: true");
+    expect(claudeRule.content).toContain("recall_meto_context");
+
+    const windsurfRule = buildProjectMetoRules({
+      editor: "windsurf",
+    });
+    expect(windsurfRule.filename).toBe(".windsurfrules");
   });
 });

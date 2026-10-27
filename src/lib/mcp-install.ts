@@ -196,3 +196,66 @@ export function buildCopilotInstructions(
 
 export const MCP_TEST_PROMPT =
   "Use my Meto MCP profile — summarize who I am, what I'm building, and my tech stack.";
+
+export type EditorTarget = "cursor" | "claude" | "windsurf" | "antigravity" | "copilot";
+
+export type ProjectRuleResult = {
+  filename: string;
+  editor: EditorTarget;
+  content: string;
+};
+
+export function buildProjectMetoRules(options: {
+  username?: string;
+  projectSlug?: string;
+  projectName?: string;
+  editor?: EditorTarget;
+}): ProjectRuleResult {
+  const { projectSlug, editor = "cursor" } = options;
+  const slugArg = projectSlug ? ` with project_slug="${projectSlug}"` : "";
+  const projectRef = projectSlug
+    ? `\n   - For project architecture and active sprint directives, consult \`profile://project/${projectSlug}/today\`.`
+    : "";
+
+  let filename = ".cursor/rules/meto.mdc";
+  if (editor === "claude") filename = "CLAUDE.md";
+  if (editor === "windsurf") filename = ".windsurfrules";
+  if (editor === "antigravity") filename = "GEMINI.md";
+  if (editor === "copilot") filename = ".github/copilot-instructions.md";
+
+  const isMdc = editor === "cursor";
+  const mdcHeader = isMdc
+    ? [
+        `---`,
+        `description: Meto AI Context Protocol, Proactive Memory Recall & Decision Sync`,
+        `globs: *`,
+        `alwaysApply: true`,
+        `---`,
+        ``,
+      ].join("\n")
+    : "";
+
+  const content = [
+    mdcHeader,
+    `# Meto AI Protocol & Developer Directives`,
+    ``,
+    `You are connected to Meto via Model Context Protocol (MCP).`,
+    ``,
+    `## Directives`,
+    `1. **Context & Working Style**:`,
+    `   - Consult Meto MCP (\`profile://handoff\`) for verified working style, seniority, and general preferences.${projectRef}`,
+    ``,
+    `2. **Suggestions & Recommendations**:`,
+    `   - When the user asks for suggestions on libraries, architecture, database design, or patterns, call the \`recall_meto_context\` MCP tool${slugArg} to check if the user has previously vetted or decided on this pattern.`,
+    `   - If prior experience or preferences exist in Meto, respect them. If not, suggest modern patterns tailored to the verified stack.`,
+    ``,
+    `3. **Autonomous Memory Sync**:`,
+    `   - Whenever an architectural decision (ADR) is finalized, a new dependency is installed, or coding conventions change, call \`update_meto_profile\`${slugArg} to record the decision in Meto so all future sessions and tools stay in sync.`,
+  ].join("\n");
+
+  return {
+    filename,
+    editor,
+    content,
+  };
+}

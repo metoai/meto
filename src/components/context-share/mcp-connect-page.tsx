@@ -31,6 +31,7 @@ import {
   buildCopilotMcpJson,
   buildCursorMcpJson,
   buildMcpEndpointUrl,
+  buildProjectMetoRules,
   buildVSCodeMcpJson,
   buildWindsurfMcpJson,
   buildZedMcpJson,
@@ -361,6 +362,23 @@ export function McpConnectPage() {
     [endpointUrl, activeToken]
   );
 
+  const cursorRulesSnippet = useMemo(
+    () => buildProjectMetoRules({ editor: "cursor" }).content,
+    []
+  );
+  const windsurfRulesSnippet = useMemo(
+    () => buildProjectMetoRules({ editor: "windsurf" }).content,
+    []
+  );
+  const claudeRulesSnippet = useMemo(
+    () => buildProjectMetoRules({ editor: "claude" }).content,
+    []
+  );
+  const antigravityRulesSnippet = useMemo(
+    () => buildProjectMetoRules({ editor: "antigravity" }).content,
+    []
+  );
+
   // Chat AI Tailored Prompts
   const sections = portal?.sections || [];
 
@@ -527,6 +545,9 @@ export function McpConnectPage() {
                   snippet: cursorSnippet,
                   snippetTitle: ".cursor/mcp.json",
                   copyKey: "cursor-snippet",
+                  secondarySnippet: cursorRulesSnippet,
+                  secondarySnippetTitle: ".cursor/rules/meto.mdc (Auto-Directives & Recall)",
+                  secondaryCopyKey: "cursor-rules",
                 })
               }
             />
@@ -556,6 +577,9 @@ export function McpConnectPage() {
                   snippet: windsurfSnippet,
                   snippetTitle: "~/.codeium/windsurf/mcp_config.json",
                   copyKey: "windsurf-snippet",
+                  secondarySnippet: windsurfRulesSnippet,
+                  secondarySnippetTitle: ".windsurfrules (Auto-Directives & Recall)",
+                  secondaryCopyKey: "windsurf-rules",
                 })
               }
             />
@@ -585,6 +609,9 @@ export function McpConnectPage() {
                   snippet: claudeSnippet,
                   snippetTitle: "claude_desktop_config.json",
                   copyKey: "claude-snippet",
+                  secondarySnippet: claudeRulesSnippet,
+                  secondarySnippetTitle: "CLAUDE.md (Auto-Directives & Recall)",
+                  secondaryCopyKey: "claude-rules",
                 })
               }
             />
@@ -636,13 +663,16 @@ export function McpConnectPage() {
                     </div>
                   ),
                   steps: [
-                    "In Google Antigravity, add meto to your MCP servers in ~/.gemini/antigravity/mcp/ or agy CLI settings.",
+                    "In Google Antigravity, add meto to your MCP servers in ~/.gemini/config/mcp_config.json.",
                     "Paste the stdio configuration below.",
                     "Antigravity subagents and planners will automatically pull your verified directives and stack.",
                   ],
                   snippet: antigravitySnippet,
-                  snippetTitle: "Antigravity MCP Configuration",
+                  snippetTitle: "~/.gemini/config/mcp_config.json",
                   copyKey: "antigravity-snippet",
+                  secondarySnippet: antigravityRulesSnippet,
+                  secondarySnippetTitle: "GEMINI.md (Auto-Directives & Recall)",
+                  secondaryCopyKey: "antigravity-rules",
                 })
               }
             />
