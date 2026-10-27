@@ -8,17 +8,29 @@ export const LANDING_PAGE_NAV_LINKS = [
 ] as const;
 
 export const SOLUTIONS_NAV_LINKS = [
-  { label: "Share Context", href: "/solutions/share-context" },
-  { label: "Sync Rules", href: "/solutions/sync-rules" },
-  { label: "AI Developer Memory", href: "/solutions/ai-developer-memory" },
-  { label: "Cursor & Claude", href: "/for/cursor-and-claude" },
+  {
+    label: "Share Context",
+    href: "/solutions/share-context",
+    description: "One AI context for Cursor, Claude & Windsurf",
+  },
+  {
+    label: "Sync Rules",
+    href: "/solutions/sync-rules",
+    description: "Continuous sync for .cursorrules and CLAUDE.md",
+  },
+  {
+    label: "Developer Memory",
+    href: "/solutions/ai-developer-memory",
+    description: "Persistent ADRs & anti-amnesia context engine",
+  },
+  {
+    label: "Cursor & Claude",
+    href: "/for/cursor-and-claude",
+    description: "Terminal CLI and visual IDE hybrid workflow",
+  },
 ] as const;
 
 export const MARKETING_NAV_LINKS = [
-  { label: "Share Context", href: "/solutions/share-context" },
-  { label: "Sync Rules", href: "/solutions/sync-rules" },
-  { label: "Memory", href: "/solutions/ai-developer-memory" },
-  { label: "Cursor & Claude", href: "/for/cursor-and-claude" },
   { label: "Integrations", href: "/integrations" },
   { label: "Pricing", href: "/pricing" },
 ] as const;

@@ -6,7 +6,7 @@ import {
   MARKETING_NAV_OFFSET_PX,
   MarketingNavBar,
 } from "@/components/marketing/marketing-nav-bar";
-import { MARKETING_NAV_LINKS } from "@/lib/marketing-nav";
+import { MARKETING_NAV_LINKS, SOLUTIONS_NAV_LINKS } from "@/lib/marketing-nav";
 import { LEGAL_LINKS } from "@/lib/legal-links";
 import { createClient } from "@/lib/supabase/client";
 
@@ -51,6 +51,15 @@ export function MarketingLayout({
           <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-sm text-[var(--text-secondary)] sm:flex-row">
             <p>© {new Date().getFullYear()} Meto</p>
             <div className="flex flex-wrap justify-center gap-5">
+              {SOLUTIONS_NAV_LINKS.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="transition-colors duration-150 hover:text-[var(--text)]"
+                >
+                  {link.label}
+                </Link>
+              ))}
               {MARKETING_NAV_LINKS.map((link) => (
                 <Link
                   key={link.label}
