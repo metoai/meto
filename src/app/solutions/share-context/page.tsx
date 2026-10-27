@@ -7,13 +7,8 @@ import {
   Layers,
   Network,
   RefreshCw,
-  Shield,
-  Sparkles,
-  Terminal,
-  Zap,
 } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing-layout";
-import { IntegrationSnippetCopy } from "@/components/marketing/integration-snippet-copy";
 import { getSiteUrl } from "@/lib/site";
 import { AI_BRAND_ICON_CLASS } from "@/lib/ai-brand-icon";
 import { MCP_TOOL_ICONS } from "@/lib/ai-platform-icons";
@@ -104,96 +99,102 @@ export default function ShareContextSolutionPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+      <article className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         {/* Navigation Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--muted)]" aria-label="Breadcrumb">
+        <nav className="mb-6 flex items-center gap-1.5 text-xs font-mono text-[var(--muted)]" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-[var(--text)] transition-colors">
             Home
           </Link>
           <span>/</span>
           <span className="text-[var(--muted)]">Solutions</span>
           <span>/</span>
-          <span className="text-[var(--text)] font-medium">Share AI Context</span>
+          <span className="text-[var(--text)]">Share AI Context</span>
         </nav>
 
-        {/* Hero */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1 text-xs font-medium text-[var(--text-secondary)] mb-4">
-            <Network className="h-3.5 w-3.5 text-amber-500" />
-            Universal Developer Context Protocol
+        {/* Header Banner - Compact high-signal developer interface */}
+        <header className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 border-b border-[var(--border-subtle)] pb-8 mb-8">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 font-mono text-[11px] text-[var(--text-secondary)]">
+                <Network className="h-3 w-3 text-amber-500" />
+                Universal Developer Context Protocol
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--text)] leading-tight">
+              One AI Context for All. Stop Re-Introducing Yourself.
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
+              Your tech stack, coding standards, and architectural decisions in continuous sync across Cursor, Claude Code, Windsurf, and ChatGPT. Zero prompt copying. Zero amnesia.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[var(--text)] leading-[1.12]">
-            One AI Context for All. <br className="hidden sm:inline" />
-            Stop Re-Introducing Yourself.
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-[var(--muted)] leading-relaxed">
-            Your tech stack, coding standards, and architectural decisions in continuous sync across Cursor, Claude Code, Windsurf, and ChatGPT. Zero prompt copying. Zero amnesia.
-          </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 pt-1">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-opacity hover:opacity-90 active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:opacity-90 active:scale-[0.97] transition-all duration-150"
             >
-              Get Started Free
-              <ArrowRight className="h-4 w-4" />
+              <span>Get Started Free</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/integrations"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+              className="inline-flex items-center gap-1 text-[11px] font-mono text-[var(--muted)] hover:text-[var(--text)] transition-colors"
             >
-              Explore Supported Tools
+              <span>Supported Tools &rarr;</span>
             </Link>
           </div>
-        </div>
+        </header>
 
         {/* Direct Answer Box for AEO & GEO engines */}
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-6 sm:p-7 mb-14 shadow-xs">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-amber-500 font-semibold mb-2">
-            The Definition & Concept
+        <section
+          aria-label="Direct Answer"
+          className="mb-10 rounded-lg border-l-2 border-amber-500 border-y border-r border-[var(--border-subtle)] bg-[var(--surface)] p-4 sm:p-5"
+        >
+          <p className="text-[10px] font-mono uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold mb-1.5">
+            Direct Answer · Specification &amp; Concept
           </p>
-          <p className="text-sm sm:text-[15px] leading-relaxed text-[var(--text)]">
+          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)]">
             <strong>Meto is an open developer context protocol and synchronization engine.</strong> It unifies project rules, active architectural directives, and personal developer preferences into a single source of truth, accessible across Cursor, Claude Code, Windsurf, VS Code, and Google Antigravity via local files and the Model Context Protocol (MCP).
           </p>
-        </div>
+        </section>
 
         {/* The Multi-Tool Reality (Problem Section) */}
-        <section className="mb-14">
-          <div className="max-w-2xl mb-8">
-            <h2 className="text-2xl font-bold tracking-tight text-[var(--text)]">
+        <section className="mb-10">
+          <div className="max-w-2xl mb-5">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
               The Reality: Modern Engineers Don&apos;t Use Just One AI
             </h2>
-            <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+            <p className="mt-1 text-xs sm:text-sm text-[var(--muted)] leading-relaxed">
               You code in Cursor Composer. You run autonomous terminal loops in Claude Code. You brainstorm architecture in ChatGPT or Perplexity. But each assistant lives in a complete silo.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="h-8 w-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500 mb-3 font-mono font-bold text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <span className="inline-block rounded border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-rose-500 mb-3">
                 01
-              </div>
+              </span>
               <h3 className="text-sm font-semibold text-[var(--text)]">The Groundhog Day Burnout</h3>
               <p className="mt-1.5 text-xs text-[var(--muted)] leading-relaxed">
                 Starting every morning by re-explaining that you use Next.js 16, Supabase, and Tailwind v4. If you don&apos;t remind the AI, it defaults to deprecated syntax.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="h-8 w-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500 mb-3 font-mono font-bold text-xs">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <span className="inline-block rounded border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-rose-500 mb-3">
                 02
-              </div>
+              </span>
               <h3 className="text-sm font-semibold text-[var(--text)]">The Copy-Paste Handoff Dance</h3>
               <p className="mt-1.5 text-xs text-[var(--muted)] leading-relaxed">
                 Planning in Claude &rarr; copying markdown into Cursor Composer &rarr; generating code &rarr; copying stack traces back to Claude. Friction destroys your flow state.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="h-8 w-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-500 mb-3 font-mono font-bold text-xs">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <span className="inline-block rounded border border-rose-500/20 bg-rose-500/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-rose-500 mb-3">
                 03
-              </div>
-              <h3 className="text-sm font-semibold text-[var(--text)]">Chat Rot & Context Degradation</h3>
+              </span>
+              <h3 className="text-sm font-semibold text-[var(--text)]">Chat Rot &amp; Context Degradation</h3>
               <p className="mt-1.5 text-xs text-[var(--muted)] leading-relaxed">
                 After 15 messages, LLM context compaction sets in. Models loop on rejected solutions, forcing you to wipe the thread and lose your working state.
               </p>
@@ -202,23 +203,23 @@ export default function ShareContextSolutionPage() {
         </section>
 
         {/* 3-Tier State Architecture */}
-        <section className="mb-14 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface)]/60 p-6 sm:p-8">
-          <div className="max-w-xl mb-6">
-            <span className="text-xs font-mono uppercase tracking-wider text-amber-500 font-semibold">
+        <section className="mb-10 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)]/50 p-5 sm:p-6">
+          <div className="max-w-xl mb-5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold">
               System Architecture
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text)] mt-1">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)] mt-1">
               How Meto Solves Context Fragmentation
             </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[var(--muted)] leading-relaxed">
+            <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
               Rather than stuffing raw files into a prompt, Meto structures developer identity into a deterministic three-tier state protocol.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4">
               <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
-                <Layers className="h-4 w-4 text-amber-500" />
+                <Layers className="h-3.5 w-3.5 text-amber-500" />
                 Tier 1: Static Directives
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
@@ -226,9 +227,9 @@ export default function ShareContextSolutionPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4">
               <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
-                <Cpu className="h-4 w-4 text-emerald-500" />
+                <Cpu className="h-3.5 w-3.5 text-emerald-500" />
                 Tier 2: Persistent Memory
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
@@ -236,9 +237,9 @@ export default function ShareContextSolutionPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4">
               <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
-                <RefreshCw className="h-4 w-4 text-blue-500" />
+                <RefreshCw className="h-3.5 w-3.5 text-blue-500" />
                 Tier 3: Active State
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
@@ -249,15 +250,17 @@ export default function ShareContextSolutionPage() {
         </section>
 
         {/* Supported AI Ecosystem Grid */}
-        <section className="mb-14">
-          <h2 className="text-xl font-bold tracking-tight text-[var(--text)] mb-4 text-center">
-            One Setup. Continuously Synchronized Everywhere.
-          </h2>
-          <p className="text-xs sm:text-sm text-[var(--muted)] text-center max-w-xl mx-auto mb-8">
-            Update your profile once in Meto. Every connected IDE and agent queries your latest directives automatically.
-          </p>
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
+              One Setup. Continuously Synchronized Everywhere.
+            </h2>
+            <p className="mt-1 text-xs sm:text-sm text-[var(--muted)]">
+              Update your profile once in Meto. Every connected IDE and agent queries your latest directives automatically.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
               { name: "Cursor", tool: "cursor" as const },
               { name: "Windsurf", tool: "windsurf" as const },
@@ -270,7 +273,7 @@ export default function ShareContextSolutionPage() {
             ].map((item) => (
               <div
                 key={item.name}
-                className="flex items-center gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-3 text-xs font-medium text-[var(--text)]"
+                className="flex items-center gap-2.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-2.5 text-xs font-medium text-[var(--text)] transition-colors hover:border-[var(--border)]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -287,50 +290,52 @@ export default function ShareContextSolutionPage() {
         </section>
 
         {/* Feature Comparison Table */}
-        <section className="mb-14">
-          <h2 className="text-xl font-bold tracking-tight text-[var(--text)] mb-6 text-center">
-            Manual Prompting vs Meto Context Protocol
-          </h2>
-          <div className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)]">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
+              Manual Prompting vs Meto Context Protocol
+            </h2>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--card)]">
+            <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
               <thead>
                 <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text)]">
-                  <th className="py-3 px-4 font-semibold">Capability</th>
-                  <th className="py-3 px-4 font-semibold text-[var(--muted)]">Manual Copy-Pasting</th>
-                  <th className="py-3 px-4 font-semibold text-amber-600 dark:text-amber-400">Meto Protocol</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold">Capability</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold text-[var(--muted)]">Manual Copy-Pasting</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400">Meto Protocol</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-subtle)]">
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Multi-Tool Synchronization</td>
-                  <td className="py-3.5 px-4 text-[var(--muted)]">Zero (each tool is an island)</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Multi-Tool Synchronization</td>
+                  <td className="py-3 px-3.5 text-[var(--muted)]">Zero (each tool is an island)</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    Automatic via MCP & live API
+                    Automatic via MCP &amp; live API
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Chat Rot Recovery</td>
-                  <td className="py-3.5 px-4 text-[var(--muted)]">Must re-type prompts from scratch</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Chat Rot Recovery</td>
+                  <td className="py-3 px-3.5 text-[var(--muted)]">Must re-type prompts from scratch</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Instant re-anchor in new chat
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Token Efficiency</td>
-                  <td className="py-3.5 px-4 text-[var(--muted)]">Bloats entire system prompt</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Token Efficiency</td>
+                  <td className="py-3 px-3.5 text-[var(--muted)]">Bloats entire system prompt</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Lazy-loaded tools on-demand
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Directives Verification</td>
-                  <td className="py-3.5 px-4 text-[var(--muted)]">None (contradictions common)</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Directives Verification</td>
+                  <td className="py-3 px-3.5 text-[var(--muted)]">None (contradictions common)</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                    Context Score & gap audit engine
+                    Context Score &amp; gap audit engine
                   </td>
                 </tr>
               </tbody>
@@ -339,45 +344,49 @@ export default function ShareContextSolutionPage() {
         </section>
 
         {/* FAQs */}
-        <section className="mb-14">
-          <h2 className="text-xl font-bold tracking-tight text-[var(--text)] mb-6 text-center">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-3">
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <div className="space-y-2.5">
             {faqList.map((f) => (
-              <div key={f.q} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-                <h3 className="text-sm font-semibold text-[var(--text)]">{f.q}</h3>
-                <p className="mt-2 text-xs sm:text-sm text-[var(--muted)] leading-relaxed">{f.a}</p>
+              <div key={f.q} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+                <h3 className="text-xs sm:text-sm font-semibold text-[var(--text)]">{f.q}</h3>
+                <p className="mt-1.5 text-xs text-[var(--muted)] leading-relaxed">{f.a}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-gradient-to-b from-[var(--surface)] to-[var(--card)] p-6 sm:p-10 text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--text)]">
-            Connect all your AI tools to one source of truth
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-[var(--muted)] max-w-lg mx-auto leading-relaxed">
-            Create your Meto profile in 2 minutes. Free forever for developers.
-          </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
+        {/* Bottom CTA Banner */}
+        <section className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-[var(--text)]">
+              Connect all your AI tools to one source of truth
+            </h2>
+            <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
+              Create your Meto profile in 2 minutes. Free forever for developers.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-opacity hover:opacity-90 active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:opacity-90 active:scale-[0.97] transition-all duration-150"
             >
-              Start for Free
-              <ArrowRight className="h-4 w-4" />
+              <span>Start for Free</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/pricing"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text)] active:scale-[0.97] transition-all duration-150"
             >
               View Pricing
             </Link>
           </div>
-        </div>
-      </div>
+        </section>
+      </article>
     </MarketingLayout>
   );
 }

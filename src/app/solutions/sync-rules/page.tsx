@@ -8,10 +8,6 @@ import {
   GitBranch,
   Layers,
   RefreshCw,
-  Scale,
-  Sparkles,
-  Terminal,
-  Zap,
 } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing-layout";
 import { getSiteUrl } from "@/lib/site";
@@ -45,6 +41,17 @@ export default function SyncRulesSolutionPage() {
       { "@type": "ListItem", position: 2, name: "Solutions", item: `${siteUrl}/solutions` },
       { "@type": "ListItem", position: 3, name: "Sync AI Rules", item: pageUrl },
     ],
+  };
+
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: "Sync AI Rules: How to Unify Coding Standards Across Cursor, Windsurf, Claude & Copilot",
+    description:
+      "A technical guide to compiling and synchronizing developer rule files across .cursor/rules, CLAUDE.md, .windsurfrules, and copilot-instructions.",
+    author: { "@type": "Organization", name: "Meto", url: siteUrl },
+    publisher: { "@type": "Organization", name: "Meto", url: siteUrl },
+    url: pageUrl,
   };
 
   const faqList = [
@@ -84,97 +91,107 @@ export default function SyncRulesSolutionPage() {
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+      <article className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-10">
         {/* Navigation Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-xs text-[var(--muted)]" aria-label="Breadcrumb">
+        <nav className="mb-6 flex items-center gap-1.5 text-xs font-mono text-[var(--muted)]" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-[var(--text)] transition-colors">
             Home
           </Link>
           <span>/</span>
           <span className="text-[var(--muted)]">Solutions</span>
           <span>/</span>
-          <span className="text-[var(--text)] font-medium">Sync AI Rules</span>
+          <span className="text-[var(--text)]">Sync AI Rules</span>
         </nav>
 
-        {/* Hero */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1 text-xs font-medium text-[var(--text-secondary)] mb-4">
-            <RefreshCw className="h-3.5 w-3.5 text-amber-500" />
-            Universal AI Rules Synchronization
+        {/* Header Banner - Compact Developer Layout */}
+        <header className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 border-b border-[var(--border-subtle)] pb-8 mb-8">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 font-mono text-[11px] text-[var(--text-secondary)]">
+                <RefreshCw className="h-3 w-3 text-amber-500" />
+                Universal AI Rules Synchronization
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--text)] leading-tight">
+              One Rule File to Rule Them All. Stop Juggling Config Sprawl.
+            </h1>
+            <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
+              Write your coding standards, framework versions, and architectural guidelines once. Meto keeps Cursor, Windsurf, Claude Code, and Copilot in continuous sync.
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-[var(--text)] leading-[1.12]">
-            One Rule File to Rule Them All. <br className="hidden sm:inline" />
-            Stop Juggling Config Sprawl.
-          </h1>
-          <p className="mt-4 text-base sm:text-lg text-[var(--muted)] leading-relaxed">
-            Write your coding standards, framework versions, and architectural guidelines once. Meto keeps Cursor, Windsurf, Claude Code, and Copilot in continuous sync.
-          </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 pt-1">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-opacity hover:opacity-90 active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:opacity-90 active:scale-[0.97] transition-all duration-150"
             >
-              Start Syncing Rules Free
-              <ArrowRight className="h-4 w-4" />
+              <span>Start Syncing Rules</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/compare/cursorrules-vs-meto"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+              className="inline-flex items-center gap-1 text-[11px] font-mono text-[var(--muted)] hover:text-[var(--text)] transition-colors"
             >
-              .cursorrules vs Meto
+              <span>.cursorrules vs Meto &rarr;</span>
             </Link>
           </div>
-        </div>
+        </header>
 
         {/* Direct Answer Box for AEO / GEO */}
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-6 sm:p-7 mb-14 shadow-xs">
-          <p className="text-[11px] font-mono uppercase tracking-wider text-amber-500 font-semibold mb-2">
-            The Definition & Architecture
+        <section
+          aria-label="Direct Answer"
+          className="mb-10 rounded-lg border-l-2 border-amber-500 border-y border-r border-[var(--border-subtle)] bg-[var(--surface)] p-4 sm:p-5"
+        >
+          <p className="text-[10px] font-mono uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold mb-1.5">
+            Direct Answer · Definition &amp; Architecture
           </p>
-          <p className="text-sm sm:text-[15px] leading-relaxed text-[var(--text)]">
-            <strong>Rule synchronization is the automated management of AI developer directives across fragmented configuration formats.</strong> Instead of manually duplicating rules across <code>.cursor/rules/*.mdc</code>, <code>CLAUDE.md</code>, <code>.windsurfrules</code>, and <code>.github/copilot-instructions.md</code>, Meto serves as a unified Single Source of Truth (SSOT), compiling guidelines and streaming verified context on demand.
+          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)]">
+            <strong>Rule synchronization is the automated management of AI developer directives across fragmented configuration formats.</strong> Instead of manually duplicating rules across <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">.cursor/rules/*.mdc</code>, <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">CLAUDE.md</code>, <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">.windsurfrules</code>, and <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">.github/copilot-instructions.md</code>, Meto serves as a unified Single Source of Truth (SSOT), compiling guidelines and streaming verified context on demand.
           </p>
-        </div>
+        </section>
 
         {/* The 4 Pitfalls of Fragmented Config Files */}
-        <section className="mb-14">
-          <div className="max-w-2xl mb-8">
-            <h2 className="text-2xl font-bold tracking-tight text-[var(--text)]">
+        <section className="mb-10">
+          <div className="max-w-2xl mb-5">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
               Why Managing Rules Manually Breaks Down
             </h2>
-            <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+            <p className="mt-1 text-xs sm:text-sm text-[var(--muted)] leading-relaxed">
               Every AI tool invented its own rule syntax. Maintaining them across multiple repositories creates compounding tech debt.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text)] mb-2">
-                <FileCode2 className="h-4 w-4 text-red-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
+                <FileCode2 className="h-4 w-4 text-rose-500" />
                 Format Incompatibility
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
-                Cursor uses <code>.cursor/rules/*.mdc</code> with YAML frontmatter. Claude Code uses <code>CLAUDE.md</code> in the repo root. Windsurf expects <code>.windsurfrules</code>. Copilot reads <code>.github/copilot-instructions.md</code>. You have to maintain 4 files for the exact same rules.
+                Cursor uses <code className="font-mono text-[11px]">.cursor/rules/*.mdc</code> with YAML frontmatter. Claude Code uses <code className="font-mono text-[11px]">CLAUDE.md</code> in the repo root. Windsurf expects <code className="font-mono text-[11px]">.windsurfrules</code>. Copilot reads <code className="font-mono text-[11px]">.github/copilot-instructions.md</code>. You have to maintain 4 files for the exact same rules.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text)] mb-2">
-                <GitBranch className="h-4 w-4 text-red-500" />
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
+                <GitBranch className="h-4 w-4 text-rose-500" />
                 Multi-Repository Drift
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
-                When you adopt Vitest over Jest or switch from Tailwind v3 to v4, your primary project gets updated. Your 10 other repositories remain stuck on obsolete rules, causing AI assistants to write deprecated code.
+                When you adopt Vitest over Jest or switch from Tailwind v3 to v4, your primary project gets updated. Your other repositories remain stuck on obsolete rules, causing AI assistants to write deprecated code.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text)] mb-2">
-                <Layers className="h-4 w-4 text-red-500" />
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
+                <Layers className="h-4 w-4 text-rose-500" />
                 Token Window Exhaustion
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
@@ -182,9 +199,9 @@ export default function SyncRulesSolutionPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-              <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text)] mb-2">
-                <Code2 className="h-4 w-4 text-red-500" />
+            <div className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text)] mb-2">
+                <Code2 className="h-4 w-4 text-rose-500" />
                 No Rule Verification
               </div>
               <p className="text-xs text-[var(--muted)] leading-relaxed">
@@ -195,56 +212,58 @@ export default function SyncRulesSolutionPage() {
         </section>
 
         {/* The Unified Configuration Matrix Table */}
-        <section className="mb-14">
-          <h2 className="text-xl font-bold tracking-tight text-[var(--text)] mb-6 text-center">
-            How Meto Compiles to Every AI Format
-          </h2>
-          <div className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)]">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm">
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
+              How Meto Compiles to Every AI Format
+            </h2>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--card)]">
+            <table className="w-full text-left border-collapse text-xs sm:text-[13px]">
               <thead>
                 <tr className="border-b border-[var(--border-subtle)] bg-[var(--surface)] text-[var(--text)]">
-                  <th className="py-3 px-4 font-semibold">AI Tool / IDE</th>
-                  <th className="py-3 px-4 font-semibold text-[var(--muted)]">Target File / Protocol</th>
-                  <th className="py-3 px-4 font-semibold text-amber-600 dark:text-amber-400">Meto Sync Method</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold">AI Tool / IDE</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold text-[var(--muted)]">Target File / Protocol</th>
+                  <th className="py-2.5 px-3.5 font-mono text-xs font-semibold text-amber-600 dark:text-amber-400">Meto Sync Method</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-subtle)]">
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Cursor Composer</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[var(--muted)]">.cursor/rules/*.mdc & MCP</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Cursor Composer</td>
+                  <td className="py-3 px-3.5 font-mono text-[11px] text-[var(--muted)]">.cursor/rules/*.mdc &amp; MCP</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     1-Click MCP + live compile
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Claude Code (CLI)</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[var(--muted)]">CLAUDE.md & claude mcp add</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Claude Code (CLI)</td>
+                  <td className="py-3 px-3.5 font-mono text-[11px] text-[var(--muted)]">CLAUDE.md &amp; claude mcp add</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Terminal MCP server
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Windsurf Cascade</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[var(--muted)]">.windsurfrules & mcp_config</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Windsurf Cascade</td>
+                  <td className="py-3 px-3.5 font-mono text-[11px] text-[var(--muted)]">.windsurfrules &amp; mcp_config</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Direct Cascade MCP
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">GitHub Copilot</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[var(--muted)]">.github/copilot-instructions.md</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">GitHub Copilot</td>
+                  <td className="py-3 px-3.5 font-mono text-[11px] text-[var(--muted)]">.github/copilot-instructions.md</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Auto-generated markdown
                   </td>
                 </tr>
-                <tr className="hover:bg-[var(--surface)]/50 transition-colors">
-                  <td className="py-3.5 px-4 font-medium text-[var(--text)]">Google Antigravity</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[var(--muted)]">~/.gemini/antigravity/mcp</td>
-                  <td className="py-3.5 px-4 font-medium text-[var(--text-secondary)] flex items-center gap-1.5">
+                <tr className="hover:bg-[var(--surface)]/40 transition-colors">
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)]">Google Antigravity</td>
+                  <td className="py-3 px-3.5 font-mono text-[11px] text-[var(--muted)]">~/.gemini/antigravity/mcp</td>
+                  <td className="py-3 px-3.5 font-medium text-[var(--text)] flex items-center gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     Autonomous agent directives
                   </td>
@@ -255,45 +274,49 @@ export default function SyncRulesSolutionPage() {
         </section>
 
         {/* FAQs */}
-        <section className="mb-14">
-          <h2 className="text-xl font-bold tracking-tight text-[var(--text)] mb-6 text-center">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-3">
+        <section className="mb-10">
+          <div className="mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold tracking-tight text-[var(--text)]">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <div className="space-y-2.5">
             {faqList.map((f) => (
-              <div key={f.q} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--card)] p-5">
-                <h3 className="text-sm font-semibold text-[var(--text)]">{f.q}</h3>
-                <p className="mt-2 text-xs sm:text-sm text-[var(--muted)] leading-relaxed">{f.a}</p>
+              <div key={f.q} className="rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] p-4 sm:p-5">
+                <h3 className="text-xs sm:text-sm font-semibold text-[var(--text)]">{f.q}</h3>
+                <p className="mt-1.5 text-xs text-[var(--muted)] leading-relaxed">{f.a}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <div className="rounded-2xl border border-[var(--border-subtle)] bg-gradient-to-b from-[var(--surface)] to-[var(--card)] p-6 sm:p-10 text-center">
-          <h2 className="text-2xl font-bold tracking-tight text-[var(--text)]">
-            Stop copying rules. Start synchronizing.
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-[var(--muted)] max-w-lg mx-auto leading-relaxed">
-            Set up your Single Source of Truth in Meto. Free for developers.
-          </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
+        {/* Bottom CTA */}
+        <section className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface)] p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+          <div>
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-[var(--text)]">
+              Stop copying rules. Start synchronizing.
+            </h2>
+            <p className="mt-1 text-xs text-[var(--muted)] leading-relaxed">
+              Set up your Single Source of Truth in Meto. Free for developers.
+            </p>
+          </div>
+          <div className="flex items-center gap-2.5 shrink-0">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-opacity hover:opacity-90 active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3.5 py-2 text-xs font-medium text-white shadow-xs hover:opacity-90 active:scale-[0.97] transition-all duration-150"
             >
-              Get Started Free
-              <ArrowRight className="h-4 w-4" />
+              <span>Get Started Free</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/integrations"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--card)] px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text)] active:scale-[0.97] transition-all duration-150"
             >
-              View All Integrations
+              All Integrations
             </Link>
           </div>
-        </div>
-      </div>
+        </section>
+      </article>
     </MarketingLayout>
   );
 }
