@@ -256,8 +256,11 @@ export async function fetchPublicProfileUsernames(): Promise<string[]> {
 export async function fetchPublicProfileByUsername(
   username: string
 ): Promise<PublicProfile | null> {
+  if (!username || typeof username !== "string") {
+    return null;
+  }
   const supabase = createPublicClient();
-  const normalized = username.toLowerCase();
+  const normalized = username.trim().toLowerCase();
 
   const { data: profile } = await supabase
     .from("profiles")

@@ -14,7 +14,7 @@ import {
 } from "@/lib/site";
 
 type PageProps = {
-  params: { username: string };
+  params: Promise<{ username: string }> | { username: string };
 };
 
 export const revalidate = 60;
@@ -22,7 +22,8 @@ export const revalidate = 60;
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const publicProfile = await fetchPublicProfileByUsername(params.username);
+  const resolvedParams = await Promise.resolve(params);
+  const publicProfile = await fetchPublicProfileByUsername(resolvedParams?.username);
 
   if (!publicProfile) {
     return { title: "Profile not found — Meto" };
@@ -75,7 +76,8 @@ export async function generateMetadata({
 }
 
 export default async function PublicProfilePage({ params }: PageProps) {
-  const publicProfile = await fetchPublicProfileByUsername(params.username);
+  const resolvedParams = await Promise.resolve(params);
+  const publicProfile = await fetchPublicProfileByUsername(resolvedParams?.username);
 
   if (!publicProfile) {
     notFound();

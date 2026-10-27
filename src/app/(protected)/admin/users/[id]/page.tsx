@@ -1,9 +1,10 @@
 import { AdminUserDetailClient } from "@/components/admin/admin-user-detail-client";
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ id: string }> | { id: string };
 };
 
-export default function AdminUserDetailPage({ params }: PageProps) {
-  return <AdminUserDetailClient userId={params.id} />;
+export default async function AdminUserDetailPage({ params }: PageProps) {
+  const resolvedParams = await Promise.resolve(params);
+  return <AdminUserDetailClient userId={resolvedParams.id} />;
 }
