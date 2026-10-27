@@ -116,7 +116,7 @@ export function LandingHeroNav({
 
       {/* Responsive Minimal Mobile Dropdown Drawer */}
       {mobileMenuOpen ? (
-        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-black/[0.08] dark:border-white/10 bg-white/95 dark:bg-[#121212]/95 p-4 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-[76px] left-3 right-3 z-50 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-4 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
             {HERO_NAV_LINKS.map((link) => (
               <Link

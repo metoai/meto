@@ -111,7 +111,7 @@ export function MarketingNavBar({
 
               {solutionsOpen ? (
                 <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 z-50 w-72">
-                  <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)]/95 p-2 shadow-xl backdrop-blur-2xl ring-1 ring-black/[0.04] dark:ring-white/[0.05] animate-in fade-in zoom-in-95 duration-150">
+                  <div className="rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-2 shadow-2xl ring-1 ring-black/10 dark:ring-white/10 animate-in fade-in zoom-in-95 duration-150">
                     <div className="space-y-0.5">
                       {SOLUTIONS_NAV_LINKS.map((item) => (
                         <Link
@@ -207,7 +207,7 @@ export function MarketingNavBar({
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen ? (
           <nav
-            className="mt-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--card)]/95 p-3 shadow-xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
+            className="mt-2 rounded-2xl border border-[var(--border)] bg-white dark:bg-[#141414] p-3 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
             aria-label="Mobile navigation"
           >
             <div className="px-3 py-1.5 text-[11px] font-mono uppercase tracking-wider text-[var(--muted)]">
