@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "backfill:v2": "node scripts/backfill-knowledge-v2.mjs",
-    "seo:ping": "node scripts/google-index-ping.mjs --sitemap"
+    "seo:ping": "node scripts/google-index-ping.mjs --sitemap",
+    "indexnow": "node scripts/submit-indexnow.mjs",
+    "seo:indexnow": "node scripts/submit-indexnow.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
