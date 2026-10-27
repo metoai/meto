@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
     "/api/public/",
     "/api/badge/",
     "/llms.txt",
+    "/*.txt",
   ];
 
   const privateDisallow = [
