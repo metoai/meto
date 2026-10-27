@@ -34,11 +34,11 @@ export function MarketingNavBar({
       className={`landing-animate-in relative z-50 flex justify-center px-4 pb-2 pt-4 ${className}`}
     >
       <div className={`w-full ${maxWidthClass}`}>
-        <div className="flex h-11 items-center justify-between gap-3 rounded-full border border-black/[0.08] dark:border-white/[0.12] bg-white/60 dark:bg-black/45 backdrop-blur-xl backdrop-saturate-150 px-3 shadow-[0_4px_20px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.25)] sm:px-4">
+        <div className="flex h-11 items-center justify-between gap-3 rounded-full border border-black/[0.08] dark:border-white/10 bg-white/60 dark:bg-neutral-950/60 backdrop-blur-xl shadow-lg shadow-black/[0.03] dark:shadow-black/20 px-3 sm:px-4">
           {/* Logo */}
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 pl-0.5 transition-opacity hover:opacity-85 active:scale-[0.98] transition-transform duration-150"
+            className="flex shrink-0 items-center gap-2 pl-0.5 text-neutral-950 dark:text-white transition-opacity hover:opacity-85 active:scale-[0.97] transition-transform duration-150"
           >
             <MetoMarkBadge size="sm" />
             <span className="text-[15px] font-semibold tracking-tight text-neutral-950 dark:text-white">
@@ -55,7 +55,7 @@ export function MarketingNavBar({
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-full px-3 py-1.5 text-[13.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 active:scale-[0.97] whitespace-nowrap"
+                className="rounded-full px-3 py-1.5 text-[13.5px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
               >
                 {link.label}
               </Link>
@@ -63,14 +63,19 @@ export function MarketingNavBar({
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <ThemeToggle compact />
+
+            <span
+              className="hidden h-3.5 w-px bg-black/[0.08] dark:bg-white/[0.12] sm:block"
+              aria-hidden="true"
+            />
 
             {/* Mobile Hamburger Button */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.95] transition-all duration-150 md:hidden"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 md:hidden"
               aria-label="Open menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -97,7 +102,7 @@ export function MarketingNavBar({
             {isLoggedIn ? (
               <Link
                 href="/dashboard"
-                className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-transform active:scale-[0.97] whitespace-nowrap"
+                className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
               >
                 Dashboard
               </Link>
@@ -105,13 +110,13 @@ export function MarketingNavBar({
               <div className="hidden items-center gap-1.5 sm:flex">
                 <Link
                   href="/auth/login"
-                  className="rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-colors duration-150 active:scale-[0.97] whitespace-nowrap"
+                  className="rounded-full px-3 py-1.5 text-[13px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-transform active:scale-[0.97] whitespace-nowrap"
+                  className="rounded-full bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 dark:hover:bg-neutral-100 px-3.5 py-1.5 text-[13px] font-medium shadow-xs transition-all duration-150 active:scale-[0.97] whitespace-nowrap"
                 >
                   Get started
                 </Link>
@@ -123,7 +128,7 @@ export function MarketingNavBar({
         {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen ? (
           <nav
-            className="mt-2 rounded-2xl border border-black/[0.08] dark:border-white/[0.12] bg-white/95 dark:bg-[#121212]/95 backdrop-blur-xl p-3 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
+            className="mt-2 rounded-2xl border border-black/[0.08] dark:border-white/[0.12] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xl p-3 shadow-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-150"
             aria-label="Mobile navigation"
           >
             <div className="space-y-0.5">
@@ -132,7 +137,7 @@ export function MarketingNavBar({
                   key={link.label}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.98] transition-all"
+                  className="block rounded-xl px-3 py-2 text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150"
                 >
                   {link.label}
                 </Link>
@@ -141,19 +146,19 @@ export function MarketingNavBar({
 
             {!isLoggedIn ? (
               <>
-                <div className="my-2 h-px bg-black/[0.06] dark:bg-white/[0.08]" />
+                <div className="my-2 h-px bg-black/[0.08] dark:bg-white/[0.12]" />
                 <div className="flex flex-col gap-2 pt-1">
                   <Link
                     href="/auth/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-xl border border-black/[0.08] dark:border-white/[0.12] text-sm font-medium text-neutral-800 hover:text-neutral-950 dark:text-neutral-200 dark:hover:text-white transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98]"
+                    className="flex h-10 items-center justify-center rounded-xl border border-black/[0.08] dark:border-white/[0.12] text-sm font-medium text-neutral-700 hover:text-neutral-950 hover:bg-black/[0.05] dark:text-neutral-200 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-150 active:scale-[0.97]"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/auth/signup"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex h-10 items-center justify-center rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-sm font-semibold shadow-xs transition-transform active:scale-[0.98]"
+                    className="flex h-10 items-center justify-center rounded-xl bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-950 text-sm font-semibold shadow-xs transition-all duration-150 active:scale-[0.97]"
                   >
                     Get started
                   </Link>
