@@ -5,7 +5,7 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
+  useRef,
 } from "react";
 
 type QuickUpdateSidebarContextValue = {
@@ -21,23 +21,23 @@ export function QuickUpdateSidebarProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [onProfileUpdated, setOnProfileUpdated] = useState<
-    (() => void) | null
-  >(null);
+  const handlerRef = useRef<(() => void) | null>(null);
 
   const registerOnProfileUpdated = useCallback(
     (handler: (() => void) | null) => {
-      setOnProfileUpdated(() => handler);
+      handlerRef.current = handler;
     },
     []
   );
 
   const value = useMemo(
     () => ({
-      onProfileUpdated,
+      get onProfileUpdated() {
+        return handlerRef.current;
+      },
       registerOnProfileUpdated,
     }),
-    [onProfileUpdated, registerOnProfileUpdated]
+    [registerOnProfileUpdated]
   );
 
   return (

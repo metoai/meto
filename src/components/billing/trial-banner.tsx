@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import type { Entitlements } from "@/lib/entitlements";
 import { openProCheckout } from "@/lib/billing-client";
 import { TRIAL_DAYS } from "@/lib/ai-usage-limits";
+
+const DISMISS_KEY = "meto-upgrade-banner-hidden";
 
 type TrialBannerProps = {
   entitlements: Entitlements;
@@ -12,6 +15,30 @@ type TrialBannerProps = {
 
 export function TrialBanner({ entitlements }: TrialBannerProps) {
   const [loading, setLoading] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(DISMISS_KEY) === "1") {
+        setDismissed(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  function handleDismiss() {
+    setDismissed(true);
+    try {
+      localStorage.setItem(DISMISS_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (dismissed) {
+    return null;
+  }
 
   if (!entitlements.showTrialBanner && entitlements.plan !== "free") {
     return null;
@@ -32,7 +59,18 @@ export function TrialBanner({ entitlements }: TrialBannerProps) {
             Your Pro trial ended. AI updates, gap fixes, and smart scoring are
             paused — manual edits and workspace copy still work.
           </p>
-          <UpgradeButton loading={loading} setLoading={setLoading} label="Upgrade to Pro" />
+          <div className="flex shrink-0 items-center gap-2">
+            <UpgradeButton loading={loading} setLoading={setLoading} label="Upgrade to Pro" />
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#7A4E00]/70 hover:bg-[#F5D0A8]/50 hover:text-[#7A4E00] active:scale-[0.97] transition-all duration-150"
+              aria-label="Hide upgrade notice"
+              title="Hide upgrade notice"
+            >
+              <X className="h-4 w-4" strokeWidth={2} />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -78,6 +116,19 @@ export function TrialBanner({ entitlements }: TrialBannerProps) {
             setLoading={setLoading}
             label={urgent ? "Subscribe now" : "Upgrade to Pro"}
           />
+          <button
+            type="button"
+            onClick={handleDismiss}
+            className={`flex h-7 w-7 items-center justify-center rounded-lg active:scale-[0.97] transition-all duration-150 ${
+              urgent
+                ? "text-[#7A4E00]/70 hover:bg-[#F5D0A8]/50 hover:text-[#7A4E00]"
+                : "text-[var(--primary)]/70 hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]"
+            }`}
+            aria-label="Hide upgrade notice"
+            title="Hide upgrade notice"
+          >
+            <X className="h-4 w-4" strokeWidth={2} />
+          </button>
         </div>
       </div>
     </div>
