@@ -305,6 +305,282 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
       },
     ],
   },
+  {
+    slug: "mem0-vs-meto",
+    title: "Mem0 vs Meto — Generic Chatbot RAG vs Multi-IDE Developer Memory",
+    metaTitle: "Mem0 vs Meto — Chatbot Memory vs AI Developer Rule Engine Compared",
+    metaDescription:
+      "Comparing Mem0's conversational memory layer with Meto's code-centric multi-IDE rule compiler and MCP memory protocol. Learn which is best for developers.",
+    targetQuery: "mem0 vs meto",
+    headline: "Generic Chatbot Memory Doesn't Understand Codebases. Meto Does.",
+    subtitle:
+      "Mem0 focuses on consumer chatbots and generic conversation storage. Meto is engineered specifically for software development: compiling rules for Cursor, Claude Code, and Windsurf while serving architectural ADRs over MCP.",
+    traditionalLabel: "Mem0 Generic RAG Memory",
+    traditionalPros: [
+      "Broad SDK support for consumer LLM chatbots",
+      "Automatic entity and user profile extraction",
+      "Good for customer support and open-ended dialogue",
+    ],
+    traditionalCons: [
+      "Zero Multi-IDE Rule Compilation: Cannot generate .cursor/rules, CLAUDE.md, or .windsurfrules",
+      "No Architectural Decision Modeling: Treats code conventions as generic conversational text",
+      "No IDE Integration: Lacks native hooks for Cursor Composer, Claude Code CLI, or Windsurf Cascade",
+      "Vector Hallucinations: Generic similarity search frequently retrieves outdated or conflicting code snippets",
+    ],
+    metoPros: [
+      "Multi-IDE Rule Compiler: Compiles canonical conventions into native .cursor/rules/*.mdc and CLAUDE.md",
+      "3-Tier Architecture: Separates global developer directives, project ADRs, and negative antipatterns",
+      "Model Context Protocol (MCP): Connects natively to Cursor, Windsurf, Claude Code, and Google Antigravity",
+      "Context Health Score: Interactive audit engine detects rule conflicts and missing stack directives",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Primary Use Case",
+        traditional: "Consumer chatbots & open-ended user chats",
+        meto: "Professional software development & AI coding assistants",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Native IDE Rule Generation",
+        traditional: "None (requires custom manual integration)",
+        meto: "Generates .cursor/rules, CLAUDE.md, and .windsurfrules",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Model Context Protocol (MCP)",
+        traditional: "Third-party community wrappers",
+        meto: "Native high-performance local & edge SSE MCP servers",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Negative Knowledge (Antipatterns)",
+        traditional: "Implicit vector similarity without hard boundaries",
+        meto: "Explicit rejected patterns & constraint enforcement",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Developer CLI Tooling",
+        traditional: "General Python/TypeScript client library",
+        meto: "Dedicated 'npx meto-cli' for rule sync and drift checks",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "Chatbot Memory vs Developer Architecture Memory",
+        body: "Mem0 is built to remember facts about human users in conversational chatbots (e.g., 'User prefers coffee over tea' or 'User's dog is named Max'). However, software development demands deterministic architectural constraints: which database ORM is authorized, what version of Next.js is running, and which antipatterns are forbidden. Meto is purpose-built to model technical decisions and enforce them across coding assistants.",
+      },
+      {
+        heading: "The Power of Deterministic Rule Compilation",
+        body: "While vector search is useful for unstructured documentation, coding assistants in IDEs perform best when given deterministic rule files with glob pattern matching. Meto translates your high-level architecture into precise MDC rule files that only load into Cursor when editing relevant files, eliminating token bloat and hallucinations.",
+      },
+      {
+        heading: "When to Choose Which?",
+        body: "If you are building a conversational consumer chatbot or a virtual customer support agent, Mem0 is an appropriate choice. If you are a developer or engineering team seeking to eliminate AI amnesia across Cursor, Claude Code, Windsurf, Copilot, and VS Code, Meto is engineered specifically for your workflow.",
+      },
+    ],
+    faq: [
+      {
+        question: "Can I use Meto if I already have Mem0 in my backend?",
+        answer:
+          "Yes. Mem0 and Meto serve completely different purposes. Mem0 operates inside your application's user-facing chatbot, while Meto operates on your local developer workstation to sync context across your coding IDEs.",
+      },
+      {
+        question: "Does Meto use vector embeddings or deterministic rules?",
+        answer:
+          "Meto combines both: deterministic rule compilation for instant, zero-latency IDE matching, alongside semantic knowledge graph search via MCP for deep architectural ADR lookups.",
+      },
+      {
+        question: "How does Meto integrate with Cursor and Claude Code?",
+        answer:
+          "Meto connects directly via Model Context Protocol (MCP) and compiles native rule files into your repository root with a single 'npx meto-cli sync' command.",
+      },
+    ],
+  },
+  {
+    slug: "copilot-instructions-vs-meto",
+    title: "GitHub Copilot Instructions vs Meto Dynamic MCP",
+    metaTitle: "Copilot Instructions vs Meto — Static Markdown vs Dynamic Multi-IDE Rules",
+    metaDescription:
+      "Compare .github/copilot-instructions.md with Meto's multi-IDE rule compiler and live MCP server. Discover how to keep Copilot, Cursor, and Claude in perfect sync.",
+    targetQuery: "copilot instructions vs meto",
+    headline: "Escape Static .github/copilot-instructions.md. Sync Everywhere.",
+    subtitle:
+      "GitHub Copilot's instruction file only works inside VS Code and GitHub Copilot. Meto unifies Copilot with Cursor, Claude Code, and Windsurf through automatic compilation and live MCP memory.",
+    traditionalLabel: "Static .github/copilot-instructions.md",
+    traditionalPros: [
+      "Native support in GitHub Copilot Chat",
+      "Committed directly into your Git repository",
+      "Understood by GitHub.com web reviews",
+    ],
+    traditionalCons: [
+      "Vendor Silo: Completely ignored by Cursor Composer, Windsurf Cascade, and Claude Code CLI",
+      "Manual Duplication: Must be copied and manually reformatted into .cursor/rules and CLAUDE.md",
+      "No Dynamic MCP Querying: Cannot be queried on demand for specific file types or subdirectories",
+      "No Context Scoring: Lacks conflict detection when multiple instructions contradict each other",
+    ],
+    metoPros: [
+      "Unified Compilation: Generates .github/copilot-instructions.md, .cursor/rules, and CLAUDE.md simultaneously",
+      "Cross-Tool Portability: Gives Cursor and Claude Code the exact same context Copilot receives",
+      "Live MCP Server: Serves rich context over Model Context Protocol to all supporting IDEs",
+      "Automated Drift Detection: Meto CLI ensures local instruction files never diverge from canonical architecture",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Cross-IDE Support",
+        traditional: "GitHub Copilot & VS Code only",
+        meto: "Cursor, Windsurf, Claude Code, VS Code, and Copilot",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Multi-Format Rule Compilation",
+        traditional: "Single markdown file only",
+        meto: "Compiles to Copilot, Cursor MDC, and CLAUDE.md",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Dynamic Model Context Protocol",
+        traditional: "Static file parsed at prompt start",
+        meto: "On-demand tool queries via MCP",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Rule Conflict & Gap Analysis",
+        traditional: "None (contradictions pass through undetected)",
+        meto: "Automated Context Health Score engine",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Developer Identity & Seniority",
+        traditional: "Must be hardcoded into every repo's instructions",
+        meto: "Global developer layer inherited automatically",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Friction of Static Copilot Instructions",
+        body: "GitHub Copilot introduced .github/copilot-instructions.md to allow developers to set project standards. However, in modern teams, developers frequently use Cursor, Claude Code CLI, or Windsurf alongside Copilot. Because each tool expects instructions in a different file format and directory structure, engineering teams face a maintenance nightmare trying to keep 3 or 4 rule files in sync.",
+      },
+      {
+        heading: "Meto as the Canonical Upstream",
+        body: "Meto solves this by treating .github/copilot-instructions.md as a compile target rather than a manual editing chore. You define your stack conventions and ADRs in Meto once. When you run 'npx meto-cli sync', Meto generates the exact .github/copilot-instructions.md file that Copilot expects, while simultaneously updating Cursor's MDC rules and Claude's CLAUDE.md.",
+      },
+      {
+        heading: "Eliminating Repo Clutter",
+        body: "Often, developers want personal coding shortcuts (like preferred aliases or test commands) that do not belong in a team-shared .github/copilot-instructions.md. Meto cleanly separates your personal developer profile from repository directives, keeping shared instructions clean and professional.",
+      },
+    ],
+    faq: [
+      {
+        question: "Does Meto overwrite my existing copilot-instructions.md?",
+        answer:
+          "Meto CLI can inspect and import your existing copilot-instructions.md file during setup, converting your existing rules into canonical directives before generating updated files.",
+      },
+      {
+        question: "Can Copilot use Meto's MCP server directly?",
+        answer:
+          "Yes! GitHub Copilot in VS Code now supports Model Context Protocol. You can configure Meto as an MCP server in your VS Code settings to provide live context to Copilot Chat.",
+      },
+      {
+        question: "What if some members of my team use Cursor and others use Copilot?",
+        answer:
+          "Meto ensures both developers experience identical AI behavior. Cursor users receive .cursor/rules and live MCP context, while Copilot users receive .github/copilot-instructions.md, all derived from the same source.",
+      },
+    ],
+  },
+  {
+    slug: "windsurfrules-vs-meto",
+    title: "Static .windsurfrules vs Meto Cross-IDE Protocol",
+    metaTitle: ".windsurfrules vs Meto — Windsurf Cascade Context Management Compared",
+    metaDescription:
+      "Compare static .windsurfrules with Meto's multi-IDE rule compiler and Model Context Protocol server. Learn how to prevent rule drift between Windsurf and Cursor.",
+    targetQuery: "windsurfrules vs meto",
+    headline: "Stop Rewriting Rules When Switching Between Windsurf and Cursor.",
+    subtitle:
+      "Windsurf Cascade's .windsurfrules files don't share context with Cursor or Claude. Meto compiles a single source of truth across all three editors.",
+    traditionalLabel: "Static .windsurfrules Files",
+    traditionalPros: [
+      "Native support in Codeium Windsurf Cascade",
+      "Simple to place in repository root",
+      "Read automatically on conversation start",
+    ],
+    traditionalCons: [
+      "IDE Lock-in: Incompatible with Cursor's modern .cursor/rules/*.mdc format and Claude's CLAUDE.md",
+      "Rule Drift: Updating Windsurf rules leaves Cursor and Copilot on stale conventions",
+      "Token Bloat: Injects the entire rule file into every Cascade prompt regardless of task relevance",
+      "No Personal Developer Identity: Personal conventions cannot be shared across multiple private repos",
+    ],
+    metoPros: [
+      "Universal Rule Compilation: Compiles .windsurfrules, .cursor/rules, and CLAUDE.md in lockstep",
+      "Native Cascade MCP Support: Windsurf connects directly to Meto as an MCP server",
+      "Token Optimization: MCP tools fetch only relevant directives, saving Cascade context tokens",
+      "Interactive Health Score: Audits rule consistency across all your projects",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Multi-IDE Synchronization",
+        traditional: "Windsurf only (requires separate files for Cursor/Claude)",
+        meto: "Windsurf, Cursor, Claude Code, VS Code, and Copilot",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Model Context Protocol Support",
+        traditional: "None (static file only)",
+        meto: "Full Cascade MCP server integration",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Token Efficiency",
+        traditional: "Dumps entire rule file into Cascade prompt",
+        meto: "On-demand tool queries via MCP",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Rule Conflict Auditing",
+        traditional: "None (contradictions pass through silently)",
+        meto: "Automated Context Health Score engine",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Global Developer Directives",
+        traditional: "Manual copy-paste into every repo's .windsurfrules",
+        meto: "Centralized profile inherited across all workspaces",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Multi-Editor Reality of 2026",
+        body: "Many developers use Windsurf for its revolutionary Cascade agent flow, while simultaneously relying on Cursor for specific extensions and Claude Code for terminal scripting. Managing .windsurfrules, .cursorrules, and CLAUDE.md separately creates an unsustainable maintenance burden.",
+      },
+      {
+        heading: "Connecting Windsurf Cascade via MCP",
+        body: "Windsurf Cascade features native support for Model Context Protocol. By adding Meto as an MCP server in your Windsurf configuration, Cascade queries your verified conventions dynamically during execution, ensuring the model never hallucinates outdated patterns.",
+      },
+      {
+        heading: "Automated Compilation with Meto CLI",
+        body: "If your repository requires offline file-based rules, 'npx meto-cli sync' automatically generates and formats your .windsurfrules file alongside Cursor's .cursor/rules/*.mdc, guaranteeing 100% architectural parity across your entire engineering team.",
+      },
+    ],
+    faq: [
+      {
+        question: "How do I connect Meto to Windsurf Cascade?",
+        answer:
+          "Open Windsurf settings, navigate to Cascade MCP, and add Meto's SSE or stdio endpoint. Windsurf will immediately gain access to your verified stack directives and memory.",
+      },
+      {
+        question: "Can Meto compile both .windsurfrules and .cursor/rules together?",
+        answer:
+          "Yes. Meto CLI detects your project structure and generates both formats from your single canonical Meto profile.",
+      },
+      {
+        question: "Does Meto share my code with Codeium or external servers?",
+        answer:
+          "No. Meto only stores and serves your developer conventions and architectural decisions, never your source code.",
+      },
+    ],
+  },
 ];
 
 export function getComparisonBySlug(slug: string): ComparisonItem | undefined {

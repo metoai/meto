@@ -474,6 +474,119 @@ export const INTEGRATIONS_LIST: IntegrationItem[] = [
     ],
     getSnippet: (url, token) => buildCopilotMcpJson(url, token),
   },
+  {
+    slug: "claude-code",
+    toolId: "terminal",
+    name: "Claude Code CLI",
+    category: "agent",
+    tagline: "One-Line Terminal MCP Setup & Dynamic CLAUDE.md Generation for Claude Code",
+    summary:
+      "Connect Claude Code CLI to your Meto profile via Model Context Protocol. Give your terminal agent real-time access to tech stack constraints, architectural decisions, and anti-patterns.",
+    metaTitle: "Claude Code CLI MCP Setup & Developer Context Guide — Meto",
+    metaDescription:
+      "Connect Anthropic Claude Code CLI to Meto via Model Context Protocol. Run autonomous terminal coding tasks with full awareness of your architectural standards.",
+    badge: "1-Line Terminal Add",
+    iconUrl: MCP_TOOL_ICONS.terminal.url,
+    painPoint:
+      "Claude Code runs in your terminal and executes multi-step refactoring, but forgets project architectural rules unless explicitly told in CLAUDE.md.",
+    solution:
+      "Add Meto as an MCP server to Claude Code with one command, or compile CLAUDE.md automatically with 'npx meto-cli sync'.",
+    keyBenefits: [
+      "One-line installation via 'claude mcp add'",
+      "Dynamic querying of architectural decisions (ADRs) during CLI execution",
+      "Zero prompt duplication across terminal CLI and desktop IDE",
+      "Keeps CLAUDE.md synchronized with .cursor/rules/*.mdc",
+    ],
+    overview: [
+      "Claude Code is Anthropic's state-of-the-art terminal coding agent. Integrating it with Meto ensures autonomous tasks adhere to your exact tech stack.",
+    ],
+    steps: [
+      {
+        title: "Add Meto via Claude CLI",
+        description:
+          "Run the single-line command in your terminal to register Meto as an MCP server.",
+        language: "bash",
+        filename: "Terminal",
+      },
+      {
+        title: "Verify Connected Tools",
+        description:
+          "Launch Claude Code ('claude') and verify that Meto's context and memory tools are listed.",
+        language: "bash",
+        filename: "Terminal",
+        code: "claude\n# Inside Claude: /mcp",
+      },
+    ],
+    faq: [
+      {
+        question: "How does Claude Code access Meto tools?",
+        answer:
+          "Claude Code communicates with Meto over Model Context Protocol using mcp-remote. When Claude needs architectural context, it calls Meto's tools automatically.",
+      },
+      {
+        question: "Can I use Meto with both Claude Code CLI and Claude Desktop?",
+        answer:
+          "Yes! Meto supports both. Claude Desktop uses claude_desktop_config.json while Claude Code CLI uses 'claude mcp add'.",
+      },
+    ],
+    getSnippet: (url, token) => buildClaudeCodeCliCommand(url, token),
+  },
+  {
+    slug: "zed",
+    toolId: "zed",
+    name: "Zed Editor",
+    category: "ide",
+    tagline: "High-Performance Context Servers & MCP Integration for Zed",
+    summary:
+      "Connect Zed's blazing-fast AI assistant to Meto via Model Context Protocol (context_servers). Maintain consistent stack memory across Zed and your other editors.",
+    metaTitle: "Zed Editor MCP Setup & Developer Context Guide — Meto",
+    metaDescription:
+      "Learn how to configure Zed context_servers with Meto MCP. Give Zed AI assistant instant memory of your tech stack and architectural decisions.",
+    badge: "context_servers",
+    iconUrl: MCP_TOOL_ICONS.zed.url,
+    painPoint:
+      "Zed is exceptionally fast, but switching to Zed from Cursor or Claude requires manually re-explaining your stack and rules.",
+    solution:
+      "Add Meto to Zed's settings.json under context_servers. Zed's AI assistant immediately inherits your complete verified tech stack and project ADRs.",
+    keyBenefits: [
+      "Native Zed context_servers configuration",
+      "Instant memory synchronization across Zed, Cursor, and Claude",
+      "Minimal latency over local MCP proxy",
+      "Zero manual re-prompting in Zed AI assistant",
+    ],
+    overview: [
+      "Zed is a high-performance, GPU-accelerated code editor with built-in AI capabilities. With Meto's MCP server, Zed shares the exact same context as your other tools.",
+    ],
+    steps: [
+      {
+        title: "Open Zed Settings",
+        description:
+          "In Zed, press Cmd+, (or Ctrl+, on Linux) to open settings.json.",
+        filename: "~/.config/zed/settings.json",
+        language: "json",
+      },
+      {
+        title: "Paste Context Server Configuration",
+        description:
+          "Add Meto under the 'context_servers' key in your Zed settings.json.",
+        filename: "settings.json",
+        language: "json",
+      },
+    ],
+    faq: [
+      {
+        question: "Does Zed support Model Context Protocol?",
+        answer:
+          "Yes, Zed natively supports MCP through its 'context_servers' configuration in settings.json.",
+      },
+      {
+        question: "Does this work on Linux and macOS?",
+        answer:
+          "Yes, Zed's context_servers configuration works identically across macOS and Linux.",
+      },
+    ],
+    getSnippet: (url, token) => buildZedMcpJson(url, token),
+  },
 ];
 
 export function getIntegrationBySlug(slug: string): IntegrationItem | undefined {

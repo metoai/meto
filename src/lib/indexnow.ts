@@ -52,6 +52,8 @@ export async function getIndexableUrls(baseUrl?: string): Promise<string[]> {
     `${base}/solutions/share-context`,
     `${base}/solutions/sync-rules`,
     `${base}/solutions/ai-developer-memory`,
+    `${base}/solutions/team-context-sync`,
+    `${base}/solutions/monorepo-ai-rules`,
     `${base}/for/cursor-and-claude`,
     `${base}/pricing`,
     `${base}/integrations`,

@@ -53,6 +53,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${base}/solutions/team-context-sync`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${base}/solutions/monorepo-ai-rules`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
       url: `${base}/for/cursor-and-claude`,
       lastModified: now,
       changeFrequency: "weekly",
