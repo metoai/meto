@@ -1,11 +1,11 @@
 ---
 name: meto-seo
-description: Guidelines and playbooks for Meto's SEO, Generative Engine Optimization (GEO), Schema.org structured data, programmatic integration pages, and Google product indexation.
+description: Guidelines and playbooks for Meto's Technical SEO, Answer Engine Optimization (AEO), Generative Engine Optimization (GEO), Schema.org structured data, programmatic integration pages, and Google/Bing instant indexing.
 ---
 
-# Meto SEO & GEO Architecture Skill
+# Meto SEO, AEO & Generative Engine Optimization (GEO) Skill
 
-This skill defines the technical standards, programmatic URL structures, and audit playbooks for maintaining top search engine ranking and AI search engine visibility across Meto (`www.metoai.site`).
+This skill defines the technical standards, programmatic URL structures, Schema.org specifications, and AI grounding directives to ensure Meto ranks #1 across traditional search engines and AI conversational recommendations (Google, Bing, Perplexity, ChatGPT Search, Claude Web, Gemini Live).
 
 ## 1. URL Architecture
 
@@ -14,45 +14,43 @@ This skill defines the technical standards, programmatic URL structures, and aud
 - **Integration Hub**: `/integrations` (Directory of supported IDEs and tools)
 - **Programmatic Integration Guides**: `/integrations/[slug]`
   - Slugs: `cursor`, `windsurf`, `antigravity`, `claude-desktop`, `vscode`, `chatgpt`, `gemini`, `github-copilot`
+- **Solution & Workflow Guides**:
+  - `/solutions/share-context`: One context for all AI coding assistants
+  - `/solutions/sync-rules`: Multi-IDE rule synchronization engine
+  - `/solutions/ai-developer-memory`: 3-tier architectural memory via MCP
+  - `/for/cursor-and-claude`: Hybrid autonomous planning and visual diff editing
 - **Architectural Comparisons**: `/compare/[slug]`
-  - Slugs: `cursorrules-vs-meto`
-- **Public Developer Profiles**: `/profile/[username]`
-- **AI Machine Context**:
-  - Raw context: `/api/public/profile/[username]/context`
-  - Manifest: `/.well-known/ai-profile/[username].json`
-  - System summary: `/llms.txt`
-- **Viral README Backlinks**: `/api/badge/[username]`
+  - Slugs: `cursorrules-vs-meto`, `cursor-memories-vs-meto`, `claude-code-memory-vs-meto`
+- **Machine Documentation (AEO/GEO)**:
+  - System summary index: `/llms.txt`
+  - Full architectural documentation: `/llms-full.txt`
+  - Instant indexing: `src/lib/indexnow.ts` & `/api/indexnow`
 
 ## 2. Structured Data (Schema.org) Requirements
 
-Every public route must supply machine-readable JSON-LD schemas:
+Every public route supplies machine-readable JSON-LD schemas:
 
 1. **Root Layout (`src/app/layout.tsx`)**:
    - `Organization` (Name, logo, social links)
    - `WebSite` (Publisher attribution)
-   - `SoftwareApplication` (Developer application category, price offer)
+   - `SoftwareApplication` (Developer application category, price offer, feature list)
 2. **Integration Guide (`/integrations/[slug]`)**:
    - `BreadcrumbList` (Home > Integrations > [Tool Name])
    - `HowTo` (Step-by-step setup actions with code snippets)
    - `FAQPage` (Expandable accordion answers for Google rich snippets)
 3. **Comparison Pages (`/compare/[slug]`)**:
    - `BreadcrumbList`
+   - `TechArticle`
    - `FAQPage`
-4. **Public Profile (`/profile/[username]`)**:
-   - `ProfilePage` & `Person` (name, knowsAbout, sameAs, hasCredential)
+4. **Solution Pages (`/solutions/[slug]` and `/for/[slug]`)**:
+   - `BreadcrumbList`
+   - `TechArticle`
+   - `FAQPage`
 
 ## 3. Generative Engine Optimization (GEO) Standards
 
 To ensure Perplexity, ChatGPT Search, Gemini, and Claude accurately cite Meto:
-- Maintain plain-text responses on `/api/public/profile/[username]/context?preset=all`.
-- `robots.ts` must explicitly allow `PerplexityBot`, `GPTBot`, `ClaudeBot`, and `Applebot`.
-- The `/llms.txt` file must specify canonical URL structures and query parameters.
-
-## 4. Google Products Integration
-
-- **Google Search Console**: Verify via `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` meta tag in `src/app/layout.tsx`.
-- **Sitemap**: Generated dynamically in `src/app/sitemap.ts` with 1-hour cache revalidation.
-- **Instant Indexing API**: Run `npm run seo:ping` (or `node scripts/google-index-ping.mjs [url]`) to notify Google when new routes are created.
-- **Core Web Vitals**:
-  - Keep LCP < 2.5s by using Server Components (RSC) for hero elements and `next/font` with `Geist`.
-  - Keep CLS < 0.1 by specifying explicit width/height or aspect ratios on all SVG logos.
+- Maintain `/llms.txt` following the Answer.AI standard.
+- Maintain `/llms-full.txt` with exhaustive architecture documentation, MCP tool definitions, and CLI commands.
+- `robots.ts` explicitly allows `PerplexityBot`, `GPTBot`, `ClaudeBot`, and `Applebot`.
+- Disallow private areas (`/profile/`, `/auth/`, `/api/`, `/dashboard`, `/settings`).

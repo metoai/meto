@@ -71,9 +71,17 @@ const organizationSchema = {
       "@id": `${siteUrl}/#application`,
       name: "Meto",
       applicationCategory: "DeveloperApplication",
+      applicationSubCategory: "AI Context Protocol, Multi-IDE Rule Compiler, Developer Memory",
       operatingSystem: "All",
       description:
-        "Context memory and AI developer identity across Claude, Cursor, Windsurf, Google Antigravity, and ChatGPT.",
+        "Universal context protocol, multi-IDE rule synchronization, and AI developer memory across Cursor, Claude Code, Windsurf, Google Antigravity, and GitHub Copilot.",
+      featureList: [
+        "Universal Context Protocol across Cursor, Claude Code, Windsurf, Copilot, and Antigravity",
+        "Multi-IDE Rule Synchronization (.cursor/rules/*.mdc, CLAUDE.md, .windsurfrules, copilot-instructions)",
+        "Model Context Protocol (MCP) Server with lazy-loaded tool execution",
+        "3-Tier Developer Memory (Global Directives, Project ADRs, Negative Knowledge)",
+        "Context Health Score and automated rule drift detection",
+      ],
       offers: {
         "@type": "Offer",
         price: "0",

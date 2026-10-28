@@ -6,8 +6,8 @@ import {
   CheckCircle2,
   ChevronRight,
   HelpCircle,
+  Layers,
   Scale,
-  Sparkles,
   XCircle,
 } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing-layout";
@@ -108,11 +108,33 @@ export default async function ComparisonDetailPage({ params }: PageProps) {
     })),
   };
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: item.headline,
+    description: item.metaDescription,
+    author: {
+      "@type": "Organization",
+      name: "Meto",
+      url: siteUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Meto",
+      url: siteUrl,
+    },
+    url: pageUrl,
+  };
+
   return (
     <MarketingLayout showFooter contentAlign="top">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
       <script
         type="application/ld+json"
@@ -193,7 +215,7 @@ export default async function ComparisonDetailPage({ params }: PageProps) {
               Modern Solution
             </span>
             <h2 className="text-lg font-bold text-[var(--text)] mt-1 mb-4 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" />
+              <Layers className="h-4 w-4 text-amber-500" />
               Dynamic Meto MCP Identity
             </h2>
 
@@ -293,14 +315,14 @@ export default async function ComparisonDetailPage({ params }: PageProps) {
           <div className="mt-5 flex items-center justify-center gap-3">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:opacity-90 active:scale-[0.97]"
             >
               Get Started for Free
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/integrations/cursor"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition-all duration-150 hover:text-[var(--text)] active:scale-[0.97]"
             >
               View Cursor Guide
             </Link>
