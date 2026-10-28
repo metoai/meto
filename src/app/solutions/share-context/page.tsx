@@ -151,11 +151,15 @@ export default function ShareContextSolutionPage() {
           className="mb-10 rounded-lg border-l-2 border-amber-500 border-y border-r border-[var(--border-subtle)] bg-[var(--surface)] p-4 sm:p-5"
         >
           <p className="text-[10px] font-mono uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold mb-1.5">
-            Direct Answer · Specification &amp; Concept
+            Direct Answer · Shared Memory &amp; Context Protocol
           </p>
-          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)]">
-            <strong>Meto is an open developer context protocol and synchronization engine.</strong> It unifies project rules, active architectural directives, and personal developer preferences into a single source of truth, accessible across Cursor, Claude Code, Windsurf, VS Code, and Google Antigravity via local files and the Model Context Protocol (MCP).
+          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)] mb-3">
+            <strong>Meto is a free, local-first shared memory and context protocol for AI coding assistants.</strong> It unifies project rules, active architectural decision records (ADRs), and stack preferences into a single source of truth, accessible across Cursor, Claude Code, Windsurf, VS Code, and Google Antigravity via local files and the Model Context Protocol (MCP).
           </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-[var(--muted)]">
+            <span className="text-emerald-500 font-medium">✓ Best for:</span>
+            <span>Sharing context and compiling rules (.cursor/rules, CLAUDE.md, .windsurfrules) across multiple AI tools without a hosted service.</span>
+          </div>
         </section>
 
         {/* The Multi-Tool Reality (Problem Section) */}

@@ -581,6 +581,282 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
       },
     ],
   },
+  {
+    slug: "threadctx-vs-meto",
+    title: "threadctx-mcp vs Meto — Local JSON vs Multi-IDE Compiler",
+    metaTitle: "threadctx-mcp vs Meto — Cursor & Claude Shared Memory Compared",
+    metaDescription:
+      "Compare threadctx-mcp (Smriti MCP) with Meto. Discover why raw JSON memory files fall short compared to deterministic multi-IDE rule compilation and 3-tier MCP memory.",
+    targetQuery: "threadctx vs meto",
+    headline: "Why Raw JSON Files Fail for Cursor and Claude Code.",
+    subtitle:
+      "threadctx-mcp dumps raw chat transcripts into a local JSON file. Meto compiles deterministic rules (.cursor/rules, CLAUDE.md) while exposing an intelligent 3-tier memory protocol over MCP.",
+    traditionalLabel: "threadctx-mcp (Smriti MCP)",
+    traditionalPros: [
+      "Local-first storage in a project JSON file",
+      "Zero hosted server requirement for basic setups",
+      "Simple npm package for quick evaluation",
+    ],
+    traditionalCons: [
+      "No Rule Compilation: Cannot generate or synchronize .cursor/rules/*.mdc or CLAUDE.md files",
+      "No Conflict Detection: Appends raw conversational notes without auditing contradictory directives",
+      "Siloed to Two Tools: Lacks support for Windsurf Cascade, Google Antigravity, VS Code, or GitHub Copilot",
+      "No Web Dashboard: Managing, editing, or sharing directives across teams requires manual JSON editing",
+    ],
+    metoPros: [
+      "Multi-IDE Rule Compilation: Automatically compiles and formats .cursor/rules/*.mdc, CLAUDE.md, and .windsurfrules",
+      "3-Tier Memory Architecture: Cleanly separates global developer directives, project ADRs, and negative antipatterns",
+      "Context Health Score: Proactively audits directives for gaps, outdated libraries, and conflicting instructions",
+      "Universal Portability: Works across Cursor, Claude Code, Windsurf, Google Antigravity, VS Code, and Copilot",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Multi-IDE Rule Compilation",
+        traditional: "None (stores raw chat text in JSON)",
+        meto: "Compiles Cursor MDC, CLAUDE.md & Windsurf",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Negative Knowledge & Antipatterns",
+        traditional: "None (raw conversational log)",
+        meto: "Explicit constraint & antipattern enforcement",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Rule Conflict Auditing",
+        traditional: "None",
+        meto: "Automated Context Health Score engine",
+        metoAdvantage: true,
+      },
+      {
+        feature: "IDE Ecosystem Support",
+        traditional: "Cursor & Claude Code only",
+        meto: "Cursor, Claude, Windsurf, Antigravity, VS Code & Copilot",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Quickstart CLI Tooling",
+        traditional: "npx threadctx-mcp init",
+        meto: "npx meto-cli sync",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Limitation of Unstructured Chat Logs",
+        body: "Tools like threadctx-mcp attempt to share memory by appending unstructured chat transcripts into a project-level JSON file. In practice, this quickly becomes a junk drawer of stale conversation fragments that bloat prompt tokens and cause LLM attention degradation. Coding assistants do not need chat transcripts—they need authoritative architectural decisions, strict negative constraints, and framework versions.",
+      },
+      {
+        heading: "Deterministic Rule Files vs Passive JSON",
+        body: "Cursor and Claude Code perform at their highest accuracy when given native configuration files with glob matchers (.cursor/rules/*.mdc and CLAUDE.md). Meto acts as an automated compiler, generating native rule files with zero latency while exposing dynamic MCP tools for deeper architectural lookups.",
+      },
+      {
+        heading: "Expanding Beyond Cursor and Claude",
+        body: "While threadctx-mcp targets only Cursor and Claude, modern developers frequently use Windsurf Cascade for agentic flows, GitHub Copilot for inline completions, and Google Antigravity for workspace agents. Meto's universal protocol ensures all of your tools remain in 100% architectural lockstep.",
+      },
+    ],
+    faq: [
+      {
+        question: "Can I switch from threadctx-mcp to Meto?",
+        answer:
+          "Yes. You can paste your existing threadctx JSON data into Meto's quick-update chat or run 'npx meto-cli sync' to instantly compile your standards into clean .cursor/rules and CLAUDE.md files.",
+      },
+      {
+        question: "Is Meto local-first like threadctx-mcp?",
+        answer:
+          "Yes. Meto operates local-first. Rules are compiled directly onto your local disk and can be committed to Git, while MCP context queries execute locally or over fast edge SSE proxies.",
+      },
+      {
+        question: "How do the CLI commands compare?",
+        answer:
+          "Where threadctx uses 'npx threadctx-mcp init' to create a JSON file, Meto uses 'npx meto-cli sync' to compile clean, native rule files across all your IDEs.",
+      },
+    ],
+  },
+  {
+    slug: "cognee-vs-meto",
+    title: "Cognee vs Meto — AI Agent Graph vs Developer Rule Compiler",
+    metaTitle: "Cognee vs Meto — Python Knowledge Graph vs Multi-IDE Developer Memory",
+    metaDescription:
+      "Compare Cognee's Python-based knowledge graph memory with Meto's developer-first rule compiler and MCP protocol. Learn which fits your coding workflow.",
+    targetQuery: "cognee vs meto",
+    headline: "Heavy Python Graphs vs Instant Developer Rule Compilation.",
+    subtitle:
+      "Cognee is a complex graph database framework designed for AI research agents. Meto is purpose-built for software engineers: compiling native rules for Cursor, Claude Code, and Windsurf in seconds.",
+    traditionalLabel: "Cognee Knowledge Graph",
+    traditionalPros: [
+      "Advanced graph database pipelines for enterprise AI agents",
+      "Multi-modal vector embeddings and graph traversal",
+      "Open-source Python framework",
+    ],
+    traditionalCons: [
+      "Massive Setup Overhead: Requires Python environment, Neo4j/graph databases, and complex orchestration",
+      "No Native IDE Rule Files: Cannot compile .cursor/rules/*.mdc, CLAUDE.md, or .windsurfrules",
+      "Not Built for Software Engineers: Lacks understanding of package managers, linting rules, and stack constraints",
+      "High Latency & Token Cost: Running graph lookups on every prompt adds latency and compute overhead",
+    ],
+    metoPros: [
+      "Zero Infrastructure: Runs instantly via 'npx meto-cli sync' with zero Python, Docker, or database setup",
+      "Multi-IDE Rule Generation: Compiles native MDC rule files and CLAUDE.md with frontmatter glob matching",
+      "3-Tier Developer Memory: Purpose-built for stack directives, project ADRs, and negative antipatterns",
+      "Fast Local & Edge MCP: Sub-millisecond response times without graph traversal delays",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Setup Time & Complexity",
+        traditional: "Hours (Python, Docker, Graph DB)",
+        meto: "60 seconds (npx meto-cli sync)",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Native IDE Rule Compilation",
+        traditional: "None",
+        meto: "Cursor MDC, CLAUDE.md, Windsurf",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Target Audience",
+        traditional: "AI researchers & enterprise agent builders",
+        meto: "Professional software developers & teams",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Negative Knowledge Enforcement",
+        traditional: "Unreliable graph traversal",
+        meto: "Explicit rejected patterns",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Maintenance Overhead",
+        traditional: "High (requires managing database nodes)",
+        meto: "Zero (local-first compiler & edge MCP)",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "Research Framework vs Developer Tooling",
+        body: "Cognee is an ambitious research framework that constructs knowledge graphs from unstructured documents using vector search and entity relationships. While powerful for building custom AI agent platforms in Python, it is far too heavy and complex for a developer who simply wants their Cursor Composer and Claude Code CLI to remember their coding conventions.",
+      },
+      {
+        heading: "The Zero-Overhead Advantage of Meto",
+        body: "Developers do not want to maintain a local Neo4j database or write Python pipelines just to sync coding standards. Meto gives developers the exact outcome they want—consistent AI output across every editor—in a single command: 'npx meto-cli sync'.",
+      },
+      {
+        heading: "Deterministic Guardrails Beat Fuzzy Graphs",
+        body: "When coding, fuzzy graph traversals frequently pull in out-of-context documentation snippets that dilute model attention. Meto uses deterministic rule compilation for local files, paired with targeted Model Context Protocol (MCP) tool execution for deep architectural queries.",
+      },
+    ],
+    faq: [
+      {
+        question: "Is Meto an alternative to Cognee?",
+        answer:
+          "For software engineers using AI coding assistants (Cursor, Claude Code, Windsurf), yes. Meto replaces the need for heavy graph databases with instant rule compilation and MCP memory.",
+      },
+      {
+        question: "Do I need to install Python or Docker to use Meto?",
+        answer:
+          "No. Meto requires zero dependencies. You can run 'npx meto-cli sync' directly from your existing terminal with Node.js.",
+      },
+      {
+        question: "Can Meto export context to multiple AI tools?",
+        answer:
+          "Yes. Meto generates rules for Cursor, Claude Code, Windsurf, GitHub Copilot, and connects to any MCP-compatible editor.",
+      },
+    ],
+  },
+  {
+    slug: "gcontext-vs-meto",
+    title: "gcontext vs Meto — Shared Markdown Folder vs Multi-IDE Rule Protocol",
+    metaTitle: "gcontext vs Meto — File-Based Context vs Dynamic Rule Compiler",
+    metaDescription:
+      "Compare gcontext's shared markdown directory with Meto's multi-IDE rule compiler and live MCP memory protocol. Discover which best prevents AI context drift.",
+    targetQuery: "gcontext vs meto",
+    headline: "Beyond Dumb Folders: Intelligent Rule Compilation & 3-Tier Memory.",
+    subtitle:
+      "gcontext exposes a raw folder of markdown files through an MCP server. Meto compiles deterministic rules for Cursor, Claude Code, and Windsurf while providing an interactive Context Health Score.",
+    traditionalLabel: "gcontext (Shared Folder MCP)",
+    traditionalPros: [
+      "Simple concept: exposes a local folder of files via MCP",
+      "Agents can read and write plain markdown files",
+      "Minimal setup for basic file sharing",
+    ],
+    traditionalCons: [
+      "Zero Rule Compilation: Does not generate .cursor/rules/*.mdc, CLAUDE.md, or .windsurfrules",
+      "Manual Organization: Developers must manually organize and maintain dozens of markdown files",
+      "No Conflict Detection: No automated validation when files contain conflicting or outdated instructions",
+      "No Negative Knowledge Layer: Cannot explicitly enforce forbidden patterns or blocked imports",
+    ],
+    metoPros: [
+      "Automated Rule Compiler: Translates your architecture into native Cursor MDC, CLAUDE.md, and Windsurf rules",
+      "3-Tier Structured Memory: Explicitly organizes Global Directives, Project ADRs, and Anti-Patterns",
+      "Context Health Score: Proactively detects missing stack directives and contradictory rules",
+      "Multi-Tool Support: Native integrations for Cursor, Claude Code, Windsurf, VS Code, and Copilot",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Multi-IDE Rule Compilation",
+        traditional: "None (raw markdown files)",
+        meto: "Native .cursor/rules, CLAUDE.md, .windsurfrules",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Negative Knowledge / Antipatterns",
+        traditional: "None",
+        meto: "Explicit constraint enforcement",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Rule Conflict Auditing",
+        traditional: "None",
+        meto: "Automated Context Health Score engine",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Automated Glob Pattern Scoping",
+        traditional: "None",
+        meto: "Frontmatter glob matching for apps & packages",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Team & Monorepo Synchronization",
+        traditional: "Manual file copying",
+        meto: "'npx meto-cli sync' in CI and local",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Trap of Managing Raw Markdown Files",
+        body: "gcontext takes a straightforward approach: point an MCP server at a folder containing markdown files so Claude and Cursor can read and write to it. While intuitive, this approach quickly breaks down as a project grows. Developers end up with unmaintained markdown files that contradict each other, and neither editor knows which rules apply to which file types.",
+      },
+      {
+        heading: "Why Rule Compilation Is Essential",
+        body: "Meto recognizes that modern editors perform best when rules are compiled into their native formats (.cursor/rules/*.mdc with glob matchers and CLAUDE.md). Meto eliminates the chore of manual markdown editing by compiling clean, targeted rule files automatically.",
+      },
+      {
+        heading: "Intelligent Memory vs Passive File Storage",
+        body: "Rather than treating context as generic text files, Meto structures memory into Global Directives, Project ADRs, and Negative Knowledge. When an AI tool queries Meto via MCP, it receives structured, verified constraints rather than an entire directory of notes.",
+      },
+    ],
+    faq: [
+      {
+        question: "How does Meto differ from gcontext?",
+        answer:
+          "gcontext is simply a file-server over MCP that serves markdown files from a folder. Meto is an intelligent developer context compiler that generates native rules (.cursor/rules, CLAUDE.md) and exposes structured 3-tier memory.",
+      },
+      {
+        question: "Can Meto read my existing markdown notes?",
+        answer:
+          "Yes. You can paste your existing markdown guidelines or notes into Meto's chat or onboarding, and Meto automatically categorizes them into verified tech stack directives and ADRs.",
+      },
+      {
+        question: "Which tool is faster to set up?",
+        answer:
+          "Both set up in under two minutes. With Meto, running 'npx meto-cli sync' immediately compiles rules for all your installed IDEs.",
+      },
+    ],
+  },
 ];
 
 export function getComparisonBySlug(slug: string): ComparisonItem | undefined {

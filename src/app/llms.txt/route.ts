@@ -26,6 +26,9 @@ Full single-fetch documentation is available at: ${base}/llms-full.txt
 - [Mem0 vs Meto Developer Memory](${base}/compare/mem0-vs-meto): Generic consumer chatbot RAG memory vs code-centric multi-IDE rule compiler and MCP server.
 - [Copilot Instructions vs Meto](${base}/compare/copilot-instructions-vs-meto): Dynamic multi-IDE rule sync vs static .github/copilot-instructions.md.
 - [Windsurfrules vs Meto](${base}/compare/windsurfrules-vs-meto): Eliminating rule duplication when switching between Windsurf Cascade and Cursor.
+- [threadctx-mcp vs Meto](${base}/compare/threadctx-vs-meto): Why passive JSON memory files fall short compared to deterministic multi-IDE rule compilation.
+- [Cognee vs Meto](${base}/compare/cognee-vs-meto): Heavy Python knowledge graphs vs zero-overhead developer context and MCP tooling.
+- [gcontext vs Meto](${base}/compare/gcontext-vs-meto): Shared markdown folders vs intelligent 3-tier developer memory and conflict scoring.
 
 ## IDE & Assistant Integrations
 - [Integrations Directory](${base}/integrations): Index of supported coding assistants and tools.

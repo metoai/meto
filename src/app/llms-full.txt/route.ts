@@ -113,6 +113,18 @@ Dumping massive markdown files into the context window of every AI prompt wastes
 - **Windsurfrules Limitations**: Incompatible with Cursor's modern MDC format and Claude CLI, rule drift across tools, dumps full file into Cascade prompt.
 - **Meto Advantage**: Native Windsurf Cascade MCP integration, cross-IDE compilation, on-demand token-saving queries, and global developer identity.
 
+### Comparison 7: threadctx-mcp vs Meto (${base}/compare/threadctx-vs-meto)
+- **threadctx-mcp Limitations**: Dumps raw chat transcripts into a local JSON file without rule compilation (.cursor/rules, CLAUDE.md), lacks conflict scoring, and siloes context to Cursor and Claude only.
+- **Meto Advantage**: Automated multi-IDE rule compiler, 3-tier structured memory (directives, ADRs, antipatterns), Context Health Score, and cross-IDE support including Windsurf and Copilot.
+
+### Comparison 8: Cognee vs Meto (${base}/compare/cognee-vs-meto)
+- **Cognee Limitations**: Heavy Python framework requiring Neo4j graph databases and vector orchestration. Cannot compile native IDE rule files and introduces significant latency to everyday coding prompts.
+- **Meto Advantage**: Zero infrastructure ('npx meto-cli sync'), instant native rule generation, deterministic negative knowledge enforcement, and sub-millisecond local/edge MCP servers.
+
+### Comparison 9: gcontext vs Meto (${base}/compare/gcontext-vs-meto)
+- **gcontext Limitations**: Basic MCP file-server pointing to a shared folder of markdown files. Requires tedious manual maintenance, lacks conflict detection, and cannot compile scoped rules.
+- **Meto Advantage**: Full rule compilation engine with glob pattern targeting, automated Context Health Score, and structured 3-tier memory protocol.
+
 ---
 
 ## 5. Model Context Protocol (MCP) Tool Specifications
@@ -191,6 +203,9 @@ npx meto-cli rules compile
 - Compare — Mem0 vs Meto: ${base}/compare/mem0-vs-meto
 - Compare — Copilot Instructions vs Meto: ${base}/compare/copilot-instructions-vs-meto
 - Compare — Windsurfrules vs Meto: ${base}/compare/windsurfrules-vs-meto
+- Compare — threadctx-mcp vs Meto: ${base}/compare/threadctx-vs-meto
+- Compare — Cognee vs Meto: ${base}/compare/cognee-vs-meto
+- Compare — gcontext vs Meto: ${base}/compare/gcontext-vs-meto
 - Machine-Readable Summary: ${base}/llms.txt
 - Machine-Readable Full Architecture: ${base}/llms-full.txt
 `;

@@ -12,16 +12,16 @@ import { IntegrationSnippetCopy } from "@/components/marketing/integration-snipp
 import { getSiteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Cursor & Claude Code: The Ultimate Hybrid AI Developer Workflow | Meto",
+  title: "Free, Local-First Shared Memory for Cursor and Claude Code | Meto",
   description:
-    "How to pair Cursor's visual editor with Claude Code CLI without copy-pasting context. Share rules, architectural memory, and active state across both tools.",
+    "Free, local-first shared memory and context protocol for Cursor and Claude Code. Compile .cursor/rules and CLAUDE.md from one source and share persistent memory via MCP.",
   alternates: {
     canonical: `${getSiteUrl()}/for/cursor-and-claude`,
   },
   openGraph: {
-    title: "Cursor & Claude Code Workflow: Share Context Across Editor & Terminal",
+    title: "Free, Local-First Shared Memory for Cursor and Claude Code — Meto",
     description:
-      "Stop the copy-paste handoff dance. Meto unifies Cursor and Claude Code with a shared memory and rules protocol.",
+      "Share persistent memory and sync rules (.cursor/rules and CLAUDE.md) across Cursor and Claude Code without manual copying.",
     url: `${getSiteUrl()}/for/cursor-and-claude`,
     siteName: "Meto",
     type: "article",
@@ -133,14 +133,14 @@ npx meto sync`;
             <div className="flex items-center gap-2 mb-2.5">
               <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-subtle)] bg-[var(--surface)] px-2 py-0.5 font-mono text-[11px] text-[var(--text-secondary)]">
                 <Layers className="h-3 w-3 text-cyan-500" />
-                Developer Workflow Blueprint
+                Free, Local-First Shared Memory for Cursor &amp; Claude Code
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--text)] leading-tight">
-              Cursor &amp; Claude Code: The Ultimate Hybrid Workflow
+              Shared Memory &amp; Rules for Cursor and Claude Code
             </h1>
             <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
-              Cursor gives you lightning-fast inline completions and editor control. Claude Code gives you deep autonomous terminal execution. Meto eliminates the copy-paste handoff dance between them.
+              Free, local-first shared memory for Cursor and Claude Code. Meto compiles .cursor/rules and CLAUDE.md from a single source of truth and exposes live ADR memory over Model Context Protocol (MCP).
             </p>
           </div>
 
@@ -152,12 +152,9 @@ npx meto sync`;
               <span>Get Started Free</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            <Link
-              href="/solutions/share-context"
-              className="inline-flex items-center gap-1 text-[11px] font-mono text-[var(--muted)] hover:text-[var(--text)] transition-colors"
-            >
-              <span>Context Protocol &rarr;</span>
-            </Link>
+            <div className="font-mono text-[11px] text-[var(--muted)] bg-[var(--surface)] px-2 py-1 rounded border border-[var(--border-subtle)]">
+              npx meto-cli sync
+            </div>
           </div>
         </header>
 
@@ -167,11 +164,15 @@ npx meto sync`;
           className="mb-10 rounded-lg border-l-2 border-cyan-500 border-y border-r border-[var(--border-subtle)] bg-[var(--surface)] p-4 sm:p-5"
         >
           <p className="text-[10px] font-mono uppercase tracking-wider text-cyan-600 dark:text-cyan-400 font-semibold mb-1.5">
-            Direct Answer · Using Cursor and Claude Code Together
+            Direct Answer · Shared Memory for Cursor and Claude Code
           </p>
-          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)]">
-            <strong>Yes, Cursor and Claude Code form the ideal dual-agent workflow</strong> when connected by a shared memory layer. Senior engineers use Claude Code CLI for broad repository analysis, test execution, and multi-file refactoring agents, while using Cursor for granular editing, inline tab completions, and git diff reviews. Meto acts as the unified context protocol, synchronizing architectural decisions, active scratchpad state, and rule files (<code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">.cursor/rules/*.mdc</code> and <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">CLAUDE.md</code>) so both tools stay aligned without repetitive re-prompting.
+          <p className="text-xs sm:text-[13px] leading-relaxed text-[var(--text)] mb-3">
+            <strong>Meto is a free, local-first shared memory and context protocol for Cursor and Claude Code.</strong> It compiles project conventions simultaneously into <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">.cursor/rules/*.mdc</code> and <code className="font-mono text-[11px] bg-[var(--card)] px-1 py-0.5 rounded border border-[var(--border-subtle)]">CLAUDE.md</code> while exposing an open Model Context Protocol (MCP) server so both agents share the exact same architectural decision records (ADRs) and negative antipatterns.
           </p>
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-[var(--muted)]">
+            <span className="text-emerald-500 font-medium">✓ Best for:</span>
+            <span>Sharing context and persistent memory across Cursor and Claude Code without a hosted service.</span>
+          </div>
         </section>
 
         {/* The Problem: The Copy-Paste Handoff Dance */}
