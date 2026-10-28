@@ -19,7 +19,7 @@ export const PUBLIC_FETCH_HEADERS = {
   "Content-Type": "text/plain; charset=utf-8",
   "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400",
   ...PUBLIC_CORS_HEADERS,
-  "X-Robots-Tag": "all",
+  "X-Robots-Tag": "noindex, nofollow, noarchive",
   "X-Meto-Profile-Format": "text",
 } as const;
 
@@ -165,7 +165,7 @@ export function publicContextJsonResponse(
     headers: {
       "Cache-Control": "public, max-age=300, s-maxage=300, stale-while-revalidate=86400",
       ...PUBLIC_CORS_HEADERS,
-      "X-Robots-Tag": "all",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
       "X-Meto-Profile-Format": "json",
       Link: `<${payload.legacyContextUrl}>; rel="canonical", <${apiUrl}>; rel="alternate"; type="application/json"`,
       "X-Meto-Context-Url": apiUrl,
@@ -235,7 +235,7 @@ export function publicContextHtmlResponse(
   <meta charset="utf-8" />
   <title>Context about ${escapeHtml(name)} — Meto</title>
   <meta name="description" content="${escapeHtml(description)}" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
   <link rel="canonical" href="${contextUrl}" />
 </head>
 <body>
@@ -251,7 +251,7 @@ export function publicContextHtmlResponse(
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": PUBLIC_FETCH_HEADERS["Cache-Control"],
       ...PUBLIC_CORS_HEADERS,
-      "X-Robots-Tag": "all",
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
       "X-Meto-Profile-Format": "html",
       Link: `<${contextUrl}>; rel="canonical"`,
       ...extraHeaders,

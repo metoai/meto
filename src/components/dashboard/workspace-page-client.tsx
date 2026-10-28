@@ -76,7 +76,7 @@ export function WorkspacePageClient() {
     <>
       <SuccessToast />
       <PortalPageShell flush>
-        <div className="flex min-h-0 flex-1 flex-col gap-4">
+        <div className="flex w-full flex-col gap-4 md:min-h-0 md:flex-1">
           <div className="shrink-0">
             <WorkspaceBanner />
           </div>
@@ -85,7 +85,7 @@ export function WorkspacePageClient() {
             <>
               <div
                 id="workspace"
-                className="flex min-h-0 flex-1 flex-col scroll-mt-16 overflow-y-auto md:overflow-hidden"
+                className="flex w-full flex-col scroll-mt-16 md:min-h-0 md:flex-1 md:overflow-hidden"
               >
                 <ContextComposer
                   sections={contextSections}

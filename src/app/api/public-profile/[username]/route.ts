@@ -22,6 +22,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
     return NextResponse.json(toPublicProfileApiResponse(publicProfile), {
       headers: {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "X-Robots-Tag": "noindex, nofollow, noarchive",
       },
     });
   } catch (error) {

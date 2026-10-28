@@ -35,20 +35,24 @@ const SIDEBAR_EXPANDED_WIDTH = 240;
 const SIDEBAR_COLLAPSED_WIDTH = 72;
 const SIDEBAR_COLLAPSED_KEY = "meto-sidebar-collapsed";
 
-function navItemClass(active: boolean, collapsed: boolean, muted = false) {
+function navItemClass(active: boolean, collapsed: boolean, muted = false, isMobileDrawer = false) {
   const base = collapsed
     ? "group relative flex w-full items-center justify-center rounded-lg p-2.5 transition-all duration-150 active:scale-[0.97]"
-    : "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium leading-none transition-all duration-150 active:scale-[0.97]";
+    : isMobileDrawer
+      ? "group relative flex w-full items-center gap-3.5 rounded-xl px-3.5 py-3 text-[14px] font-medium leading-none transition-all duration-150 active:scale-[0.97]"
+      : "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium leading-none transition-all duration-150 active:scale-[0.97]";
 
   if (active) {
-    return `${base} bg-[var(--card)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border-subtle)] font-semibold`;
+    return isMobileDrawer
+      ? `${base} bg-[var(--surface)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--accent-border)] font-semibold`
+      : `${base} bg-[var(--card)] text-[var(--primary)] shadow-[var(--shadow-sm)] ring-1 ring-[var(--border-subtle)] font-semibold`;
   }
 
   if (muted) {
     return `${base} text-[var(--muted)] hover:bg-[var(--card)]/70 hover:text-[var(--text-secondary)]`;
   }
 
-  return `${base} text-[var(--text)] hover:bg-[var(--card)]/80 hover:text-[var(--primary)]`;
+  return `${base} text-[var(--text)] hover:bg-[var(--surface)] hover:text-[var(--primary)]`;
 }
 
 type SidebarContentProps = {
@@ -152,7 +156,7 @@ function SidebarContent({
       <div className={`flex-1 overflow-y-auto pb-3 ${collapsed ? "px-2" : "px-3"}`}>
         <nav aria-label="Main">
           {!collapsed ? (
-            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
               Menu
             </p>
           ) : null}
@@ -161,7 +165,7 @@ function SidebarContent({
               <li key={id}>
                 <Link
                   href={href}
-                  className={navItemClass(activeId === id, collapsed)}
+                  className={navItemClass(activeId === id, collapsed, false, Boolean(onClose))}
                   onClick={onNavigate}
                   title={collapsed ? label : undefined}
                 >
@@ -186,7 +190,7 @@ function SidebarContent({
           </ul>
 
           {!collapsed ? (
-            <p className="mb-2 mt-5 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="mb-2 mt-5 px-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
               Improve
             </p>
           ) : (
@@ -201,7 +205,7 @@ function SidebarContent({
                 <li key={id}>
                   <Link
                     href={href}
-                    className={navItemClass(activeId === id, collapsed)}
+                    className={navItemClass(activeId === id, collapsed, false, Boolean(onClose))}
                     onClick={onNavigate}
                     title={collapsed ? label : undefined}
                   >

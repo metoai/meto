@@ -85,7 +85,7 @@ export function ContextComposer({
       className={
         embedded
           ? workspaceLayout
-            ? "flex min-h-0 w-full flex-1 flex-col overflow-y-auto md:overflow-hidden"
+            ? "flex w-full flex-col md:min-h-0 md:flex-1 md:overflow-hidden"
             : "w-full"
           : "landing-panel p-5 sm:p-6"
       }
@@ -101,8 +101,8 @@ export function ContextComposer({
       ) : null}
 
       {workspaceLayout ? (
-        <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto md:overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
-          <div className="min-h-0 min-w-0 space-y-4 overflow-y-auto overscroll-contain pr-0.5">
+        <div className="flex w-full flex-col gap-4 md:grid md:min-h-0 md:flex-1 md:overflow-hidden md:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] md:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]">
+          <div className="w-full space-y-4 md:min-h-0 md:min-w-0 md:overflow-y-auto md:overscroll-contain pr-0.5">
             {sections.length === 0 ? (
               emptySectionsMessage
             ) : (
@@ -128,7 +128,7 @@ export function ContextComposer({
             )}
           </div>
 
-          <div className="flex min-h-0 flex-col gap-4 overflow-y-auto overscroll-contain">
+          <div className="flex w-full flex-col gap-4 md:min-h-0 md:overflow-y-auto md:overscroll-contain">
             {previewBlock}
             {sections.length > 0 ? (
               <IntentGrid

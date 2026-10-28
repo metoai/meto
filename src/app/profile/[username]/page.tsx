@@ -26,7 +26,10 @@ export async function generateMetadata({
   const publicProfile = await fetchPublicProfileByUsername(resolvedParams?.username);
 
   if (!publicProfile) {
-    return { title: "Profile not found — Meto" };
+    return {
+      title: "Profile not found — Meto",
+      robots: { index: false, follow: false, noarchive: true, nosnippet: true },
+    };
   }
 
   const profileUrl = getPublicProfileUrl(publicProfile.username);
@@ -60,7 +63,12 @@ export async function generateMetadata({
       description,
       images: [`${getSiteUrl()}/api/og/card?username=${encodeURIComponent(publicProfile.username)}`],
     },
-    robots: { index: true, follow: true },
+    robots: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+    },
     alternates: {
       canonical: profileUrl,
       types: {

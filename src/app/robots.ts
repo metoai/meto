@@ -12,22 +12,22 @@ export default function robots(): MetadataRoute.Robots {
     "/solutions/",
     "/for/",
     "/blog",
-    "/profile/",
+    "/terms",
+    "/privacy",
+    "/cookies",
     "/.well-known/",
-    "/api/public/",
-    "/api/badge/",
     "/llms.txt",
     "/*.txt",
   ];
 
   const privateDisallow = [
+    "/profile/",
+    "/auth/",
     "/dashboard",
     "/settings",
     "/onboarding",
-    "/api/profile/",
-    "/api/onboarding/",
-    "/api/billing/",
-    "/api/admin/",
+    "/reset-password",
+    "/api/",
   ];
 
   return {

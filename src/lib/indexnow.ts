@@ -1,6 +1,5 @@
 import { COMPARISONS_LIST } from "@/lib/comparisons-data";
 import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
-import { fetchPublicProfileUsernames } from "@/lib/public-profile";
 import { CANONICAL_SITE_HOST, getSiteUrl } from "@/lib/site";
 
 export const DEFAULT_INDEXNOW_KEY = "5f7eda72722b2bb4a8f9b4d9e4e153c3";
@@ -44,7 +43,6 @@ export interface IndexNowResult {
  * - Core marketing & workflow solutions
  * - Integration guides
  * - Feature comparisons
- * - Verified public developer & AI identity profiles
  */
 export async function getIndexableUrls(baseUrl?: string): Promise<string[]> {
   const base = (baseUrl || getSiteUrl()).replace(/\/$/, "");
@@ -71,24 +69,12 @@ export async function getIndexableUrls(baseUrl?: string): Promise<string[]> {
     (item) => `${base}/compare/${item.slug}`
   );
 
-  let profilePages: string[] = [];
-  try {
-    const usernames = await fetchPublicProfileUsernames();
-    profilePages = usernames.flatMap((username) => [
-      `${base}/profile/${username.toLowerCase()}`,
-      `${base}/api/public/profile/${username.toLowerCase()}/context`,
-    ]);
-  } catch (err) {
-    console.warn("[IndexNow] Could not fetch public profiles for urlList:", err);
-  }
-
   // Deduplicate URLs
   return Array.from(
     new Set([
       ...corePages,
       ...integrationPages,
       ...comparisonPages,
-      ...profilePages,
     ])
   );
 }

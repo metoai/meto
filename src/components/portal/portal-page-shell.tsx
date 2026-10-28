@@ -23,7 +23,7 @@ export function PortalPageShell({
       <div
         className={
           flush
-            ? "flex min-h-0 w-full flex-1 flex-col px-4 py-4 md:px-5 md:py-5"
+            ? "flex w-full flex-col px-4 py-4 md:min-h-0 md:flex-1 md:px-5 md:py-5"
             : "w-full px-5 py-6 md:px-8 md:py-7 lg:px-10"
         }
       >

@@ -64,37 +64,6 @@ const STATIC_INDEXABLE_PATHS = [
   "/integrations/continue",
 ];
 
-async function fetchDynamicProfilePaths() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !anonKey) {
-    return [];
-  }
-
-  try {
-    const res = await fetch(
-      `${supabaseUrl}/rest/v1/profiles?select=username&username=not.is.null`,
-      {
-        headers: {
-          apikey: anonKey,
-          Authorization: `Bearer ${anonKey}`,
-        },
-      }
-    );
-
-    if (!res.ok) return [];
-    const profiles = await res.json();
-    return profiles
-      .map((p) => p.username?.trim().toLowerCase())
-      .filter(Boolean)
-      .flatMap((u) => [`/profile/${u}`, `/api/public/profile/${u}/context`]);
-  } catch (err) {
-    console.warn("[IndexNow] Could not fetch profiles from Supabase:", err.message);
-    return [];
-  }
-}
-
 async function main() {
   console.log("=========================================");
   console.log("  Meto IndexNow Fast-Indexing Submitter  ");
@@ -111,11 +80,9 @@ async function main() {
     urlsToSubmit = explicitUrls;
     console.log(`[Mode] Submitting ${explicitUrls.length} explicit URL(s) provided via CLI.`);
   } else {
-    console.log("[Mode] Collecting all indexable pages across Meto...");
-    const profilePaths = await fetchDynamicProfilePaths();
-    const allPaths = Array.from(new Set([...STATIC_INDEXABLE_PATHS, ...profilePaths]));
-    urlsToSubmit = allPaths.map((p) => `${base}${p}`);
-    console.log(`[Discovered] ${STATIC_INDEXABLE_PATHS.length} static routes + ${profilePaths.length} profile endpoints = ${urlsToSubmit.length} total URLs.`);
+    console.log("[Mode] Collecting all core marketing, solution, and integration pages...");
+    urlsToSubmit = STATIC_INDEXABLE_PATHS.map((p) => `${base}${p}`);
+    console.log(`[Discovered] ${STATIC_INDEXABLE_PATHS.length} verified indexable product routes.`);
   }
 
   const keyLocation = `${base}/${INDEXNOW_KEY}.txt`;

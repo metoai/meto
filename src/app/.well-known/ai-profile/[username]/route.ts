@@ -32,7 +32,7 @@ export async function GET(_request: Request, { params }: RouteContext) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, OPTIONS",
-        "X-Robots-Tag": "all",
+        "X-Robots-Tag": "noindex, nofollow, noarchive",
       },
     });
   } catch (error) {

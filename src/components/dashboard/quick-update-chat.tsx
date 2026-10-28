@@ -132,11 +132,13 @@ export function QuickUpdateChat({
     />
   );
 
+  const isChatActive = chat.chatStarted || Boolean(gapFix && chat.gapFixBootstrapping);
+
   if (isFull) {
     return (
       <div className="flex h-full min-h-0 flex-1 flex-col bg-[var(--bg)]">
-        <div className="landing-scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
-          <div className={`mt-auto w-full px-4 py-6 md:px-6 ${CHAT_COLUMN}`}>
+        <div className="landing-scrollbar-hidden flex min-h-0 flex-1 flex-col overflow-y-auto [-webkit-overflow-scrolling:touch]">
+          <div className={`w-full px-4 py-6 md:px-6 ${CHAT_COLUMN} ${isChatActive ? "" : "mt-auto"}`}>
             {chat.applied ? (
               <div
                 className="mb-4 rounded-xl border border-[var(--accent-border)] bg-[var(--primary-light)] px-4 py-3 text-sm text-[var(--primary)]"
