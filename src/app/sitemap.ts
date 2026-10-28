@@ -65,6 +65,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${base}/solutions/personal-ai-identity`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${base}/solutions/universal-custom-instructions`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
       url: `${base}/for/cursor-and-claude`,
       lastModified: now,
       changeFrequency: "weekly",

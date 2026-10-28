@@ -857,6 +857,190 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
       },
     ],
   },
+  {
+    slug: "chatgpt-custom-instructions-vs-meto",
+    title: "ChatGPT Custom Instructions vs Meto Universal Identity",
+    metaTitle: "ChatGPT Custom Instructions vs Meto — Multi-AI Identity Compared",
+    metaDescription:
+      "Compare ChatGPT's built-in Custom Instructions with Meto's universal AI identity. Learn why siloed instructions fail when you switch between ChatGPT, Claude, and Gemini.",
+    targetQuery: "chatgpt custom instructions vs meto",
+    headline: "Custom Instructions Lock You Into One Chatbot. Meto Frees You.",
+    subtitle:
+      "ChatGPT Custom Instructions only work inside ChatGPT. Meto lets you carry your identity, tone, and preferences across ChatGPT, Claude.ai, Google Gemini, and DeepSeek in one click.",
+    traditionalLabel: "ChatGPT Custom Instructions",
+    traditionalPros: [
+      "Built directly into ChatGPT settings",
+      "Automatically applied to all new ChatGPT conversations",
+      "Zero third-party setup for OpenAI-only users",
+    ],
+    traditionalCons: [
+      "Single-Platform Lock-in: Zero portability to Claude.ai, Google Gemini, Perplexity, or DeepSeek",
+      "Strict Character Limits: Restricted to two 1,500-character text boxes with no version history",
+      "Manual Multi-App Editing: When your role, tone, or active project changes, you must manually rewrite instructions in 4 different AI apps",
+      "No Context Modes: Cannot easily switch between work, creative writing, research, and personal modes",
+    ],
+    metoPros: [
+      "Universal Multi-AI Export: One identity exports tailored instructions to ChatGPT, Claude, Gemini, DeepSeek, and Grok",
+      "Dynamic Preset Switching: Switch between Minimal, Work, Research, and Deep modes with one click",
+      "Conversational Mobile Updates: Update your preferences naturally through Meto's quick-chat interface",
+      "Unlimited Context Depth: Organizes communication style, background, goals, and negative constraints without character truncation",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Cross-Platform Portability",
+        traditional: "ChatGPT only (OpenAI silo)",
+        meto: "ChatGPT, Claude.ai, Gemini, DeepSeek, Grok & IDEs",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Character & Token Limits",
+        traditional: "1,500 characters per box",
+        meto: "Unlimited structured profile with platform-tuned exports",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Context Preset Switching",
+        traditional: "Manual rewriting of text box",
+        meto: "1-click presets (Work, Research, Casual, Deep)",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Conversational Mobile Updates",
+        traditional: "Cumbersome mobile settings forms",
+        meto: "Natural conversational chat updates in mobile web app",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Negative Constraints (Anti-Fluff)",
+        traditional: "Often ignored in free-form text box",
+        meto: "Structured negative preferences enforced in prompts",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Multi-AI Reality for General Users",
+        body: "Today, everyday AI users rarely stick to just one chatbot. You might use ChatGPT for brainstorming, Claude.ai for nuanced long-form writing, Gemini for Google Workspace integration, and Perplexity for web research. Retyping who you are, your tone of voice, and your background across all four platforms is tedious and error-prone.",
+      },
+      {
+        heading: "How Meto Generates Optimized System Instructions",
+        body: "Each AI platform has unique formatting rules and token limits. Meto analyzes your profile and compiles platform-specific prompts: concise 1,500-character snippets for ChatGPT's settings box, markdown-rich project artifacts for Claude.ai, and system instructions for Google AI Studio.",
+      },
+      {
+        heading: "Conversational Profile Evolution",
+        body: "Instead of staring at a blank settings form when your job title or preferences change, you simply tell Meto in chat: 'I just switched to a new marketing role focusing on B2B SaaS.' Meto automatically extracts the update, updates your profile, and refreshes your exports across all AI tools.",
+      },
+    ],
+    faq: [
+      {
+        question: "How do I get my Meto identity into ChatGPT?",
+        answer:
+          "In Meto, open your workspace and click 'Copy for ChatGPT'. Open ChatGPT Settings → Personalization → Custom Instructions, and paste the compiled prompt. Done in 30 seconds.",
+      },
+      {
+        question: "Does Meto support Claude.ai and Google Gemini?",
+        answer:
+          "Yes! Meto generates tailored export formats for Claude.ai (including Claude Projects), Google Gemini Gems, DeepSeek, and Grok.",
+      },
+      {
+        question: "Is Meto free for general AI users?",
+        answer:
+          "Yes! The core Meto identity profile, exports for all major chatbots, and mobile chat updates are completely free to use.",
+      },
+    ],
+  },
+  {
+    slug: "chatgpt-memory-vs-meto",
+    title: "ChatGPT Memory vs Meto Universal AI Memory",
+    metaTitle: "ChatGPT Memory vs Meto — Cross-Platform AI Memory Compared",
+    metaDescription:
+      "Compare OpenAI's internal ChatGPT Memory feature with Meto's portable AI identity. Discover why vendor-locked memory limits your choice of AI models.",
+    targetQuery: "chatgpt memory vs meto",
+    headline: "Why Vendor-Locked AI Memory Traps You in One Model.",
+    subtitle:
+      "ChatGPT Memory only remembers facts inside ChatGPT. When you switch to Claude 3.7 Sonnet for writing or Gemini 2.5 Pro for research, it forgets everything. Meto is model-agnostic memory.",
+    traditionalLabel: "ChatGPT Internal Memory",
+    traditionalPros: [
+      "Implicit learning during conversations",
+      "Zero effort required to save simple facts",
+      "Integrated into ChatGPT search and chat",
+    ],
+    traditionalCons: [
+      "Siloed to OpenAI: Invisible to Claude, Gemini, Perplexity, Cursor, and DeepSeek",
+      "Unpredictable Forgetting: OpenAI silently prunes or modifies memories as list size grows",
+      "Hallucinated Facts: Sometimes remembers temporary context as permanent preferences",
+      "No Export: You cannot export your learned ChatGPT memory to another AI assistant",
+    ],
+    metoPros: [
+      "Model-Agnostic: One universal memory layer that travels with you to any AI platform",
+      "Full Transparency & Control: View, edit, or delete every single directive and preference",
+      "Explicit Organization: Separates permanent identity, active projects, and communication tone",
+      "Instant 1-Click Export: Generate clean system prompts for any new AI model on launch day",
+    ],
+    featuresMatrix: [
+      {
+        feature: "Cross-Model Portability",
+        traditional: "Locked inside ChatGPT",
+        meto: "Works across ChatGPT, Claude, Gemini, DeepSeek & IDEs",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Memory Transparency & Audit",
+        traditional: "Black-box list of bullet points",
+        meto: "Structured dashboard with full editing control",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Accidental Memory Clutter",
+        traditional: "Frequent (saves temporary jokes or queries)",
+        meto: "Intentional, verified profile updates",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Privacy & Data Ownership",
+        traditional: "Tied to OpenAI user account",
+        meto: "Your data, fully exportable anytime",
+        metoAdvantage: true,
+      },
+      {
+        feature: "Model Freedom",
+        traditional: "Forced to stay on OpenAI models",
+        meto: "Switch freely to Claude, Gemini, or open-source models",
+        metoAdvantage: true,
+      },
+    ],
+    detailedBreakdown: [
+      {
+        heading: "The Problem of Walled-Garden AI Memory",
+        body: "OpenAI introduced memory to make ChatGPT feel personal. But by design, that memory is trapped inside ChatGPT's walled garden. When Anthropic releases a superior model like Claude 3.7 Sonnet or Google launches Gemini 2.5 Pro, you are hesitant to switch because you would have to start from scratch. Meto decouples your memory from the model provider.",
+      },
+      {
+        heading: "Total Control Over What AI Knows About You",
+        body: "ChatGPT's automatic memory frequently misinterprets one-off requests as permanent traits. Meto gives you a clean, intuitive dashboard where you can review your communication preferences, tone guidelines, and background facts, ensuring AI models only use verified information.",
+      },
+      {
+        heading: "Portability on Day One",
+        body: "Whenever a groundbreaking new model launches—whether from Anthropic, Google, DeepSeek, or Meta—you don't have to wait for them to build a proprietary memory system. You simply copy your Meto universal identity prompt and start chatting with full context immediately.",
+      },
+    ],
+    faq: [
+      {
+        question: "Can I use Meto alongside ChatGPT Memory?",
+        answer:
+          "Yes! You can keep ChatGPT's native memory enabled for casual conversation notes, while using Meto as your authoritative identity for tone, professional context, and rules across all platforms.",
+      },
+      {
+        question: "How does Meto work if Claude doesn't have a memory feature?",
+        answer:
+          "Meto provides pre-formatted prompts that you can paste into Claude.ai's 'Custom Styles' or 'Project Instructions', giving Claude full persistent context equivalent to native memory.",
+      },
+      {
+        question: "Does Meto read my private chat logs?",
+        answer:
+          "No. Meto only stores the personal identity guidelines and preferences you choose to share. It never accesses, reads, or stores your private ChatGPT or Claude conversation logs.",
+      },
+    ],
+  },
 ];
 
 export function getComparisonBySlug(slug: string): ComparisonItem | undefined {

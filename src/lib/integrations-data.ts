@@ -587,6 +587,98 @@ export const INTEGRATIONS_LIST: IntegrationItem[] = [
     ],
     getSnippet: (url, token) => buildZedMcpJson(url, token),
   },
+  {
+    slug: "claude-ai",
+    name: "Claude.ai Web & Projects",
+    category: "chat",
+    tagline: "Universal Identity & Custom Style Instructions for Claude.ai",
+    summary:
+      "Configure Claude.ai Custom Styles and Claude Projects with your verified Meto identity. Experience writing and brainstorming perfectly tuned to your background, tone, and communication style.",
+    metaTitle: "Claude.ai Custom Instructions & Identity Setup Guide — Meto",
+    metaDescription:
+      "Optimize Anthropic Claude.ai web and mobile apps with your personal Meto identity. Eliminate repetitive introductions across Claude 3.7 Sonnet and Haiku.",
+    badge: "Custom Styles & Projects",
+    iconUrl: AI_PLATFORM_ICONS.claude.url,
+    painPoint:
+      "Claude.ai has incredible nuance, but forgets your background, communication preferences, and active goals in every new conversation.",
+    solution:
+      "Meto generates formatted Markdown prompts specifically optimized for Claude Projects and Custom Styles.",
+    keyBenefits: [
+      "Tune Claude's tone (concise, analytical, conversational, or executive)",
+      "Eliminate repetitive context dumps in new chat threads",
+      "Pre-formatted for Claude Projects system instructions",
+      "Synchronized with your ChatGPT and Gemini profiles",
+    ],
+    overview: [
+      "Claude.ai by Anthropic is the premier writing and reasoning assistant. Giving Claude your Meto universal identity ensures every document, summary, and brainstorming session aligns with your style.",
+    ],
+    steps: [
+      {
+        title: "Copy Meto Claude Prompt",
+        description:
+          "In your Meto dashboard, click 'Copy for Claude' to grab your compiled identity prompt.",
+      },
+      {
+        title: "Add to Claude.ai Project or Style",
+        description:
+          "In Claude.ai, open your Project Settings or Custom Styles, and paste your Meto prompt into the Instructions field.",
+      },
+    ],
+    faq: [
+      {
+        question: "Can I use this on the Claude mobile app?",
+        answer:
+          "Yes! Any custom style or project instruction you set on Claude.ai immediately applies to the iOS and Android Claude mobile apps.",
+      },
+    ],
+    getSnippet: () => "",
+  },
+  {
+    slug: "deepseek",
+    name: "DeepSeek Chat & Reasoner",
+    category: "chat",
+    tagline: "Tailored System Prompts for DeepSeek V3 and DeepSeek R1",
+    summary:
+      "Supercharge DeepSeek Chat and DeepSeek R1 reasoning models with your verified Meto personal context. Get deep, personalized reasoning without fluff.",
+    metaTitle: "DeepSeek Chat & Reasoner System Prompt Guide — Meto",
+    metaDescription:
+      "Configure DeepSeek Chat and DeepSeek R1 with your Meto identity profile. Get personalized reasoning without repetitive prompts.",
+    badge: "DeepSeek V3 & R1",
+    iconUrl: AI_PLATFORM_ICONS.deepseek.url,
+    painPoint:
+      "DeepSeek R1 provides brilliant reasoning, but doesn't retain personal memory between chat sessions.",
+    solution:
+      "Meto compiles your tone, background, and negative preferences into a clean initial prompt optimized for DeepSeek's architecture.",
+    keyBenefits: [
+      "Optimized for DeepSeek V3 and DeepSeek R1 reasoner",
+      "Eliminates unwanted conversational boilerplate",
+      "Enforces strict formatting preferences (bullet points, markdown)",
+      "Free, one-click export from your Meto workspace",
+    ],
+    overview: [
+      "DeepSeek is one of the most powerful reasoning models available. Pairing it with Meto gives you personalized chain-of-thought analysis tailored to your specific background.",
+    ],
+    steps: [
+      {
+        title: "Copy Meto DeepSeek Prompt",
+        description:
+          "In your Meto workspace, click 'Copy for DeepSeek' to copy your optimized identity block.",
+      },
+      {
+        title: "Paste into DeepSeek Chat",
+        description:
+          "Paste the prompt into your first message or system instructions when starting a DeepSeek session.",
+      },
+    ],
+    faq: [
+      {
+        question: "Does DeepSeek have native memory like ChatGPT?",
+        answer:
+          "No, DeepSeek does not currently have cross-session memory. Using Meto's 1-click prompt export provides that missing memory layer.",
+      },
+    ],
+    getSnippet: () => "",
+  },
 ];
 
 export function getIntegrationBySlug(slug: string): IntegrationItem | undefined {

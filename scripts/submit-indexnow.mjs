@@ -48,6 +48,8 @@ const STATIC_INDEXABLE_PATHS = [
   "/solutions/ai-developer-memory",
   "/solutions/team-context-sync",
   "/solutions/monorepo-ai-rules",
+  "/solutions/personal-ai-identity",
+  "/solutions/universal-custom-instructions",
   "/for/cursor-and-claude",
   "/pricing",
   "/integrations",
@@ -64,10 +66,13 @@ const STATIC_INDEXABLE_PATHS = [
   "/compare/threadctx-vs-meto",
   "/compare/cognee-vs-meto",
   "/compare/gcontext-vs-meto",
+  "/compare/chatgpt-custom-instructions-vs-meto",
+  "/compare/chatgpt-memory-vs-meto",
   "/llms.txt",
   "/llms-full.txt",
   "/integrations/cursor",
   "/integrations/claude-code",
+  "/integrations/claude-ai",
   "/integrations/windsurf",
   "/integrations/zed",
   "/integrations/antigravity",
@@ -76,6 +81,7 @@ const STATIC_INDEXABLE_PATHS = [
   "/integrations/github-copilot",
   "/integrations/chatgpt",
   "/integrations/gemini",
+  "/integrations/deepseek",
 ];
 
 async function main() {
