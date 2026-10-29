@@ -46,22 +46,22 @@ export function LandingHeroCopy({
       <h1 className="landing-animate-in w-full font-bold leading-[0.95] tracking-[-0.04em] text-[52px] sm:text-[64px] lg:text-[78px] xl:text-[84px]">
         {/* Mobile: 3 lines */}
         <div className="flex flex-col lg:hidden">
-          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-white dark:to-[#f0e6df] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-neutral-100 dark:to-neutral-200">
             Every AI
           </span>
-          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-white dark:to-[#f0e6df] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-neutral-100 dark:to-neutral-200">
             should already
           </span>
-          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#d93800] via-[#ea4600] to-[#b32b00] dark:from-[#ff4d00] dark:via-[#ff6b2c] dark:to-[#ffa066] dark:drop-shadow-[0_0_24px_rgba(255,77,0,0.25)]">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#d93800] via-[#ea4600] to-[#b32b00] dark:from-[#ff5500] dark:via-[#ff7332] dark:to-[#ffa670] dark:drop-shadow-[0_0_28px_rgba(255,85,0,0.35)]">
             know you.
           </span>
         </div>
         {/* Desktop: 2 lines */}
         <div className="hidden lg:block">
-          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-white dark:to-[#f0e6df] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-800 dark:from-white dark:via-neutral-100 dark:to-neutral-200">
             Every AI should
           </span>
-          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#d93800] via-[#ea4600] to-[#b32b00] dark:from-[#ff4d00] dark:via-[#ff6b2c] dark:to-[#ffa066] dark:drop-shadow-[0_0_24px_rgba(255,77,0,0.25)]">
+          <span className="block whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-[#d93800] via-[#ea4600] to-[#b32b00] dark:from-[#ff5500] dark:via-[#ff7332] dark:to-[#ffa670] dark:drop-shadow-[0_0_28px_rgba(255,85,0,0.35)]">
             already know you.
           </span>
         </div>
@@ -72,7 +72,7 @@ export function LandingHeroCopy({
         className="landing-animate-in mt-6 max-w-[540px]"
         style={{ animationDelay: "0.04s" }}
       >
-        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-neutral-700 dark:text-neutral-300 font-normal text-balance">
+        <p className="text-[17px] sm:text-[18px] leading-[1.55] text-neutral-700 dark:text-neutral-200 font-normal text-balance">
           One identity profile for persistent memory and context across all your AI assistants.
         </p>
       </div>
@@ -92,7 +92,7 @@ export function LandingHeroCopy({
         </Link>
 
         {/* Frosted interactive Terminal Command Pill */}
-        <div className="flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[270px] lg:w-[280px] shrink-0 items-center justify-center gap-2 sm:gap-3 rounded-xl border border-black/[0.08] dark:border-white/10 bg-white/80 dark:bg-[#0d1117]/85 px-3.5 sm:px-4 font-mono text-xs sm:text-[13px] lg:text-[13.5px] text-neutral-800 dark:text-gray-300 shadow-sm backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
+        <div className="flex h-[52px] sm:h-[54px] lg:h-[56px] w-full sm:w-[270px] lg:w-[280px] shrink-0 items-center justify-center gap-2 sm:gap-3 rounded-xl border border-black/[0.08] dark:border-white/12 bg-white/80 dark:bg-neutral-900/80 px-3.5 sm:px-4 font-mono text-xs sm:text-[13px] lg:text-[13.5px] text-neutral-800 dark:text-gray-300 shadow-sm backdrop-blur-md transition-all hover:border-[var(--primary)]/50">
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <span className="font-bold text-[var(--primary)] font-mono">&gt;_</span>
             <span className="text-neutral-400 dark:text-gray-400 font-mono">$</span>

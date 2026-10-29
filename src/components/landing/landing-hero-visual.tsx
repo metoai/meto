@@ -89,12 +89,12 @@ export function LandingHeroVisual() {
 
       {/* Atmospheric warm orange ambient motion glow behind Meto card */}
       <div
-        className="absolute top-6 left-1/2 -translate-x-1/2 w-[440px] h-[260px] rounded-full bg-gradient-to-b from-[var(--primary)]/16 via-[var(--primary)]/5 to-transparent blur-3xl pointer-events-none meto-motion-gradient-hero"
+        className="absolute top-4 left-1/2 -translate-x-1/2 w-[460px] h-[280px] rounded-full bg-gradient-to-b from-[var(--primary)]/25 via-[var(--primary)]/8 to-transparent blur-3xl pointer-events-none meto-motion-gradient-hero"
         aria-hidden="true"
       />
 
       {/* 1. Universal Developer Identity Card — Minimal & Human */}
-      <div className="relative z-10 w-full max-w-[400px] sm:max-w-[420px] rounded-2xl border border-black/[0.06] dark:border-white/10 bg-white/80 dark:bg-[#111113]/90 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.05),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_1px_0_rgba(255,255,255,0.06)] p-4 sm:p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(255,77,0,0.12)]">
+      <div className="relative z-10 w-full max-w-[400px] sm:max-w-[420px] rounded-2xl border border-black/[0.06] dark:border-white/12 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.05),inset_0_1px_1px_0_rgba(255,255,255,0.9)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.08)] p-4 sm:p-5 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(255,77,0,0.16)]">
         {/* Subtle top bar: Window dots & quiet Synced indicator */}
         <div className="flex items-center justify-between pb-3 border-b border-black/[0.05] dark:border-white/[0.06]">
           <div className="flex items-center gap-1.5">
