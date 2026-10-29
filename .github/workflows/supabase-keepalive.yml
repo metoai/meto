@@ -1,0 +1,50 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Runs twice every day at 04:00 UTC and 16:00 UTC (every 12 hours)
+    - cron: '0 4,16 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  keep-alive:
+    name: Ping Supabase Free Tier Projects
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Meto Supabase (rvtcfjslwcusjnknjsal)
+        env:
+          ANON_KEY: ${{ secrets.METO_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2dGNmanNsd2N1c2pua25qc2FsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjU0MDAsImV4cCI6MjA5NTQ0MTQwMH0.F27_doi47GJZj2NQhTQYvOe68i25EvARBaFZ9ucOUeI' }}
+        run: |
+          echo "================================================="
+          echo "Timestamp: $(date -u)"
+          echo "Pinging Meto Supabase (rvtcfjslwcusjnknjsal)..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $ANON_KEY" \
+            -H "Authorization: Bearer $ANON_KEY" \
+            "https://rvtcfjslwcusjnknjsal.supabase.co/rest/v1/profiles?select=id&limit=1")
+          echo "HTTP Response: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+            echo "✅ Meto Supabase is ACTIVE (query executed successfully)."
+          else
+            echo "❌ Failed to ping Meto Supabase with status $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Ping Bosphorus Clinic Supabase (npjftlviicnodszgfnth)
+        env:
+          ANON_KEY: ${{ secrets.BOSPHORUS_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wamZ0bHZpaWNub2RzemdmbnRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NjQ0NjYsImV4cCI6MjA3NzE0MDQ2Nn0.z0bNJgM3HC-t-LrZ6iB-XFAMpQu8-FpcJ4CO-qgpLSA' }}
+        run: |
+          echo "-------------------------------------------------"
+          echo "Pinging Bosphorus Supabase (npjftlviicnodszgfnth)..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $ANON_KEY" \
+            -H "Authorization: Bearer $ANON_KEY" \
+            "https://npjftlviicnodszgfnth.supabase.co/rest/v1/clinic_services?select=id&limit=1")
+          echo "HTTP Response: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+            echo "✅ Bosphorus Supabase is ACTIVE (query executed successfully)."
+          else
+            echo "❌ Failed to ping Bosphorus Supabase with status $HTTP_CODE"
+            exit 1
+          fi
+          echo "================================================="
