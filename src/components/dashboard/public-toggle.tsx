@@ -1,5 +1,7 @@
 "use client";
 
+import { SITE_DOMAIN } from "@/lib/site";
+
 type PublicToggleProps = {
   isPublic: boolean;
   onChange: () => void;
@@ -16,8 +18,8 @@ export function PublicToggle({
   variant = "default",
 }: PublicToggleProps) {
   const tooltip = username
-    ? `Public sections appear on your metoai.site/profile/${username} page`
-    : "Public sections appear on your metoai.site/profile page once you claim a username";
+    ? `Public sections appear on your ${SITE_DOMAIN}/profile/${username} page`
+    : `Public sections appear on your ${SITE_DOMAIN}/profile page once you claim a username`;
 
   const minimal = variant === "minimal";
   const compact = variant === "compact";

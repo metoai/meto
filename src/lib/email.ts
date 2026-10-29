@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { getSiteUrl } from "./site";
 
 let resendClient: Resend | null = null;
 
@@ -131,7 +132,7 @@ function emailWrapper(contentHtml: string): string {
   </div>
   <div class="footer">
     <p>© ${new Date().getFullYear()} Meto. One context for all AIs.</p>
-    <p><a href="https://www.metoai.site/settings">Settings</a> · <a href="https://www.metoai.site/integrations">Integrations</a> · <a href="https://www.metoai.site/privacy">Privacy</a></p>
+    <p><a href="${getSiteUrl()}/settings">Settings</a> · <a href="${getSiteUrl()}/integrations">Integrations</a> · <a href="${getSiteUrl()}/privacy">Privacy</a></p>
   </div>
 </body>
 </html>`;
@@ -160,10 +161,10 @@ export async function sendWelcomeEmail(params: {
       Once logged in, simply run <code>npx meto-cli sync</code> in any project repository to compile <code>.cursor/rules/*.mdc</code>, <code>CLAUDE.md</code>, and <code>.windsurfrules</code> automatically.
     </p>
 
-    <a href="https://www.metoai.site/dashboard" class="btn">Open Your Meto Dashboard</a>
+    <a href="${getSiteUrl()}/dashboard" class="btn">Open Your Meto Dashboard</a>
 
     <p style="font-size: 13px; color: #6b7280; margin-top: 24px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
-      Need assistance? Reply directly to this email or explore our <a href="https://www.metoai.site/integrations" style="color: #ea580c;">Integrations Guides</a>.
+      Need assistance? Reply directly to this email or explore our <a href="${getSiteUrl()}/integrations" style="color: #ea580c;">Integrations Guides</a>.
     </p>
   `);
 
@@ -171,7 +172,7 @@ export async function sendWelcomeEmail(params: {
     to: params.to,
     subject: "Welcome to Meto — Your Universal AI Context Layer",
     html,
-    text: `Welcome to Meto, ${displayName}! Your universal AI context and memory layer is now active. Run 'npx meto-cli login' in your terminal to connect your IDEs. Dashboard: https://www.metoai.site/dashboard`,
+    text: `Welcome to Meto, ${displayName}! Your universal AI context and memory layer is now active. Run 'npx meto-cli login' in your terminal to connect your IDEs. Dashboard: ${getSiteUrl()}/dashboard`,
     idempotencyKey: `welcome/${params.to}`,
   });
 }
@@ -199,14 +200,14 @@ export async function sendProSubscriptionEmail(params: {
       <li><strong>Universal Chatbot Presets:</strong> Live sync for ChatGPT Plus, Claude Projects, and Gemini.</li>
     </ul>
 
-    <a href="https://www.metoai.site/dashboard" class="btn">Go to Dashboard</a>
+    <a href="${getSiteUrl()}/dashboard" class="btn">Go to Dashboard</a>
   `);
 
   return sendEmail({
     to: params.to,
     subject: "You're now on Meto Pro — Welcome to unlimited AI context sync",
     html,
-    text: `Hi ${displayName}, your Meto Pro subscription is now active! You now have unlimited multi-IDE sync, team context, and deep knowledge graph. Access your dashboard at https://www.metoai.site/dashboard`,
+    text: `Hi ${displayName}, your Meto Pro subscription is now active! You now have unlimited multi-IDE sync, team context, and deep knowledge graph. Access your dashboard at ${getSiteUrl()}/dashboard`,
     idempotencyKey: `sub-active/${params.to}/${params.subscriptionId || "now"}`,
   });
 }
@@ -227,7 +228,7 @@ export async function sendSubscriptionCanceledEmail(params: {
     <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
       After that, your account will switch to the Free tier. Your existing sections and rules will remain completely safe.
     </p>
-    <a href="https://www.metoai.site/pricing" class="btn">Manage Subscription</a>
+    <a href="${getSiteUrl()}/pricing" class="btn">Manage Subscription</a>
   `);
 
   return sendEmail({
@@ -264,14 +265,14 @@ export async function sendCliLoginAlertEmail(params: {
       If you authorized this session via <code>npx meto-cli login</code>, no action is needed. If you did not make this request, you can revoke your MCP token immediately in Settings.
     </p>
 
-    <a href="https://www.metoai.site/settings" class="btn">Review Active Access</a>
+    <a href="${getSiteUrl()}/settings" class="btn">Review Active Access</a>
   `);
 
   return sendEmail({
     to: params.to,
     subject: `Security Alert: New Terminal CLI session approved for @${params.username}`,
     html,
-    text: `A new terminal CLI session (code: ${params.deviceCode}) was authorized for your Meto account @${params.username} at ${timestamp}. Review your access: https://www.metoai.site/settings`,
+    text: `A new terminal CLI session (code: ${params.deviceCode}) was authorized for your Meto account @${params.username} at ${timestamp}. Review your access: ${getSiteUrl()}/settings`,
     idempotencyKey: `cli-auth/${params.deviceCode}`,
   });
 }
@@ -305,14 +306,14 @@ export async function sendMcpTokenAlertEmail(params: {
         : `<p style="font-size: 13px; color: #4b5563;">If you have IDEs configured, make sure to update their MCP configuration with your new token.</p>`
     }
 
-    <a href="https://www.metoai.site/settings" class="btn">View MCP Settings</a>
+    <a href="${getSiteUrl()}/settings" class="btn">View MCP Settings</a>
   `);
 
   return sendEmail({
     to: params.to,
     subject: `Security Alert: MCP access token ${actionText} for @${params.username}`,
     html,
-    text: `Your MCP access token for @${params.username} was ${actionText} on ${timestamp}. Review settings at https://www.metoai.site/settings`,
+    text: `Your MCP access token for @${params.username} was ${actionText} on ${timestamp}. Review settings at ${getSiteUrl()}/settings`,
     idempotencyKey: `mcp-token-${params.action}/${params.to}/${Date.now()}`,
   });
 }
@@ -331,14 +332,14 @@ export async function sendTrialExpiringEmail(params: {
     <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
       Hi ${displayName}, your 14-day Meto Pro trial is wrapping up soon. To keep unlimited multi-IDE rules synchronization, team context sharing, and deep knowledge graph active, upgrade to Meto Pro.
     </p>
-    <a href="https://www.metoai.site/pricing" class="btn">Upgrade to Meto Pro</a>
+    <a href="${getSiteUrl()}/pricing" class="btn">Upgrade to Meto Pro</a>
   `);
 
   return sendEmail({
     to: params.to,
     subject: `Reminder: Your Meto Pro trial ends in ${params.daysLeft} days`,
     html,
-    text: `Hi ${displayName}, your Meto Pro trial ends in ${params.daysLeft} days. Upgrade at https://www.metoai.site/pricing to keep unlimited multi-IDE sync active.`,
+    text: `Hi ${displayName}, your Meto Pro trial ends in ${params.daysLeft} days. Upgrade at ${getSiteUrl()}/pricing to keep unlimited multi-IDE sync active.`,
     idempotencyKey: `trial-warning/${params.to}/${params.daysLeft}d`,
   });
 }

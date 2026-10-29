@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { computeContentScore } from "@/lib/context-score";
 import { headlineForScore } from "@/lib/section-quality";
 import { sendEmail, DEFAULT_FROM_EMAIL } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site";
 
 const STALE_DAYS = 30;
 
@@ -68,9 +69,9 @@ function buildWeeklyPulseEmail(
       ${gapBlock}
       ${staleSections.length === 0 && !topGap ? "<li>✅ Your profile looks fresh and complete. Keep it up!</li>" : ""}
     </ul>
-    <a href="https://www.metoai.site/dashboard" class="cta">Open Dashboard →</a>
+    <a href="${getSiteUrl()}/dashboard" class="cta">Open Dashboard →</a>
     <div class="footer">
-      Meto · <a href="https://www.metoai.site/settings" style="color:#a3a3a3">Unsubscribe</a>
+       Meto · <a href="${getSiteUrl()}/settings" style="color:#a3a3a3">Unsubscribe</a>
     </div>
   </div>
 </body>

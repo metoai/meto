@@ -7,6 +7,7 @@ import {
   normalizeUsername,
   validateUsername,
 } from "@/lib/username";
+import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 
 type ProfileLiveBannerProps = {
   username: string;
@@ -79,7 +80,7 @@ export function ProfileLiveBanner({
           </div>
           {claimed ? (
             <p className="mt-1 text-xs text-[var(--muted)]">
-              metoai.site/profile/{username}
+              {publicProfileLabel(username)}
             </p>
           ) : (
             <p className="mt-1 text-xs text-[var(--muted)]">
@@ -121,7 +122,7 @@ export function ProfileLiveBanner({
           onSubmit={handleClaim}
           className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3"
         >
-          <span className="text-xs text-[var(--muted)]">metoai.site/profile/</span>
+          <span className="text-xs text-[var(--muted)]">{SITE_DOMAIN}/profile/</span>
           <input
             value={claimValue}
             onChange={(e) => setClaimValue(e.target.value)}

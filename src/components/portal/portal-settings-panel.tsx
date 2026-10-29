@@ -10,6 +10,7 @@ import { usePortalData } from "@/components/portal/portal-data-context";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
+import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 
 const labelClass = "mb-[5px] block text-[13px] font-medium text-[var(--text)]";
 const inputClass =
@@ -254,7 +255,7 @@ export function PortalSettingsPanel() {
               </label>
               <div className="flex overflow-hidden rounded-lg border border-[var(--border)] focus-within:border-[var(--primary)]">
                 <span className="shrink-0 select-none whitespace-nowrap border-r border-[var(--border)] bg-[var(--surface)] px-3 py-[9px] text-sm text-[var(--muted)]">
-                  metoai.site/profile/
+                  {SITE_DOMAIN}/profile/
                 </span>
                 <input
                   id="settings-username"
@@ -377,7 +378,7 @@ export function PortalSettingsPanel() {
             rel="noopener noreferrer"
             className="font-mono-brand text-xs text-[var(--primary)] hover:text-[var(--primary-hover)]"
           >
-            metoai.site/profile/{profileUsername}
+            {publicProfileLabel(profileUsername)}
           </Link>
         ) : (
           <p className="text-xs text-[var(--muted)]">

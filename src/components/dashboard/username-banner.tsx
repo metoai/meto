@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { normalizeUsername, validateUsername } from "@/lib/username";
+import { SITE_DOMAIN } from "@/lib/site";
 import type { UserProfile } from "@/lib/types";
 
 type UsernameBannerProps = {
@@ -50,7 +51,7 @@ export function UsernameBanner({ profile, onSaved }: UsernameBannerProps) {
       <div className="mx-auto flex max-w-none flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-[var(--color-text)]">
-            Claim your profile URL → metoai.site/profile/[username]
+            Claim your profile URL → {SITE_DOMAIN}/profile/[username]
           </p>
           <p className="mt-0.5 text-xs text-[var(--color-muted)]">
             Set a username so others can find your public profile.

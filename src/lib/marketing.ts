@@ -1,4 +1,5 @@
 import { getResendClient, DEFAULT_FROM_EMAIL, sendEmail, SendEmailResult } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site";
 
 // Resend Segment IDs created for Meto
 export const RESEND_SEGMENTS = {
@@ -84,7 +85,7 @@ function marketingWrapper(contentHtml: string, categoryName: string): string {
     <p>Sent by Meto · One context protocol for all AI tools & chatbots.</p>
     <p>
       You are receiving this because you signed up for Meto.<br>
-      <a href="https://www.metoai.site/settings">Email Preferences</a> · <a href="https://www.metoai.site/settings">Unsubscribe</a>
+      <a href="${getSiteUrl()}/settings">Email Preferences</a> · <a href="${getSiteUrl()}/settings">Unsubscribe</a>
     </p>
   </div>
 </body>
@@ -129,14 +130,14 @@ export async function sendDeveloperMarketingEmail(params: {
       </ul>
     </div>
 
-    <a href="https://www.metoai.site/for/cursor-and-claude" class="btn">Explore the Cursor + Claude Dual Workflow →</a>
+    <a href="${getSiteUrl()}/for/cursor-and-claude" class="btn">Explore the Cursor + Claude Dual Workflow →</a>
   `, "Developer Guide");
 
   return sendEmail({
     to: params.to,
     subject: "Stop prompt rot: Sync rules between Cursor and Claude Code in 1 command",
     html,
-    text: `Hey ${displayName}, switch between Cursor and Claude Code without rule drift. Run 'npx meto-cli sync' to compile both .cursor/rules and CLAUDE.md automatically. Guide: https://www.metoai.site/for/cursor-and-claude`,
+    text: `Hey ${displayName}, switch between Cursor and Claude Code without rule drift. Run 'npx meto-cli sync' to compile both .cursor/rules and CLAUDE.md automatically. Guide: ${getSiteUrl()}/for/cursor-and-claude`,
     idempotencyKey: `marketing-dev/${params.to}/v1`,
   });
 }
@@ -174,14 +175,14 @@ export async function sendGeneralAiMarketingEmail(params: {
       <li><strong>1-Click Copy & Sync:</strong> Pre-formatted blocks ready to paste into Custom Instructions.</li>
     </ul>
 
-    <a href="https://www.metoai.site/solutions/universal-custom-instructions" class="btn">View Universal Custom Instructions →</a>
+    <a href="${getSiteUrl()}/solutions/universal-custom-instructions" class="btn">View Universal Custom Instructions →</a>
   `, "General AI Guide");
 
   return sendEmail({
     to: params.to,
     subject: "One AI Identity: Stop re-introducing yourself to ChatGPT, Claude, and Gemini",
     html,
-    text: `Hey ${displayName}, stop re-typing your background into every AI chat. Meto gives you Universal Custom Instructions that sync across ChatGPT, Claude.ai, and Gemini in 1 click. Guide: https://www.metoai.site/solutions/universal-custom-instructions`,
+    text: `Hey ${displayName}, stop re-typing your background into every AI chat. Meto gives you Universal Custom Instructions that sync across ChatGPT, Claude.ai, and Gemini in 1 click. Guide: ${getSiteUrl()}/solutions/universal-custom-instructions`,
     idempotencyKey: `marketing-general-ai/${params.to}/v1`,
   });
 }

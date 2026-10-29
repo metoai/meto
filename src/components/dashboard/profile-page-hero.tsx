@@ -8,6 +8,7 @@ import {
   normalizeUsername,
   validateUsername,
 } from "@/lib/username";
+import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 
 type ProfilePageHeroProps = {
   sections: ContextSection[];
@@ -91,7 +92,7 @@ export function ProfilePageHero({
           {claimed ? (
             <>
               <p className="mt-1.5 text-[13px] font-medium text-[var(--text)]">
-                metoai.site/profile/{username}
+                {username ? publicProfileLabel(username) : `${SITE_DOMAIN}/profile`}
               </p>
               <p className="mt-1 text-[11px] text-[var(--muted)]">
                 {publicCount} public · {privateCount} private · {completion}%
@@ -131,7 +132,7 @@ export function ProfilePageHero({
           onSubmit={handleClaim}
           className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--border-subtle)] pt-3"
         >
-          <span className="text-[11px] text-[var(--muted)]">metoai.site/profile/</span>
+          <span className="text-[11px] text-[var(--muted)]">{SITE_DOMAIN}/profile/</span>
           <input
             value={claimValue}
             onChange={(e) => setClaimValue(e.target.value)}

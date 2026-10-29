@@ -10,6 +10,7 @@ import { PLATFORM_OPTIONS } from "@/lib/context-share/config";import {
   normalizeUsername,
   validateUsername,
 } from "@/lib/username";
+import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 import {
   formatLastCopied,
   getCopyStats,
@@ -132,14 +133,16 @@ export function WorkspaceQuickAccess({
               <Link2 className="h-3.5 w-3.5" strokeWidth={1.75} />
               {copiedLink ? "Copied profile link!" : "Copy profile link"}
             </button>
-            <span className="text-xs text-[var(--muted)]">metoai.site/profile/{username}</span>
+            <span className="text-xs text-[var(--muted)]">
+              {username ? publicProfileLabel(username) : `${SITE_DOMAIN}/profile`}
+            </span>
           </div>
         ) : (
           <form
             onSubmit={handleClaim}
             className="mt-2 flex flex-wrap items-center gap-2"
           >
-            <span className="text-xs text-[var(--muted)]">metoai.site/profile/</span>
+            <span className="text-xs text-[var(--muted)]">{SITE_DOMAIN}/profile/</span>
             <input
               value={claimValue}
               onChange={(e) => setClaimValue(e.target.value)}

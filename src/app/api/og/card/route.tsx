@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import type { NextRequest } from "next/server";
 import { fetchPublicProfileByUsername } from "@/lib/public-profile";
+import { SITE_DOMAIN } from "@/lib/site";
 
 export const runtime = "edge";
 
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
             </div>
           )}
           <div style={{ fontSize: "14px", color: "#525252" }}>
-            metoai.site/@{username}
+            {SITE_DOMAIN}/@{username}
           </div>
         </div>
       </div>

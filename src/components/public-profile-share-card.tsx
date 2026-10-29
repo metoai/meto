@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AiPartnerLogos } from "@/components/ui/ai-partner-logos";
-import { publicProfileLabel } from "@/lib/site";
+import { publicProfileLabel, getSiteUrl } from "@/lib/site";
 
 type PublicProfileShareCardProps = {
   shareText: string;
@@ -50,7 +50,7 @@ export function PublicProfileShareCard({
   }
 
   async function handleCopyBadge() {
-    const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://www.metoai.site";
+    const siteUrl = typeof window !== "undefined" ? window.location.origin : getSiteUrl();
     const badgeMarkdown = `[![Meto AI Context](${siteUrl}/api/badge/${encodeURIComponent(username)})](${siteUrl}/profile/${encodeURIComponent(username)})`;
     await navigator.clipboard.writeText(badgeMarkdown);
     setCopiedBadge(true);

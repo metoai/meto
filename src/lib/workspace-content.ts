@@ -8,7 +8,7 @@ export const WORKSPACE_COPY = {
     { label: "Fallback", detail: "Copy link or formatted text" },
   ],
   linkLabel: "Public link",
-  linkSublabel: "Only public sections — same as your metoai.site profile",
+  linkSublabel: "Only public sections — same as your public Meto profile",
   copyLink: "Copy link",
   copiedLink: "Copied ✓",
   linkHint:

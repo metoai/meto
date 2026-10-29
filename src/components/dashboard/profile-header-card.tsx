@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { getPublicProfileUrl, normalizeUsername, validateUsername } from "@/lib/username";
+import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 import type { UserProfile } from "@/lib/types";
 
 type ProfileHeaderCardProps = {
@@ -60,7 +61,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
           Claim your public URL
         </p>
         <form onSubmit={handleClaim} className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-[var(--text-secondary)]">metoai.site/profile/</span>
+          <span className="text-sm text-[var(--text-secondary)]">{SITE_DOMAIN}/profile/</span>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -92,7 +93,7 @@ export function ProfileHeaderCard({ profile, onSaved }: ProfileHeaderCardProps) 
       <p className="text-[13px] font-medium text-[var(--primary)]">Your profile is live</p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <span className="text-sm text-[var(--text-secondary)]">
-          metoai.site/profile/{profile?.username}
+          {profile?.username ? publicProfileLabel(profile.username) : `${SITE_DOMAIN}/profile`}
         </span>
         <button
           type="button"

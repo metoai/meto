@@ -1,7 +1,7 @@
-export const SITE_DOMAIN = "metoai.site";
+export const SITE_DOMAIN = "metoctx.com";
 
 /** Production host — Vercel redirects apex → www; all public links should use www. */
-export const CANONICAL_SITE_HOST = "www.metoai.site";
+export const CANONICAL_SITE_HOST = "www.metoctx.com";
 
 function normalizeSiteOrigin(origin: string): string {
   try {
@@ -19,7 +19,7 @@ function normalizeSiteOrigin(origin: string): string {
   }
 }
 
-/** Canonical origin — set NEXT_PUBLIC_SITE_URL (prefer https://www.metoai.site in production). */
+/** Canonical origin — set NEXT_PUBLIC_SITE_URL (prefer https://www.metoctx.com in production). */
 export function getSiteUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
   if (fromEnv) return normalizeSiteOrigin(fromEnv);
@@ -55,7 +55,7 @@ export function getAiProfileJsonUrl(username: string) {
   return `${getSiteUrl()}/.well-known/ai-profile/${username.trim().toLowerCase()}.json`;
 }
 
-/** Display label shown in UI, e.g. metoai.site/profile/jane */
+/** Display label shown in UI, e.g. metoctx.com/profile/jane */
 export function publicProfileLabel(username: string) {
   return `${SITE_DOMAIN}/profile/${username.trim().toLowerCase()}`;
 }
