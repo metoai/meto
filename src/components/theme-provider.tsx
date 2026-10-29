@@ -6,10 +6,11 @@ import {
   useEffect,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 
-type ThemeMode = "light" | "dark" | "system";
-type ResolvedTheme = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
+export type ResolvedTheme = "light" | "dark";
 
 type ThemeContextValue = {
   theme: ThemeMode;
@@ -37,52 +38,81 @@ function resolveTheme(theme: ThemeMode): ResolvedTheme {
   return theme;
 }
 
+function getInitialTheme(): ThemeMode {
+  if (typeof window === "undefined") return "system";
+  try {
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  } catch {}
+  return "system";
+}
+
+function getInitialResolved(): ResolvedTheme {
+  if (typeof window === "undefined") return "dark";
+  try {
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "dark") return "dark";
+    if (saved === "light") return "light";
+  } catch {}
+  if (typeof document !== "undefined" && document.documentElement.classList.contains("dark")) {
+    return "dark";
+  }
+  return getSystemTheme();
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
+  const [theme, setThemeState] = useState<ThemeMode>(getInitialTheme);
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(getInitialResolved);
 
-  useEffect(() => {
-    const saved =
-      typeof window !== "undefined"
-        ? (window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null)
-        : null;
-    const nextTheme =
-      saved === "light" || saved === "dark" || saved === "system"
-        ? saved
-        : "system";
+  // Synchronous theme setter that updates state, DOM, and localStorage immediately
+  const setTheme = useCallback((nextTheme: ThemeMode) => {
     setThemeState(nextTheme);
-  }, []);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const apply = () => {
-      const nextResolved = resolveTheme(theme);
+    if (typeof window !== "undefined") {
+      try {
+        window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      } catch {}
+      const nextResolved = resolveTheme(nextTheme);
       setResolvedTheme(nextResolved);
       document.documentElement.classList.toggle("dark", nextResolved === "dark");
       document.documentElement.style.colorScheme = nextResolved;
-    };
+    }
+  }, []);
 
-    apply();
+  // Sync on mount with localStorage and system media query
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode | null;
+      const initialTheme =
+        saved === "light" || saved === "dark" || saved === "system"
+          ? saved
+          : "system";
+      setThemeState(initialTheme);
+      const initialResolved = resolveTheme(initialTheme);
+      setResolvedTheme(initialResolved);
+      document.documentElement.classList.toggle("dark", initialResolved === "dark");
+      document.documentElement.style.colorScheme = initialResolved;
+    } catch {}
 
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if (theme === "system") {
-        apply();
-      }
+      try {
+        const currentSaved = window.localStorage.getItem(THEME_STORAGE_KEY);
+        if (!currentSaved || currentSaved === "system") {
+          const sysResolved = getSystemTheme();
+          setResolvedTheme(sysResolved);
+          document.documentElement.classList.toggle("dark", sysResolved === "dark");
+          document.documentElement.style.colorScheme = sysResolved;
+        }
+      } catch {}
     };
 
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
-  }, [theme]);
-
-  const setTheme = (nextTheme: ThemeMode) => {
-    setThemeState(nextTheme);
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({ theme, resolvedTheme, setTheme }),
-    [theme, resolvedTheme]
+    [theme, resolvedTheme, setTheme]
   );
 
   return (

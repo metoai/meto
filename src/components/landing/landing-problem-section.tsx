@@ -5,7 +5,7 @@ import { LandingSection, LandingSectionIntro } from "@/components/landing/landin
 
 export function LandingProblemSection() {
   return (
-    <LandingSection id="problem">
+    <LandingSection id="problem" aboveFold>
       <LandingSectionIntro
         eyebrow="The Fragmentation Problem"
         title="The AI ecosystem has amnesia."

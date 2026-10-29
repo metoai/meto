@@ -148,6 +148,13 @@ export function LandingHeroNav({
               </a>
             ))}
 
+            <div className="flex items-center justify-between px-3.5 py-2">
+              <span className="text-[14px] font-medium text-neutral-600 dark:text-neutral-400">
+                Theme
+              </span>
+              <ThemeToggle compact />
+            </div>
+
             <div className="my-2 h-px bg-black/[0.08] dark:bg-white/[0.12]" />
 
             {!isLoggedIn ? (

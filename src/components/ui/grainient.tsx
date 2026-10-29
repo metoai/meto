@@ -323,7 +323,7 @@ export const Grainient: React.FC<GrainientProps> = ({
   interactive = true,
   stir = 1,
   clickSwirl = true,
-  intro = true,
+  intro = false,
   lightMode = false,
   dpr,
   className = '',
@@ -334,6 +334,8 @@ export const Grainient: React.FC<GrainientProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wakeRef = useRef<(() => void) | null>(null);
   const [webglSupported, setWebglSupported] = useState(true);
+  const [ready, setReady] = useState(false);
+  const readyRef = useRef(false);
 
   const palette = (Array.isArray(colors) && colors.length ? colors : DEFAULT_COLORS).slice(0, MAX_COLORS);
   const settings = {
@@ -493,6 +495,10 @@ export const Grainient: React.FC<GrainientProps> = ({
       gl.uniform1f(cu.uGrainSize, s.grainSize * view.ratio);
       gl.uniform1f(cu.uFrame, frameSeed);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (!readyRef.current) {
+        readyRef.current = true;
+        setReady(true);
+      }
     };
 
     const wake = () => {
@@ -682,12 +688,13 @@ export const Grainient: React.FC<GrainientProps> = ({
     wakeRef.current?.();
   });
 
-  // Pure CSS / SVG fallback when WebGL2 context is unavailable
-  const fallbackGradient = {
-    background: settings.colors.length >= 2
-      ? `linear-gradient(${settings.angle}deg, ${settings.colors.join(', ')})`
-      : undefined
-  };
+  // Pure CSS / SVG fallback only when WebGL2 context is unavailable
+  const fallbackGradient =
+    !webglSupported && settings.colors.length >= 2
+      ? {
+          background: `linear-gradient(${settings.angle}deg, ${settings.colors.join(', ')})`,
+        }
+      : undefined;
 
   return (
     <div
@@ -697,7 +704,13 @@ export const Grainient: React.FC<GrainientProps> = ({
       {...rest}
     >
       {webglSupported ? (
-        <canvas ref={canvasRef} className="grainient-canvas" aria-hidden="true" />
+        <canvas
+          ref={canvasRef}
+          className={`grainient-canvas transition-opacity duration-700 ease-out ${
+            ready ? 'opacity-100' : 'opacity-0'
+          }`}
+          aria-hidden="true"
+        />
       ) : (
         <div
           className="grainient-canvas pointer-events-none"

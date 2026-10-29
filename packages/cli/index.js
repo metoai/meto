@@ -225,6 +225,7 @@ async function runInit(options = {}) {
     { name: ".windsurfrules", path: path.join(scan.cwd, ".windsurfrules") },
     { name: ".github/copilot-instructions.md", path: path.join(scan.cwd, ".github", "copilot-instructions.md") },
     { name: ".clinerules", path: path.join(scan.cwd, ".clinerules") },
+    { name: "GEMINI.md", path: path.join(scan.cwd, "GEMINI.md") },
   ];
 
   const filesCreated = [];
@@ -246,70 +247,152 @@ async function runInit(options = {}) {
   console.log(`   ${colors.orange}npx @metoai/cli setup-mcp${colors.reset}\n`);
 }
 
+function getIdeConfigurations(userHome, appData) {
+  const isWin = process.platform === "win32";
+  const isMac = process.platform === "darwin";
+
+  return [
+    {
+      name: "Google Antigravity",
+      id: "antigravity",
+      candidatePaths: [
+        path.join(userHome, ".gemini", "config", "mcp_config.json"),
+        path.join(userHome, ".gemini", "antigravity", "mcp_config.json"),
+      ],
+      detectDirs: [
+        path.join(userHome, ".gemini"),
+      ],
+      defaultPath: path.join(userHome, ".gemini", "config", "mcp_config.json"),
+    },
+    {
+      name: "Cursor",
+      id: "cursor",
+      candidatePaths: [
+        path.join(userHome, ".config", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
+        path.join(userHome, "Library", "Application Support", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
+        path.join(appData, "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
+      ],
+      detectDirs: [
+        path.join(userHome, ".config", "Cursor"),
+        path.join(userHome, "Library", "Application Support", "Cursor"),
+        path.join(appData, "Cursor"),
+      ],
+      defaultPath: isWin
+        ? path.join(appData, "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json")
+        : isMac
+        ? path.join(userHome, "Library", "Application Support", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json")
+        : path.join(userHome, ".config", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
+    },
+    {
+      name: "Claude Desktop",
+      id: "claude",
+      candidatePaths: [
+        path.join(userHome, "Library", "Application Support", "Claude", "claude_desktop_config.json"),
+        path.join(appData, "Claude", "claude_desktop_config.json"),
+        path.join(userHome, ".config", "Claude", "claude_desktop_config.json"),
+      ],
+      detectDirs: [
+        path.join(userHome, "Library", "Application Support", "Claude"),
+        path.join(appData, "Claude"),
+        path.join(userHome, ".config", "Claude"),
+      ],
+      defaultPath: isWin
+        ? path.join(appData, "Claude", "claude_desktop_config.json")
+        : isMac
+        ? path.join(userHome, "Library", "Application Support", "Claude", "claude_desktop_config.json")
+        : path.join(userHome, ".config", "Claude", "claude_desktop_config.json"),
+    },
+    {
+      name: "Windsurf",
+      id: "windsurf",
+      candidatePaths: [
+        path.join(userHome, ".codeium", "windsurf", "mcp_config.json"),
+        path.join(userHome, "Library", "Application Support", "Windsurf", "mcp.json"),
+        path.join(userHome, ".config", "Windsurf", "mcp.json"),
+        path.join(appData, "Windsurf", "mcp.json"),
+      ],
+      detectDirs: [
+        path.join(userHome, ".codeium", "windsurf"),
+        path.join(userHome, "Library", "Application Support", "Windsurf"),
+        path.join(userHome, ".config", "Windsurf"),
+        path.join(appData, "Windsurf"),
+      ],
+      defaultPath: path.join(userHome, ".codeium", "windsurf", "mcp_config.json"),
+    },
+    {
+      name: "Roo Code / Cline",
+      id: "roo-cline",
+      candidatePaths: [
+        path.join(userHome, ".config", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
+        path.join(userHome, "Library", "Application Support", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
+        path.join(appData, "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
+      ],
+      detectDirs: [
+        path.join(userHome, ".config", "Code"),
+        path.join(userHome, "Library", "Application Support", "Code"),
+        path.join(appData, "Code"),
+      ],
+      defaultPath: isWin
+        ? path.join(appData, "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json")
+        : isMac
+        ? path.join(userHome, "Library", "Application Support", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json")
+        : path.join(userHome, ".config", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
+    },
+  ];
+}
+
 // 1-Click MCP Auto-Installer: setup-mcp
-async function runSetupMcp() {
+async function runSetupMcp(options = {}) {
   logHeader();
   console.log(`${colors.cyan}🔌 Auto-Detecting AI Editor Configurations...${colors.reset}\n`);
 
   const userHome = process.env.HOME || process.env.USERPROFILE || ".";
-  const appData = process.env.APPDATA || path.join(userHome, "AppData", "Roaming");
+  const appData = process.env.APPDATA || (process.platform === "win32" ? path.join(userHome, "AppData", "Roaming") : path.join(userHome, ".config"));
+  const userConfig = getConfig();
 
-  const ideConfigs = [
-    {
-      name: "Cursor",
-      paths: [
-        path.join(appData, "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
-        path.join(userHome, "Library", "Application Support", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
-        path.join(userHome, ".config", "Cursor", "User", "globalStorage", "cursor.mcp", "mcp.json"),
-      ],
-    },
-    {
-      name: "Claude Desktop",
-      paths: [
-        path.join(appData, "Claude", "claude_desktop_config.json"),
-        path.join(userHome, "Library", "Application Support", "Claude", "claude_desktop_config.json"),
-        path.join(userHome, ".config", "Claude", "claude_desktop_config.json"),
-      ],
-    },
-    {
-      name: "Windsurf",
-      paths: [
-        path.join(appData, "Windsurf", "mcp.json"),
-        path.join(userHome, "Library", "Application Support", "Windsurf", "mcp.json"),
-        path.join(userHome, ".config", "Windsurf", "mcp.json"),
-      ],
-    },
-    {
-      name: "Roo Code / Cline",
-      paths: [
-        path.join(appData, "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
-        path.join(userHome, "Library", "Application Support", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
-        path.join(userHome, ".config", "Code", "User", "globalStorage", "rooveteran.roo-cline", "settings", "mcp.json"),
-      ],
-    },
-    {
-      name: "Antigravity IDE",
-      paths: [
-        path.join(userHome, ".gemini", "antigravity-ide", "mcp_config.json"),
-        path.join(userHome, "Library", "Application Support", "antigravity-ide", "mcp_config.json"),
-        path.join(userHome, ".config", "antigravity-ide", "mcp_config.json"),
-      ],
-    },
-  ];
+  const endpointUrl = options.url || process.env.METO_MCP_URL || (options.username ? `${METO_API_BASE}/api/mcp/${options.username}` : (userConfig.username ? `${METO_API_BASE}/api/mcp/${userConfig.username}` : null));
+  const token = options.token || process.env.METO_MCP_TOKEN || process.env.METO_TOKEN || userConfig.token;
 
-  const metoServerConfig = {
-    command: "npx",
-    args: ["-y", "@metoai/cli", "mcp"],
-  };
+  if (options.token || options.url || options.username) {
+    saveConfig({
+      ...(options.token ? { token: options.token } : {}),
+      ...(options.username ? { username: options.username } : {}),
+      ...(options.url ? { mcpUrl: options.url } : {}),
+    });
+  }
 
+  const metoServerConfig = (endpointUrl && token)
+    ? {
+        command: "npx",
+        args: [
+          "-y",
+          "mcp-remote",
+          endpointUrl,
+          "--header",
+          `Authorization: Bearer ${token}`,
+        ],
+      }
+    : {
+        command: "npx",
+        args: ["-y", "@metoai/cli", "mcp"],
+      };
+
+  const ides = getIdeConfigurations(userHome, appData);
   let updatedCount = 0;
 
-  for (const ide of ideConfigs) {
-    let targetPath = ide.paths.find((p) => fs.existsSync(p));
-    
-    // If not existing, select primary path for OS
+  for (const ide of ides) {
+    let targetPath = ide.candidatePaths.find((p) => fs.existsSync(p));
+
     if (!targetPath) {
-      targetPath = ide.paths[0];
+      const isDetected = ide.detectDirs.some((d) => fs.existsSync(d));
+      if (isDetected || options.all) {
+        targetPath = ide.defaultPath;
+      }
+    }
+
+    if (!targetPath) {
+      console.log(`   ${colors.gray}• ${ide.name}: Skipped (IDE not detected on this system)${colors.reset}`);
+      continue;
     }
 
     try {
@@ -334,8 +417,56 @@ async function runSetupMcp() {
     }
   }
 
-  console.log(`\n${colors.emerald}${colors.bold}✨ Meto MCP Server successfully installed into ${updatedCount} AI Editor(s)!${colors.reset}`);
-  console.log(`${colors.gray}Restart Cursor or Claude Desktop to activate Meto tools.${colors.reset}\n`);
+  if (updatedCount > 0) {
+    console.log(`\n${colors.emerald}${colors.bold}✨ Meto MCP Server successfully installed into ${updatedCount} AI Editor(s)!${colors.reset}`);
+    if (endpointUrl && token) {
+      console.log(`   ${colors.dim}Connected to remote endpoint: ${endpointUrl}${colors.reset}`);
+    } else {
+      console.log(`   ${colors.dim}Configured with local stdio server (@metoai/cli mcp).${colors.reset}`);
+    }
+    console.log(`${colors.gray}Restart your editor / Antigravity to activate Meto tools.${colors.reset}\n`);
+  } else {
+    console.log(`\n${colors.yellow}No supported AI editors detected. Pass --all to force configuration for all editors.${colors.reset}\n`);
+  }
+}
+
+// Remove Meto MCP: remove-mcp / uninstall-mcp
+async function runRemoveMcp(options = {}) {
+  logHeader();
+  console.log(`${colors.cyan}🗑️  Removing Meto MCP Configuration from AI Editors...${colors.reset}\n`);
+
+  const userHome = process.env.HOME || process.env.USERPROFILE || ".";
+  const appData = process.env.APPDATA || (process.platform === "win32" ? path.join(userHome, "AppData", "Roaming") : path.join(userHome, ".config"));
+
+  const ides = getIdeConfigurations(userHome, appData);
+  let removedCount = 0;
+
+  for (const ide of ides) {
+    const existingPath = ide.candidatePaths.find((p) => fs.existsSync(p));
+    if (!existingPath) continue;
+
+    try {
+      const raw = fs.readFileSync(existingPath, "utf8");
+      const configJson = JSON.parse(raw);
+
+      if (configJson.mcpServers && configJson.mcpServers.meto) {
+        delete configJson.mcpServers.meto;
+        atomicWriteFileSync(existingPath, JSON.stringify(configJson, null, 2));
+        console.log(`   ${colors.green}✓${colors.reset} Removed meto from ${colors.bold}${ide.name}${colors.reset}: ${colors.gray}${existingPath}${colors.reset}`);
+        removedCount++;
+      } else {
+        console.log(`   ${colors.gray}• ${ide.name}: meto not present (${existingPath})${colors.reset}`);
+      }
+    } catch (err) {
+      console.log(`   ${colors.gray}• ${ide.name}: Skipped (${err.message})${colors.reset}`);
+    }
+  }
+
+  if (removedCount > 0) {
+    console.log(`\n${colors.emerald}${colors.bold}✨ Meto MCP removed from ${removedCount} AI Editor config(s).${colors.reset}\n`);
+  } else {
+    console.log(`\n${colors.dim}Meto MCP was not configured in any detected editors.${colors.reset}\n`);
+  }
 }
 
 // Live Dynamic Workspace Diagnostic: health
@@ -354,6 +485,7 @@ function runHealth() {
     ".windsurfrules",
     ".github/copilot-instructions.md",
     ".clinerules",
+    "GEMINI.md",
   ];
 
   let syncedCount = 0;
@@ -386,10 +518,16 @@ function runMcpServer() {
     stack: ["Next.js", "TypeScript", "Tailwind"],
   };
 
-  process.stdin.on("data", (data) => {
+  let buffer = "";
+
+  process.stdin.on("data", (chunk) => {
     try {
-      const lines = data.toString().split("\n").filter(Boolean);
+      buffer += chunk.toString();
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
       for (const line of lines) {
+        if (!line.trim()) continue;
         const req = JSON.parse(line);
         if (req.method === "initialize") {
           const res = {
@@ -401,6 +539,9 @@ function runMcpServer() {
               serverInfo: { name: "meto-mcp-server", version: "1.1.3" },
             },
           };
+          process.stdout.write(JSON.stringify(res) + "\n");
+        } else if (req.method === "ping") {
+          const res = { jsonrpc: "2.0", id: req.id, result: {} };
           process.stdout.write(JSON.stringify(res) + "\n");
         } else if (req.method === "tools/list") {
           const res = {
@@ -595,18 +736,42 @@ async function runSync() {
   console.log(`\n${colors.emerald}${colors.bold}✓ All IDE rule files refreshed safely without overwriting custom rules.${colors.reset}\n`);
 }
 
+function parseArgs(args) {
+  const options = {
+    yes: args.includes("-y") || args.includes("--yes"),
+    all: args.includes("-a") || args.includes("--all"),
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if ((arg === "--url" || arg === "-u") && args[i + 1]) {
+      options.url = args[++i];
+    } else if ((arg === "--token" || arg === "-t") && args[i + 1]) {
+      options.token = args[++i];
+    } else if (arg === "--user" && args[i + 1]) {
+      options.username = args[++i];
+    }
+  }
+
+  return options;
+}
+
 // Main CLI Entry Point
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0] || "init";
-  const options = { yes: args.includes("-y") || args.includes("--yes") };
+  const options = parseArgs(args);
 
   switch (command) {
     case "init":
       await runInit(options);
       break;
     case "setup-mcp":
-      await runSetupMcp();
+      await runSetupMcp(options);
+      break;
+    case "remove-mcp":
+    case "uninstall-mcp":
+      await runRemoveMcp(options);
       break;
     case "health":
       runHealth();
@@ -624,14 +789,20 @@ async function main() {
     case "--help":
     case "-h":
       logHeader();
-      console.log(`Usage: npx @metoai/cli [command]\n`);
+      console.log(`Usage: npx @metoai/cli [command] [options]\n`);
       console.log(`Commands:`);
-      console.log(`  init       Synchronize rules across all IDEs safely (.cursorrules, AGENTS.md, etc.)`);
-      console.log(`  setup-mcp  Auto-detect and install Meto MCP into Cursor, Claude Desktop & Windsurf`);
-      console.log(`  health     Run workspace diagnostic & rule synchronization audit`);
-      console.log(`  mcp        Start Meto Stdio MCP Server for Cursor, Claude & AI Coding Agents`);
-      console.log(`  login      Authenticate CLI with your meto.ai cloud account via device code`);
-      console.log(`  sync       Fetch latest cloud identity and safely refresh IDE rule files\n`);
+      console.log(`  init         Synchronize rules across all IDEs safely (.cursorrules, AGENTS.md, etc.)`);
+      console.log(`  setup-mcp    Auto-detect and install Meto MCP into Cursor, Antigravity, Claude & Windsurf`);
+      console.log(`  remove-mcp   Remove Meto MCP configuration from all detected IDEs`);
+      console.log(`  health       Run workspace diagnostic & rule synchronization audit`);
+      console.log(`  mcp          Start Meto Stdio MCP Server for Cursor, Claude & AI Coding Agents`);
+      console.log(`  login        Authenticate CLI with your meto.ai cloud account via device code`);
+      console.log(`  sync         Fetch latest cloud identity and safely refresh IDE rule files\n`);
+      console.log(`Options for setup-mcp:`);
+      console.log(`  --url <url>      Custom Meto MCP endpoint URL`);
+      console.log(`  --token <token>  Meto MCP Bearer token`);
+      console.log(`  --user <name>    Meto username`);
+      console.log(`  --all            Configure all supported IDEs even if not yet detected\n`);
       break;
     default:
       await runInit(options);
@@ -643,3 +814,4 @@ main().catch((err) => {
   console.error("CLI Error:", err);
   process.exit(1);
 });
+

@@ -112,6 +112,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        {/* ── Anti-FOUC: apply theme class BEFORE first paint ── */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('meto-theme');var d=(t==='dark')||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}

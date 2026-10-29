@@ -15,7 +15,11 @@ export function LandingHeroBackground() {
     setMounted(true);
   }, []);
 
-  const isLight = mounted && resolvedTheme === "light";
+  const isLight = mounted
+    ? resolvedTheme === "light"
+    : typeof document !== "undefined"
+    ? !document.documentElement.classList.contains("dark")
+    : false;
 
   return (
     <div className="landing-hero-bg pointer-events-none select-none overflow-hidden" aria-hidden>
@@ -23,6 +27,7 @@ export function LandingHeroBackground() {
       <div className="absolute inset-0 z-0 opacity-80 dark:opacity-75 meto-hero-mask">
         <Grainient
           colors={isLight ? HERO_LIGHT_PALETTE : HERO_DARK_PALETTE}
+          intro={false}
           lightMode={false}
           angle={45}
           flow={0.85}

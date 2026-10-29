@@ -9,6 +9,12 @@ type LandingSectionProps = {
   className?: string;
   /** Tighter vertical rhythm for dense visual sections */
   compact?: boolean;
+  /**
+   * Set true for sections that are visible above the fold on load.
+   * Skips the IntersectionObserver delay and immediately reveals content,
+   * preventing the above-the-fold "glitch" where content starts hidden.
+   */
+  aboveFold?: boolean;
 };
 
 export function LandingSection({
@@ -16,8 +22,19 @@ export function LandingSection({
   children,
   className = "",
   compact = false,
+  aboveFold = false,
 }: LandingSectionProps) {
-  const { ref, inView } = useInView<HTMLElement>();
+  // Above-fold sections don't need the observer — they're always visible on load.
+  // This prevents the opacity:0 flash before the observer fires.
+  const { ref, inView } = useInView<HTMLElement>({
+    // Use a very low threshold so off-screen sections still trigger early
+    threshold: 0.05,
+    // Give above-fold sections a head-start: treat them as immediately visible
+    rootMargin: aboveFold ? "9999px 0px 0px 0px" : "0px 0px -5% 0px",
+    once: true,
+  });
+
+  const isVisible = aboveFold || inView;
 
   return (
     <section
@@ -29,7 +46,7 @@ export function LandingSection({
     >
       <div
         className={`mx-auto w-full max-w-[1100px] landing-reveal ${
-          inView ? "is-visible" : ""
+          isVisible ? "is-visible" : ""
         }`}
       >
         {children}

@@ -33,15 +33,26 @@ export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProp
 
   const active = theme ?? "system";
 
+  // Ground-truth check against the DOM to guarantee 100% accurate flip on click
+  const isDark =
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : resolvedTheme === "dark";
+
   const toggleCompactTheme = () => {
-    // Single click toggles directly between light and dark without invisible intermediate 'system' step
-    const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
+    const currentIsDark =
+      typeof document !== "undefined"
+        ? document.documentElement.classList.contains("dark")
+        : resolvedTheme === "dark";
+    const nextTheme = currentIsDark ? "light" : "dark";
     setTheme(nextTheme);
   };
 
   if (compact) {
-    const isDark = resolvedTheme === "dark";
-    const Icon = isDark ? Moon : Sun;
+    // Standard UX pattern:
+    // If currently dark, show Sun icon ("click to activate light mode")
+    // If currently light, show Moon icon ("click to activate dark mode")
+    const Icon = isDark ? Sun : Moon;
     const nextLabel = isDark ? "Switch to light theme" : "Switch to dark theme";
 
     return (
@@ -52,7 +63,7 @@ export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProp
         aria-label={nextLabel}
         title={nextLabel}
       >
-        <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+        <Icon className="h-4 w-4 transition-transform duration-150" strokeWidth={1.75} aria-hidden />
       </button>
     );
   }
@@ -70,7 +81,7 @@ export function ThemeToggle({ compact = false, className = "" }: ThemeToggleProp
             key={value}
             type="button"
             onClick={() => setTheme(value)}
-            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-150 ${
+            className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-150 active:scale-[0.97] ${
               isActive
                 ? "bg-[var(--card)] text-[var(--text)] shadow-[var(--shadow-sm)]"
                 : "text-[var(--muted)] hover:text-[var(--text-secondary)]"
