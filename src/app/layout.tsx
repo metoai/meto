@@ -34,7 +34,9 @@ export const metadata: Metadata = {
       "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, Cursor, Windsurf, Google Antigravity, or ChatGPT.",
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    google:
+      process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+      "Cft7uQiPS0yXmJKApEGFitfnPqMsbcG-huLNCqS-FfY",
   },
   other: {
     "msvalidate.01": "955F87C2C946B8129E485C03A43CBFD6",
