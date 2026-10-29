@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateMcpToken } from "@/lib/mcp-auth";
+import { sendCliLoginAlertEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -82,6 +83,14 @@ export async function POST(request: Request) {
     if (updateError) {
       console.error("Failed to approve CLI session:", updateError);
       return NextResponse.json({ error: "Failed to authorize session." }, { status: 500 });
+    }
+
+    if (user.email) {
+      void sendCliLoginAlertEmail({
+        to: user.email,
+        username: profile.username || "developer",
+        deviceCode: code,
+      });
     }
 
     return NextResponse.json({

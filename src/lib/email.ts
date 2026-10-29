@@ -67,7 +67,6 @@ export async function sendEmail(
       );
 
       if (error) {
-        // If rate limited or 5xx, retry with backoff
         const isRetryable =
           error.name === "rate_limit_exceeded" ||
           error.name === "internal_server_error";
@@ -102,40 +101,244 @@ export async function sendEmail(
   return { success: false, error: "Exceeded max retries" };
 }
 
+/* =========================================================================
+   Email Templates & Notification Triggers
+   ========================================================================= */
+
+function emailWrapper(contentHtml: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #fafafa; margin: 0; padding: 32px 16px; color: #111827; }
+    .card { background-color: #ffffff; max-width: 540px; margin: 0 auto; border-radius: 12px; border: 1px solid #e5e7eb; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .btn { display: inline-block; background-color: #0f172a; color: #ffffff !important; font-size: 14px; font-weight: 500; text-decoration: none; border-radius: 8px; padding: 10px 20px; margin: 16px 0; }
+    .btn:hover { background-color: #1e293b; }
+    .code-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-family: ui-monospace, Menlo, Monaco, Consolas, monospace; font-size: 13px; color: #0f172a; margin: 16px 0; }
+    .footer { max-width: 540px; margin: 24px auto 0; text-align: center; font-size: 12px; color: #9ca3af; }
+    .footer a { color: #6b7280; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div style="margin-bottom: 24px;">
+      <span style="font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: #0f172a;">Meto</span>
+      <span style="color: #ea580c; font-weight: 600; font-size: 14px; margin-left: 6px;">AI Memory</span>
+    </div>
+    ${contentHtml}
+  </div>
+  <div class="footer">
+    <p>© ${new Date().getFullYear()} Meto. One context for all AIs.</p>
+    <p><a href="https://www.metoai.site/settings">Settings</a> · <a href="https://www.metoai.site/integrations">Integrations</a> · <a href="https://www.metoai.site/privacy">Privacy</a></p>
+  </div>
+</body>
+</html>`;
+}
+
 /**
- * Sends welcome email to newly onboarded developers & AI users.
- * Does not block caller flow.
+ * 1. Welcome / Onboarding Complete Email
  */
 export async function sendWelcomeEmail(params: {
   to: string;
   name?: string;
 }): Promise<SendEmailResult> {
   const displayName = params.name || "there";
-  const html = `
-    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 20px; color: #111;">
-      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">Welcome to Meto, ${displayName}!</h2>
-      <p style="font-size: 14px; line-height: 1.6; color: #444;">
-        Your universal AI context and memory layer is now ready. With Meto, you maintain one persistent developer identity and set of architectural rules across Cursor, Claude Code, Windsurf, ChatGPT, and Gemini.
-      </p>
-      <div style="margin: 24px 0; padding: 16px; background-color: #f6f6f7; border-radius: 8px;">
-        <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #222;">Quick Start in your terminal:</p>
-        <code style="font-family: ui-monospace, Menlo, Monaco, monospace; font-size: 13px; background: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e2e5; display: inline-block;">
-          npx meto-cli login
-        </code>
-      </div>
-      <p style="font-size: 14px; line-height: 1.6; color: #444;">
-        Need help connecting your IDE or setting up shared team rules? Check out our <a href="https://www.metoai.site/integrations" style="color: #ff5500; text-decoration: underline;">Integrations Directory</a> or reply directly to this email.
-      </p>
-      <p style="font-size: 13px; color: #888; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
-        Meto — One context for all AIs.
-      </p>
+  const html = emailWrapper(`
+    <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">Welcome to Meto, ${displayName}!</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Your universal AI context and memory layer is now active. Meto syncs your developer seniority, stack conventions, and architectural decisions across Cursor, Claude Code, Windsurf, ChatGPT, and Gemini with zero context rot.
+    </p>
+
+    <div class="code-box">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #64748b; margin-bottom: 6px;">Quick Start in Terminal</div>
+      <code>npx meto-cli login</code>
     </div>
-  `;
+
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 16px 0;">
+      Once logged in, simply run <code>npx meto-cli sync</code> in any project repository to compile <code>.cursor/rules/*.mdc</code>, <code>CLAUDE.md</code>, and <code>.windsurfrules</code> automatically.
+    </p>
+
+    <a href="https://www.metoai.site/dashboard" class="btn">Open Your Meto Dashboard</a>
+
+    <p style="font-size: 13px; color: #6b7280; margin-top: 24px; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+      Need assistance? Reply directly to this email or explore our <a href="https://www.metoai.site/integrations" style="color: #ea580c;">Integrations Guides</a>.
+    </p>
+  `);
 
   return sendEmail({
     to: params.to,
     subject: "Welcome to Meto — Your Universal AI Context Layer",
     html,
+    text: `Welcome to Meto, ${displayName}! Your universal AI context and memory layer is now active. Run 'npx meto-cli login' in your terminal to connect your IDEs. Dashboard: https://www.metoai.site/dashboard`,
     idempotencyKey: `welcome/${params.to}`,
+  });
+}
+
+/**
+ * 2. Subscription Upgraded to Pro
+ */
+export async function sendProSubscriptionEmail(params: {
+  to: string;
+  name?: string;
+  subscriptionId?: string;
+}): Promise<SendEmailResult> {
+  const displayName = params.name || "there";
+  const html = emailWrapper(`
+    <div style="display: inline-block; background-color: #fef2f2; color: #ea580c; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-bottom: 12px;">Meto Pro Active</div>
+    <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">You're on Meto Pro! 🚀</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Hi ${displayName}, thank you for supporting Meto. Your subscription has been activated and your account now has unlimited access to all Pro capabilities:
+    </p>
+
+    <ul style="font-size: 14px; line-height: 1.8; color: #374151; padding-left: 20px; margin: 0 0 20px;">
+      <li><strong>Unlimited Multi-IDE Sync:</strong> Real-time rules compilation for Cursor, Claude Code, Windsurf, and Copilot.</li>
+      <li><strong>Team Context Registry:</strong> Share architectural decisions and antipatterns across your repositories.</li>
+      <li><strong>Deep Knowledge Graph:</strong> Context Health Audits and conflict resolution.</li>
+      <li><strong>Universal Chatbot Presets:</strong> Live sync for ChatGPT Plus, Claude Projects, and Gemini.</li>
+    </ul>
+
+    <a href="https://www.metoai.site/dashboard" class="btn">Go to Dashboard</a>
+  `);
+
+  return sendEmail({
+    to: params.to,
+    subject: "You're now on Meto Pro — Welcome to unlimited AI context sync",
+    html,
+    text: `Hi ${displayName}, your Meto Pro subscription is now active! You now have unlimited multi-IDE sync, team context, and deep knowledge graph. Access your dashboard at https://www.metoai.site/dashboard`,
+    idempotencyKey: `sub-active/${params.to}/${params.subscriptionId || "now"}`,
+  });
+}
+
+/**
+ * 3. Subscription Canceled
+ */
+export async function sendSubscriptionCanceledEmail(params: {
+  to: string;
+  name?: string;
+}): Promise<SendEmailResult> {
+  const displayName = params.name || "there";
+  const html = emailWrapper(`
+    <h1 style="font-size: 18px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">Meto Pro Subscription Canceled</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Hi ${displayName}, your Meto Pro subscription has been canceled. You will continue to retain Pro access until the end of your current billing period.
+    </p>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      After that, your account will switch to the Free tier. Your existing sections and rules will remain completely safe.
+    </p>
+    <a href="https://www.metoai.site/pricing" class="btn">Manage Subscription</a>
+  `);
+
+  return sendEmail({
+    to: params.to,
+    subject: "Meto Pro Subscription Canceled",
+    html,
+    text: `Hi ${displayName}, your Meto Pro subscription has been canceled. You retain Pro access until your current billing period ends. Your data remains safe.`,
+    idempotencyKey: `sub-canceled/${params.to}/${Date.now()}`,
+  });
+}
+
+/**
+ * 4. Terminal CLI Session Approved (Security Alert)
+ */
+export async function sendCliLoginAlertEmail(params: {
+  to: string;
+  username: string;
+  deviceCode: string;
+}): Promise<SendEmailResult> {
+  const timestamp = new Date().toUTCString();
+  const html = emailWrapper(`
+    <div style="display: inline-block; background-color: #f0fdf4; color: #16a34a; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-bottom: 12px;">Security Notification</div>
+    <h1 style="font-size: 18px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">New Terminal Authorized for @${params.username}</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      A new terminal CLI session was just authorized for your Meto account.
+    </p>
+
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #334155; margin: 16px 0;">
+      <div><strong>Authorization Code:</strong> <code>${params.deviceCode}</code></div>
+      <div style="margin-top: 4px;"><strong>Time:</strong> ${timestamp}</div>
+    </div>
+
+    <p style="font-size: 13px; line-height: 1.5; color: #64748b;">
+      If you authorized this session via <code>npx meto-cli login</code>, no action is needed. If you did not make this request, you can revoke your MCP token immediately in Settings.
+    </p>
+
+    <a href="https://www.metoai.site/settings" class="btn">Review Active Access</a>
+  `);
+
+  return sendEmail({
+    to: params.to,
+    subject: `Security Alert: New Terminal CLI session approved for @${params.username}`,
+    html,
+    text: `A new terminal CLI session (code: ${params.deviceCode}) was authorized for your Meto account @${params.username} at ${timestamp}. Review your access: https://www.metoai.site/settings`,
+    idempotencyKey: `cli-auth/${params.deviceCode}`,
+  });
+}
+
+/**
+ * 5. MCP Token Rotated or Revoked (Security Alert)
+ */
+export async function sendMcpTokenAlertEmail(params: {
+  to: string;
+  username: string;
+  action: "generated" | "rotated" | "revoked";
+}): Promise<SendEmailResult> {
+  const timestamp = new Date().toUTCString();
+  const actionText =
+    params.action === "revoked"
+      ? "revoked"
+      : params.action === "rotated"
+      ? "regenerated"
+      : "generated";
+
+  const html = emailWrapper(`
+    <div style="display: inline-block; background-color: #eff6ff; color: #2563eb; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-bottom: 12px;">Security Notification</div>
+    <h1 style="font-size: 18px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">MCP Access Token ${actionText}</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      The Model Context Protocol (MCP) access token for <strong>@${params.username}</strong> was ${actionText} on ${timestamp}.
+    </p>
+
+    ${
+      params.action === "revoked"
+        ? `<p style="font-size: 13px; color: #dc2626;">All IDE connections (Cursor, Windsurf, Claude Desktop) using this token have lost access until a new token is created.</p>`
+        : `<p style="font-size: 13px; color: #4b5563;">If you have IDEs configured, make sure to update their MCP configuration with your new token.</p>`
+    }
+
+    <a href="https://www.metoai.site/settings" class="btn">View MCP Settings</a>
+  `);
+
+  return sendEmail({
+    to: params.to,
+    subject: `Security Alert: MCP access token ${actionText} for @${params.username}`,
+    html,
+    text: `Your MCP access token for @${params.username} was ${actionText} on ${timestamp}. Review settings at https://www.metoai.site/settings`,
+    idempotencyKey: `mcp-token-${params.action}/${params.to}/${Date.now()}`,
+  });
+}
+
+/**
+ * 6. Trial Expiration Warning Email
+ */
+export async function sendTrialExpiringEmail(params: {
+  to: string;
+  name?: string;
+  daysLeft: number;
+}): Promise<SendEmailResult> {
+  const displayName = params.name || "there";
+  const html = emailWrapper(`
+    <h1 style="font-size: 18px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">Your Meto Pro Trial Ends in ${params.daysLeft} Day${params.daysLeft === 1 ? "" : "s"}</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Hi ${displayName}, your 14-day Meto Pro trial is wrapping up soon. To keep unlimited multi-IDE rules synchronization, team context sharing, and deep knowledge graph active, upgrade to Meto Pro.
+    </p>
+    <a href="https://www.metoai.site/pricing" class="btn">Upgrade to Meto Pro</a>
+  `);
+
+  return sendEmail({
+    to: params.to,
+    subject: `Reminder: Your Meto Pro trial ends in ${params.daysLeft} days`,
+    html,
+    text: `Hi ${displayName}, your Meto Pro trial ends in ${params.daysLeft} days. Upgrade at https://www.metoai.site/pricing to keep unlimited multi-IDE sync active.`,
+    idempotencyKey: `trial-warning/${params.to}/${params.daysLeft}d`,
   });
 }

@@ -8,6 +8,11 @@ import {
   resolveUserIdFromSubscription,
 } from "@/lib/polar-billing";
 import { applyPolarSubscriptionToProfile } from "@/lib/polar-sync";
+import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  sendProSubscriptionEmail,
+  sendSubscriptionCanceledEmail,
+} from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -19,7 +24,7 @@ function headersRecord(request: Request): Record<string, string> {
   return headers;
 }
 
-async function applySubscription(subscription: Subscription) {
+async function applySubscription(subscription: Subscription, eventType: string) {
   const userId = await resolveUserIdFromSubscription(subscription);
   if (!userId) {
     console.warn("Polar webhook: could not resolve user for subscription", {
@@ -31,6 +36,40 @@ async function applySubscription(subscription: Subscription) {
   }
 
   await applyPolarSubscriptionToProfile(subscription, userId);
+
+  // Send transactional email to the user
+  try {
+    const admin = createAdminClient();
+    const { data: authUser } = await admin.auth.admin.getUserById(userId);
+    const email = authUser?.user?.email;
+    const name =
+      (authUser?.user?.user_metadata?.full_name as string | undefined) ||
+      (authUser?.user?.user_metadata?.name as string | undefined) ||
+      email?.split("@")[0];
+
+    if (email) {
+      if (
+        eventType === "subscription.created" ||
+        eventType === "subscription.active"
+      ) {
+        void sendProSubscriptionEmail({
+          to: email,
+          name,
+          subscriptionId: subscription.id,
+        });
+      } else if (
+        eventType === "subscription.canceled" ||
+        eventType === "subscription.revoked"
+      ) {
+        void sendSubscriptionCanceledEmail({
+          to: email,
+          name,
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to send billing email:", err);
+  }
 }
 
 export async function POST(request: Request) {
@@ -53,11 +92,11 @@ export async function POST(request: Request) {
       case "subscription.created":
       case "subscription.updated":
       case "subscription.uncanceled":
-        await applySubscription(event.data);
+        await applySubscription(event.data, event.type);
         break;
       case "subscription.canceled":
       case "subscription.revoked":
-        await applySubscription(event.data);
+        await applySubscription(event.data, event.type);
         break;
       default:
         break;

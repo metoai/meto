@@ -9,6 +9,7 @@ import { getSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { generateMcpToken } from "@/lib/mcp-auth";
 import { generateDefaultUsername } from "@/lib/username";
+import { sendMcpTokenAlertEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -150,6 +151,14 @@ export async function POST() {
 
     if (error) throw error;
 
+    if (user.email) {
+      void sendMcpTokenAlertEmail({
+        to: user.email,
+        username: profile.username || "developer",
+        action: profile.mcp_access_token ? "rotated" : "generated",
+      });
+    }
+
     return NextResponse.json(buildPayload(data, rawToken));
   } catch (error) {
     console.error("POST mcp-access error:", error);
@@ -180,6 +189,14 @@ export async function DELETE() {
       .single<ProfileMcpRow>();
 
     if (error) throw error;
+
+    if (user.email) {
+      void sendMcpTokenAlertEmail({
+        to: user.email,
+        username: profile.username || "developer",
+        action: "revoked",
+      });
+    }
 
     return NextResponse.json(buildPayload(data));
   } catch (error) {

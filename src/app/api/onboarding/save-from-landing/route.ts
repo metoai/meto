@@ -6,6 +6,7 @@ import {
 } from "@/lib/profile-sections";
 import { syncOnboardingToKnowledge } from "@/lib/knowledge/onboarding-sync";
 import { createClient } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email";
 
 type CollectedProfile = {
   about?: string | null;
@@ -61,6 +62,14 @@ export async function POST(request: Request) {
 
     await saveProfileSections(supabase, user.id, sections);
     await syncOnboardingToKnowledge(supabase, user.id, sections, "landing");
+
+    if (user.email) {
+      const displayName =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        user.email.split("@")[0];
+      void sendWelcomeEmail({ to: user.email, name: displayName });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

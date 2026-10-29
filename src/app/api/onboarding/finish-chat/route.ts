@@ -15,6 +15,7 @@ import { saveProfileSections } from "@/lib/profile-sections";
 import { syncOnboardingToKnowledge } from "@/lib/knowledge/onboarding-sync";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
+import { sendWelcomeEmail } from "@/lib/email";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -76,6 +77,14 @@ export async function POST(request: Request) {
 
     await markOnboardingAiUsed(user.id, "chat");
     await recordAiUsage(user.id, 1, aiAccess.row);
+
+    if (user.email) {
+      const displayName =
+        (user.user_metadata?.full_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        user.email.split("@")[0];
+      void sendWelcomeEmail({ to: user.email, name: displayName });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

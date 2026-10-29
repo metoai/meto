@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { computeContentScore } from "@/lib/context-score";
 import { headlineForScore } from "@/lib/section-quality";
+import { sendEmail, DEFAULT_FROM_EMAIL } from "@/lib/email";
 
 const STALE_DAYS = 30;
 
@@ -154,22 +155,19 @@ export async function GET(request: Request) {
       const name = profile.display_name ?? profile.username ?? "there";
       const html = buildWeeklyPulseEmail(name, score, null, staleSections, null);
 
-      // Send via Resend
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendKey}`,
-        },
-        body: JSON.stringify({
-          from: "Meto <hello@metoai.site>",
-          to: email,
-          subject: `Your Meto profile score: ${score}/100`,
-          html,
-        }),
+      const result = await sendEmail({
+        from: DEFAULT_FROM_EMAIL,
+        to: email,
+        subject: `Your Meto profile score: ${score}/100`,
+        html,
+        idempotencyKey: `weekly-pulse/${profile.id}/${new Date().toISOString().slice(0, 10)}`,
       });
 
-      sent++;
+      if (result.success) {
+        sent++;
+      } else {
+        skipped++;
+      }
     } catch (err) {
       console.error(`weekly-pulse: failed for user ${profile.id}`, err);
       skipped++;
