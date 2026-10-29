@@ -16,8 +16,14 @@ export const metadata: Metadata = {
   description:
     "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, Cursor, Windsurf, Google Antigravity, or ChatGPT.",
   icons: {
-    icon: [{ url: "/brand/favicon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/brand/apple-icon.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/brand/apple-icon.svg", type: "image/svg+xml" },
+      { url: "/apple-touch-icon.png" },
+    ],
   },
   openGraph: {
     title: "Meto — Your AI Identity",
