@@ -14,7 +14,7 @@ export function LandingHowItWorksSection() {
         className="mb-14 sm:mb-16"
       />
 
-      <div className="landing-stagger-item mx-auto w-full max-w-[1140px]">
+      <div className="landing-stagger-item mx-auto w-full max-w-[1200px]">
         <LandingHowItWorksDemo />
       </div>
     </LandingSection>
