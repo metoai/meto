@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { HelpCircle, LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
+import { Bug, HelpCircle, LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
+import { SupportModal } from "@/components/support/support-modal";
 import { usePortalDataOptional } from "@/components/portal/portal-data-context";
 import { QuickUpdateSidebarProvider } from "@/components/portal/quick-update-sidebar-context";
 import {
@@ -63,6 +64,7 @@ type SidebarContentProps = {
   onNavigate?: () => void;
   onClose?: () => void;
   onLogout: () => void;
+  onReportBug?: () => void;
 };
 
 function SidebarContent({
@@ -73,6 +75,7 @@ function SidebarContent({
   onNavigate,
   onClose,
   onLogout,
+  onReportBug,
 }: SidebarContentProps) {
   const portal = usePortalDataOptional();
   const isDevWorkspace =
@@ -304,7 +307,7 @@ function SidebarContent({
           )
         ) : null}
         <div
-          className={`flex items-center ${collapsed ? "justify-center gap-1" : "gap-2"}`}
+          className={`flex items-center ${collapsed ? "justify-center gap-1" : "gap-1.5"}`}
         >
           <button
             type="button"
@@ -322,11 +325,23 @@ function SidebarContent({
             <LogOut className="h-[17px] w-[17px] shrink-0" strokeWidth={1.75} />
             {!collapsed ? <span>Log out</span> : null}
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              onNavigate?.();
+              onReportBug?.();
+            }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface)] hover:text-red-600 dark:hover:text-red-400 transition-colors active:scale-95"
+            title="Report a Bug (Popup form)"
+            aria-label="Report a Bug"
+          >
+            <Bug className="h-[17px] w-[17px]" strokeWidth={1.75} />
+          </button>
           <Link
             href="/support"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)] transition-colors active:scale-95"
-            title="Help & Support"
-            aria-label="Help & Support"
+            title="Support & Diagnostics"
+            aria-label="Support & Diagnostics"
             onClick={onNavigate}
           >
             <HelpCircle className="h-[17px] w-[17px]" strokeWidth={1.75} />
@@ -344,6 +359,7 @@ type PortalSidebarNavProps = {
   issueCount?: number;
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  onReportBug: () => void;
 };
 
 function PortalSidebarNav({
@@ -352,6 +368,7 @@ function PortalSidebarNav({
   issueCount,
   collapsed,
   onToggleCollapsed,
+  onReportBug,
 }: PortalSidebarNavProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -378,6 +395,7 @@ function PortalSidebarNav({
     collapsed,
     onToggleCollapsed,
     onLogout: () => void handleLogout(),
+    onReportBug,
   };
 
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
@@ -463,6 +481,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
     : DASHBOARD_HOME;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [bugModalOpen, setBugModalOpen] = useState(false);
   const issueCount = portal?.issueCount ?? 0;
 
   useEffect(() => {
@@ -520,6 +539,7 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
         issueCount={issueCount}
         collapsed={sidebarCollapsed}
         onToggleCollapsed={toggleSidebarCollapsed}
+        onReportBug={() => setBugModalOpen(true)}
       />
 
       <div
@@ -576,6 +596,13 @@ function PortalLayoutInner({ children }: PortalLayoutProps) {
       </div>
 
       <PortalMobileTabBar />
+
+      <SupportModal
+        isOpen={bugModalOpen}
+        onClose={() => setBugModalOpen(false)}
+        initialCategory="bug"
+        prefillEmail={portal?.email ?? ""}
+      />
     </div>
   );
 }

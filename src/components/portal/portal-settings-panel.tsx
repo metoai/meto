@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Trash2 } from "lucide-react";
+import { Bug, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { McpQuickConnectCard } from "@/components/context-share/mcp-quick-connec
 import { usePortalData } from "@/components/portal/portal-data-context";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SupportModal } from "@/components/support/support-modal";
 import { createClient } from "@/lib/supabase/client";
 import { SITE_DOMAIN, publicProfileLabel } from "@/lib/site";
 
@@ -27,6 +28,7 @@ export function PortalSettingsPanel() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bugModalOpen, setBugModalOpen] = useState(false);
 
   useEffect(() => {
     if (!loaded || !profile) return;
@@ -396,22 +398,36 @@ export function PortalSettingsPanel() {
 
         <div className="landing-panel p-5">
           <p className="mb-1.5 text-[13px] font-medium text-[var(--text)]">
-            Support & Founder Help
+            Support &amp; Troubleshooting
           </p>
           <p className="mb-3.5 text-xs leading-relaxed text-[var(--text-secondary)]">
-            Need help with MCP setup, multi-IDE rule sync, or account questions? Get direct developer support.
+            Need help with MCP setup, multi-IDE rule sync, or found a bug? Get direct founder assistance.
           </p>
-          <Link
-            href="/support"
-            className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--text)] hover:border-[var(--primary)]/50 transition-colors"
-          >
-            Open Support & Contact
-          </Link>
-          <p className="mt-2.5 text-[11px] text-[var(--muted)] text-center">
-            or email <a href="mailto:metoaipr@gmail.com" className="text-[var(--text)] hover:underline">metoaipr@gmail.com</a>
-          </p>
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/support"
+              className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--text)] hover:border-[var(--primary)]/50 active:scale-[0.98] transition-all"
+            >
+              Open Support Page &rarr;
+            </Link>
+            <button
+              type="button"
+              onClick={() => setBugModalOpen(true)}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-500/10 active:scale-[0.98] transition-all"
+            >
+              <Bug className="h-3.5 w-3.5" />
+              <span>Report a Bug (Popup)</span>
+            </button>
+          </div>
         </div>
       </aside>
+
+      <SupportModal
+        isOpen={bugModalOpen}
+        onClose={() => setBugModalOpen(false)}
+        initialCategory="bug"
+        prefillEmail={email ?? ""}
+      />
     </div>
   );
 }
