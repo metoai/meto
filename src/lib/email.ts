@@ -343,3 +343,132 @@ export async function sendTrialExpiringEmail(params: {
     idempotencyKey: `trial-warning/${params.to}/${params.daysLeft}d`,
   });
 }
+
+export const SUPPORT_ADMIN_EMAIL =
+  process.env.SUPPORT_ADMIN_EMAIL || "metoaipr@gmail.com";
+
+/**
+ * 7. Support Inquiry Admin Alert (Notifies Founder at metoaipr@gmail.com)
+ */
+export async function sendSupportInquiryEmail(params: {
+  customerEmail: string;
+  customerName?: string;
+  category: string;
+  subject: string;
+  message: string;
+  metadata?: {
+    username?: string;
+    userId?: string;
+    url?: string;
+    userAgent?: string;
+  };
+}): Promise<SendEmailResult> {
+  const categoryLabelMap: Record<string, string> = {
+    mcp_setup: "🛠️ MCP / CLI Setup",
+    bug: "🐛 Bug Report",
+    billing: "💳 Billing / Account",
+    feature: "💡 Feature Request",
+    general: "💬 General Support",
+  };
+  const categoryLabel = categoryLabelMap[params.category] || params.category;
+  const nameLabel = params.customerName
+    ? `${params.customerName} (${params.customerEmail})`
+    : params.customerEmail;
+  const timestamp = new Date().toUTCString();
+
+  const html = emailWrapper(`
+    <div style="background-color: #f1f5f9; border-left: 4px solid #ea580c; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #ea580c; letter-spacing: 0.05em;">New Customer Inquiry</div>
+      <div style="font-size: 15px; font-weight: 600; color: #0f172a; margin-top: 2px;">${categoryLabel}</div>
+    </div>
+
+    <h2 style="font-size: 16px; font-weight: 600; margin: 0 0 16px; color: #0f172a;">${params.subject}</h2>
+
+    <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 14px; line-height: 1.6; color: #1e293b; white-space: pre-wrap;">${params.message}</div>
+
+    <table style="width: 100%; border-collapse: collapse; font-size: 12px; color: #64748b; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+      <tr>
+        <td style="padding: 4px 0; font-weight: 600; width: 100px;">From:</td>
+        <td style="padding: 4px 0; color: #0f172a;"><a href="mailto:${params.customerEmail}">${nameLabel}</a></td>
+      </tr>
+      ${
+        params.metadata?.username
+          ? `
+      <tr>
+        <td style="padding: 4px 0; font-weight: 600;">Meto User:</td>
+        <td style="padding: 4px 0; color: #0f172a;">@${params.metadata.username}</td>
+      </tr>`
+          : ""
+      }
+      ${
+        params.metadata?.url
+          ? `
+      <tr>
+        <td style="padding: 4px 0; font-weight: 600;">Page Route:</td>
+        <td style="padding: 4px 0;">${params.metadata.url}</td>
+      </tr>`
+          : ""
+      }
+      <tr>
+        <td style="padding: 4px 0; font-weight: 600;">Received:</td>
+        <td style="padding: 4px 0;">${timestamp}</td>
+      </tr>
+    </table>
+
+    <div style="margin-top: 24px; text-align: center;">
+      <a href="mailto:${params.customerEmail}?subject=Re: ${encodeURIComponent(params.subject)}" class="btn">Reply Directly to ${params.customerEmail}</a>
+    </div>
+  `);
+
+  return sendEmail({
+    to: SUPPORT_ADMIN_EMAIL,
+    replyTo: params.customerEmail,
+    subject: `[Meto Support: ${categoryLabel}] ${params.subject}`,
+    html,
+    text: `New support inquiry from ${nameLabel}\nCategory: ${categoryLabel}\nSubject: ${params.subject}\n\nMessage:\n${params.message}\n\nUser: @${params.metadata?.username || "Guest"}\nURL: ${params.metadata?.url || "N/A"}`,
+  });
+}
+
+/**
+ * 8. Customer Support Receipt Confirmation Email
+ */
+export async function sendSupportConfirmationEmail(params: {
+  customerEmail: string;
+  customerName?: string;
+  category: string;
+  subject: string;
+}): Promise<SendEmailResult> {
+  const displayName = params.customerName || "there";
+  const isSetupOrBug = params.category === "mcp_setup" || params.category === "bug";
+
+  const selfHelpTip = isSetupOrBug
+    ? `
+    <div class="code-box" style="margin: 16px 0;">
+      <div style="font-size: 11px; text-transform: uppercase; font-weight: 600; color: #64748b; margin-bottom: 6px;">Troubleshooting Tip</div>
+      <p style="margin: 0 0 6px; font-size: 12px; color: #475569;">If you're diagnosing MCP or rule sync, run this in your repository:</p>
+      <code>npx @metoai/cli health</code>
+    </div>`
+    : "";
+
+  const html = emailWrapper(`
+    <h1 style="font-size: 18px; font-weight: 600; margin: 0 0 12px; color: #0f172a;">We received your message!</h1>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Hi ${displayName}, thank you for reaching out. We have logged your inquiry regarding <strong>"${params.subject}"</strong>.
+    </p>
+    <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin: 0 0 16px;">
+      Our team typically reviews and replies to developer inquiries within a few hours.
+    </p>
+    ${selfHelpTip}
+    <p style="font-size: 13px; color: #64748b; margin-top: 20px;">
+      If you have additional details or terminal logs, simply reply directly to this email.
+    </p>
+  `);
+
+  return sendEmail({
+    to: params.customerEmail,
+    subject: `We've received your request: "${params.subject}" — Meto Support`,
+    html,
+    text: `Hi ${displayName},\n\nWe received your inquiry regarding "${params.subject}". We will review and reply shortly.\n\nNeed immediate CLI diagnostics? Run: npx @metoai/cli health\n\nBest,\nMeto Support`,
+  });
+}
+

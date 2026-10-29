@@ -33,4 +33,6 @@ export const MARKETING_NAV_LINKS = [
   { label: "How it works", href: "/#how-it-works" },
   { label: "Integrations", href: "/integrations" },
   { label: "Pricing", href: "/pricing" },
+  { label: "Support", href: "/support" },
 ] as const;
+

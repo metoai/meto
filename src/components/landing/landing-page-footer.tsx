@@ -62,6 +62,12 @@ export function LandingPageFooter({
                     {link.label}
                   </Link>
                 ))}
+                <Link href="/integrations" className={linkClassName}>
+                  Integrations
+                </Link>
+                <Link href="/support" className={linkClassName}>
+                  Support & Contact
+                </Link>
               </nav>
             </div>
 

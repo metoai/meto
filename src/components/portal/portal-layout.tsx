@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
+import { HelpCircle, LogOut, PanelLeft, PanelLeftClose, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MetoMarkBadge } from "@/components/meto-mark";
 import { ProfileAvatar } from "@/components/ui/profile-avatar";
@@ -322,6 +322,15 @@ function SidebarContent({
             <LogOut className="h-[17px] w-[17px] shrink-0" strokeWidth={1.75} />
             {!collapsed ? <span>Log out</span> : null}
           </button>
+          <Link
+            href="/support"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)] transition-colors active:scale-95"
+            title="Help & Support"
+            aria-label="Help & Support"
+            onClick={onNavigate}
+          >
+            <HelpCircle className="h-[17px] w-[17px]" strokeWidth={1.75} />
+          </Link>
           <ThemeToggle compact className="shrink-0" />
         </div>
       </div>

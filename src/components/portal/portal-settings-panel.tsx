@@ -393,6 +393,24 @@ export function PortalSettingsPanel() {
           This appears in your sidebar and on your public profile.
         </p>
         </div>
+
+        <div className="landing-panel p-5">
+          <p className="mb-1.5 text-[13px] font-medium text-[var(--text)]">
+            Support & Founder Help
+          </p>
+          <p className="mb-3.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+            Need help with MCP setup, multi-IDE rule sync, or account questions? Get direct developer support.
+          </p>
+          <Link
+            href="/support"
+            className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs font-medium text-[var(--text)] hover:border-[var(--primary)]/50 transition-colors"
+          >
+            Open Support & Contact
+          </Link>
+          <p className="mt-2.5 text-[11px] text-[var(--muted)] text-center">
+            or email <a href="mailto:metoaipr@gmail.com" className="text-[var(--text)] hover:underline">metoaipr@gmail.com</a>
+          </p>
+        </div>
       </aside>
     </div>
   );
