@@ -2,7 +2,7 @@ import { COMPARISONS_LIST } from "@/lib/comparisons-data";
 import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
 import { CANONICAL_SITE_HOST, getSiteUrl } from "@/lib/site";
 
-export const DEFAULT_INDEXNOW_KEY = "5f7eda72722b2bb4a8f9b4d9e4e153c3";
+export const DEFAULT_INDEXNOW_KEY = "ae7652935d464837a2119f0f7be368fc";
 
 export function getIndexNowKey(): string {
   return process.env.INDEXNOW_KEY?.trim() || DEFAULT_INDEXNOW_KEY;
