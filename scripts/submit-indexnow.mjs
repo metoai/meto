@@ -33,7 +33,7 @@ if (existsSync(envLocalPath)) {
   }
 }
 
-const CANONICAL_SITE_HOST = "www.metoai.site";
+const CANONICAL_SITE_HOST = "www.metoctx.com";
 const DEFAULT_SITE_URL = `https://${CANONICAL_SITE_HOST}`;
 const INDEXNOW_KEY = process.env.INDEXNOW_KEY || "5f7eda72722b2bb4a8f9b4d9e4e153c3";
 const INDEXNOW_ENDPOINTS = [

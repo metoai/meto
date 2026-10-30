@@ -16,7 +16,7 @@ import { readFileSync, existsSync } from "fs";
 const GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token";
 const GOOGLE_INDEXING_ENDPOINT =
   "https://indexing.googleapis.com/v3/urlNotifications:publish";
-const DEFAULT_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.metoai.site";
+const DEFAULT_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.metoctx.com";
 
 function base64UrlEncode(str) {
   return Buffer.from(str)
