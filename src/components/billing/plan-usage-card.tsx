@@ -68,7 +68,7 @@ export function PlanUsageCard({
               setCheckoutLoading(true);
               void openProCheckout().catch(() => setCheckoutLoading(false));
             }}
-            className="shrink-0 rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[var(--primary-hover)] disabled:opacity-60"
+            className="shrink-0 rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[11px] font-medium text-white shadow-xs transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-[0.97] disabled:opacity-60"
           >
             {checkoutLoading ? "…" : "Upgrade"}
           </button>

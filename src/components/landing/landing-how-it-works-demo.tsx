@@ -1,303 +1,215 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
-  Database,
-  Cpu,
-  Cloud,
   Check,
-  Lock,
   Eye,
   EyeOff,
-  GitBranch,
-  ShieldCheck,
   Terminal,
-  User,
+  ShieldCheck,
+  Copy,
+  Radio,
+  FileCode,
 } from "lucide-react";
-import { MetoMarkBadge } from "@/components/meto-mark";
+import {
+  ContentConnectedCompilerFigure,
+  ContentConnectedMcpRouterFigure,
+  ContentConnectedPrivacyVaultFigure,
+  ContentConnectedSyncTreeFigure,
+} from "@/components/landing/isometric-motion-figures";
 
-// Respect prefers-reduced-motion for animations
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return reduced;
-}
+type Format = "claude" | "cursor" | "chatgpt" | "universal";
 
-/**
- * Precision horizontal connector line with centered SVG arrowhead and
- * guaranteed particle alignment (particle y is locked exactly to line y=8).
- */
-function ConnectorLine({
-  color = "#FF4D00",
-  dur = "2s",
-  reducedMotion = false,
-  label,
-  accentColor = false,
-  labelKey,
-}: {
-  color?: string;
-  dur?: string;
-  reducedMotion?: boolean;
-  label?: string;
-  accentColor?: boolean;
-  labelKey?: number;
-}) {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center px-1 min-w-[36px] sm:min-w-[52px]">
-      {label && (
-        <span
-          key={labelKey}
-          className={`mb-1.5 text-[8.5px] sm:text-[9.5px] font-mono whitespace-nowrap transition-colors duration-150 ${
-            accentColor
-              ? "text-[var(--primary)] dark:text-orange-400 font-semibold meto-token-pop"
-              : "text-neutral-500 dark:text-neutral-400"
-          }`}
-        >
-          {label}
-        </span>
-      )}
-      <div className="w-full relative flex items-center justify-center h-4">
-        <svg
-          className="w-full h-4 overflow-visible"
-          viewBox="0 0 100 16"
-          preserveAspectRatio="none"
-        >
-          {/* Dashed guide line */}
-          <line
-            x1="2"
-            y1="8"
-            x2="90"
-            y2="8"
-            stroke="currentColor"
-            className="text-neutral-300 dark:text-neutral-700"
-            strokeWidth="1.5"
-            strokeDasharray="3 3"
-          />
-          {/* Precision Arrowhead locked to line y=8 */}
-          <polygon
-            points="89,5 96,8 89,11"
-            className="text-neutral-400 dark:text-neutral-500 fill-current"
-          />
-          {/* Animated Traveling Particle — center cx animates, cy is permanently 8 */}
-          {!reducedMotion && (
-            <circle cx="2" cy="8" r="2.5" fill={color}>
-              <animate
-                attributeName="cx"
-                from="2"
-                to="90"
-                dur={dur}
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                values="0;0.4;1;1;0.5;0"
-                keyTimes="0;0.1;0.25;0.75;0.9;1"
-                dur={dur}
-                repeatCount="indefinite"
-              />
-            </circle>
-          )}
-        </svg>
-      </div>
-    </div>
-  );
-}
+const FORMAT_PREVIEWS: Record<
+  Format,
+  { label: string; file: string; tokens: string; reduction: string; snippet: string }
+> = {
+  claude: {
+    label: "Claude",
+    file: "claude-project.xml",
+    tokens: "1.8k tokens",
+    reduction: "-62%",
+    snippet: `<system_prompt>\n  <role>Senior Full-Stack Engineer</role>\n  <rules strict="true">Next.js 16, Supabase, Strict TS</rules>\n</system_prompt>`,
+  },
+  cursor: {
+    label: "Cursor",
+    file: ".cursorrules",
+    tokens: "1.6k tokens",
+    reduction: "-66%",
+    snippet: `# Cursor Rules (Synced via Meto)\n- Prefer Server Actions over API routes\n- Enforce Zod validation on all external inputs`,
+  },
+  chatgpt: {
+    label: "ChatGPT",
+    file: "custom-instructions.txt",
+    tokens: "1.9k tokens",
+    reduction: "-60%",
+    snippet: `You are pair-programming on Meto.\nDirect, senior tone. Show diffs first, explanation second.`,
+  },
+  universal: {
+    label: "Universal",
+    file: "context.json",
+    tokens: "2.1k tokens",
+    reduction: "-56%",
+    snippet: `{\n  "version": "2.0",\n  "identity": "Alazar / Full-Stack",\n  "stack": ["Next.js", "Supabase", "MCP"]\n}`,
+  },
+};
 
 export function LandingHowItWorksDemo() {
-  const reducedMotion = usePrefersReducedMotion();
-
-  // Card 1 state: format tab + compiler toggles
-  const [activeFormat, setActiveFormat] = useState<"claude" | "cursor" | "chatgpt" | "universal">("claude");
-  const [pruneInactive, setPruneInactive] = useState(true);
+  // Card 1: Compiler format state
+  const [activeFormat, setActiveFormat] = useState<Format>("claude");
+  const [pruneTasks, setPruneTasks] = useState(true);
   const [formatSyntax, setFormatSyntax] = useState(true);
-  const [tokenFlash, setTokenFlash] = useState(0);
 
-  // Card 3 state: Masking toggle
+  // Card 2: Copied feedback
+  const [copiedMcp, setCopiedMcp] = useState(false);
+
+  // Card 3: Mask secrets toggle
   const [isMasked, setIsMasked] = useState(true);
 
-  // Dynamic token calculation for Card 1
-  const outputTokens =
-    pruneInactive && formatSyntax
-      ? "1.8k tokens"
-      : pruneInactive || formatSyntax
-      ? "3.1k tokens"
-      : "4.8k tokens";
+  const activeData = FORMAT_PREVIEWS[activeFormat];
 
-  const reductionPercent =
-    pruneInactive && formatSyntax
-      ? "-62%"
-      : pruneInactive || formatSyntax
+  // Dynamic token calculation based on toggles
+  const effectiveReduction =
+    pruneTasks && formatSyntax
+      ? activeData.reduction
+      : pruneTasks || formatSyntax
       ? "-35%"
       : "0%";
 
-  function togglePrune() {
-    setPruneInactive((v) => !v);
-    setTokenFlash((f) => f + 1);
-  }
-  function toggleFormat() {
-    setFormatSyntax((v) => !v);
-    setTokenFlash((f) => f + 1);
+  const effectiveTokens =
+    pruneTasks && formatSyntax
+      ? activeData.tokens
+      : pruneTasks || formatSyntax
+      ? "3.2k tokens"
+      : "4.8k raw";
+
+  function handleCopyMcp() {
+    navigator.clipboard.writeText(
+      JSON.stringify(
+        {
+          mcpServers: {
+            meto: {
+              url: "https://www.metoctx.com/api/mcp/alazar",
+              headers: { Authorization: "Bearer meto_live_••••••••" },
+            },
+          },
+        },
+        null,
+        2
+      )
+    );
+    setCopiedMcp(true);
+    setTimeout(() => setCopiedMcp(false), 2000);
   }
 
-  // Shared card classes — GPU-safe transitions
+  // Shared card surface classes
   const cardCls =
-    "rounded-2xl sm:rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-neutral-900/80 p-6 sm:p-7 shadow-[0_2px_14px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col justify-between overflow-hidden " +
-    "transition-[transform,box-shadow,border-color] duration-200 ease-out " +
-    "hover:-translate-y-[3px] hover:shadow-[0_8px_32px_rgba(0,0,0,0.07)] hover:border-black/[0.13] dark:hover:border-white/[0.15]";
+    "rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-neutral-900/70 p-5 sm:p-7 " +
+    "shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col justify-between overflow-hidden " +
+    "transition-all duration-200 hover:border-black/[0.14] dark:hover:border-white/[0.15]";
 
-  // Shared recessed stage
+  // Shared stage surface
   const stageCls =
-    "rounded-xl sm:rounded-2xl border border-black/[0.05] dark:border-white/[0.07] bg-neutral-50/70 dark:bg-neutral-950/60 p-4 sm:p-5 w-full relative overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]";
-
-  // Shared icon node classes with hover lift + active tap
-  const iconNodeCls =
-    "rounded-2xl bg-white dark:bg-neutral-800/90 shadow-[0_2px_8px_rgba(0,0,0,0.05)] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center shrink-0 " +
-    "transition-[transform,box-shadow] duration-[160ms] ease-out hover:scale-110 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] active:scale-95";
-
-  // Processor node (CPU / Lock / GitBranch)
-  const processorNodeCls =
-    "rounded-xl bg-white dark:bg-neutral-800 border border-black/[0.1] dark:border-white/[0.1] shadow-sm flex items-center justify-center shrink-0 " +
-    "transition-[transform,box-shadow] duration-150 ease-out hover:scale-[1.08] active:scale-95";
-
-  // Small output node
-  const smallIconNodeCls =
-    "rounded-xl bg-white dark:bg-neutral-800/90 shadow-[0_2px_6px_rgba(0,0,0,0.05)] border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-center shrink-0 " +
-    "transition-[transform,box-shadow] duration-[160ms] ease-out hover:scale-110 hover:shadow-[0_4px_12px_rgba(0,0,0,0.07)] active:scale-95";
+    "rounded-xl border border-black/[0.06] dark:border-white/[0.07] bg-neutral-50/80 dark:bg-neutral-950/70 p-3.5 sm:p-4.5 w-full";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 w-full">
       {/* ─────────────────────────────────────────────────────────────
-          CARD 1 (7 Cols): Multi-Model Context Compiler (Wide Pipeline)
+          CARD 1 (7 Cols): Multi-Model Context Compiler
       ───────────────────────────────────────────────────────────── */}
       <div className={`lg:col-span-7 ${cardCls}`}>
         <div>
-          <h3 className="text-[19px] sm:text-[21px] font-semibold text-neutral-950 dark:text-white tracking-tight">
-            Multi-Model Context Compiler
-          </h3>
-          <p className="mt-1.5 text-[13.5px] sm:text-[14px] leading-relaxed text-neutral-500 dark:text-neutral-400 max-w-lg mb-5">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
+              Multi-Model Context Compiler
+            </h3>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              {effectiveReduction} token overhead
+            </span>
+          </div>
+          <p className="text-[13px] sm:text-[13.5px] leading-relaxed text-neutral-500 dark:text-neutral-400 max-w-xl mb-4 sm:mb-5">
             Meto formats and compresses your structured profile into model-specific prompts, cutting token overhead by up to 60%.
           </p>
         </div>
 
-        <div className={`${stageCls} flex flex-col justify-between`}>
-          {/* Platform Format Tabs */}
-          <div className="relative z-10 flex items-center justify-between border-b border-black/[0.05] dark:border-white/[0.06] pb-2.5 mb-5 text-[11px] sm:text-[12px]">
-            <div className="flex items-center gap-3 sm:gap-4 font-medium">
+        <div className={`${stageCls} space-y-3.5`}>
+          {/* Top Bar: Model Tabs + Compression Pill */}
+          <div className="flex items-center justify-between gap-2 border-b border-black/[0.05] dark:border-white/[0.06] pb-2.5">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {(["claude", "cursor", "chatgpt", "universal"] as const).map((fmt) => (
                 <button
                   key={fmt}
                   type="button"
                   onClick={() => setActiveFormat(fmt)}
-                  className={`pb-1 capitalize transition-colors duration-150 active:scale-[0.95] ${
+                  className={`px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-medium transition-all duration-150 active:scale-[0.97] ${
                     activeFormat === fmt
-                      ? "text-neutral-950 dark:text-white border-b-2 border-[var(--primary)] font-semibold"
-                      : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300"
+                      ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-xs"
+                      : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
                   }`}
                 >
-                  {fmt === "chatgpt" ? "ChatGPT" : fmt.charAt(0).toUpperCase() + fmt.slice(1)}
+                  {FORMAT_PREVIEWS[fmt].label}
                 </button>
               ))}
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-[10px] text-neutral-400 dark:text-neutral-500">
-              <span className="hidden sm:inline">Raw: 4.8k</span>
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-black/[0.05] dark:bg-white/[0.08] text-neutral-900 dark:text-white font-semibold">
-                {!reducedMotion && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                )}
-                {reductionPercent}
-              </span>
-            </div>
+            <span className="text-[11px] font-mono text-neutral-400 dark:text-neutral-500 hidden sm:inline">
+              Output: <strong className="text-neutral-900 dark:text-neutral-200">{effectiveTokens}</strong>
+            </span>
           </div>
 
-          {/* Pipeline Flow */}
-          <div className="relative z-10 w-full flex items-center justify-between gap-1 sm:gap-2 py-1">
-            {/* Source: User Profile */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className={`w-11 h-11 sm:w-13 sm:h-13 ${iconNodeCls}`}>
-                <User className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
+          {/* Interactive Code Preview & Pointer-Reactive Custom Isometric Figure */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            {/* Left: Code Snippet */}
+            <div className="md:col-span-7 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.06] dark:border-white/[0.08] p-3 font-mono text-[11px] sm:text-[11.5px] text-neutral-700 dark:text-neutral-300 overflow-x-auto min-h-[140px] flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-black/[0.04] dark:border-white/[0.04] text-[10px] text-neutral-400">
+                  <span className="flex items-center gap-1.5">
+                    <FileCode className="w-3.5 h-3.5 text-neutral-500" />
+                    {activeData.file}
+                  </span>
+                  <span>UTF-8 · Ready</span>
+                </div>
+                <pre className="whitespace-pre-wrap leading-relaxed">{activeData.snippet}</pre>
               </div>
-              <span className="text-[10px] sm:text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mt-1.5 text-center whitespace-nowrap">
-                User Profile
-              </span>
-            </div>
 
-            {/* Inbound stream */}
-            <ConnectorLine
-              color="#FF4D00"
-              dur="2.4s"
-              reducedMotion={reducedMotion}
-              label="4.8k tokens"
-            />
-
-            {/* Center: Context Compiler box */}
-            <div className="shrink-0 rounded-xl bg-white dark:bg-neutral-800/95 border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-2.5 sm:p-3 min-w-[125px] sm:min-w-[155px]">
-              <span className="block text-[8.5px] sm:text-[9px] font-mono font-bold tracking-wider uppercase text-neutral-400 dark:text-neutral-500 mb-1.5 sm:mb-2">
-                Context Compiler
-              </span>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={togglePrune}
-                  className="flex items-center gap-1.5 sm:gap-2 w-full text-left cursor-pointer select-none active:scale-[0.97] transition-transform duration-150"
-                >
-                  <span
-                    className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all duration-150 ${
-                      pruneInactive
-                        ? "bg-[var(--primary)] text-white shadow-2xs scale-100"
-                        : "border border-neutral-300 dark:border-neutral-600 bg-transparent scale-90"
-                    }`}
-                  >
-                    {pruneInactive && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] font-medium text-neutral-800 dark:text-neutral-200 whitespace-nowrap">
-                    Prune Inactive Tasks
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={toggleFormat}
-                  className="flex items-center gap-1.5 sm:gap-2 w-full text-left cursor-pointer select-none active:scale-[0.97] transition-transform duration-150"
-                >
-                  <span
-                    className={`w-3.5 h-3.5 rounded flex items-center justify-center transition-all duration-150 ${
-                      formatSyntax
-                        ? "bg-[var(--primary)] text-white shadow-2xs scale-100"
-                        : "border border-neutral-300 dark:border-neutral-600 bg-transparent scale-90"
-                    }`}
-                  >
-                    {formatSyntax && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] font-medium text-neutral-800 dark:text-neutral-200 whitespace-nowrap">
-                    Format Model Syntax
-                  </span>
-                </button>
+              <div className="flex items-center justify-between pt-2 mt-2 border-t border-black/[0.04] dark:border-white/[0.04] text-[10px] text-neutral-400">
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={pruneTasks}
+                    onChange={(e) => setPruneTasks(e.target.checked)}
+                    className="rounded border-neutral-300 dark:border-neutral-600 text-[var(--primary)] focus:ring-0"
+                  />
+                  <span>Prune tasks</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formatSyntax}
+                    onChange={(e) => setFormatSyntax(e.target.checked)}
+                    className="rounded border-neutral-300 dark:border-neutral-600 text-[var(--primary)] focus:ring-0"
+                  />
+                  <span>Optimize syntax</span>
+                </label>
               </div>
             </div>
 
-            {/* Outbound stream */}
-            <ConnectorLine
-              color="#FF4D00"
-              dur="2s"
-              reducedMotion={reducedMotion}
-              label={outputTokens}
-              accentColor
-              labelKey={tokenFlash}
-            />
-
-            {/* Destination: Active AI */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className={`w-11 h-11 sm:w-13 sm:h-13 ${iconNodeCls}`}>
-                <MetoMarkBadge size="sm" />
+            {/* Right: Content-Connected Exploded Compiler Isometric Figure */}
+            <div className="md:col-span-5 flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-black/[0.04] dark:border-white/[0.06] relative group">
+              <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
+                Compiler Layers
+              </span>
+              <div className="w-full max-w-[210px] aspect-[5/4]">
+                <ContentConnectedCompilerFigure
+                  format={activeFormat}
+                  tokens={effectiveTokens}
+                  reduction={effectiveReduction}
+                  intensity={0.6}
+                  play={true}
+                />
               </div>
-              <span className="text-[10px] sm:text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mt-1.5 text-center whitespace-nowrap">
-                Active AI
+              <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                Move pointer to open layers
               </span>
             </div>
           </div>
@@ -305,104 +217,73 @@ export function LandingHowItWorksDemo() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          CARD 2 (5 Cols): Route to Any IDE or Model
+          CARD 2 (5 Cols): Route to Any IDE or Model (Live MCP)
       ───────────────────────────────────────────────────────────── */}
       <div className={`lg:col-span-5 ${cardCls}`}>
         <div>
-          <h3 className="text-[19px] sm:text-[21px] font-semibold text-neutral-950 dark:text-white tracking-tight">
-            Route to Any IDE or Model
-          </h3>
-          <p className="mt-1.5 text-[13.5px] sm:text-[14px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-5">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
+              Route to Any IDE or Model
+            </h3>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live MCP
+            </span>
+          </div>
+          <p className="text-[13px] sm:text-[13.5px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-4 sm:mb-5">
             Broadcast your developer identity and project context across every AI tool via live MCP or 1-click clipboard presets.
           </p>
         </div>
 
-        <div className={`${stageCls} min-h-[210px] flex items-center justify-center`}>
-          <div className="relative z-10 w-full flex items-center justify-between gap-1 sm:gap-2">
-            {/* Source: Meto Vault */}
-            <div className="flex flex-col items-center shrink-0">
-              <div className={`w-11 h-11 sm:w-13 sm:h-13 ${iconNodeCls}`}>
-                <Database className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
-              </div>
-              <span className="text-[10px] sm:text-[11px] font-medium text-neutral-600 dark:text-neutral-400 mt-1.5 whitespace-nowrap">
-                Meto Vault
-              </span>
-            </div>
-
-            {/* Live sync line */}
-            <ConnectorLine
-              color="#E5FF7F"
-              dur="2s"
-              reducedMotion={reducedMotion}
-              label="Live Sync"
-            />
-
-            {/* Router Processor */}
-            <div className="shrink-0 relative">
-              <div className={`w-10 h-10 sm:w-11 sm:h-11 ${processorNodeCls}`}>
-                <Cpu className="w-5 h-5 text-neutral-700 dark:text-neutral-300 stroke-[1.7]" />
-              </div>
-              <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#E5FF7F] text-neutral-950 font-bold text-[9px] flex items-center justify-center shadow-xs border border-white dark:border-neutral-900 ${reducedMotion ? "" : "ring-2 ring-[#E5FF7F]/40 animate-pulse"}`}>
-                1
-              </span>
-            </div>
-
-            {/* Curved Routing Branches */}
-            <div className="shrink-0 w-16 sm:w-20 h-[105px] relative flex items-center justify-center">
-              {/* Protocol tags — positioned clearly above & below curves */}
-              <span className="absolute top-0 right-1 text-[8.5px] font-mono text-neutral-500 dark:text-neutral-400 bg-white/95 dark:bg-neutral-800/95 border border-black/[0.06] dark:border-white/[0.08] px-1.5 py-0.5 rounded shadow-2xs pointer-events-none z-10">
-                MCP SSE
-              </span>
-              <span className="absolute bottom-0 right-1 text-[8.5px] font-mono text-neutral-500 dark:text-neutral-400 bg-white/95 dark:bg-neutral-800/95 border border-black/[0.06] dark:border-white/[0.08] px-1.5 py-0.5 rounded shadow-2xs pointer-events-none z-10">
-                REST / Web
-              </span>
-
-              <svg
-                className="w-full h-full text-neutral-300 dark:text-neutral-700 overflow-visible"
-                viewBox="0 0 70 100"
-                fill="none"
-              >
-                {/* Upper branch to Cursor & Windsurf */}
-                <path d="M 0 50 C 30 50, 38 20, 64 20" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-                <polygon points="63,17 70,20 63,23" className="text-neutral-400 dark:text-neutral-500 fill-current" />
-
-                {/* Lower branch to Claude & ChatGPT */}
-                <path d="M 0 50 C 30 50, 38 80, 64 80" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-                <polygon points="63,77 70,80 63,83" className="text-neutral-400 dark:text-neutral-500 fill-current" />
-
-                {!reducedMotion && (
-                  <>
-                    <circle cx="0" cy="0" r="2.5" fill="#93C5FD">
-                      <animateMotion path="M 0 50 C 30 50, 38 20, 64 20" dur="2.2s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0;0.3;1;1;0.4;0" keyTimes="0;0.1;0.25;0.75;0.9;1" dur="2.2s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="0" cy="0" r="2.5" fill="#FDE047">
-                      <animateMotion path="M 0 50 C 30 50, 38 80, 64 80" dur="2.5s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0;0.3;1;1;0.4;0" keyTimes="0;0.1;0.25;0.75;0.9;1" dur="2.5s" repeatCount="indefinite" />
-                    </circle>
-                  </>
-                )}
-              </svg>
-            </div>
-
-            {/* Output Nodes */}
-            <div className="flex flex-col gap-3 shrink-0">
-              <div className="flex flex-col items-center">
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 ${smallIconNodeCls}`}>
-                  <Terminal className="w-4 h-4 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
+        <div className={`${stageCls} space-y-3`}>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            {/* Left: Connected Targets */}
+            <div className="sm:col-span-7 space-y-1.5 font-mono text-[11px]">
+              {[
+                { name: "Cursor IDE", ping: "14ms", status: "Active" },
+                { name: "Claude Desktop", ping: "22ms", status: "Active" },
+                { name: "Claude Code CLI", ping: "8ms", status: "Active" },
+              ].map((client) => (
+                <div
+                  key={client.name}
+                  className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.05] dark:border-white/[0.06]"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Terminal className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                    <span className="text-neutral-800 dark:text-neutral-200 font-medium truncate">
+                      {client.name}
+                    </span>
+                  </div>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px] flex items-center gap-1 shrink-0">
+                    <Check className="w-3 h-3 stroke-[2.5]" />
+                    {client.status}
+                  </span>
                 </div>
-                <span className="text-[9px] sm:text-[9.5px] font-medium text-neutral-600 dark:text-neutral-400 mt-1 whitespace-nowrap">
-                  Cursor & Windsurf
-                </span>
+              ))}
+
+              <div className="pt-1.5">
+                <button
+                  type="button"
+                  onClick={handleCopyMcp}
+                  className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-lg bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-sans text-[11px] font-medium shadow-xs transition-transform active:scale-[0.97]"
+                >
+                  {copiedMcp ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedMcp ? "Config Copied!" : "Copy MCP Quick-Connect"}</span>
+                </button>
               </div>
-              <div className="flex flex-col items-center">
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 ${smallIconNodeCls}`}>
-                  <Cloud className="w-4 h-4 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
-                </div>
-                <span className="text-[9px] sm:text-[9.5px] font-medium text-neutral-600 dark:text-neutral-400 mt-1 whitespace-nowrap">
-                  Claude & ChatGPT
-                </span>
+            </div>
+
+            {/* Right: Content-Connected MCP Router Hub Isometric Figure */}
+            <div className="sm:col-span-5 flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-black/[0.04] dark:border-white/[0.06] relative group">
+              <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
+                Dynamic Hub Sync
+              </span>
+              <div className="w-full max-w-[190px] aspect-[5/4]">
+                <ContentConnectedMcpRouterFigure copied={copiedMcp} intensity={0.7} play={true} />
               </div>
+              <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                Hover to illuminate links
+              </span>
             </div>
           </div>
         </div>
@@ -413,97 +294,68 @@ export function LandingHowItWorksDemo() {
       ───────────────────────────────────────────────────────────── */}
       <div className={`lg:col-span-6 ${cardCls}`}>
         <div>
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[19px] sm:text-[21px] font-semibold text-neutral-950 dark:text-white tracking-tight">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
               Granular Privacy & Secret Isolation
             </h3>
             <button
               type="button"
               onClick={() => setIsMasked(!isMasked)}
-              title={isMasked ? "Show clear text" : "Mask secrets"}
-              className="p-1.5 rounded-md text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-[color,background-color,transform] duration-150 active:scale-[0.92]"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-all active:scale-[0.96]"
             >
-              {isMasked ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              {isMasked ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+              <span>{isMasked ? "Reveal secrets" : "Mask secrets"}</span>
             </button>
           </div>
-          <p className="mt-1.5 text-[13.5px] sm:text-[14px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-5">
+          <p className="text-[13px] sm:text-[13.5px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-4 sm:mb-5">
             Control exactly what each AI sees. Private client projects, internal credentials, and sensitive notes are strictly isolated before handoff.
           </p>
         </div>
 
-        <div className={`${stageCls} min-h-[210px] flex items-center justify-center`}>
-          <div className="relative z-10 w-full flex items-center justify-between gap-1 sm:gap-2">
-            {/* Left: Profile Sections */}
-            <div className="w-[130px] sm:w-[155px] shrink-0 rounded-xl bg-white dark:bg-neutral-800/95 border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-2.5 sm:p-3">
-              <span className="block text-[8.5px] sm:text-[9px] font-mono font-bold tracking-wider uppercase text-neutral-400 dark:text-neutral-500 mb-2">
-                Profile Sections
-              </span>
-              <div className="space-y-1.5">
-                {[
-                  { label: "Client NDA", tag: "Private" },
-                  { label: "OPENAI_KEY", tag: "Secret" },
-                  { label: "Coding Style", tag: "Public" },
-                ].map(({ label, tag }) => (
-                  <div key={label} className="flex items-center justify-between gap-1">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="w-3.5 h-3.5 rounded bg-[var(--primary)] text-white flex items-center justify-center shrink-0">
-                        <Check className="w-2.5 h-2.5 stroke-[2.5]" />
-                      </span>
-                      <span className="text-[10px] sm:text-[11px] font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                        {label}
-                      </span>
-                    </div>
-                    <span className="text-[8px] font-mono text-neutral-400 shrink-0">
-                      {tag}
-                    </span>
-                  </div>
-                ))}
+        <div className={`${stageCls} space-y-3`}>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            {/* Left: Stored vs Exported Isolation */}
+            <div className="sm:col-span-7 space-y-2">
+              <div className="rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.05] dark:border-white/[0.06] p-2.5 space-y-1.5 font-mono text-[10.5px]">
+                <div className="flex items-center justify-between p-1 rounded bg-neutral-50 dark:bg-neutral-800/60">
+                  <span className="text-neutral-700 dark:text-neutral-300 truncate">Client NDA</span>
+                  <span className="text-[9px] px-1 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    Private
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-1 rounded bg-neutral-50 dark:bg-neutral-800/60">
+                  <span className="text-neutral-700 dark:text-neutral-300 truncate">API Credentials</span>
+                  <span className="text-[9px] px-1 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                    Secret
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-1 rounded bg-neutral-50 dark:bg-neutral-800/60">
+                  <span className="text-neutral-700 dark:text-neutral-300 truncate">Coding Standards</span>
+                  <span className="text-[9px] px-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    Public
+                  </span>
+                </div>
+              </div>
+
+              {/* Safe Payload Preview */}
+              <div className="rounded-lg bg-neutral-900 dark:bg-black p-2 font-mono text-[10px] text-neutral-300 border border-black/10 dark:border-white/10">
+                <span className="text-neutral-500 block text-[9px] uppercase">Exported to AI:</span>
+                <div>NDA: <span className="text-amber-400 font-semibold">[STRIPPED]</span></div>
+                <div>KEY: {isMasked ? "sk-••••••••" : "sk-proj-7x9..."}</div>
               </div>
             </div>
 
-            {/* Inbound stream to privacy filter */}
-            <ConnectorLine
-              color="#FF4D00"
-              dur="1.8s"
-              reducedMotion={reducedMotion}
-            />
-
-            {/* Center: Privacy Filter node */}
-            <div className="shrink-0 relative">
-              <div className={`w-10 h-10 sm:w-11 sm:h-11 ${processorNodeCls}`}>
-                <Lock className="w-5 h-5 text-neutral-700 dark:text-neutral-300 stroke-[1.7]" />
-              </div>
-              <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#E5FF7F] text-neutral-950 font-bold text-[9px] flex items-center justify-center shadow-xs border border-white dark:border-neutral-900 ${reducedMotion ? "" : "ring-2 ring-[#E5FF7F]/40 animate-pulse"}`}>
-                1
+            {/* Right: Content-Connected Privacy Vault Isometric Figure */}
+            <div className="sm:col-span-5 flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-black/[0.04] dark:border-white/[0.06] relative group">
+              <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
+                Hardware Vault
               </span>
-            </div>
-
-            {/* Outbound stream from privacy filter */}
-            <ConnectorLine
-              color="#34D399"
-              dur="1.8s"
-              reducedMotion={reducedMotion}
-            />
-
-            {/* Right: Export Payload — perfectly formatted without truncation */}
-            <div className="w-[130px] sm:w-[155px] shrink-0 rounded-xl bg-white dark:bg-neutral-800/95 border border-black/[0.08] dark:border-white/[0.1] shadow-sm p-2.5 sm:p-3">
-              <span className="block text-[8.5px] sm:text-[9px] font-mono font-bold tracking-wider uppercase text-neutral-400 dark:text-neutral-500 mb-2">
-                Export Payload
-              </span>
-              <div
-                key={isMasked ? "masked" : "clear"}
-                className="space-y-1.5 font-mono text-[9.5px] sm:text-[10.5px] text-neutral-600 dark:text-neutral-400 meto-mask-reveal"
-              >
-                <div className="truncate">
-                  {isMasked ? "NDA: [HIDDEN]" : "NDA: Acme Corp"}
-                </div>
-                <div className="truncate">
-                  {isMasked ? "KEY: sk-••••••••" : "KEY: sk-proj-9x"}
-                </div>
-                <div className="truncate text-emerald-600 dark:text-emerald-400 font-sans font-medium">
-                  TypeScript · Strict
-                </div>
+              <div className="w-full max-w-[190px] aspect-[5/4]">
+                <ContentConnectedPrivacyVaultFigure isMasked={isMasked} intensity={0.7} play={true} />
               </div>
+              <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                Circle pointer to turn dial
+              </span>
             </div>
           </div>
         </div>
@@ -514,122 +366,68 @@ export function LandingHowItWorksDemo() {
       ───────────────────────────────────────────────────────────── */}
       <div className={`lg:col-span-6 ${cardCls}`}>
         <div>
-          <h3 className="text-[19px] sm:text-[21px] font-semibold text-neutral-950 dark:text-white tracking-tight">
-            Cross-Tool Rule & Identity Sync
-          </h3>
-          <p className="mt-1.5 text-[13.5px] sm:text-[14px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-5">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
+              Cross-Tool Rule & Identity Sync
+            </h3>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/[0.06] dark:border-white/[0.08]">
+              <Radio className="w-3 h-3 text-[var(--primary)]" />
+              1 Source of Truth
+            </span>
+          </div>
+          <p className="text-[13px] sm:text-[13.5px] leading-relaxed text-neutral-500 dark:text-neutral-400 mb-4 sm:mb-5">
             Switch seamlessly between Cursor, Claude Code, Windsurf, and terminal agents without losing your coding rules, architectural guidelines, or tech stack.
           </p>
         </div>
 
-        <div className={`${stageCls} min-h-[210px] flex items-center justify-center`}>
-          <div className="relative z-10 w-full flex items-center justify-between gap-1 sm:gap-2">
-            {/* Left: Context Matrix Grid */}
-            <div className="shrink-0 p-2 sm:p-2.5 rounded-xl bg-white dark:bg-neutral-800/90 border border-black/[0.08] dark:border-white/[0.08] shadow-sm flex flex-col items-center">
-              <div className="grid grid-cols-6 gap-1 w-[85px] sm:w-[105px] h-[55px] sm:h-[65px]">
-                {[
-                  "bg-neutral-200/90 dark:bg-neutral-700/80",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-300/80 dark:bg-neutral-600/80",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-200 dark:bg-neutral-700",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-300 dark:bg-neutral-600",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-200 dark:bg-neutral-700",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-300/70 dark:bg-neutral-600/70",
-                  "bg-neutral-200/80 dark:bg-neutral-700/80",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-200 dark:bg-neutral-700",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-300 dark:bg-neutral-600",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-200 dark:bg-neutral-700",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-300/90 dark:bg-neutral-600/90",
-                  "bg-neutral-100 dark:bg-neutral-800",
-                  "bg-neutral-200/90 dark:bg-neutral-700/80",
-                ].map((bg, i) => (
-                  <span
-                    key={i}
-                    style={reducedMotion ? {} : { animationDelay: `${i * 30}ms` }}
-                    className={`rounded-xs ${bg} hover:bg-[var(--primary)]/70 hover:scale-110 transition-[background-color,transform] duration-150 ease-out meto-matrix-cell`}
-                  />
-                ))}
-              </div>
-              <span className="text-[9px] font-mono text-neutral-400 dark:text-neutral-500 mt-1.5 whitespace-nowrap">
-                Context Matrix
-              </span>
-            </div>
-
-            {/* Inbound stream to sync engine */}
-            <ConnectorLine
-              color="#E5FF7F"
-              dur="2s"
-              reducedMotion={reducedMotion}
-            />
-
-            {/* Sync Engine Node */}
-            <div className="shrink-0 relative">
-              <div className={`w-10 h-10 sm:w-11 sm:h-11 ${processorNodeCls}`}>
-                <GitBranch className="w-5 h-5 text-neutral-700 dark:text-neutral-300 stroke-[1.7]" />
-              </div>
-              <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#E5FF7F] text-neutral-950 font-bold text-[9px] flex items-center justify-center shadow-xs border border-white dark:border-neutral-900 ${reducedMotion ? "" : "ring-2 ring-[#E5FF7F]/40 animate-pulse"}`}>
-                1
-              </span>
-            </div>
-
-            {/* Curved Routing Branches */}
-            <div className="shrink-0 w-14 sm:w-18 h-[105px] relative flex items-center justify-center">
-              <svg
-                className="w-full h-full text-neutral-300 dark:text-neutral-700 overflow-visible"
-                viewBox="0 0 60 100"
-                fill="none"
-              >
-                {/* Upper branch to .cursorrules */}
-                <path d="M 0 50 C 26 50, 32 20, 54 20" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-                <polygon points="53,17 60,20 53,23" className="text-neutral-400 dark:text-neutral-500 fill-current" />
-
-                {/* Lower branch to CLAUDE.md */}
-                <path d="M 0 50 C 26 50, 32 80, 54 80" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
-                <polygon points="53,77 60,80 53,83" className="text-neutral-400 dark:text-neutral-500 fill-current" />
-
-                {!reducedMotion && (
-                  <>
-                    <circle cx="0" cy="0" r="2.5" fill="#A78BFA">
-                      <animateMotion path="M 0 50 C 26 50, 32 20, 54 20" dur="2.1s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0;0.3;1;1;0.4;0" keyTimes="0;0.1;0.25;0.75;0.9;1" dur="2.1s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="0" cy="0" r="2.5" fill="#34D399">
-                      <animateMotion path="M 0 50 C 26 50, 32 80, 54 80" dur="2.4s" repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0;0.3;1;1;0.4;0" keyTimes="0;0.1;0.25;0.75;0.9;1" dur="2.4s" repeatCount="indefinite" />
-                    </circle>
-                  </>
-                )}
-              </svg>
-            </div>
-
-            {/* Output Nodes */}
-            <div className="flex flex-col gap-3 shrink-0">
-              <div className="flex flex-col items-center">
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 ${smallIconNodeCls}`}>
-                  <Terminal className="w-4 h-4 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
+        <div className={`${stageCls} space-y-3`}>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            {/* Left: Active Enforced Rule and Sync Targets */}
+            <div className="sm:col-span-7 space-y-2">
+              <div className="p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.05] dark:border-white/[0.06] space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-semibold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[var(--primary)]" />
+                    Enforced Everywhere
+                  </span>
+                  <span className="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
+                    ● Synced
+                  </span>
                 </div>
-                <span className="text-[9px] sm:text-[9.5px] font-medium text-neutral-600 dark:text-neutral-400 mt-1 whitespace-nowrap">
-                  .cursorrules
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className={`w-9 h-9 sm:w-10 sm:h-10 ${smallIconNodeCls}`}>
-                  <ShieldCheck className="w-4 h-4 text-neutral-700 dark:text-neutral-300 stroke-[1.6]" />
+
+                <div className="rounded bg-neutral-50 dark:bg-neutral-800/80 p-1.5 font-mono text-[10.5px] text-neutral-700 dark:text-neutral-300">
+                  <code>&quot;Use Server Actions; named exports only.&quot;</code>
                 </div>
-                <span className="text-[9px] sm:text-[9.5px] font-medium text-neutral-600 dark:text-neutral-400 mt-1 whitespace-nowrap">
-                  CLAUDE.md
-                </span>
               </div>
+
+              {/* Sync Targets Grid */}
+              <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
+                <div className="p-1.5 rounded bg-white dark:bg-neutral-900 border border-black/[0.04] dark:border-white/[0.06] text-center truncate">
+                  <span className="text-neutral-400 block text-[8.5px]">Cursor</span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">.cursorrules</span>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-neutral-900 border border-black/[0.04] dark:border-white/[0.06] text-center truncate">
+                  <span className="text-neutral-400 block text-[8.5px]">Claude</span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">CLAUDE.md</span>
+                </div>
+                <div className="p-1.5 rounded bg-white dark:bg-neutral-900 border border-black/[0.04] dark:border-white/[0.06] text-center truncate">
+                  <span className="text-neutral-400 block text-[8.5px]">Terminal</span>
+                  <span className="font-medium text-neutral-800 dark:text-neutral-200">MCP Live</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Content-Connected Cross-Tool Sync Tree Isometric Figure */}
+            <div className="sm:col-span-5 flex flex-col items-center justify-center p-2 rounded-lg bg-white/70 dark:bg-neutral-900/60 border border-black/[0.04] dark:border-white/[0.06] relative group">
+              <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
+                Live Commit Graph
+              </span>
+              <div className="w-full max-w-[190px] aspect-[5/4]">
+                <ContentConnectedSyncTreeFigure intensity={0.7} play={true} />
+              </div>
+              <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1 opacity-70 group-hover:opacity-100 transition-opacity">
+                Hover to elevate branch nodes
+              </span>
             </div>
           </div>
         </div>
