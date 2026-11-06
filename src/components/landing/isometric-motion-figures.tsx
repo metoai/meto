@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId, useState } from "react";
+import React, { useState } from "react";
 
 type FigureBaseProps = {
   className?: string;
@@ -9,31 +9,34 @@ type FigureBaseProps = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PRECISE BRAND LOGOS (Vector SVGs)
+   PRECISE OFFICIAL-SPEC VECTOR LOGOS
 ───────────────────────────────────────────────────────────────────────────── */
 export function ClaudeLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Claude">
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Claude by Anthropic">
       <path
-        d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M18.36 5.64L5.64 18.36"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
+        d="M12 2.5L13.8 8.2C14.1 9.1 14.9 9.9 15.8 10.2L21.5 12L15.8 13.8C14.9 14.1 14.1 14.9 13.8 15.8L12 21.5L10.2 15.8C9.9 14.9 9.1 14.1 8.2 13.8L2.5 12L8.2 10.2C9.1 9.9 9.9 9.1 10.2 8.2L12 2.5Z"
+        fill="currentColor"
       />
-      <circle cx="12" cy="12" r="3" fill="currentColor" />
     </svg>
   );
 }
 
 export function CursorLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Cursor">
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Cursor IDE">
       <path
-        d="M5.5 3.5l13 8.5-6.5 2-2 6.5-4.5-17z"
+        d="M5 3.5L18.5 12L12 14L10 20.5L5 3.5Z"
         fill="currentColor"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.2"
         strokeLinejoin="round"
+      />
+      <path
+        d="M12 14L17.5 19.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
       />
     </svg>
   );
@@ -41,25 +44,42 @@ export function CursorLogo({ className = "w-4 h-4" }: { className?: string }) {
 
 export function OpenAILogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="OpenAI">
-      <path
-        d="M12 2a4 4 0 0 1 3.8 2.8L12 8.5 8.2 4.8A4 4 0 0 1 12 2zm6.9 4a4 4 0 0 1 1.1 4.7l-6 1.8 1.8-6A4 4 0 0 1 18.9 6zM22 12a4 4 0 0 1-2.8 3.8L15.5 12l3.7-3.8A4 4 0 0 1 22 12zm-4 6.9a4 4 0 0 1-4.7 1.1l-1.8-6 6 1.8a4 4 0 0 1 .5 3.1zM12 22a4 4 0 0 1-3.8-2.8L12 15.5l3.8 3.7A4 4 0 0 1 12 22zm-6.9-4a4 4 0 0 1-1.1-4.7l6-1.8-1.8 6a4 4 0 0 1-.5-3.1zM2 12a4 4 0 0 1 2.8-3.8L8.5 12 4.8 15.8A4 4 0 0 1 2 12zm4-6.9a4 4 0 0 1 4.7-1.1l1.8 6-6-1.8a4 4 0 0 1-.5-3.1z"
-        fill="currentColor"
-      />
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-label="OpenAI ChatGPT">
+      <path d="M20.5 9.5a5.5 5.5 0 0 0-.4-4.2 5.6 5.6 0 0 0-4.6-2.8 5.7 5.7 0 0 0-4 1.5 5.6 5.6 0 0 0-6.8 2.2 5.5 5.5 0 0 0-.8 4.2 5.5 5.5 0 0 0 .4 4.2 5.6 5.6 0 0 0 4.6 2.8c.3 0 .7 0 1-.1a5.6 5.6 0 0 0 9.8-.7 5.5 5.5 0 0 0 .8-4.2v-2.9zm-7.5 11.5a4.1 4.1 0 0 1-2.9-1.2l.1-.1 4.3-2.5a.8.8 0 0 0 .4-.7v-5.2l1.6.9v4.7a4.1 4.1 0 0 1-3.5 4.1zm-8.3-4.1a4.1 4.1 0 0 1-.5-3.1 4.2 4.2 0 0 1 2-2.5l.1.1v5a.8.8 0 0 0 .4.7l4.5 2.6-1.6.9-4.9-2.8v-.9zm-1.1-7.9a4.1 4.1 0 0 1 2.4-2 4.2 4.2 0 0 1 3.2.1l-.1.1-4.3 2.5a.8.8 0 0 0-.4.7v5.2l-1.6-.9V7.1l.8-.1zm13.8 2.2l-4.5-2.6 1.6-.9 4.9 2.8v.9a4.1 4.1 0 0 1 .5 3.1 4.2 4.2 0 0 1-2 2.5l-.1-.1v-5a.8.8 0 0 0-.4-.7zm2.4-2.2a4.1 4.1 0 0 1-2.4 2 4.2 4.2 0 0 1-3.2-.1l.1-.1 4.3-2.5a.8.8 0 0 0 .4-.7V2.5l1.6.9v3.8l-.8.1zM9.5 13.8l-1.6-.9 4.5-2.6 1.6.9-4.5 2.6z" />
     </svg>
   );
 }
 
 export function TerminalLogo({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Terminal">
-      <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" strokeWidth="2" />
-      <path d="M7 9l4 3-4 3M13 15h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Terminal CLI">
+      <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7 9.5L10.5 12L7 14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <line x1="13" y1="14.5" x2="17" y2="14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
 
-export function MetoCoreLogo({ className = "w-5 h-5" }: { className?: string }) {
+export function WindsurfLogo({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Windsurf">
+      <path
+        d="M3 15.5C6.5 12.5 9 12.5 12 15.5C15 18.5 17.5 18.5 21 15.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M12 4.5V19.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function MetoMark({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Meto">
       <polygon
@@ -68,13 +88,14 @@ export function MetoCoreLogo({ className = "w-5 h-5" }: { className?: string }) 
         strokeWidth="2"
         strokeLinejoin="round"
       />
-      <circle cx="12" cy="12" r="3.5" fill="currentColor" />
+      <circle cx="12" cy="12" r="3" fill="currentColor" />
     </svg>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   1. COMPILER FIGURE: Logo Transformation Beam + Token Pruning Motion
+   1. COMPILER FIGURE: Unslop AST Optimization Pipeline
+   Clean geometry, precise model targets, zero neon fuzz.
 ───────────────────────────────────────────────────────────────────────────── */
 type CompilerFigureProps = FigureBaseProps & {
   format?: "claude" | "cursor" | "chatgpt" | "universal";
@@ -97,116 +118,123 @@ export function ContentConnectedCompilerFigure({
   const activeFile = fileNames[format] || "claude-project.xml";
 
   return (
-    <div className={`w-full py-4 flex flex-col items-center justify-center select-none ${className}`}>
-      {/* Motion Stage */}
-      <div className="relative w-full max-w-[400px] h-[130px] flex items-center justify-between px-4 sm:px-8">
-        {/* Animated Connecting Energy Beam */}
-        <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-[2px] bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-          <div className="w-1/2 h-full bg-gradient-to-r from-transparent via-[var(--primary,theme(colors.amber.500))] to-transparent animate-[shimmer_2s_infinite]" />
+    <div className={`w-full py-2.5 select-none ${className}`}>
+      {/* High-Precision Pipeline Conduits */}
+      <div className="relative w-full flex items-center justify-between gap-3 px-2 sm:px-6 py-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+        {/* Subtle Static Path with Micro Progress Diode */}
+        <div className="absolute inset-x-8 sm:inset-x-12 top-1/2 -translate-y-1/2 h-[1px] bg-black/[0.08] dark:bg-white/[0.1] -z-0">
+          <div className="w-1/4 h-full bg-emerald-500/80 transition-all duration-300" />
         </div>
 
-        {/* Source Node: Raw Profile */}
-        <div className="relative z-10 flex flex-col items-center gap-2">
-          <div className="w-12 h-12 rounded-xl bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-sm flex items-center justify-center text-neutral-700 dark:text-neutral-300">
-            <MetoCoreLogo className="w-6 h-6 text-neutral-900 dark:text-white" />
+        {/* Input Stage: Raw Developer Context */}
+        <div className="relative z-10 flex flex-col items-center gap-1.5 min-w-[70px]">
+          <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-800 dark:text-neutral-200">
+            <MetoMark className="w-5 h-5" />
           </div>
-          <span className="text-[10.5px] font-mono text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
-            RAW PROFILE: 4.8k
+          <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+            RAW PROFILE
+          </span>
+          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500">
+            4.8k tokens
           </span>
         </div>
 
-        {/* Center: AST Compiler Core */}
+        {/* Central Core: AST Pruning Engine */}
         <div className="relative z-10 flex flex-col items-center gap-1.5">
-          <div className="relative w-10 h-10 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center shadow-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping absolute" />
-            <span className="text-[10px] font-mono font-bold">AST</span>
+          <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-xs">
+            <span className="text-[9px] font-mono font-bold tracking-tight">AST</span>
           </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             {reduction} PRUNED
           </span>
         </div>
 
-        {/* Destination Node: Active Model Logo */}
-        <div className="relative z-10 flex flex-col items-center gap-2">
-          <div className="w-12 h-12 rounded-xl bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-sm flex items-center justify-center text-neutral-900 dark:text-white transition-transform duration-300 hover:scale-105">
-            {format === "claude" && <ClaudeLogo className="w-6 h-6 text-amber-600 dark:text-amber-400" />}
-            {format === "cursor" && <CursorLogo className="w-5 h-5 text-neutral-900 dark:text-white" />}
-            {format === "chatgpt" && <OpenAILogo className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />}
-            {format === "universal" && <TerminalLogo className="w-6 h-6 text-sky-600 dark:text-sky-400" />}
+        {/* Output Stage: Model Target Logo */}
+        <div className="relative z-10 flex flex-col items-center gap-1.5 min-w-[70px]">
+          <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white transition-transform duration-150 active:scale-[0.97]">
+            {format === "claude" && <ClaudeLogo className="w-5 h-5 text-amber-600 dark:text-amber-500" />}
+            {format === "cursor" && <CursorLogo className="w-4 h-4 text-neutral-900 dark:text-white" />}
+            {format === "chatgpt" && <OpenAILogo className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+            {format === "universal" && <TerminalLogo className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />}
           </div>
-          <span className="text-[10.5px] font-mono font-semibold text-neutral-900 dark:text-neutral-200 whitespace-nowrap">
+          <span className="text-[10px] font-mono font-medium text-neutral-800 dark:text-neutral-200">
+            {activeFile}
+          </span>
+          <span className="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
             {tokens}
           </span>
         </div>
       </div>
-
-      {/* Target Spec Tag */}
-      <div className="mt-2 text-[11px] font-mono text-neutral-400 dark:text-neutral-500 flex items-center gap-2">
-        <span>Target:</span>
-        <span className="text-neutral-800 dark:text-neutral-200 font-medium">{activeFile}</span>
-      </div>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   2. MCP ROUTER FIGURE: Central Hub Radial Pulse to Precise Tool Logos
+   2. MCP ROUTER FIGURE: Live Bus Conduits to Precise Client Logos
 ───────────────────────────────────────────────────────────────────────────── */
 export function ContentConnectedMcpRouterFigure({
   className = "",
 }: FigureBaseProps) {
-  return (
-    <div className={`w-full py-4 flex flex-col items-center justify-center select-none ${className}`}>
-      {/* Visual Radial Routing Hub */}
-      <div className="relative w-full max-w-[400px] h-[130px] flex items-center justify-between px-3 sm:px-6">
-        {/* Animated Flux Line */}
-        <div className="absolute inset-x-6 top-1/2 -translate-y-1/2 h-[1px] bg-neutral-200 dark:bg-neutral-800">
-          <div className="w-1/3 h-full bg-emerald-500/80 animate-[shimmer_2.5s_infinite]" />
-        </div>
+  const clients = [
+    {
+      name: "Cursor IDE",
+      ping: "14ms",
+      logo: <CursorLogo className="w-4 h-4 text-neutral-900 dark:text-white" />,
+    },
+    {
+      name: "Claude Desktop",
+      ping: "22ms",
+      logo: <ClaudeLogo className="w-4 h-4 text-amber-600 dark:text-amber-500" />,
+    },
+    {
+      name: "Claude Code CLI",
+      ping: "8ms",
+      logo: <TerminalLogo className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />,
+    },
+  ];
 
-        {/* Central Gateway */}
-        <div className="relative z-10 flex flex-col items-center gap-1.5">
-          <div className="w-12 h-12 rounded-xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex items-center justify-center shadow-md">
-            <MetoCoreLogo className="w-6 h-6" />
-          </div>
-          <div className="flex flex-col items-center">
+  return (
+    <div className={`w-full py-2.5 select-none ${className}`}>
+      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+        {/* Router Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
             <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
               METO MCP GATEWAY
             </span>
-            <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500">
-              Routing: Cursor IDE · 14ms
-            </span>
           </div>
+          <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500">
+            localhost:3000 · SSE
+          </span>
         </div>
 
-        {/* Satellites with Precise Logos */}
-        <div className="relative z-10 flex items-center gap-3 sm:gap-4">
-          {/* Cursor Node */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white">
-              <CursorLogo className="w-4 h-4" />
+        {/* Client Bus Matrix */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {clients.map((client) => (
+            <div
+              key={client.name}
+              className="flex items-center justify-between sm:flex-col sm:items-start p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.06] dark:border-white/[0.08] shadow-2xs hover:border-black/[0.12] dark:hover:border-white/[0.14] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded flex items-center justify-center">
+                  {client.logo}
+                </div>
+                <span className="text-[11px] font-medium text-neutral-800 dark:text-neutral-200">
+                  {client.name}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 sm:mt-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
+                  {client.ping}
+                </span>
+              </div>
             </div>
-            <span className="text-[9.5px] font-mono text-neutral-500">Cursor IDE</span>
-            <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">14ms</span>
-          </div>
-
-          {/* Claude Node */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-amber-600 dark:text-amber-400">
-              <ClaudeLogo className="w-4 h-4" />
-            </div>
-            <span className="text-[9.5px] font-mono text-neutral-500">Claude Desktop</span>
-            <span className="text-[9px] font-mono text-neutral-400">22ms</span>
-          </div>
-
-          {/* Terminal CLI Node */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white">
-              <TerminalLogo className="w-4 h-4" />
-            </div>
-            <span className="text-[9.5px] font-mono text-neutral-500">Claude Code CLI</span>
-            <span className="text-[9px] font-mono text-neutral-400">8ms</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -214,7 +242,7 @@ export function ContentConnectedMcpRouterFigure({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   3. PRIVACY VAULT FIGURE: Minimal Vault Lock Mechanism
+   3. PRIVACY VAULT FIGURE: Mechanical Hardware Isolation Wall
 ───────────────────────────────────────────────────────────────────────────── */
 type PrivacyVaultFigureProps = FigureBaseProps & {
   isMasked?: boolean;
@@ -225,59 +253,52 @@ export function ContentConnectedPrivacyVaultFigure({
   className = "",
 }: PrivacyVaultFigureProps) {
   return (
-    <div className={`w-full py-4 flex flex-col items-center justify-center select-none ${className}`}>
-      {/* Minimal Vault Shutter */}
-      <div className="relative w-full max-w-[380px] h-[130px] flex items-center justify-between px-4 sm:px-8">
-        {/* Left: Restricted Vault */}
-        <div className="flex flex-col items-center gap-2">
+    <div className={`w-full py-2.5 select-none ${className}`}>
+      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+        {/* Status Line */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                isMasked ? "bg-rose-500" : "bg-emerald-500"
+              }`}
+            />
+            <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
+              {isMasked ? "ISOLATION ACTIVE" : "SHIELD LIFTED"}
+            </span>
+          </div>
+          <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500">
+            Hardware Guard
+          </span>
+        </div>
+
+        {/* Dual Chamber Comparison */}
+        <div className="grid grid-cols-2 gap-2">
+          {/* Chamber 1: Restricted Vault */}
           <div
-            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${
+            className={`p-2.5 rounded-lg border transition-colors duration-200 ${
               isMasked
-                ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
-                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-400 border border-black/[0.06] dark:border-white/[0.06]"
+                ? "bg-rose-500/[0.04] border-rose-500/20 text-rose-700 dark:text-rose-400"
+                : "bg-white dark:bg-neutral-900 border-black/[0.06] dark:border-white/[0.08] text-neutral-800 dark:text-neutral-200"
             }`}
           >
-            <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
+              RESTRICTED VAULT
+            </div>
+            <div className="text-[11px] font-mono font-medium truncate">
+              {isMasked ? "sk-••••••••" : "sk-proj-7x9"}
+            </div>
           </div>
-          <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-            RESTRICTED VAULT
-          </span>
-          <span className="text-[10.5px] font-mono font-semibold text-rose-600 dark:text-rose-400">
-            {isMasked ? "sk-••••••••" : "sk-proj-7x9"}
-          </span>
-        </div>
 
-        {/* Center: Interactive Laser Shield Wall */}
-        <div className="flex flex-col items-center gap-1.5">
-          <div
-            className={`w-1 h-14 rounded-full transition-all duration-300 ${
-              isMasked
-                ? "bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.6)]"
-                : "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]"
-            }`}
-          />
-          <span className="text-[9.5px] font-mono font-bold tracking-wider uppercase text-neutral-900 dark:text-neutral-200">
-            {isMasked ? "ISOLATION ACTIVE" : "SHIELD LIFTED"}
-          </span>
-        </div>
-
-        {/* Right: Public Egress */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="currentColor" strokeWidth="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
+          {/* Chamber 2: Public Egress */}
+          <div className="p-2.5 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
+              PUBLIC EGRESS
+            </div>
+            <div className="text-[11px] font-mono font-medium">
+              Rules & Persona
+            </div>
           </div>
-          <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-            PUBLIC EGRESS
-          </span>
-          <span className="text-[10.5px] font-mono font-semibold text-emerald-600 dark:text-emerald-400">
-            Rules & Stack Allowed
-          </span>
         </div>
       </div>
     </div>
@@ -285,67 +306,69 @@ export function ContentConnectedPrivacyVaultFigure({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   4. SYNC TREE FIGURE: Harmonized Multi-Tool Orbital Constellation
+   4. SYNC TREE FIGURE: Precise Multi-Agent Single Truth Matrix
 ───────────────────────────────────────────────────────────────────────────── */
 export function ContentConnectedSyncTreeFigure({
   className = "",
 }: FigureBaseProps) {
-  const tools = [
-    { name: "Cursor IDE", file: ".cursorrules", logo: <CursorLogo className="w-4 h-4" /> },
-    { name: "Claude AI", file: "CLAUDE.md", logo: <ClaudeLogo className="w-4 h-4 text-amber-600 dark:text-amber-400" /> },
-    { name: "Terminal CLI", file: "MCP Gateway", logo: <TerminalLogo className="w-4 h-4" /> },
-    { name: "Windsurf", file: ".windsurfrules", logo: <MetoCoreLogo className="w-4 h-4 text-sky-600 dark:text-sky-400" /> },
+  const syncTargets = [
+    {
+      name: "Cursor",
+      file: ".cursorrules",
+      logo: <CursorLogo className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />,
+    },
+    {
+      name: "Claude",
+      file: "CLAUDE.md",
+      logo: <ClaudeLogo className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />,
+    },
+    {
+      name: "Terminal",
+      file: "MCP Gateway",
+      logo: <TerminalLogo className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />,
+    },
+    {
+      name: "Windsurf",
+      file: ".windsurfrules",
+      logo: <WindsurfLogo className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />,
+    },
   ];
 
   return (
-    <div className={`w-full py-4 flex flex-col items-center justify-center select-none ${className}`}>
-      {/* Orbital Constellation */}
-      <div className="relative w-full max-w-[380px] h-[130px] flex items-center justify-center">
-        {/* Radar Ring */}
-        <div className="absolute w-28 h-28 rounded-full border border-dashed border-neutral-300 dark:border-neutral-700 animate-[spin_20s_linear_infinite]" />
-
-        {/* Center: Single Source of Truth Node */}
-        <div className="relative z-10 w-12 h-12 rounded-xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 flex flex-col items-center justify-center shadow-md">
-          <MetoCoreLogo className="w-5 h-5" />
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 absolute -top-0.5 -right-0.5 animate-pulse" />
+    <div className={`w-full py-2.5 select-none ${className}`}>
+      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
+              METO SINGLE TRUTH (v2.4)
+            </span>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+            In Sync · 0ms drift
+          </span>
         </div>
 
-        {/* 4 Orbiting Satellites with Precise Logos */}
-        <div className="absolute inset-0 flex items-center justify-between px-2 sm:px-6">
-          {/* Left: Cursor */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-9 h-9 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white">
-              {tools[0].logo}
-            </div>
-            <span className="text-[9px] font-mono text-neutral-500">{tools[0].file}</span>
-          </div>
-
-          {/* Right: Claude & Terminal */}
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-9 h-9 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white">
-                {tools[1].logo}
+        {/* 4 Tool Nodes */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {syncTargets.map((target) => (
+            <div
+              key={target.name}
+              className="p-2 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.06] dark:border-white/[0.08] shadow-2xs flex flex-col gap-1"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-5 h-5 rounded flex items-center justify-center">
+                  {target.logo}
+                </div>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               </div>
-              <span className="text-[9px] font-mono text-neutral-500">{tools[1].file}</span>
+              <span className="text-[10.5px] font-mono font-medium text-neutral-800 dark:text-neutral-200 truncate">
+                {target.file}
+              </span>
             </div>
-
-            <div className="flex flex-col items-center gap-1">
-              <div className="w-9 h-9 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white">
-                {tools[2].logo}
-              </div>
-              <span className="text-[9px] font-mono text-neutral-500">{tools[2].file}</span>
-            </div>
-          </div>
+          ))}
         </div>
-      </div>
-
-      {/* Footer Status Pill */}
-      <div className="mt-2 flex items-center gap-2 text-[10.5px] font-mono">
-        <span className="font-semibold text-neutral-900 dark:text-neutral-200">
-          METO SINGLE TRUTH (v2.4)
-        </span>
-        <span className="text-neutral-400">·</span>
-        <span className="text-emerald-600 dark:text-emerald-400 font-medium">In Sync (0ms drift)</span>
       </div>
     </div>
   );
