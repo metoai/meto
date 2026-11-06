@@ -1,5 +1,7 @@
+import { BLOG_POSTS } from "@/lib/blog-data";
 import { COMPARISONS_LIST } from "@/lib/comparisons-data";
 import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
+import { RULES_LIST } from "@/lib/rules-data";
 import { CANONICAL_SITE_HOST, getSiteUrl } from "@/lib/site";
 
 export const DEFAULT_INDEXNOW_KEY = "ae7652935d464837a2119f0f7be368fc";
@@ -60,6 +62,8 @@ export async function getIndexableUrls(baseUrl?: string): Promise<string[]> {
     `${base}/pricing`,
     `${base}/integrations`,
     `${base}/blog`,
+    `${base}/rules`,
+    `${base}/tools/cursor-to-claude`,
     `${base}/terms`,
     `${base}/privacy`,
     `${base}/cookies`,
@@ -73,12 +77,17 @@ export async function getIndexableUrls(baseUrl?: string): Promise<string[]> {
     (item) => `${base}/compare/${item.slug}`
   );
 
+  const rulePages = RULES_LIST.map((item) => `${base}/rules/${item.slug}`);
+  const blogPages = BLOG_POSTS.map((item) => `${base}/blog/${item.slug}`);
+
   // Deduplicate URLs
   return Array.from(
     new Set([
       ...corePages,
       ...integrationPages,
       ...comparisonPages,
+      ...rulePages,
+      ...blogPages,
     ])
   );
 }
