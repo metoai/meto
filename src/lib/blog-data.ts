@@ -323,6 +323,108 @@ alwaysApply: false
       },
     ],
   },
+  {
+    slug: "claude-code-cursor-windsurf-shared-memory-mcp",
+    title: "How to Share Persistent Memory Between Cursor, Claude Code, and Windsurf",
+    metaTitle: "Shared AI Memory for Cursor, Claude Code & Windsurf via MCP",
+    metaDescription:
+      "Step-by-step guide on sharing persistent developer memory across Cursor, Claude Code CLI, and Windsurf Cascade using the Model Context Protocol (MCP).",
+    targetQuery: "share memory between cursor and claude",
+    headline: "How to Share Persistent Memory Across All Your AI Coding Assistants",
+    subtitle:
+      "Modern developers use Cursor in the IDE, Claude Code in the terminal, and Windsurf on side projects. Here is how to give all three one unified, persistent memory.",
+    directAnswer:
+      "Because Cursor, Claude Code, and Windsurf store memory in isolated local databases, directives taught to one tool vanish when you open another. The open solution is connecting all three to an external Model Context Protocol (MCP) server that acts as a centralized developer profile. By exposing recall and update tools over MCP, any coding assistant can query your architectural conventions and past decisions dynamically.",
+    publishedAt: "2026-11-06",
+    readTime: "8 min read",
+    category: "Model Context Protocol",
+    author: {
+      name: "Alazar Tesema",
+      role: "Founder, Meto",
+    },
+    tags: ["MCP", "Cursor", "Claude Code", "Windsurf", "AI Memory"],
+    tableOfContents: [
+      { id: "the-memory-silo-problem", title: "1. The AI Memory Silo Problem" },
+      { id: "what-is-developer-memory", title: "2. The 3 Tiers of Developer Memory" },
+      { id: "how-mcp-unifies-tools", title: "3. How Model Context Protocol Bridges the Gap" },
+      { id: "step-by-step-setup", title: "4. Step-by-Step Configuration" },
+      { id: "preventing-contradictions", title: "5. Preventing Contradictions & Memory Drift" },
+    ],
+    sections: [
+      {
+        id: "the-memory-silo-problem",
+        heading: "1. The AI Memory Silo Problem",
+        paragraphs: [
+          "Senior developers rarely use only one AI tool. You might use Cursor Composer for complex fullstack refactoring, switch to the Claude Code CLI for running terminal builds and git commits, and test experimental features in Windsurf Cascade.",
+          "The frustration begins immediately: you teach Cursor your preferred Zod validation pattern, but five minutes later in Claude Code, the agent generates deprecated Joi validation schemas. Each tool lives in a sealed sandbox with zero awareness of your broader technical stack.",
+        ],
+      },
+      {
+        id: "what-is-developer-memory",
+        heading: "2. The 3 Tiers of Developer Memory",
+        paragraphs: [
+          "True developer memory is not just a dump of past chat transcripts. To prevent hallucinations, developer memory must be organized into three distinct tiers:",
+          "1. **Global Directives:** Your permanent identity (languages, preferred package managers, strict typing conventions, seniority).",
+          "2. **Project Architecture (ADRs):** Decisions unique to the active codebase (e.g. 'We use Supabase SSR cookies for auth, not JWT headers').",
+          "3. **Negative Knowledge (Antipatterns):** Explicit bans based on past production bugs (e.g. 'Never use axios in this repo; use native fetch with revalidation tags').",
+        ],
+      },
+      {
+        id: "how-mcp-unifies-tools",
+        heading: "3. How Model Context Protocol Bridges the Gap",
+        paragraphs: [
+          "Anthropic introduced the Model Context Protocol (MCP) as an open standard for connecting AI models to external tools and data sources. Because Cursor, Claude Code, Windsurf, Zed, and VS Code all support MCP, it provides the ideal universal bridge.",
+          "When you configure an MCP server like Meto, the server exposes lightweight tools (e.g. 'recall_context' and 'update_memory'). Whenever an agent in Cursor or the terminal needs architectural clarity, it queries the shared server in real time.",
+        ],
+        codeBlock: {
+          language: "json",
+          filename: "Shared MCP Configuration Schema",
+          code: `{
+  "mcpServers": {
+    "developer_memory": {
+      "command": "npx",
+      "args": ["-y", "meto-mcp@latest"],
+      "env": {
+        "METO_API_KEY": "YOUR_PERSONAL_TOKEN"
+      }
+    }
+  }
+}`,
+        },
+      },
+      {
+        id: "step-by-step-setup",
+        heading: "4. Step-by-Step Configuration",
+        paragraphs: [
+          "To connect your tools to a unified memory layer today:",
+          "1. In **Cursor**: Open Cursor Settings > MCP, and add your context server command.",
+          "2. In **Claude Code**: Add the server via 'claude mcp add meto npx -y meto-mcp@latest'.",
+          "3. In **Windsurf**: Add the MCP server entry to ~/.codeium/windsurf/mcp_config.json.",
+          "Now, any architectural decision or negative rule recorded by one assistant is instantly accessible by the others.",
+        ],
+      },
+      {
+        id: "preventing-contradictions",
+        heading: "5. Preventing Contradictions & Memory Drift",
+        paragraphs: [
+          "As your projects evolve over months, memory layers can accumulate contradictory advice (e.g., an old rule recommending React Query alongside a new rule enforcing Next.js Server Components).",
+          "Meto incorporates an automated **Context Health Score** engine that audits your directives for logical contradictions, missing stack definitions, and prompt bloat, ensuring your coding assistants receive clean, coherent guidance at all times.",
+        ],
+      },
+    ],
+    faq: [
+      {
+        question: "Does an MCP memory server slow down AI responses?",
+        answer:
+          "No. Tools are lazy-loaded and called asynchronously only when the model determines your conventions are needed for the prompt.",
+      },
+      {
+        question: "Is my proprietary code stored in the memory layer?",
+        answer:
+          "No. Meto stores your architectural preferences and negative directives, not your proprietary codebase files.",
+      },
+    ],
+  },
 ];
 
 export function getBlogPostBySlug(slug: string): BlogPost | undefined {

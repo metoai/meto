@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { COMPARISONS_LIST, getComparisonBySlug } from "@/lib/comparisons-data";
 import { BLOG_POSTS, getBlogPostBySlug } from "@/lib/blog-data";
+import { RULES_LIST, getRuleBySlug } from "@/lib/rules-data";
+import { convertRules, stripYamlFrontmatter, estimateTokens, auditRuleQuality } from "@/lib/rule-converter";
 import sitemap from "@/app/sitemap";
 
 describe("SEO & Growth Engine Validation", () => {
@@ -35,7 +37,7 @@ describe("SEO & Growth Engine Validation", () => {
   });
 
   it("provides in-depth technical blog posts with structured data fields", () => {
-    expect(BLOG_POSTS.length).toBeGreaterThanOrEqual(3);
+    expect(BLOG_POSTS.length).toBeGreaterThanOrEqual(4);
 
     for (const post of BLOG_POSTS) {
       expect(post.slug).toBeDefined();
@@ -51,15 +53,58 @@ describe("SEO & Growth Engine Validation", () => {
     }
   });
 
-  it("includes all blog posts and core marketing pages in sitemap.xml", async () => {
+  it("validates rule directory templates and metadata", () => {
+    expect(RULES_LIST.length).toBeGreaterThanOrEqual(6);
+
+    for (const rule of RULES_LIST) {
+      expect(rule.slug).toBeDefined();
+      expect(rule.title).toBeDefined();
+      expect(rule.metaTitle).toBeDefined();
+      expect(rule.metaDescription.length).toBeGreaterThan(40);
+      expect(rule.cursorMdcContent).toContain("---");
+      expect(rule.claudeMdContent.length).toBeGreaterThan(50);
+      expect(rule.keyDirectives.length).toBeGreaterThanOrEqual(3);
+      expect(rule.faq.length).toBeGreaterThanOrEqual(1);
+
+      const retrieved = getRuleBySlug(rule.slug);
+      expect(retrieved).toEqual(rule);
+    }
+  });
+
+  it("converts Cursor rules to CLAUDE.md and .windsurfrules accurately", () => {
+    const testMdc = `---
+description: Test Rule for Next.js
+globs: src/**/*.tsx
+alwaysApply: true
+---
+
+# Directives
+- Do not use axios
+- Use React Server Components`;
+
+    const result = convertRules(testMdc);
+    expect(result.claudeMd).toContain("# Test Rule for Next.js");
+    expect(result.claudeMd).toContain("Do not use axios");
+    expect(result.claudeMd).not.toContain("globs:");
+    expect(result.windsurfrules).toContain("# Windsurf Cascade Rules");
+    expect(result.copilotInstructions).toContain("# GitHub Copilot Custom Instructions");
+    expect(result.cursorMdc).toContain("globs: \"src/**/*.tsx\"");
+    expect(result.estimatedTokens).toBeGreaterThan(0);
+    expect(result.score).toBeGreaterThan(70);
+  });
+
+  it("includes all blog posts, rules, and tools in sitemap.xml", async () => {
     const siteMapEntries = await sitemap();
     const urls = siteMapEntries.map((e) => e.url);
 
     expect(urls.some((u) => u.endsWith("/blog"))).toBe(true);
+    expect(urls.some((u) => u.endsWith("/rules"))).toBe(true);
+    expect(urls.some((u) => u.endsWith("/tools/cursor-to-claude"))).toBe(true);
     expect(urls.some((u) => u.endsWith("/blog/how-to-sync-cursor-rules-across-repos"))).toBe(true);
     expect(urls.some((u) => u.endsWith("/blog/claude-md-vs-cursorrules-guide"))).toBe(true);
     expect(urls.some((u) => u.endsWith("/blog/stop-prompt-token-bloat-ai-rules"))).toBe(true);
-    expect(urls.some((u) => u.endsWith("/compare/cursorrules-vs-meto"))).toBe(true);
-    expect(urls.some((u) => u.endsWith("/compare/cursor-memories-vs-meto"))).toBe(true);
+    expect(urls.some((u) => u.endsWith("/blog/claude-code-cursor-windsurf-shared-memory-mcp"))).toBe(true);
+    expect(urls.some((u) => u.endsWith("/rules/nextjs-15-app-router"))).toBe(true);
+    expect(urls.some((u) => u.endsWith("/rules/typescript-strict-zod"))).toBe(true);
   });
 });

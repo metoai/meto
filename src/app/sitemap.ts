@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { BLOG_POSTS } from "@/lib/blog-data";
 import { COMPARISONS_LIST } from "@/lib/comparisons-data";
 import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
+import { RULES_LIST } from "@/lib/rules-data";
 import { getSiteUrl } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -25,6 +26,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${base}/integrations`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${base}/rules`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${base}/tools/cursor-to-claude`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.95,
@@ -134,10 +147,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const rulePages: MetadataRoute.Sitemap = RULES_LIST.map((rule) => ({
+    url: `${base}/rules/${rule.slug}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: 0.85,
+  }));
+
   return [
     ...coreMarketingPages,
     ...integrationPages,
     ...comparisonPages,
     ...blogPages,
+    ...rulePages,
   ];
 }
