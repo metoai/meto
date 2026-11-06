@@ -53,12 +53,12 @@ export function LandingHowItWorksDemo() {
   // Shared card surface classes
   const cardCls =
     "rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-neutral-900/70 p-5 sm:p-7 " +
-    "shadow-[0_2px_12px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col justify-between overflow-hidden " +
+    "shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col justify-between overflow-hidden " +
     "transition-all duration-200 hover:border-black/[0.14] dark:hover:border-white/[0.15]";
 
   // Shared stage surface
   const stageCls =
-    "rounded-xl border border-black/[0.06] dark:border-white/[0.07] bg-neutral-50/80 dark:bg-neutral-950/70 p-4 sm:p-5 w-full flex flex-col items-center justify-center relative group";
+    "rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-neutral-50/80 dark:bg-neutral-950/80 p-3.5 sm:p-5 w-full flex flex-col items-center justify-center relative overflow-hidden";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 w-full">
@@ -71,7 +71,7 @@ export function LandingHowItWorksDemo() {
             <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
               Multi-Model Context Compiler
             </h3>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               {activeData.reduction} token overhead
             </span>
           </div>
@@ -91,7 +91,7 @@ export function LandingHowItWorksDemo() {
                   onClick={() => setActiveFormat(fmt)}
                   className={`px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-medium transition-all duration-150 active:scale-[0.97] ${
                     activeFormat === fmt
-                      ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-xs"
+                      ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 shadow-xs font-semibold"
                       : "text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
                   }`}
                 >
@@ -105,11 +105,8 @@ export function LandingHowItWorksDemo() {
             </span>
           </div>
 
-          {/* Centered Isometric Motion Figure */}
-          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
-            Compiler Layers · {activeData.file}
-          </span>
-          <div className="w-full max-w-[280px] sm:max-w-[320px] aspect-[5/4]">
+          {/* Centered Agency Isometric Figure */}
+          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
             <ContentConnectedCompilerFigure
               format={activeFormat}
               tokens={activeData.tokens}
@@ -118,9 +115,6 @@ export function LandingHowItWorksDemo() {
               play={true}
             />
           </div>
-          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
-            Move pointer to open layers
-          </span>
         </div>
       </div>
 
@@ -133,7 +127,7 @@ export function LandingHowItWorksDemo() {
             <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
               Route to Any IDE or Model
             </h3>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live MCP
             </span>
@@ -144,16 +138,10 @@ export function LandingHowItWorksDemo() {
         </div>
 
         <div className={stageCls}>
-          {/* Centered Isometric Motion Figure */}
-          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
-            Dynamic Hub Sync · Cursor · Claude · CLI
-          </span>
-          <div className="w-full max-w-[280px] sm:max-w-[320px] aspect-[5/4]">
+          {/* Centered Agency Isometric Figure */}
+          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
             <ContentConnectedMcpRouterFigure intensity={0.7} play={true} />
           </div>
-          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
-            Hover to illuminate active ray conduits
-          </span>
         </div>
       </div>
 
@@ -169,7 +157,7 @@ export function LandingHowItWorksDemo() {
             <button
               type="button"
               onClick={() => setIsMasked(!isMasked)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-all active:scale-[0.96]"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium bg-black/[0.04] dark:bg-white/[0.06] text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-all active:scale-[0.96] border border-black/[0.06] dark:border-white/[0.08]"
             >
               {isMasked ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
               <span>{isMasked ? "Reveal secrets" : "Mask secrets"}</span>
@@ -181,16 +169,10 @@ export function LandingHowItWorksDemo() {
         </div>
 
         <div className={stageCls}>
-          {/* Centered Isometric Motion Figure */}
-          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
-            Hardware Isolation Shield · {isMasked ? "Enforced" : "Bypassed"}
-          </span>
-          <div className="w-full max-w-[280px] sm:max-w-[320px] aspect-[5/4]">
+          {/* Centered Agency Isometric Figure */}
+          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
             <ContentConnectedPrivacyVaultFigure isMasked={isMasked} intensity={0.7} play={true} />
           </div>
-          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
-            Circle pointer or toggle to rotate dial
-          </span>
         </div>
       </div>
 
@@ -203,7 +185,7 @@ export function LandingHowItWorksDemo() {
             <h3 className="text-[17px] sm:text-[19px] font-semibold text-neutral-950 dark:text-white tracking-tight">
               Cross-Tool Rule & Identity Sync
             </h3>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/[0.06] dark:border-white/[0.08]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/[0.06] dark:border-white/[0.08]">
               <Radio className="w-3 h-3 text-[var(--primary)]" />
               1 Source of Truth
             </span>
@@ -214,16 +196,10 @@ export function LandingHowItWorksDemo() {
         </div>
 
         <div className={stageCls}>
-          {/* Centered Isometric Motion Figure */}
-          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500 mb-1 tracking-wider uppercase">
-            Live Commit Graph · .cursorrules · CLAUDE.md
-          </span>
-          <div className="w-full max-w-[280px] sm:max-w-[320px] aspect-[5/4]">
+          {/* Centered Agency Isometric Figure */}
+          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
             <ContentConnectedSyncTreeFigure intensity={0.7} play={true} />
           </div>
-          <span className="text-[9px] text-neutral-400 dark:text-neutral-500 mt-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
-            Hover to elevate branch nodes
-          </span>
         </div>
       </div>
     </div>

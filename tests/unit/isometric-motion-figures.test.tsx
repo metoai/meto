@@ -19,19 +19,19 @@ describe("Content-Connected Isometric Motion Figures", () => {
       />
     );
     expect(html).toContain("claude-project.xml");
-    expect(html).toContain("METO COMPRESSION AST");
-    expect(html).toContain("-62% PRUNED");
+    expect(html).toContain("PRUNED");
     expect(html).toContain("1.8k tokens");
+    expect(html).toContain("RAW PROFILE");
   });
 
   it("renders ContentConnectedMcpRouterFigure with live client nodes and pings", () => {
     const html = renderToString(
       <ContentConnectedMcpRouterFigure copied={false} play={false} />
     );
-    expect(html).toContain("METO MCP HUB");
-    expect(html).toContain("CURSOR");
-    expect(html).toContain("CLAUDE");
-    expect(html).toContain("TERMINAL / CLI");
+    expect(html).toContain("METO MCP GATEWAY");
+    expect(html).toContain("Cursor IDE");
+    expect(html).toContain("Claude Desktop");
+    expect(html).toContain("Claude Code CLI");
     expect(html).toContain("14ms");
   });
 
@@ -40,7 +40,7 @@ describe("Content-Connected Isometric Motion Figures", () => {
       <ContentConnectedPrivacyVaultFigure isMasked={true} play={false} />
     );
     expect(htmlMasked).toContain("ISOLATION ACTIVE");
-    expect(htmlMasked).toContain("SECRET ZONE");
+    expect(htmlMasked).toContain("RESTRICTED VAULT");
     expect(htmlMasked).toContain("sk-••••••••");
 
     const htmlUnmasked = renderToString(
@@ -54,10 +54,10 @@ describe("Content-Connected Isometric Motion Figures", () => {
     const html = renderToString(
       <ContentConnectedSyncTreeFigure play={false} />
     );
-    expect(html).toContain("METO TRUTH (v2.4)");
+    expect(html).toContain("METO SINGLE TRUTH (v2.4)");
     expect(html).toContain(".cursorrules");
     expect(html).toContain("CLAUDE.md");
     expect(html).toContain("MCP Gateway");
-    expect(html).toContain("all branches in sync");
+    expect(html).toContain("In Sync");
   });
 });
