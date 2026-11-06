@@ -56,9 +56,9 @@ export function LandingHowItWorksDemo() {
     "shadow-[0_2px_16px_rgba(0,0,0,0.03)] dark:shadow-none flex flex-col justify-between overflow-hidden " +
     "transition-all duration-200 hover:border-black/[0.14] dark:hover:border-white/[0.15]";
 
-  // Shared stage surface
+  // Shared stage surface: seamlessly integrated into card with single subtle divider
   const stageCls =
-    "rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-neutral-50/80 dark:bg-neutral-950/80 p-3.5 sm:p-5 w-full flex flex-col items-center justify-center relative overflow-hidden";
+    "w-full pt-3 mt-auto flex flex-col justify-end border-t border-black/[0.06] dark:border-white/[0.06]";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 w-full">
@@ -106,7 +106,7 @@ export function LandingHowItWorksDemo() {
           </div>
 
           {/* Centered Agency Isometric Figure */}
-          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
+          <div className="w-full flex items-center justify-center">
             <ContentConnectedCompilerFigure
               format={activeFormat}
               tokens={activeData.tokens}
@@ -139,7 +139,7 @@ export function LandingHowItWorksDemo() {
 
         <div className={stageCls}>
           {/* Centered Agency Isometric Figure */}
-          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
+          <div className="w-full flex items-center justify-center">
             <ContentConnectedMcpRouterFigure intensity={0.7} play={true} />
           </div>
         </div>
@@ -170,7 +170,7 @@ export function LandingHowItWorksDemo() {
 
         <div className={stageCls}>
           {/* Centered Agency Isometric Figure */}
-          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
+          <div className="w-full flex items-center justify-center">
             <ContentConnectedPrivacyVaultFigure isMasked={isMasked} intensity={0.7} play={true} />
           </div>
         </div>
@@ -197,7 +197,7 @@ export function LandingHowItWorksDemo() {
 
         <div className={stageCls}>
           {/* Centered Agency Isometric Figure */}
-          <div className="w-full max-w-[440px] aspect-[16/10] flex items-center justify-center">
+          <div className="w-full flex items-center justify-center">
             <ContentConnectedSyncTreeFigure intensity={0.7} play={true} />
           </div>
         </div>
