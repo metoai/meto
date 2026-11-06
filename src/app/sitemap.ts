@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BLOG_POSTS } from "@/lib/blog-data";
 import { COMPARISONS_LIST } from "@/lib/comparisons-data";
 import { INTEGRATIONS_LIST } from "@/lib/integrations-data";
 import { getSiteUrl } from "@/lib/site";
@@ -32,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}/blog`,
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 0.7,
+      priority: 0.85,
     },
     {
       url: `${base}/support`,
@@ -126,9 +127,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   );
 
+  const blogPages: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
+    url: `${base}/blog/${post.slug}`,
+    lastModified: new Date(post.publishedAt),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   return [
     ...coreMarketingPages,
     ...integrationPages,
     ...comparisonPages,
+    ...blogPages,
   ];
 }

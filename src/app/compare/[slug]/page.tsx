@@ -154,7 +154,7 @@ export default async function ComparisonDetailPage({ params }: PageProps) {
         </nav>
 
         {/* Hero Section */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-medium text-[var(--text-secondary)] mb-4">
             <Scale className="h-3.5 w-3.5 text-amber-500" />
             Architectural Comparison
@@ -166,6 +166,20 @@ export default async function ComparisonDetailPage({ params }: PageProps) {
             {item.subtitle}
           </p>
         </div>
+
+        {/* Direct Answer Block (AEO / Answer Engine Optimization) */}
+        {item.directAnswer && (
+          <section className="mb-12 rounded-xl border-l-2 border-[var(--primary)] bg-[var(--surface)] p-5 sm:p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[var(--primary)]">
+                Direct Answer & Key Takeaway
+              </span>
+            </div>
+            <p className="text-sm sm:text-base leading-relaxed text-[var(--text)]">
+              {item.directAnswer}
+            </p>
+          </section>
+        )}
 
         {/* Side by Side Pros / Cons Breakdown */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-14">

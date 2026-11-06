@@ -13,6 +13,7 @@ export type ComparisonItem = {
   targetQuery: string;
   headline: string;
   subtitle: string;
+  directAnswer?: string;
   traditionalLabel: string;
   traditionalPros: string[];
   traditionalCons: string[];
@@ -31,14 +32,16 @@ export type ComparisonItem = {
 export const COMPARISONS_LIST: ComparisonItem[] = [
   {
     slug: "cursorrules-vs-meto",
-    title: "Static .cursorrules vs Dynamic Meto MCP",
-    metaTitle: ".cursorrules vs Meto Dynamic MCP — Context Management Compared",
+    title: "Cursor Rules vs CLAUDE.md: Cross-IDE Sync",
+    metaTitle: "Cursor Rules vs CLAUDE.md — Complete Format Guide & Cross-IDE Sync",
     metaDescription:
-      "Comparing static .cursorrules files with dynamic Model Context Protocol (MCP) profiles in Meto. Learn how to prevent rule drift and keep AI context updated across all repos.",
-    targetQuery: "cursorrules vs mcp",
-    headline: "Stop Copy-Pasting .cursorrules. Use Live MCP Identity.",
+      "Comprehensive comparison between Cursor .mdc rules and Claude Code CLAUDE.md. Learn format differences, prompt bloat trade-offs, and how to sync both without drift.",
+    targetQuery: "cursor rules vs claude md",
+    headline: "Cursor Rules vs CLAUDE.md: Cross-IDE Sync & Format Guide",
     subtitle:
-      "Why hardcoded .cursorrules files become obsolete, and how a personal Model Context Protocol server keeps Cursor aligned with your exact standards across every repository.",
+      "Why copy-pasting .cursorrules and CLAUDE.md leads to context drift, and how to unify both under a single Model Context Protocol (MCP) server.",
+    directAnswer:
+      "Cursor rules use YAML frontmatter (.mdc) with file-matching globs, whereas Claude Code relies on a root CLAUDE.md file loaded globally into session context. Maintaining both manually causes rule drift whenever conventions change. Using a Model Context Protocol (MCP) server or a universal rule compiler allows you to write your standards once and automatically provide live, token-efficient context to Cursor, Claude Code, and Windsurf.",
     traditionalLabel: "Static .cursorrules Files",
     traditionalPros: [
       "Simple to commit into a single repository",
@@ -123,15 +126,17 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
   },
   {
     slug: "cursor-memories-vs-meto",
-    title: "Cursor Memories vs Meto Universal Memory",
-    metaTitle: "Cursor Memories vs Meto — Global Context vs Siloed IDE Storage",
+    title: "Sync Cursor Rules Across Repositories",
+    metaTitle: "How to Sync Cursor Rules Across Multiple Repositories & Devices",
     metaDescription:
-      "Compare Cursor's built-in memories with Meto's open context protocol. Discover why siloed IDE memory fails in multi-tool developer workflows and how to bridge Cursor with Claude Code, Windsurf, and Copilot.",
-    targetQuery: "cursor memories vs meto",
-    headline: "Why Siloed IDE Memories Fail in Multi-Tool Workflows.",
+      "Learn how to sync Cursor rules across multiple repos and devices. Overcome Cursor native memory silos with open Model Context Protocol (MCP) context synchronization.",
+    targetQuery: "sync cursor rules across repos",
+    headline: "How to Sync Cursor Rules Across Multiple Repositories",
     subtitle:
-      "Cursor Memories remember your habits inside Cursor, but vanish the moment you switch to Claude Code CLI, Windsurf, Copilot, or Antigravity. Meto provides a portable, open memory layer across all your coding environments.",
-    traditionalLabel: "Cursor Native Memories",
+      "Stop recreating .cursorrules over and over in every project. Learn how to maintain global developer standards across Cursor, Claude Code, and Windsurf.",
+    directAnswer:
+      "Cursor provides three rule layers: Project Rules (.cursor/rules/*.mdc), User Rules (Settings UI), and local machine rules (~/.cursor/rules/). While project rules commit to Git, they do not sync across repositories. The standard workarounds—symbolic links or manual copying—break on team machines and Windows. A live Model Context Protocol (MCP) server solves this by delivering your canonical developer rules to Cursor dynamically across any repository.",
+    traditionalLabel: "Cursor Native Memories & Local Rules",
     traditionalPros: [
       "Zero configuration needed inside Cursor",
       "Automatically summarizes chat history and preferences",
@@ -215,14 +220,16 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
   },
   {
     slug: "claude-code-memory-vs-meto",
-    title: "CLAUDE.md vs Meto Dynamic Rules & Memory",
-    metaTitle: "CLAUDE.md vs Meto — Static Terminal Markdown vs Dynamic Multi-IDE Rules",
+    title: "Claude Code Memory & CLAUDE.md: Cross-IDE Sync",
+    metaTitle: "Claude Code Memory & CLAUDE.md — How to Persist AI Context Across Sessions",
     metaDescription:
-      "Compare static CLAUDE.md files with Meto's multi-IDE rule compiler and MCP memory. Learn how to keep Claude Code CLI and Cursor in perfect architectural sync.",
-    targetQuery: "claude md vs meto",
-    headline: "CLAUDE.md Is Great for the Terminal. Meto Connects It to the Rest of Your Stack.",
+      "Discover how to give Claude Code persistent memory across sessions and repositories. Compare static CLAUDE.md markdown with dynamic MCP memory layers.",
+    targetQuery: "claude code persistent memory",
+    headline: "Claude Code Memory: Beyond Static CLAUDE.md Files",
     subtitle:
-      "Claude Code relies on CLAUDE.md in your repository root. But maintaining separate rule files for Claude Code, Cursor (.cursor/rules), and Windsurf (.windsurfrules) causes severe rule drift. Meto compiles one truth for all of them.",
+      "How to maintain persistent developer context in Claude Code CLI across projects without blowing out your context window on every prompt.",
+    directAnswer:
+      "Claude Code automatically reads CLAUDE.md from the repository root or ~/.claude/CLAUDE.md. However, static markdown files lack memory of past debugging sessions, negative patterns, and cross-repo architectural decisions. Connecting an MCP memory server provides Claude Code with dynamic retrieval tools, allowing the agent to recall past ADRs and user preferences on-demand without prompt bloat.",
     traditionalLabel: "Static CLAUDE.md Files",
     traditionalPros: [
       "Native support in Claude Code CLI out of the box",
@@ -399,14 +406,16 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
   },
   {
     slug: "copilot-instructions-vs-meto",
-    title: "GitHub Copilot Instructions vs Meto Dynamic MCP",
-    metaTitle: "Copilot Instructions vs Meto — Static Markdown vs Dynamic Multi-IDE Rules",
+    title: "GitHub Copilot Instructions vs Cursor Rules",
+    metaTitle: "GitHub Copilot Instructions vs Cursor Rules — Multi-IDE Context Compared",
     metaDescription:
-      "Compare .github/copilot-instructions.md with Meto's multi-IDE rule compiler and live MCP server. Discover how to keep Copilot, Cursor, and Claude in perfect sync.",
-    targetQuery: "copilot instructions vs meto",
-    headline: "Escape Static .github/copilot-instructions.md. Sync Everywhere.",
+      "Compare GitHub Copilot custom instructions with Cursor rules. Learn how to bridge instructions across VS Code, Cursor, and terminal AI agents without duplication.",
+    targetQuery: "github copilot instructions vs cursor rules",
+    headline: "GitHub Copilot Instructions vs Cursor Rules: The Cross-IDE Guide",
     subtitle:
-      "GitHub Copilot's instruction file only works inside VS Code and GitHub Copilot. Meto unifies Copilot with Cursor, Claude Code, and Windsurf through automatic compilation and live MCP memory.",
+      "How .github/copilot-instructions.md compares to .cursor/rules/*.mdc, and how multi-tool development teams avoid rule fragmentation.",
+    directAnswer:
+      "GitHub Copilot reads .github/copilot-instructions.md in VS Code, whereas Cursor evaluates .cursor/rules/*.mdc files. In teams where developers use different IDEs (VS Code Copilot, Cursor, Windsurf), maintaining separate instruction files leads to divergence. Using a unified context protocol compiles canonical directives into Copilot, Cursor, and Claude formats simultaneously.",
     traditionalLabel: "Static .github/copilot-instructions.md",
     traditionalPros: [
       "Native support in GitHub Copilot Chat",
@@ -491,14 +500,16 @@ export const COMPARISONS_LIST: ComparisonItem[] = [
   },
   {
     slug: "windsurfrules-vs-meto",
-    title: "Static .windsurfrules vs Meto Cross-IDE Protocol",
-    metaTitle: ".windsurfrules vs Meto — Windsurf Cascade Context Management Compared",
+    title: ".windsurfrules vs .cursorrules: Architecture & Sync",
+    metaTitle: ".windsurfrules vs .cursorrules — Format Comparison & Cross-IDE Sync",
     metaDescription:
-      "Compare static .windsurfrules with Meto's multi-IDE rule compiler and Model Context Protocol server. Learn how to prevent rule drift between Windsurf and Cursor.",
-    targetQuery: "windsurfrules vs meto",
-    headline: "Stop Rewriting Rules When Switching Between Windsurf and Cursor.",
+      "Compare .windsurfrules and Cursor .mdc rules. Understand syntax differences, rule prioritization, and how to synchronize directives between Windsurf and Cursor seamlessly.",
+    targetQuery: "windsurf rules vs cursor rules",
+    headline: ".windsurfrules vs .cursorrules: Architecture & Synchronization",
     subtitle:
-      "Windsurf Cascade's .windsurfrules files don't share context with Cursor or Claude. Meto compiles a single source of truth across all three editors.",
+      "Comparing Cascade's .windsurfrules with Cursor's .cursor/rules. How they evaluate directives and how to synchronize both without duplicate files.",
+    directAnswer:
+      "Windsurf uses .windsurfrules in the project root to guide Cascade, while modern Cursor uses .cursor/rules/*.mdc with frontmatter glob matching. While Cursor excels at file-specific scoping, Windsurf evaluates project-wide workflows. To prevent maintaining duplicate rule files across projects, developers use an open MCP layer like Meto to serve consistent architecture and style directives to both IDEs.",
     traditionalLabel: "Static .windsurfrules Files",
     traditionalPros: [
       "Native support in Codeium Windsurf Cascade",
