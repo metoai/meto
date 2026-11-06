@@ -1,6 +1,24 @@
-"use client";
+// No "use client" – pure server components. CSS animations via inline style keyframes.
+// Each figure is a clean SVG visual metaphor: icons, motion paths, minimal signal.
 
-import React, { useState } from "react";
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared: inject keyframes once via a <style> tag in the SVG's <defs>
+───────────────────────────────────────────────────────────────────────────── */
+function FigureStyles() {
+  return (
+    <style>{`
+      @keyframes mf-pulse { 0%,100%{opacity:.18} 50%{opacity:.7} }
+      @keyframes mf-flow { 0%{stroke-dashoffset:60} 100%{stroke-dashoffset:0} }
+      @keyframes mf-spin { from{transform-origin:50% 50%;transform:rotate(0deg)} to{transform-origin:50% 50%;transform:rotate(360deg)} }
+      @keyframes mf-ping { 0%{r:0;opacity:.7} 100%{r:14;opacity:0} }
+      @keyframes mf-node-in { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+      @keyframes mf-lock { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+      @keyframes mf-slide { 0%{transform:translateX(-8px);opacity:0} 60%{opacity:1} 100%{transform:translateX(0);opacity:1} }
+      @keyframes mf-layer { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+      @keyframes mf-blink { 0%,100%{opacity:1} 48%,52%{opacity:0} }
+    `}</style>
+  );
+}
 
 type FigureBaseProps = {
   className?: string;
@@ -9,93 +27,9 @@ type FigureBaseProps = {
 };
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   PRECISE OFFICIAL-SPEC VECTOR LOGOS
-───────────────────────────────────────────────────────────────────────────── */
-export function ClaudeLogo({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Claude by Anthropic">
-      <path
-        d="M12 2.5L13.8 8.2C14.1 9.1 14.9 9.9 15.8 10.2L21.5 12L15.8 13.8C14.9 14.1 14.1 14.9 13.8 15.8L12 21.5L10.2 15.8C9.9 14.9 9.1 14.1 8.2 13.8L2.5 12L8.2 10.2C9.1 9.9 9.9 9.1 10.2 8.2L12 2.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-export function CursorLogo({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Cursor IDE">
-      <path
-        d="M5 3.5L18.5 12L12 14L10 20.5L5 3.5Z"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 14L17.5 19.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function OpenAILogo({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-label="OpenAI ChatGPT">
-      <path d="M20.5 9.5a5.5 5.5 0 0 0-.4-4.2 5.6 5.6 0 0 0-4.6-2.8 5.7 5.7 0 0 0-4 1.5 5.6 5.6 0 0 0-6.8 2.2 5.5 5.5 0 0 0-.8 4.2 5.5 5.5 0 0 0 .4 4.2 5.6 5.6 0 0 0 4.6 2.8c.3 0 .7 0 1-.1a5.6 5.6 0 0 0 9.8-.7 5.5 5.5 0 0 0 .8-4.2v-2.9zm-7.5 11.5a4.1 4.1 0 0 1-2.9-1.2l.1-.1 4.3-2.5a.8.8 0 0 0 .4-.7v-5.2l1.6.9v4.7a4.1 4.1 0 0 1-3.5 4.1zm-8.3-4.1a4.1 4.1 0 0 1-.5-3.1 4.2 4.2 0 0 1 2-2.5l.1.1v5a.8.8 0 0 0 .4.7l4.5 2.6-1.6.9-4.9-2.8v-.9zm-1.1-7.9a4.1 4.1 0 0 1 2.4-2 4.2 4.2 0 0 1 3.2.1l-.1.1-4.3 2.5a.8.8 0 0 0-.4.7v5.2l-1.6-.9V7.1l.8-.1zm13.8 2.2l-4.5-2.6 1.6-.9 4.9 2.8v.9a4.1 4.1 0 0 1 .5 3.1 4.2 4.2 0 0 1-2 2.5l-.1-.1v-5a.8.8 0 0 0-.4-.7zm2.4-2.2a4.1 4.1 0 0 1-2.4 2 4.2 4.2 0 0 1-3.2-.1l.1-.1 4.3-2.5a.8.8 0 0 0 .4-.7V2.5l1.6.9v3.8l-.8.1zM9.5 13.8l-1.6-.9 4.5-2.6 1.6.9-4.5 2.6z" />
-    </svg>
-  );
-}
-
-export function TerminalLogo({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Terminal CLI">
-      <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M7 9.5L10.5 12L7 14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      <line x1="13" y1="14.5" x2="17" y2="14.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-export function WindsurfLogo({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Windsurf">
-      <path
-        d="M3 15.5C6.5 12.5 9 12.5 12 15.5C15 18.5 17.5 18.5 21 15.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12 4.5V19.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function MetoMark({ className = "w-4 h-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-label="Meto">
-      <polygon
-        points="12,2 21,7 21,17 12,22 3,17 3,7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="3" fill="currentColor" />
-    </svg>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   1. COMPILER FIGURE: Unslop AST Optimization Pipeline
-   Clean geometry, precise model targets, zero neon fuzz.
+   1. COMPILER FIGURE
+   Visual: 3 stacked layers (Raw → AST → Compiled) with animated compression pulse
+   server-renderable SVG
 ───────────────────────────────────────────────────────────────────────────── */
 type CompilerFigureProps = FigureBaseProps & {
   format?: "claude" | "cursor" | "chatgpt" | "universal";
@@ -109,140 +43,195 @@ export function ContentConnectedCompilerFigure({
   reduction = "-62%",
   className = "",
 }: CompilerFigureProps) {
-  const fileNames: Record<string, string> = {
-    claude: "claude-project.xml",
-    cursor: ".cursorrules",
-    chatgpt: "custom-instructions.txt",
-    universal: "context.json",
+  // Format-specific icon shape (letter badge)
+  const formatLabel: Record<string, string> = {
+    claude: "C",
+    cursor: "⌥",
+    chatgpt: "G",
+    universal: "∞",
   };
-  const activeFile = fileNames[format] || "claude-project.xml";
+  const badge = formatLabel[format] ?? "C";
 
   return (
-    <div className={`w-full py-2.5 select-none ${className}`}>
-      {/* High-Precision Pipeline Conduits */}
-      <div className="relative w-full flex items-center justify-between gap-3 px-2 sm:px-6 py-4 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
-        {/* Subtle Static Path with Micro Progress Diode */}
-        <div className="absolute inset-x-8 sm:inset-x-12 top-1/2 -translate-y-1/2 h-[1px] bg-black/[0.08] dark:bg-white/[0.1] -z-0">
-          <div className="w-1/4 h-full bg-emerald-500/80 transition-all duration-300" />
-        </div>
+    <div className={`w-full flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 320 180"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full max-w-[320px] h-auto"
+        aria-hidden="true"
+      >
+        <FigureStyles />
 
-        {/* Input Stage: Raw Developer Context */}
-        <div className="relative z-10 flex flex-col items-center gap-1.5 min-w-[70px]">
-          <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-800 dark:text-neutral-200">
-            <MetoMark className="w-5 h-5" />
-          </div>
-          <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-            RAW PROFILE
-          </span>
-          <span className="text-[9.5px] font-mono text-neutral-400 dark:text-neutral-500">
-            4.8k tokens
-          </span>
-        </div>
+        {/* Background: subtle radial glow */}
+        <defs>
+          <radialGradient id="cmp-glow" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="rgba(255,77,0,0.07)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+        </defs>
+        <ellipse cx="160" cy="90" rx="130" ry="80" fill="url(#cmp-glow)" />
 
-        {/* Central Core: AST Pruning Engine */}
-        <div className="relative z-10 flex flex-col items-center gap-1.5">
-          <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-xs">
-            <span className="text-[9px] font-mono font-bold tracking-tight">AST</span>
-          </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-            {reduction} PRUNED
-          </span>
-        </div>
+        {/* Layer 3 — Raw Profile (bottom) */}
+        <g style={{ animation: "mf-layer 4s ease-in-out infinite", animationDelay: "0s" }}>
+          <rect x="40" y="128" width="240" height="30" rx="8" fill="none" stroke="currentColor" strokeOpacity="0.1" strokeWidth="1.5" />
+          <rect x="40" y="128" width="240" height="30" rx="8" fill="currentColor" fillOpacity="0.03" />
+          <text x="60" y="148" fill="currentColor" fillOpacity="0.3" fontSize="10" fontFamily="'Geist Mono', monospace">RAW PROFILE</text>
+          <text x="246" y="148" fill="currentColor" fillOpacity="0.25" fontSize="9" fontFamily="'Geist Mono', monospace">4,850 tok</text>
+        </g>
 
-        {/* Output Stage: Model Target Logo */}
-        <div className="relative z-10 flex flex-col items-center gap-1.5 min-w-[70px]">
-          <div className="w-10 h-10 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.08] dark:border-white/[0.1] shadow-2xs flex items-center justify-center text-neutral-900 dark:text-white transition-transform duration-150 active:scale-[0.97]">
-            {format === "claude" && <ClaudeLogo className="w-5 h-5 text-amber-600 dark:text-amber-500" />}
-            {format === "cursor" && <CursorLogo className="w-4 h-4 text-neutral-900 dark:text-white" />}
-            {format === "chatgpt" && <OpenAILogo className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
-            {format === "universal" && <TerminalLogo className="w-5 h-5 text-neutral-800 dark:text-neutral-200" />}
-          </div>
-          <span className="text-[10px] font-mono font-medium text-neutral-800 dark:text-neutral-200">
-            {activeFile}
-          </span>
-          <span className="text-[9.5px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-            {tokens}
-          </span>
-        </div>
-      </div>
+        {/* Layer 2 — AST Normalizer (middle) */}
+        <g style={{ animation: "mf-layer 4s ease-in-out infinite", animationDelay: "0.6s" }}>
+          <rect x="30" y="92" width="260" height="34" rx="8" fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1.5" />
+          <rect x="30" y="92" width="260" height="34" rx="8" fill="currentColor" fillOpacity="0.04" />
+          <text x="50" y="113" fill="currentColor" fillOpacity="0.5" fontSize="10" fontFamily="'Geist Mono', monospace">AST NORMALIZER</text>
+          {/* Animated compression dots */}
+          {[0, 1, 2].map((i) => (
+            <circle
+              key={i}
+              cx={200 + i * 14}
+              cy="109"
+              r="3"
+              fill="#ff4d00"
+              fillOpacity="0.5"
+              style={{
+                animation: "mf-pulse 1.8s ease-in-out infinite",
+                animationDelay: `${i * 0.3}s`,
+              }}
+            />
+          ))}
+        </g>
+
+        {/* Layer 1 — Compiled Output (top) */}
+        <g style={{ animation: "mf-layer 4s ease-in-out infinite", animationDelay: "1.2s" }}>
+          <rect x="20" y="38" width="280" height="48" rx="10" fill="none" stroke="#ff4d00" strokeOpacity="0.3" strokeWidth="1.5" />
+          <rect x="20" y="38" width="280" height="48" rx="10" fill="rgba(255,77,0,0.04)" />
+
+          {/* Format badge icon */}
+          <rect x="34" y="50" width="28" height="24" rx="6" fill="#ff4d00" fillOpacity="0.12" />
+          <text x="48" y="66" textAnchor="middle" fill="#ff4d00" fontSize="13" fontWeight="600" fontFamily="system-ui">{badge}</text>
+
+          {/* File name */}
+          <text x="72" y="58" fill="currentColor" fillOpacity="0.7" fontSize="10" fontFamily="'Geist Mono', monospace">
+            {format === "claude" ? "claude-project.xml" : format === "cursor" ? ".cursorrules" : format === "chatgpt" ? "custom-instructions.txt" : "context.json"}
+          </text>
+
+          {/* Reduction badge */}
+          <rect x="210" y="52" width="74" height="18" rx="5" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.3)" strokeWidth="1" />
+          <text x="247" y="64" textAnchor="middle" fill="rgb(34,197,94)" fontSize="9.5" fontWeight="600" fontFamily="'Geist Mono', monospace">{reduction} PRUNED</text>
+        </g>
+
+        {/* Downward flow arrows between layers */}
+        <line x1="160" y1="90" x2="160" y2="94" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="160" y1="128" x2="160" y2="132" stroke="currentColor" strokeOpacity="0.1" strokeWidth="1.5" strokeDasharray="3 3" />
+
+        {/* Token count label bottom */}
+        <text x="160" y="174" textAnchor="middle" fill="currentColor" fillOpacity="0.3" fontSize="9.5" fontFamily="'Geist Mono', monospace">
+          {tokens} compiled
+        </text>
+      </svg>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   2. MCP ROUTER FIGURE: Live Bus Conduits to Precise Client Logos
+   2. MCP ROUTER FIGURE
+   Visual: Hub circle with animated signal lines radiating to 3 tool logos
+   server-renderable SVG with CSS animation
 ───────────────────────────────────────────────────────────────────────────── */
+type McpRouterFigureProps = FigureBaseProps & {
+  copied?: boolean;
+};
+
 export function ContentConnectedMcpRouterFigure({
   className = "",
-}: FigureBaseProps) {
-  const clients = [
-    {
-      name: "Cursor IDE",
-      ping: "14ms",
-      logo: <CursorLogo className="w-4 h-4 text-neutral-900 dark:text-white" />,
-    },
-    {
-      name: "Claude Desktop",
-      ping: "22ms",
-      logo: <ClaudeLogo className="w-4 h-4 text-amber-600 dark:text-amber-500" />,
-    },
-    {
-      name: "Claude Code CLI",
-      ping: "8ms",
-      logo: <TerminalLogo className="w-4 h-4 text-neutral-800 dark:text-neutral-200" />,
-    },
+}: McpRouterFigureProps) {
+  // 3 targets: left-top, right-top, right-bottom
+  const targets = [
+    { x: 60, y: 55, label: "Cursor", badge: "⌥", delay: "0s", latency: "14ms" },
+    { x: 260, y: 55, label: "Claude", badge: "C", delay: "0.4s", latency: "22ms" },
+    { x: 260, y: 135, label: "CLI", badge: ">_", delay: "0.8s", latency: "8ms" },
   ];
+  const hub = { x: 160, y: 95 };
 
   return (
-    <div className={`w-full py-2.5 select-none ${className}`}>
-      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
-        {/* Router Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
-              METO MCP GATEWAY
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500">
-            localhost:3000 · SSE
-          </span>
-        </div>
+    <div className={`w-full flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 320 180"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full max-w-[320px] h-auto"
+        aria-hidden="true"
+      >
+        <FigureStyles />
+        <defs>
+          <radialGradient id="hub-glow" cx="50%" cy="52%" r="30%">
+            <stop offset="0%" stopColor="rgba(255,77,0,0.12)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+        </defs>
 
-        {/* Client Bus Matrix */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {clients.map((client) => (
-            <div
-              key={client.name}
-              className="flex items-center justify-between sm:flex-col sm:items-start p-2.5 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.06] dark:border-white/[0.08] shadow-2xs hover:border-black/[0.12] dark:hover:border-white/[0.14] transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded flex items-center justify-center">
-                  {client.logo}
-                </div>
-                <span className="text-[11px] font-medium text-neutral-800 dark:text-neutral-200">
-                  {client.name}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:mt-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-mono text-neutral-500 dark:text-neutral-400">
-                  {client.ping}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        {/* Hub glow */}
+        <ellipse cx={hub.x} cy={hub.y} rx="90" ry="70" fill="url(#hub-glow)" />
+
+        {/* Signal lines to each target */}
+        {targets.map((t, i) => (
+          <g key={i}>
+            <line
+              x1={hub.x} y1={hub.y}
+              x2={t.x} y2={t.y}
+              stroke="currentColor"
+              strokeOpacity="0.1"
+              strokeWidth="1.5"
+              strokeDasharray="5 5"
+            />
+            {/* Animated travelling photon */}
+            <circle r="2.5" fill="#ff4d00" fillOpacity="0.8">
+              <animateMotion
+                dur={`${1.5 + i * 0.3}s`}
+                repeatCount="indefinite"
+                begin={t.delay}
+                path={`M${hub.x},${hub.y} L${t.x},${t.y}`}
+              />
+            </circle>
+          </g>
+        ))}
+
+        {/* Hub circle — METO MCP */}
+        <circle cx={hub.x} cy={hub.y} r="30" fill="none" stroke="currentColor" strokeOpacity="0.12" strokeWidth="1.5" />
+        <circle cx={hub.x} cy={hub.y} r="30" fill="currentColor" fillOpacity="0.04" />
+        {/* Hub ping animation */}
+        <circle cx={hub.x} cy={hub.y} r="0" fill="none" stroke="#ff4d00" strokeOpacity="0.4" strokeWidth="1.5">
+          <animate attributeName="r" from="8" to="34" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="stroke-opacity" from="0.4" to="0" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <text x={hub.x} y={hub.y - 4} textAnchor="middle" fill="currentColor" fillOpacity="0.7" fontSize="8" fontWeight="700" fontFamily="'Geist Mono', monospace">MCP</text>
+        <text x={hub.x} y={hub.y + 8} textAnchor="middle" fill="currentColor" fillOpacity="0.4" fontSize="7" fontFamily="'Geist Mono', monospace">METO</text>
+
+        {/* Tool node circles */}
+        {targets.map((t, i) => (
+          <g key={i} style={{ animation: "mf-node-in 0.6s ease-out both", animationDelay: `${i * 0.15}s` }}>
+            <circle cx={t.x} cy={t.y} r="22" fill="none" stroke="currentColor" strokeOpacity="0.12" strokeWidth="1.5" />
+            <circle cx={t.x} cy={t.y} r="22" fill="currentColor" fillOpacity="0.04" />
+            <text x={t.x} y={t.y + 1} textAnchor="middle" dominantBaseline="middle" fill="currentColor" fillOpacity="0.65" fontSize="11" fontWeight="600" fontFamily="system-ui">{t.badge}</text>
+            <text x={t.x} y={t.y + 15} textAnchor="middle" fill="currentColor" fillOpacity="0.3" fontSize="7" fontFamily="'Geist Mono', monospace">{t.label}</text>
+            {/* Latency chip */}
+            <text x={t.x} y={t.y - 15} textAnchor="middle" fill="#22c55e" fontSize="7.5" fontWeight="600" fontFamily="'Geist Mono', monospace">{t.latency}</text>
+          </g>
+        ))}
+
+        {/* Live indicator */}
+        <circle cx="20" cy="170" r="3.5" fill="#22c55e" fillOpacity="0.8">
+          <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <text x="30" y="174" fill="currentColor" fillOpacity="0.3" fontSize="9" fontFamily="'Geist Mono', monospace">Live MCP · 3 connected</text>
+      </svg>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   3. PRIVACY VAULT FIGURE: Mechanical Hardware Isolation Wall
+   3. PRIVACY VAULT FIGURE
+   Visual: Lock icon center, left zone (redacted bars) vs right zone (allowed bars)
+   server-renderable SVG
 ───────────────────────────────────────────────────────────────────────────── */
 type PrivacyVaultFigureProps = FigureBaseProps & {
   isMasked?: boolean;
@@ -253,123 +242,171 @@ export function ContentConnectedPrivacyVaultFigure({
   className = "",
 }: PrivacyVaultFigureProps) {
   return (
-    <div className={`w-full py-2.5 select-none ${className}`}>
-      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
-        {/* Status Line */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                isMasked ? "bg-rose-500" : "bg-emerald-500"
-              }`}
-            />
-            <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
-              {isMasked ? "ISOLATION ACTIVE" : "SHIELD LIFTED"}
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-neutral-400 dark:text-neutral-500">
-            Hardware Guard
-          </span>
-        </div>
+    <div className={`w-full flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 320 180"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full max-w-[320px] h-auto"
+        aria-hidden="true"
+      >
+        <FigureStyles />
 
-        {/* Dual Chamber Comparison */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* Chamber 1: Restricted Vault */}
-          <div
-            className={`p-2.5 rounded-lg border transition-colors duration-200 ${
-              isMasked
-                ? "bg-rose-500/[0.04] border-rose-500/20 text-rose-700 dark:text-rose-400"
-                : "bg-white dark:bg-neutral-900 border-black/[0.06] dark:border-white/[0.08] text-neutral-800 dark:text-neutral-200"
-            }`}
-          >
-            <div className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
-              RESTRICTED VAULT
-            </div>
-            <div className="text-[11px] font-mono font-medium truncate">
-              {isMasked ? "sk-••••••••" : "sk-proj-7x9"}
-            </div>
-          </div>
+        {/* Left Zone — Restricted */}
+        <rect x="12" y="30" width="120" height="140" rx="10" fill="none" stroke="rgba(239,68,68,0.2)" strokeWidth="1.5" />
+        <rect x="12" y="30" width="120" height="140" rx="10" fill="rgba(239,68,68,0.03)" />
 
-          {/* Chamber 2: Public Egress */}
-          <div className="p-2.5 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/20 text-emerald-700 dark:text-emerald-400">
-            <div className="text-[10px] font-mono font-bold uppercase tracking-wider mb-1">
-              PUBLIC EGRESS
-            </div>
-            <div className="text-[11px] font-mono font-medium">
-              Rules & Persona
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* Redacted bars: secrets masked */}
+        {[0, 1, 2].map((i) => {
+          const y = 68 + i * 30;
+          return (
+            <g key={i}>
+              <rect x="26" y={y} width="40" height="10" rx="3" fill="currentColor" fillOpacity="0.12" />
+              <rect
+                x="74"
+                y={y}
+                width={isMasked ? 48 : 48}
+                height="10"
+                rx="3"
+                fill={isMasked ? "rgba(239,68,68,0.3)" : "rgba(239,68,68,0.15)"}
+                style={{ animation: isMasked ? "mf-pulse 2.5s ease-in-out infinite" : "none", animationDelay: `${i * 0.2}s` }}
+              />
+              {isMasked && (
+                <text x="98" y={y + 7.5} textAnchor="middle" fill="rgb(239,68,68)" fontSize="7" fontWeight="700" fontFamily="'Geist Mono', monospace">••••••••</text>
+              )}
+              {!isMasked && (
+                <text x="98" y={y + 7.5} textAnchor="middle" fill="rgb(239,68,68)" fontSize="7" fontFamily="'Geist Mono', monospace">sk-proj-7x9</text>
+              )}
+            </g>
+          );
+        })}
+
+        <text x="72" y="52" textAnchor="middle" fill="rgb(239,68,68)" fontSize="8.5" fontWeight="700" fontFamily="'Geist Mono', monospace">RESTRICTED</text>
+
+        {/* Center: Lock icon */}
+        <g style={{ animation: "mf-lock 3s ease-in-out infinite" }}>
+          {/* Lock body */}
+          <rect x="148" y="82" width="24" height="20" rx="4" fill="none" stroke="currentColor" strokeOpacity={isMasked ? "0.6" : "0.2"} strokeWidth="1.5" />
+          <rect x="148" y="82" width="24" height="20" rx="4" fill="currentColor" fillOpacity={isMasked ? "0.08" : "0.03"} />
+          {/* Lock shackle */}
+          {isMasked ? (
+            <path d="M152 82 L152 76 Q160 70 168 76 L168 82" fill="none" stroke="currentColor" strokeOpacity="0.5" strokeWidth="1.5" strokeLinecap="round" />
+          ) : (
+            <path d="M152 82 L152 76 Q160 70 168 76" fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1.5" strokeLinecap="round" />
+          )}
+          {/* Keyhole */}
+          <circle cx="160" cy="90" r="3" fill="none" stroke="currentColor" strokeOpacity={isMasked ? "0.4" : "0.15"} strokeWidth="1.2" />
+          <line x1="160" y1="93" x2="160" y2="98" stroke="currentColor" strokeOpacity={isMasked ? "0.4" : "0.15"} strokeWidth="1.2" />
+        </g>
+
+        {/* Divider line */}
+        <line x1="160" y1="40" x2="160" y2="168" stroke="currentColor" strokeOpacity="0.08" strokeWidth="1.5" strokeDasharray="4 4" />
+
+        {/* Right Zone — Public Egress */}
+        <rect x="188" y="30" width="120" height="140" rx="10" fill="none" stroke="rgba(34,197,94,0.2)" strokeWidth="1.5" />
+        <rect x="188" y="30" width="120" height="140" rx="10" fill="rgba(34,197,94,0.03)" />
+
+        {/* Allowed bars with checkmarks */}
+        {["Dev persona", "Code rules", "Framework"].map((label, i) => {
+          const y = 68 + i * 30;
+          return (
+            <g key={i}>
+              <rect x="202" y={y} width="40" height="10" rx="3" fill="currentColor" fillOpacity="0.08" />
+              <text x="202" y={y + 7.5} fill="currentColor" fillOpacity="0.3" fontSize="6.5" fontFamily="'Geist Mono', monospace">{label}</text>
+              {/* Green check */}
+              <circle cx="278" cy={y + 5} r="5.5" fill="rgba(34,197,94,0.15)" />
+              <text x="278" y={y + 8.5} textAnchor="middle" fill="rgb(34,197,94)" fontSize="7" fontWeight="700">✓</text>
+            </g>
+          );
+        })}
+
+        <text x="248" y="52" textAnchor="middle" fill="rgb(34,197,94)" fontSize="8.5" fontWeight="700" fontFamily="'Geist Mono', monospace">PUBLIC EGRESS</text>
+
+        {/* Bottom label */}
+        <text x="160" y="176" textAnchor="middle" fill="currentColor" fillOpacity="0.25" fontSize="9" fontFamily="'Geist Mono', monospace">
+          {isMasked ? "ISOLATION ACTIVE" : "SHIELD LIFTED"}
+        </text>
+      </svg>
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   4. SYNC TREE FIGURE: Precise Multi-Agent Single Truth Matrix
+   4. SYNC TREE FIGURE
+   Visual: Central M node → 4 tool branches with animated propagation pulses
+   server-renderable SVG
 ───────────────────────────────────────────────────────────────────────────── */
 export function ContentConnectedSyncTreeFigure({
   className = "",
 }: FigureBaseProps) {
-  const syncTargets = [
-    {
-      name: "Cursor",
-      file: ".cursorrules",
-      logo: <CursorLogo className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />,
-    },
-    {
-      name: "Claude",
-      file: "CLAUDE.md",
-      logo: <ClaudeLogo className="w-3.5 h-3.5 text-amber-600 dark:text-amber-500" />,
-    },
-    {
-      name: "Terminal",
-      file: "MCP Gateway",
-      logo: <TerminalLogo className="w-3.5 h-3.5 text-neutral-800 dark:text-neutral-200" />,
-    },
-    {
-      name: "Windsurf",
-      file: ".windsurfrules",
-      logo: <WindsurfLogo className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />,
-    },
+  const root = { x: 160, y: 70 };
+  const targets = [
+    { x: 60, y: 148, label: "Cursor", file: ".cursorrules", delay: "0s" },
+    { x: 140, y: 148, label: "Claude", file: "CLAUDE.md", delay: "0.3s" },
+    { x: 220, y: 148, label: "Windsurf", file: ".windsurfrules", delay: "0.6s" },
+    { x: 300, y: 148, label: "CLI", file: "MCP Gateway", delay: "0.9s" },
   ];
 
   return (
-    <div className={`w-full py-2.5 select-none ${className}`}>
-      <div className="w-full flex flex-col gap-3 px-3 sm:px-5 py-3.5 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06]">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-[11px] font-mono font-semibold text-neutral-900 dark:text-neutral-100">
-              METO SINGLE TRUTH (v2.4)
-            </span>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-            In Sync · 0ms drift
-          </span>
-        </div>
+    <div className={`w-full flex items-center justify-center ${className}`}>
+      <svg
+        viewBox="0 0 360 180"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full max-w-[360px] h-auto"
+        aria-hidden="true"
+      >
+        <FigureStyles />
+        <defs>
+          <radialGradient id="sync-glow" cx="44%" cy="39%" r="35%">
+            <stop offset="0%" stopColor="rgba(255,77,0,0.1)" />
+            <stop offset="100%" stopColor="transparent" />
+          </radialGradient>
+        </defs>
 
-        {/* 4 Tool Nodes */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {syncTargets.map((target) => (
-            <div
-              key={target.name}
-              className="p-2 rounded-lg bg-white dark:bg-neutral-900 border border-black/[0.06] dark:border-white/[0.08] shadow-2xs flex flex-col gap-1"
-            >
-              <div className="flex items-center justify-between">
-                <div className="w-5 h-5 rounded flex items-center justify-center">
-                  {target.logo}
-                </div>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              </div>
-              <span className="text-[10.5px] font-mono font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                {target.file}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+        <ellipse cx={root.x} cy={root.y} rx="120" ry="55" fill="url(#sync-glow)" />
+
+        {/* Branch lines */}
+        {targets.map((t, i) => (
+          <g key={i}>
+            <line
+              x1={root.x} y1={root.y + 22}
+              x2={t.x} y2={t.y - 12}
+              stroke="currentColor"
+              strokeOpacity="0.1"
+              strokeWidth="1.5"
+              strokeDasharray="5 4"
+            />
+            {/* Animated propagation dot */}
+            <circle r="2" fill="#ff4d00" fillOpacity="0.7">
+              <animateMotion
+                dur={`${1.2 + i * 0.15}s`}
+                repeatCount="indefinite"
+                begin={t.delay}
+                path={`M${root.x},${root.y + 22} L${t.x},${t.y - 12}`}
+              />
+            </circle>
+          </g>
+        ))}
+
+        {/* Root node — METO */}
+        <circle cx={root.x} cy={root.y} r="22" fill="currentColor" fillOpacity="0.06" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1.5" />
+        <text x={root.x} y={root.y + 1} textAnchor="middle" dominantBaseline="middle" fill="currentColor" fillOpacity="0.8" fontSize="14" fontWeight="800" fontFamily="system-ui">M</text>
+
+        {/* Sync state chip above root */}
+        <rect x="110" y="22" width="100" height="16" rx="5" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.25)" strokeWidth="1" />
+        <text x="160" y="33.5" textAnchor="middle" fill="rgb(34,197,94)" fontSize="8" fontWeight="600" fontFamily="'Geist Mono', monospace">0ms drift · In Sync</text>
+
+        {/* Target nodes */}
+        {targets.map((t, i) => (
+          <g key={i}>
+            <circle cx={t.x} cy={t.y} r="14" fill="currentColor" fillOpacity="0.04" stroke="currentColor" strokeOpacity="0.12" strokeWidth="1.5" />
+            {/* Green synced dot */}
+            <circle cx={t.x + 10} cy={t.y - 10} r="4" fill="#22c55e" fillOpacity="0.9" style={{ animation: "mf-pulse 2s ease-in-out infinite", animationDelay: `${i * 0.25}s` }} />
+            <text x={t.x} y={t.y + 1} textAnchor="middle" dominantBaseline="middle" fill="currentColor" fillOpacity="0.5" fontSize="8" fontWeight="600" fontFamily="system-ui">{t.label[0]}</text>
+            <text x={t.x} y={t.y + 20} textAnchor="middle" fill="currentColor" fillOpacity="0.3" fontSize="7" fontFamily="'Geist Mono', monospace">{t.file}</text>
+            <text x={t.x} y={t.y + 29} textAnchor="middle" fill="currentColor" fillOpacity="0.25" fontSize="6.5" fontFamily="system-ui">{t.label}</text>
+          </g>
+        ))}
+      </svg>
     </div>
   );
 }

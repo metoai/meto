@@ -9,7 +9,7 @@ import {
 } from "@/components/landing/isometric-motion-figures";
 
 describe("Content-Connected Isometric Motion Figures", () => {
-  it("renders ContentConnectedCompilerFigure with domain labels and formats", () => {
+  it("renders ContentConnectedCompilerFigure with SVG layers and format badge", () => {
     const html = renderToString(
       <ContentConnectedCompilerFigure
         format="claude"
@@ -18,43 +18,43 @@ describe("Content-Connected Isometric Motion Figures", () => {
         play={false}
       />
     );
-    expect(html).toContain("claude-project.xml");
+    expect(html).toContain("RAW PROFILE");
     expect(html).toContain("PRUNED");
     expect(html).toContain("1.8k tokens");
-    expect(html).toContain("RAW PROFILE");
+    expect(html).toContain("AST NORMALIZER");
+    expect(html).toContain("claude-project.xml");
   });
 
-  it("renders ContentConnectedMcpRouterFigure with live client nodes and pings", () => {
+  it("renders ContentConnectedMcpRouterFigure with hub and tool nodes", () => {
     const html = renderToString(
       <ContentConnectedMcpRouterFigure copied={false} play={false} />
     );
-    expect(html).toContain("METO MCP GATEWAY");
-    expect(html).toContain("Cursor IDE");
-    expect(html).toContain("Claude Desktop");
-    expect(html).toContain("Claude Code CLI");
+    expect(html).toContain("MCP");
+    expect(html).toContain("METO");
+    expect(html).toContain("Cursor");
+    expect(html).toContain("Claude");
     expect(html).toContain("14ms");
   });
 
-  it("renders ContentConnectedPrivacyVaultFigure with isolation shield states", () => {
+  it("renders ContentConnectedPrivacyVaultFigure with both zone labels", () => {
     const htmlMasked = renderToString(
       <ContentConnectedPrivacyVaultFigure isMasked={true} play={false} />
     );
     expect(htmlMasked).toContain("ISOLATION ACTIVE");
-    expect(htmlMasked).toContain("RESTRICTED VAULT");
-    expect(htmlMasked).toContain("sk-••••••••");
+    expect(htmlMasked).toContain("RESTRICTED");
+    expect(htmlMasked).toContain("PUBLIC EGRESS");
 
     const htmlUnmasked = renderToString(
       <ContentConnectedPrivacyVaultFigure isMasked={false} play={false} />
     );
     expect(htmlUnmasked).toContain("SHIELD LIFTED");
-    expect(htmlUnmasked).toContain("sk-proj-7x9");
   });
 
-  it("renders ContentConnectedSyncTreeFigure with multi-agent branch targets", () => {
+  it("renders ContentConnectedSyncTreeFigure with root M node and tool branches", () => {
     const html = renderToString(
       <ContentConnectedSyncTreeFigure play={false} />
     );
-    expect(html).toContain("METO SINGLE TRUTH (v2.4)");
+    expect(html).toContain("0ms drift");
     expect(html).toContain(".cursorrules");
     expect(html).toContain("CLAUDE.md");
     expect(html).toContain("MCP Gateway");
