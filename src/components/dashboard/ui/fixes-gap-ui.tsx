@@ -125,23 +125,19 @@ export function GapCard({
   const style = IMPACT_LABELS[impact];
 
   const fixAiClassName =
-    "inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white shadow-xs transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-[0.97]";
+    "inline-flex items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs text-white transition-colors duration-150 hover:bg-[var(--primary-hover)]";
   const editClassName =
-    "inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-all duration-150 hover:text-[var(--text)] hover:border-black/[0.14] dark:hover:border-white/[0.14] active:scale-[0.97]";
+    "inline-flex items-center justify-center rounded-lg border border-[var(--border-subtle)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition-colors duration-150 hover:text-[var(--text)]";
 
   return (
     <DashboardCard as="article" hover={!preview} className="!p-4">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-[var(--text)]">{gap.title}</span>
+            <span className="text-sm text-[var(--text)]">{gap.title}</span>
             <span
-              className="rounded-md px-2 py-0.5 text-[10.5px] font-mono font-medium border"
-              style={{
-                backgroundColor: `${style.color}12`,
-                borderColor: `${style.color}30`,
-                color: style.color,
-              }}
+              className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+              style={{ backgroundColor: `${style.color}15`, color: style.color }}
             >
               {style.label}
             </span>

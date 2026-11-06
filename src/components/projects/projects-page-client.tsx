@@ -134,10 +134,10 @@ export function ProjectsPageClient() {
               key={id}
               type="button"
               onClick={() => setImportSource(id)}
-              className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-150 active:scale-[0.97] ${
+              className={`rounded-md px-2.5 py-1 text-xs font-medium ${
                 importSource === id
-                  ? "bg-[var(--text)] text-[var(--bg)] shadow-xs"
-                  : "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--text)]"
+                  ? "bg-[var(--text)] text-[var(--bg)]"
+                  : "bg-[var(--surface)] text-[var(--muted)]"
               }`}
             >
               {label}
@@ -161,7 +161,7 @@ export function ProjectsPageClient() {
               type="button"
               disabled={importing}
               onClick={() => folderRef.current?.click()}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-sm text-[var(--text-secondary)] hover:border-[var(--primary)] transition-all active:scale-[0.98]"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-4 py-6 text-sm text-[var(--text-secondary)] hover:border-[var(--primary)]"
             >
               {importing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -188,7 +188,7 @@ export function ProjectsPageClient() {
             <button
               type="submit"
               disabled={importing || !repoUrl.trim()}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white shadow-xs transition-all duration-150 hover:bg-[var(--primary-hover)] active:scale-[0.97] disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {importing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

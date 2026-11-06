@@ -4,8 +4,8 @@ import { FormEvent, KeyboardEvent, useEffect } from "react";
 import {
   ArrowUp,
   Briefcase,
-  Compass,
   RotateCcw,
+  Sparkles,
   Target,
 } from "lucide-react";
 import { MetoTypingDots, isAssistantReplying } from "@/components/landing/landing-chat-ui";
@@ -39,7 +39,7 @@ type QuickUpdateChatProps = {
   gapFix?: GapFixIntent | null;
 };
 
-const SUGGESTION_ICONS = [Compass, Briefcase, Target] as const;
+const SUGGESTION_ICONS = [Sparkles, Briefcase, Target] as const;
 
 const CHAT_COLUMN = "mx-auto w-full max-w-[680px]";
 
@@ -187,7 +187,7 @@ export function QuickUpdateChat({
                     <MetoMark size="2xl" />
                   </div>
                   <h1 className="text-[28px] font-medium tracking-tight text-[var(--text)] md:text-[32px]">
-                    {copy.pageTitle}
+                    {getGreeting()}, {firstName}
                   </h1>
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-[var(--text-secondary)]">
                     {copy.greetingSubtitle}
@@ -211,7 +211,7 @@ export function QuickUpdateChat({
 
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
                     {suggestions.map((suggestion, index) => {
-                      const Icon = SUGGESTION_ICONS[index] ?? Compass;
+                      const Icon = SUGGESTION_ICONS[index] ?? Sparkles;
                       return (
                         <button
                           key={suggestion.label}

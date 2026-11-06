@@ -17,14 +17,18 @@ export const metadata: Metadata = {
     "Every AI should already know you. Tell Meto once — no more re-introducing yourself in Claude, Cursor, Windsurf, Google Antigravity, or ChatGPT.",
   icons: {
     icon: [
-      { url: "/brand/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand/favicon.svg", type: "image/svg+xml" },
     ],
+    shortcut: "/favicon.ico",
     apple: [
-      { url: "/brand/apple-icon.svg", type: "image/svg+xml" },
-      { url: "/apple-touch-icon.png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "Meto — Your AI Identity",
     description:
@@ -57,7 +61,7 @@ const organizationSchema = {
       "@id": `${siteUrl}/#organization`,
       name: "Meto",
       url: siteUrl,
-      logo: `${siteUrl}/brand/favicon.svg`,
+      logo: `${siteUrl}/icon-512x512.png`,
       description:
         "Developer AI identity & Model Context Protocol (MCP) server for Claude, Cursor, Windsurf, and Google Antigravity.",
       sameAs: [

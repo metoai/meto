@@ -5,6 +5,12 @@ export default function robots(): MetadataRoute.Robots {
   const siteUrl = getSiteUrl();
   const publicAllow = [
     "/",
+    "/favicon.ico",
+    "/favicon*.png",
+    "/icon*.png",
+    "/brand/",
+    "/apple-touch-icon.png",
+    "/site.webmanifest",
     "/pricing",
     "/integrations",
     "/integrations/",
@@ -39,7 +45,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: privateDisallow,
       },
       {
-        userAgent: ["Googlebot", "Bingbot", "Applebot"],
+        userAgent: ["Googlebot", "Googlebot-Image", "Bingbot", "Applebot"],
         allow: publicAllow,
         disallow: privateDisallow,
       },

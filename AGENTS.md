@@ -36,5 +36,3 @@ Active Stack: Next.js, TypeScript, Tailwind CSS, Supabase
 - Clean Code: Prefer clean, modular, self-documenting code. Never swallow errors silently.
 - Architecture: Respect project layout and established component/function patterns.
 - AI Memory: Use Meto context rules before assuming default framework templates.
-- Fast Mode: Jump immediately to file edits on Step 1 when target file is known. No search delay. Scoped testing only. Linear/Emil Kowalski unslop craft. Immediate push to main when asked.
-

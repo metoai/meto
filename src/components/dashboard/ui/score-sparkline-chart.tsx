@@ -34,7 +34,7 @@ function ChartTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-lg border border-[var(--landing-panel-border)] bg-[var(--landing-panel-base)] px-2.5 py-1.5 shadow-[var(--shadow-sm)]">
-      <p className="font-mono text-[10px] font-medium text-[var(--muted)]">
+      <p className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--muted)]">
         {label}
       </p>
       <p className="mt-0.5 font-mono-brand text-[13px] font-semibold tabular-nums text-[var(--text)]">

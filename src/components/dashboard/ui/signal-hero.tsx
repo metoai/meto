@@ -73,8 +73,8 @@ export function SignalHero({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <p className="text-[11px] font-medium text-[var(--primary)]">
-                    What Meto knows about you
+                  <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--primary)]">
+                    Meto knows about you
                   </p>
                   <span className="hidden h-1 w-1 rounded-full bg-[var(--accent-border)] sm:inline-block" />
                   <p className="text-[11px] text-[var(--text-secondary)]">
@@ -123,16 +123,16 @@ export function SignalHero({
             </div>
 
             <div
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-mono tabular-nums border ${
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] tabular-nums ${
                 delta >= 0
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                  : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
+                  ? "bg-[var(--primary-light)] text-[var(--primary)]"
+                  : "bg-[#FEE2E2] text-[#DC2626]"
               }`}
             >
               {delta >= 0 ? (
-                <TrendingUp className="h-3 w-3 stroke-[2]" />
+                <TrendingUp className="h-3 w-3" strokeWidth={2} />
               ) : (
-                <TrendingDown className="h-3 w-3 stroke-[2]" />
+                <TrendingDown className="h-3 w-3" strokeWidth={2} />
               )}
               {delta >= 0 ? "+" : ""}
               {delta} this week
@@ -167,10 +167,10 @@ export function SignalHero({
             <Link
               href={buildGapFixAllUpdateUrl()}
               onClick={handleFixAll}
-              className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--primary)] transition-all duration-150 hover:text-[var(--primary-hover)] active:scale-[0.98]"
+              className="inline-flex shrink-0 items-center gap-1.5 text-sm text-[var(--primary)] transition-colors duration-150 hover:text-[var(--primary-hover)]"
             >
               Fix all with AI
-              <ArrowRight className="h-4 w-4 stroke-[1.75]" />
+              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
             </Link>
           </div>
         </DashboardCard>
